@@ -14,6 +14,7 @@ type Method struct {
 	IsChainMethod   bool            `xml:"isChainMethod,attr"`
 	MethodNameRange Range           `xml:"methodNameRange>range"`
 	ReturnTypeRange Range           `xml:"returnTypeRange>range"`
+	Parameters      []Parameter     `xml:"parameters>parameter"`
 	parentElement   JavaElement     `xml:"-"`
 }
 
