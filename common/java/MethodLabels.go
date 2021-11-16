@@ -1,0 +1,82 @@
+package java
+
+import (
+	"regexp"
+	"strings"
+)
+
+type MethodLabel string
+
+const (
+	Getter      MethodLabel = "getter"
+	Setter      MethodLabel = "setter"
+	Override    MethodLabel = "override"
+	ChainMethod MethodLabel = "chainMethod"
+	ArrayType   MethodLabel = "arrayType"
+	TestCode    MethodLabel = "testCode"
+)
+
+// Creates a list of labels for the given method.
+func GetMethodLabels(method *Method) []string {
+	labels := make([]string, 0, 3)
+
+	if IsGetter(method) {
+		labels = append(labels, string(Getter))
+	} else if IsSetter(method) {
+		labels = append(labels, string(Setter))
+	}
+	if IsOverride(method) {
+		labels = append(labels, string(Override))
+	}
+	if method.IsChainMethod {
+		labels = append(labels, string(ChainMethod))
+	}
+	if method.ReturnType.IsArrayType {
+		labels = append(labels, string(ArrayType))
+	}
+	if IsInTestFile(method) {
+		labels = append(labels, string(TestCode))
+	}
+
+	return labels
+}
+
+// Returns true if the containing file is a test file.
+func IsInTestFile(element JavaElement) bool {
+	codeFile := FindCodeFile(element)
+	if codeFile == nil {
+		return false
+	}
+
+	matched, _ := regexp.Match(`(T|\bt)est.+\\`, []byte(codeFile.FilePath))
+	return matched
+}
+
+// Returns true if the method is a getter.
+func IsGetter(method *Method) bool {
+	if method == nil {
+		return false
+	}
+	return strings.HasPrefix(strings.ToUpper(method.MethodName), "GET")
+}
+
+// Returns true if the method is a setter.
+func IsSetter(method *Method) bool {
+	if method == nil {
+		return false
+	}
+	return strings.HasPrefix(strings.ToUpper(method.MethodName), "SET")
+}
+
+// Returns true if the method overrides another method.
+func IsOverride(method *Method) bool {
+	if method == nil || method.Annotations == nil {
+		return false
+	}
+	for _, annotation := range method.Annotations {
+		if annotation == "Override" {
+			return true
+		}
+	}
+	return false
+}
