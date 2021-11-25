@@ -184,8 +184,10 @@ func train() errors.Error {
 		return err
 	}
 
+	// TODO:
+
 	// Train the predictor
-	if msg, err := predictor.Train(labels, trainingSet, evaluationSet); err != nil {
+	if msg, err := predictor.TrainReturnTypes(labels, trainingSet, evaluationSet); err != nil {
 		return err
 	} else {
 		// Write the evaluation result in a json file
