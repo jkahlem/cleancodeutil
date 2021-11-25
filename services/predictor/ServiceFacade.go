@@ -12,19 +12,29 @@ var singleton Predictor
 var singletonMutex sync.Mutex
 
 // Makes predictions for the methods in the map and sets the types as their value.
-func PredictToMap(mapping MethodTypeMap) errors.Error {
-	return getSingleton().PredictToMap(mapping)
+func PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error {
+	return getSingleton().PredictReturnTypesToMap(mapping)
 }
 
 // Predicts the expected return type for the given method names. Returns a list of expected return types in the exact order
 // the method names were passed.
-func Predict(methodNames []PredictableMethodName) ([]string, errors.Error) {
-	return getSingleton().Predict(methodNames)
+func PredictReturnTypes(methodNames []PredictableMethodName) ([]string, errors.Error) {
+	return getSingleton().PredictReturnTypes(methodNames)
 }
 
 // Starts the training and evaluation process. Returns the evaluation result if finished.
 func Train(labels, trainingSet, evaluationSet [][]string) (Evaluation, errors.Error) {
-	return getSingleton().Train(labels, trainingSet, evaluationSet)
+	return getSingleton().TrainReturnTypes(labels, trainingSet, evaluationSet)
+}
+
+// Starts the training and evaluation process. Returns the evaluation result if finished.
+func TrainMethods(trainingSet, evaluationSet [][]string) (Evaluation, errors.Error) {
+	return getSingleton().TrainMethods(trainingSet, evaluationSet)
+}
+
+// Generates the remained part of a method by it's method name
+func GenerateMethods(methodNames []PredictableMethodName) ([]string, errors.Error) {
+	return getSingleton().GenerateMethods(methodNames)
 }
 
 func getSingleton() Predictor {

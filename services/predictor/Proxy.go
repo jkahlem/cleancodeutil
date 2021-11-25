@@ -8,9 +8,9 @@ import (
 type Proxy struct {
 	// Predicts the return types of the given methods (which are in a "predictable" format, so in the sentence format)
 	// The return types are in the same order the method names were sent.
-	Predict func(methodsToPredict []string) ([]string, errors.Error) `rpcmethod:"predict" rpcparams:"methodsToPredict"`
+	Predict func(predictionData []string, targetModel SupportedModels) ([]string, errors.Error) `rpcmethod:"predict" rpcparams:"predictionData,targetModel"`
 	// Trains the predictor and returns the evaluation result if finished.
-	Train func(labels, trainingSet, evaluationSet string) (Evaluation, errors.Error) `rpcmethod:"train" rpcparams:"labels,trainingSet,evaluationSet"`
+	Train func(trainingSet, evaluationSet, additional string, targetModel SupportedModels) (Evaluation, errors.Error) `rpcmethod:"train" rpcparams:"trainingSet,evaluationSet,additional,targetModel"`
 }
 
 type ProxyFacade struct {
@@ -19,19 +19,19 @@ type ProxyFacade struct {
 
 // Predicts the return types of the given methods (which are in a "predictable" format, so in the sentence format)
 // The return types are in the same order the method names were sent.
-func (p *ProxyFacade) Predict(methodsToPredict []string) ([]string, errors.Error) {
+func (p *ProxyFacade) Predict(predictionData []string, targetModel SupportedModels) ([]string, errors.Error) {
 	if err := p.validate(p.Proxy.Predict); err != nil {
 		return nil, err
 	}
-	return p.Proxy.Predict(methodsToPredict)
+	return p.Proxy.Predict(predictionData, targetModel)
 }
 
 // Trains the predictor and returns the evaluation result if finished.
-func (p *ProxyFacade) Train(labels, trainingSet, evaluationSet string) (Evaluation, errors.Error) {
+func (p *ProxyFacade) Train(trainingSet, evaluationSet, additional string, targetModel SupportedModels) (Evaluation, errors.Error) {
 	if err := p.validate(p.Proxy.Train); err != nil {
 		return Evaluation{}, err
 	}
-	return p.Proxy.Train(labels, trainingSet, evaluationSet)
+	return p.Proxy.Train(trainingSet, evaluationSet, additional, targetModel)
 }
 
 func (p *ProxyFacade) validate(fn interface{}) errors.Error {
