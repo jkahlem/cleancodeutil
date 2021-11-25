@@ -1,6 +1,7 @@
 package extractor
 
 import (
+	"fmt"
 	"returntypes-langserver/common/csv"
 	"returntypes-langserver/common/java"
 	"returntypes-langserver/common/packagetree"
@@ -79,9 +80,22 @@ func (visitor *ExtractionVisitor) VisitMethod(method *java.Method) {
 	visitor.methods = append(visitor.methods, csv.Method{
 		MethodName: method.MethodName,
 		ReturnType: resolvedReturnType,
+		Parameters: visitor.extractParameters(method),
 		Labels:     java.GetMethodLabels(method),
 		FilePath:   filePath,
 	}.ToRecord())
+}
+
+// Extracts parameters of the method in this format: "<type> <method>"
+func (visitor *ExtractionVisitor) extractParameters(method *java.Method) []string {
+	result := make([]string, 0, len(method.Parameters))
+	for _, parameter := range method.Parameters {
+		fmt.Printf(":%s:, :%s:\n", parameter.Type.TypeName, parameter.Name)
+		resolvedParameterType, _ := visitor.resolve(&parameter.Type)
+		csvStr := fmt.Sprintf("%s %s", resolvedParameterType, parameter.Name)
+		result = append(result, csvStr)
+	}
+	return result
 }
 
 func (visitor *ExtractionVisitor) VisitImport(_import *java.Import) {

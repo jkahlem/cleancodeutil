@@ -27,3 +27,6 @@ func (method *Method) Accept(visitor Visitor) {
 func (typeParameter *TypeParameter) Accept(visitor Visitor) {
 	visitor.VisitTypeParameter(typeParameter)
 }
+
+func (typeParameter *Parameter) Accept(visitor Visitor) {
+}

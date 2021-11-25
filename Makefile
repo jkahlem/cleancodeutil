@@ -9,9 +9,15 @@ DATASETCREATOR_BINARY=./bin/datasetcreator.exe
 LANGUAGESERVER_BINARY=./bin/languageserver.exe
 
 all: build
-build:
+
+build: datasetcreator languageserver
+
+datasetcreator:
 	$(GOBUILD) -o $(DATASETCREATOR_BINARY) ./cmd/datasetcreator
+
+languageserver:
 	$(GOBUILD) -o $(LANGUAGESERVER_BINARY) ./cmd/languageserver
+
 clean:
 	$(GOCLEAN)
 	rm -f $(DATASETCREATOR_BINARY)

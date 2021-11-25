@@ -13,6 +13,8 @@ type Method struct {
 	ReturnType string
 	Labels     []string
 	FilePath   string
+	// Parameters are in this format: "<type> <name>" (seperated by a single space)
+	Parameters []string
 }
 
 type Class struct {
@@ -63,6 +65,9 @@ func UnmarshalMethod(records [][]string) []Method {
 		methods[i].ReturnType = record[1]
 		methods[i].Labels = SplitList(record[2])
 		methods[i].FilePath = record[3]
+		if len(record) >= 4 {
+			methods[i].Parameters = SplitList(record[4])
+		}
 	}
 	return methods
 }
@@ -73,6 +78,7 @@ func (method Method) ToRecord() []string {
 		method.ReturnType,
 		MakeList(method.Labels),
 		method.FilePath,
+		MakeList(method.Parameters),
 	}
 }
 

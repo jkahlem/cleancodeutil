@@ -5,7 +5,10 @@ import (
 	"returntypes-langserver/common/errors"
 	"returntypes-langserver/common/java"
 	"returntypes-langserver/common/packagetree"
+	"strings"
 )
+
+// TODO: This class should either only work with string -> string convertions, or should be in a different package?
 
 const TypeClassMapperErrorTitle = "Type Class Mapper Error"
 const DefaultType = "java.lang.Object"
@@ -17,8 +20,8 @@ type Mapper interface {
 	SetPackageTree(*packagetree.Tree)
 	// Returns the type class of a method's return type
 	MapReturnTypeToTypeClass(csv.Method) (string, errors.Error)
-	// Maps the return type of the given methods to a type class
-	MapReturnTypesToTypeClass([]csv.Method) ([]csv.Method, errors.Error)
+	// Maps all types of the methods to a type class
+	MapMethodsTypesToTypeClass([]csv.Method) ([]csv.Method, errors.Error)
 }
 
 // Maps a type to it's type class
@@ -62,6 +65,8 @@ func (m *typeClassMapper) mapTypeClasses(typeClasses TypeClassConfiguration) {
 }
 
 // Maps the return type of multiple methods to it's type class
+//
+// Deprecated: Use MapMethodsTypesToTypeClass instead ...
 func (m *typeClassMapper) MapReturnTypesToTypeClass(methods []csv.Method) ([]csv.Method, errors.Error) {
 	if m.tree == nil {
 		return nil, errors.New(TypeClassMapperErrorTitle, "No package tree set")
@@ -76,6 +81,39 @@ func (m *typeClassMapper) MapReturnTypesToTypeClass(methods []csv.Method) ([]csv
 		}
 	}
 	return result, nil
+}
+
+// Maps the return type of multiple methods to it's type class
+func (m *typeClassMapper) MapMethodsTypesToTypeClass(methods []csv.Method) ([]csv.Method, errors.Error) {
+	if m.tree == nil {
+		return nil, errors.New(TypeClassMapperErrorTitle, "No package tree set")
+	}
+	result := make([]csv.Method, len(methods))
+	for i, method := range methods {
+		returnType, err := m.MapReturnTypeToTypeClass(method)
+		if err != nil {
+			return nil, err
+		}
+		result[i] = method
+		result[i].ReturnType = returnType
+		result[i].Parameters = m.mapParameterTypesToTypeClass(method.Parameters)
+	}
+	return result, nil
+}
+
+// maps the parameters to have a type class instead of the type name ...
+func (m *typeClassMapper) mapParameterTypesToTypeClass(parameters []string) []string {
+	if csv.IsEmptyList(parameters) {
+		return nil
+	}
+	results := make([]string, 0, len(parameters))
+	for _, parameter := range parameters {
+		// splitted has for each element the pattern "<type> <name>"
+		splitted := strings.Split(parameter, " ")
+		splitted[0] = m.mapTypeToTypeClass(splitted[0])
+		results = append(results, strings.Join(splitted, " "))
+	}
+	return results
 }
 
 // Returns the name of the type class for the method's return type

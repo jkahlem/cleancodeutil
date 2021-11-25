@@ -1,6 +1,7 @@
 package dataset
 
 import (
+	"fmt"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/csv"
 	"returntypes-langserver/common/errors"
@@ -9,16 +10,19 @@ import (
 	"returntypes-langserver/common/packagetree"
 	"returntypes-langserver/processing/typeclasses"
 	"returntypes-langserver/services/predictor"
+	"strings"
 )
 
 // The Dataset Creator uses a type class mapper to create dataset rows out of a methods array.
 type creator struct {
-	typeLabelMapper *TypeLabelMapper
-	typeClassMapper typeclasses.Mapper
-	tree            packagetree.Tree
-	methods         []csv.Method
-	classes         []csv.Class
-	err             errors.Error
+	typeLabelMapper    *TypeLabelMapper
+	typeClassMapper    typeclasses.Mapper
+	tree               packagetree.Tree
+	methods            []csv.Method
+	methodsReturnTypes []csv.Method
+	methodsParameters  []csv.Method
+	classes            []csv.Class
+	err                errors.Error
 }
 
 // Creates a new dataset creator
@@ -30,9 +34,11 @@ func NewCreator() *creator {
 // Loads return types/class hierarchy data from the given files and creates datasets from it
 func (c *creator) CreateTrainingAndEvaluationSet(methodsWithReturnTypesPath, classHierarchyPath string) {
 	c.loadMethodsAndClasses(methodsWithReturnTypesPath, classHierarchyPath)
-	dataset := c.getDatasetRows()
-	trainingSet, evaluationSet := c.splitDataset(dataset)
+	datasetReturnTypes, datasetMethods := c.getDatasetRows()
+	trainingSet, evaluationSet := c.splitDataset(datasetReturnTypes)
+	trainingSetMethods, evaluationSetMethods := c.splitDataset(datasetMethods)
 	c.saveDatasets(trainingSet, evaluationSet)
+	c.saveDatasetsMethods(trainingSetMethods, evaluationSetMethods)
 	c.saveLabelMappings()
 }
 
@@ -65,7 +71,7 @@ func (c *creator) loadMethodsAndClasses(methodsWithReturnTypesPath, classHierarc
 }
 
 // Creates dataset rows from the loaded methods
-func (c *creator) getDatasetRows() []csv.DatasetRow {
+func (c *creator) getDatasetRows() ([]csv.DatasetRow, []csv.DatasetRow) {
 	c.createPackageTree()
 	c.createTypeClassMapper()
 	c.createTypeLabeler()
@@ -97,7 +103,7 @@ func (c *creator) mapMethodReturnTypesToTypeClasses() {
 		return
 	}
 
-	if methods, err := c.typeClassMapper.MapReturnTypesToTypeClass(c.methods); err != nil {
+	if methods, err := c.typeClassMapper.MapMethodsTypesToTypeClass(c.methods); err != nil {
 		c.err = err
 		return
 	} else {
@@ -131,23 +137,46 @@ func (c *creator) filterMethodsToRelevantMethods() {
 
 	c.logln("filter methods to relevant methods...")
 	relevantMethods := FilterMethodsByLabels(c.methods)
-	c.methods = SummarizeMethods(relevantMethods)
-	return
+	summarizedMap := CreateMapOfSummarizedMethods(relevantMethods)
+	c.methodsReturnTypes = SummarizeMethodsForReturnTypes(summarizedMap, relevantMethods)
+	c.methodsParameters = SummarizeMethodsForParameters(summarizedMap, relevantMethods)
 }
 
 // Creates dataset rows of the methods
-func (c *creator) convertMethodsToDatasetRows() []csv.DatasetRow {
+func (c *creator) convertMethodsToDatasetRows() ([]csv.DatasetRow, []csv.DatasetRow) {
 	if c.err != nil {
-		return nil
+		return nil, nil
 	}
 	c.logln("Create dataset rows")
-	rows := make([]csv.DatasetRow, len(c.methods))
-	for i, method := range c.methods {
+	rowsReturnTypes := make([]csv.DatasetRow, len(c.methodsReturnTypes))
+	for i, method := range c.methodsReturnTypes {
 		returnTypeLabel := c.typeLabelMapper.GetLabel(method.ReturnType)
-		rows[i].MethodName = string(predictor.GetPredictableMethodName(method.MethodName))
-		rows[i].TypeLabel = returnTypeLabel
+		rowsReturnTypes[i].MethodName = string(predictor.GetPredictableMethodName(method.MethodName))
+		rowsReturnTypes[i].TypeLabel = returnTypeLabel
 	}
-	return rows
+	rowsParameters := make([]csv.DatasetRow, len(c.methodsParameters))
+	for i, method := range c.methodsParameters {
+		rowsParameters[i].MethodName = c.convertMethodDefinitionToSentence(method)
+		rowsParameters[i].TypeLabel = 0
+	}
+	return rowsReturnTypes, rowsParameters
+}
+
+func (c *creator) convertMethodDefinitionToSentence(method csv.Method) string {
+	methodName := string(predictor.GetPredictableMethodName(method.MethodName))
+	parameters := ""
+	if csv.IsEmptyList(method.Parameters) {
+		parameters = "nothing"
+	} else {
+		for i, par := range method.Parameters {
+			if i > 0 {
+				parameters += ", "
+			}
+			splitted := strings.Split(par, " ")
+			parameters += fmt.Sprintf("<%s> %s", splitted[0], splitted[1])
+		}
+	}
+	return fmt.Sprintf("%s: %s", methodName, parameters)
 }
 
 // Splits a dataset to a training set and evaluation set
@@ -165,6 +194,13 @@ func (c *creator) saveDatasets(trainingSet, evaluationSet []csv.DatasetRow) {
 	c.logln("Save datasets")
 	c.writeDataset(configuration.TrainingSetOutputPath(), trainingSet)
 	c.writeDataset(configuration.EvaluationSetOutputPath(), evaluationSet)
+}
+
+// Saves the dataset to the output path
+func (c *creator) saveDatasetsMethods(trainingSet, evaluationSet []csv.DatasetRow) {
+	c.logln("Save methods datasets")
+	c.writeDataset(configuration.MethodsTrainingSetOutputPath(), trainingSet)
+	c.writeDataset(configuration.MethodsEvaluationSetOutputPath(), evaluationSet)
 }
 
 // Saves the type label mappings to the output path

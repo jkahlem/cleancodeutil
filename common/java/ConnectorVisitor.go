@@ -53,6 +53,11 @@ func (visitor *ConnectorVisitor) VisitMethod(method *Method) {
 		method.TypeParameters[i].parentElement = method
 		method.TypeParameters[i].Accept(visitor)
 	}
+	for i := range method.Parameters {
+		method.Parameters[i].parentElement = method
+		// TODO... think of refactoring code first... otherwise implement it as VisitParameter method ...
+		method.Parameters[i].Type.parentElement = &method.Parameters[i]
+	}
 }
 
 // Connects the type bounds of a type parameter to the type parameter.

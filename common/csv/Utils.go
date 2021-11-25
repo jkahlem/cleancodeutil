@@ -83,3 +83,8 @@ func WriteRecordsToTarget(target io.Writer, records [][]string) errors.Error {
 	writer.Flush()
 	return nil
 }
+
+// Returns true if a list value of a csv record is empty
+func IsEmptyList(list []string) bool {
+	return len(list) == 0 || len(list) == 1 && len(list[0]) == 0
+}

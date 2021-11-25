@@ -309,6 +309,16 @@ func EvaluationSetOutputPath() string {
 	return filepath.Join(DatasetOutputDir(), "evaluationSet.csv")
 }
 
+// The path the training set file will be saved to
+func MethodsTrainingSetOutputPath() string {
+	return filepath.Join(DatasetOutputDir(), "trainingSetMethods.csv")
+}
+
+// The path the evaluation set file will be saved to
+func MethodsEvaluationSetOutputPath() string {
+	return filepath.Join(DatasetOutputDir(), "evaluationSetMethods.csv")
+}
+
 // The path the dataset labels file will be saved to
 func DatasetLabelsOutputPath() string {
 	return filepath.Join(DatasetOutputDir(), "datasetLabels.csv")

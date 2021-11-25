@@ -1,4 +1,6 @@
 bin/*
+dataset/*
 config.json
 *.log
 resources/crawler/*
+repositoryList.json
