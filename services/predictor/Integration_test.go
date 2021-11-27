@@ -22,9 +22,9 @@ func TestPredict(t *testing.T) {
 	methods[1] = GetPredictableMethodName("findItem")
 
 	// when
-	Predict(methods)
-	Predict(methods)
-	elements, err := Predict(methods)
+	PredictReturnTypes(methods)
+	PredictReturnTypes(methods)
+	elements, err := PredictReturnTypes(methods)
 
 	// then
 	assert.NoError(t, err)
@@ -37,7 +37,7 @@ func TestTrain(t *testing.T) {
 	configuration.LoadConfigFromJsonString(buildPredictorConfig())
 
 	// when
-	evaluation, err := Train(createDataset("labels"), createDataset("training"), createDataset("evaluation"))
+	evaluation, err := TrainReturnTypes(createDataset("labels"), createDataset("training"), createDataset("evaluation"))
 
 	// then
 	assert.NoError(t, err)
@@ -58,9 +58,9 @@ func TestPredictUnstable(t *testing.T) {
 	methods[1] = GetPredictableMethodName("findItem")
 
 	// when
-	Predict(methods)
-	Predict(methods)
-	elements, err := Predict(methods)
+	PredictReturnTypes(methods)
+	PredictReturnTypes(methods)
+	elements, err := PredictReturnTypes(methods)
 
 	// then
 	assert.NoError(t, err)

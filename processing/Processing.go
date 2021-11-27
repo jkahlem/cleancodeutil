@@ -184,8 +184,6 @@ func train() errors.Error {
 		return err
 	}
 
-	// TODO:
-
 	// Train the predictor
 	if msg, err := predictor.TrainReturnTypes(labels, trainingSet, evaluationSet); err != nil {
 		return err

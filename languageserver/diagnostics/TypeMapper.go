@@ -30,5 +30,5 @@ func (mapper *TypeMapper) createEmptyEntries(methods []*java.Method) {
 }
 
 func (mapper *TypeMapper) predictTypeMappings() errors.Error {
-	return predictor.PredictToMap(mapper.mappings)
+	return predictor.PredictReturnTypesToMap(mapper.mappings)
 }

@@ -23,7 +23,7 @@ func PredictReturnTypes(methodNames []PredictableMethodName) ([]string, errors.E
 }
 
 // Starts the training and evaluation process. Returns the evaluation result if finished.
-func Train(labels, trainingSet, evaluationSet [][]string) (Evaluation, errors.Error) {
+func TrainReturnTypes(labels, trainingSet, evaluationSet [][]string) (Evaluation, errors.Error) {
 	return getSingleton().TrainReturnTypes(labels, trainingSet, evaluationSet)
 }
 
