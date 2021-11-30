@@ -14,7 +14,7 @@ import (
 const PredictorPort = 10000
 const PredictorHost = "192.168.178.42"
 
-func TestPredict(t *testing.T) {
+func TestPredictReturnTypes(t *testing.T) {
 	// given
 	configuration.LoadConfigFromJsonString(buildPredictorConfig())
 	methods := make([]PredictableMethodName, 2)
@@ -32,7 +32,38 @@ func TestPredict(t *testing.T) {
 	assert.Len(t, elements, 2)
 }
 
-func TestTrain(t *testing.T) {
+func TestTrainMethods(t *testing.T) {
+	// given
+	configuration.LoadConfigFromJsonString(buildPredictorConfig())
+
+	// when
+	evaluation, err := TrainMethods(createDataset("training"), createDataset("evaluation"))
+
+	// then
+	assert.NoError(t, err)
+	assert.Equal(t, 0.1, evaluation.AccScore)
+	assert.Equal(t, 0.2, evaluation.EvalLoss)
+	assert.Equal(t, 0.3, evaluation.F1Score)
+	assert.Equal(t, 0.4, evaluation.MCC)
+}
+
+func TestGenerateMethods(t *testing.T) {
+	// given
+	configuration.LoadConfigFromJsonString(buildPredictorConfig())
+	methods := make([]PredictableMethodName, 2)
+	methods[0] = GetPredictableMethodName("getName")
+	methods[1] = GetPredictableMethodName("findItem")
+
+	// when
+	elements, err := GenerateMethods(methods)
+
+	// then
+	assert.NoError(t, err)
+	assert.NotNil(t, elements)
+	assert.Len(t, elements, 2)
+}
+
+func TestTrainReturnTypes(t *testing.T) {
 	// given
 	configuration.LoadConfigFromJsonString(buildPredictorConfig())
 

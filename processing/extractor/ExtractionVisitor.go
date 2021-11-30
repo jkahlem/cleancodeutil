@@ -90,7 +90,6 @@ func (visitor *ExtractionVisitor) VisitMethod(method *java.Method) {
 func (visitor *ExtractionVisitor) extractParameters(method *java.Method) []string {
 	result := make([]string, 0, len(method.Parameters))
 	for _, parameter := range method.Parameters {
-		fmt.Printf(":%s:, :%s:\n", parameter.Type.TypeName, parameter.Name)
 		resolvedParameterType, _ := visitor.resolve(&parameter.Type)
 		csvStr := fmt.Sprintf("%s %s", resolvedParameterType, parameter.Name)
 		result = append(result, csvStr)
