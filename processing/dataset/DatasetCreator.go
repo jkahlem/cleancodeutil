@@ -173,7 +173,7 @@ func (c *creator) convertMethodDefinitionToSentence(method csv.Method) string {
 				parameters += ", "
 			}
 			splitted := strings.Split(par, " ")
-			parameters += fmt.Sprintf("<%s> %s", splitted[0], splitted[1])
+			parameters += fmt.Sprintf("<%s> %s", splitted[0], string(predictor.GetPredictableMethodName(splitted[1])))
 		}
 	}
 	return fmt.Sprintf("%s: %s", methodName, parameters)
