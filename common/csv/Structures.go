@@ -31,6 +31,11 @@ type DatasetRow struct {
 	MethodName string
 	TypeLabel  int
 }
+type DatasetRow2 struct {
+	Prefix     string
+	MethodName string
+	Parameters string
+}
 
 type TypeLabel struct {
 	Name  string
@@ -127,6 +132,24 @@ func (datasetRow DatasetRow) ToRecord() []string {
 	return []string{
 		string(datasetRow.MethodName),
 		fmt.Sprintf("%d", datasetRow.TypeLabel),
+	}
+}
+
+func UnmarshalDatasetRow2(records [][]string) []DatasetRow2 {
+	datasetRow := make([]DatasetRow2, len(records))
+	for i, record := range records {
+		datasetRow[i].Prefix = record[0]
+		datasetRow[i].MethodName = record[1]
+		datasetRow[i].Parameters = record[2]
+	}
+	return datasetRow
+}
+
+func (datasetRow DatasetRow2) ToRecord() []string {
+	return []string{
+		datasetRow.Prefix,
+		datasetRow.MethodName,
+		datasetRow.Parameters,
 	}
 }
 

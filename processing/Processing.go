@@ -24,17 +24,17 @@ import (
 // Executes the dataset creation process
 func ProcessDatasetCreation() {
 	// First, clone repositories if needed
-	clone()
+	//clone()
 	// Load the java code of each repository and summarize it using the crawler
-	summarizeJavaCode()
+	//summarizeJavaCode()
 	// Extract method/classes of all of the repositories and put them into one file for methods and one for classes.
-	createBasicData()
+	//createBasicData()
 	// Create a dataset based on the method/class files above.
-	createDataset()
+	//createDataset()
 	// Train the predictor
 	trainPredictor()
 	// Create statistics
-	createStatistics()
+	//createStatistics()
 	// Log any problems occured during creation process
 	logProblems()
 }
@@ -170,6 +170,13 @@ func trainPredictor() {
 
 // Executes the training process
 func train() errors.Error {
+	/*if err := trainReturnTypes(); err != nil {
+		return err
+	}*/
+	return trainMethods()
+}
+
+func trainReturnTypes() errors.Error {
 	// Load csv data
 	labels, err := csv.ReadRecords(configuration.DatasetLabelsOutputPath())
 	if err != nil {
@@ -198,6 +205,29 @@ func train() errors.Error {
 			}
 		}
 		log.Info("Evaluation result:\n- Accuracy Score: %g\n- Eval loss: %g\n- F1 Score: %g\n- MCC: %g\n", msg.AccScore, msg.EvalLoss, msg.F1Score, msg.MCC)
+	}
+	return nil
+}
+
+func trainMethods() errors.Error {
+	// Load csv data
+	trainingSet, err := csv.ReadRecords(configuration.MethodsTrainingSetOutputPath())
+	if err != nil {
+		return err
+	}
+	/*evaluationSet, err := csv.ReadRecords(configuration.MethodsEvaluationSetOutputPath())
+	if err != nil {
+		return err
+	}*/
+
+	/*formatted := make([][]string, 0, len(trainingSet))
+	for _, record := range trainingSet {
+		formatted = append(formatted, record[0:1])
+	}*/
+
+	// Train the predictor
+	if _, err := predictor.TrainMethods(trainingSet[0:40000], nil); err != nil {
+		return err
 	}
 	return nil
 }
