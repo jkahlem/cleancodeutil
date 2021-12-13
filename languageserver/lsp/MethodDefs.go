@@ -7,10 +7,11 @@ const (
 	MethodShutdown    = "shutdown"
 	MethodExit        = "exit"
 
-	MethodTextDocument_DidOpen   = "textDocument/didOpen"
-	MethodTextDocument_DidChange = "textDocument/didChange"
-	MethodTextDocument_DidClose  = "textDocument/didClose"
-	MethodTextDocument_DidSave   = "textDocument/didSave"
+	MethodTextDocument_DidOpen    = "textDocument/didOpen"
+	MethodTextDocument_DidChange  = "textDocument/didChange"
+	MethodTextDocument_DidClose   = "textDocument/didClose"
+	MethodTextDocument_DidSave    = "textDocument/didSave"
+	MethodTextDocument_Completion = "textDocument/completion"
 
 	MethodWorkspace_DidCreate              = "workspace/didCreateFiles"
 	MethodWorkspace_DidRename              = "workspace/didRenameFiles"

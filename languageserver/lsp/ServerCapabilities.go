@@ -12,6 +12,7 @@ type ServerCapabilities struct {
 	TextDocumentSync       *TextDocumentSyncOptions     `json:"textDocumentSync,omitempty"`
 	Workspace              *WorkspaceServerCapabilities `json:"workspace,omitempty"`
 	ExecuteCommandProvider *ExecuteCommandOptions       `json:"executeCommandProvider,omitempty"`
+	CompletionProvider     *CompletionOptions           `json:"completionProvider,omitempty"`
 }
 
 type TextDocumentSyncOptions struct {
@@ -76,4 +77,13 @@ const (
 
 type ExecuteCommandOptions struct {
 	Commands []string `json:"commands"`
+}
+
+type WorkDoneProgressOptions struct{}
+
+type CompletionOptions struct {
+	WorkDoneProgressOptions
+	TriggerCharacters   []string `json:"triggerCharacters,omitempty"`
+	AllCommitCharacters []string `json:"allCommitCharacters,omitempty"`
+	ResolveProvider     bool     `json:"resolveProvider"`
 }

@@ -78,3 +78,7 @@ type ConfigurationItem struct {
 	ScopeURI DocumentURI `json:"scopeUri,omitempty" mapstructure:"scopeUri,omitempty"`
 	Section  string      `json:"section,omitempty" mapstructure:"section,omitempty"`
 }
+
+// A type used for fields which presumably are not used but would need other types to be implemented and therefore
+// cost too much effort. Slice type is used, as it will be initialized to nil...
+type Unsupported []string
