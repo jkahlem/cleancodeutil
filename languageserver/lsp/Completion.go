@@ -89,8 +89,8 @@ type CompletionItem struct {
 	InsertTextFormat    *InsertTextFormat   `json:"insertTextFormat,omitempty"`
 	InsertTextMode      *InsertTextMode     `json:"insertTextMode,omitempty"`
 	TextEdit            *InsertReplaceEdit  `json:"textEdit,omitempty"`
-	AdditionalTextEdits Unsupported         `json:"additionalTextEdits,omitempty"`
+	AdditionalTextEdits NotImplemented      `json:"additionalTextEdits,omitempty"`
 	CommitCharacters    []string            `json:"commitCharacters,omitempty"`
-	Command             Unsupported         `json:"command,omitempty"`
+	Command             NotImplemented      `json:"command,omitempty"`
 	Data                interface{}         `json:"data,omitempty"`
 }

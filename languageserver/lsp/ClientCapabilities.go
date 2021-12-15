@@ -14,6 +14,7 @@ type ClientCapabilities struct {
 type TextDocumentClientCapabilities struct {
 	Synchronization    *TextDocumentSyncClientCapabilities   `json:"synchronization,omitempty" mapstructure:"synchronization,omitempty"`
 	PublishDiagnostics *PublishDiagnosticsClientCapabilities `json:"publishDiagnostics,omitempty" mapstructure:"publishDiagnostics,omitempty"`
+	Completion         *CompletionClientCapabilities         `json:"completion,omitempty" mapstructure:"completion,omitempty"`
 }
 
 type TextDocumentSyncClientCapabilities struct {
@@ -36,5 +37,28 @@ type WorkspaceClientCapabilities struct {
 }
 
 type ClientTagSupport struct {
-	ValueSet []DiagnosticTag
+	ValueSet []DiagnosticTag `json:"valueSet,omitempty" mapstructure:"valueSet,omitempty"`
+}
+
+type CompletionClientCapabilities struct {
+	DynamicRegistration bool                                  `json:"dynamicRegistration" mapstructure:"dynamicRegistration"`
+	CompletionItem      *CompletionItemClientCapabilities     `json:"completionItem,omitempty" mapstructure:"completionItem,omitempty"`
+	CompletionItemKind  *CompletionItemKindClientCapabilities `json:"completionItemKind,omitempty" mapstructure:"completionItemKind,omitempty"`
+	ContextSupport      bool                                  `json:"contextSupport" mapstructure:"contextSupport"`
+}
+
+type CompletionItemClientCapabilities struct {
+	SnippetSupport          bool           `json:"snippetSupport" mapstructure:"snippetSupport"`
+	CommitCharactersSupport bool           `json:"commitCharactersSupport" mapstructure:"commitCharactersSupport"`
+	DocumentationFormat     NotImplemented `json:"documentationFormat,omitempty" mapstructure:"documentationFormat,omitempty"`
+	DeprecatedSupport       bool           `json:"deprecatedSupport" mapstructure:"deprecatedSupport"`
+	PreselectSupport        bool           `json:"preselectSupport" mapstructure:"preselectSupport"`
+	TagSupport              NotImplemented `json:"tagSupport,omitempty" mapstructure:"tagSupport,omitempty"`
+	InsertReplaceSupport    bool           `json:"insertReplaceSupport" mapstructure:"insertReplaceSupport"`
+	ResolveSupport          NotImplemented `json:"resolveSupport,omitempty" mapstructure:"resolveSupport,omitempty"`
+	InsertTextModeSupport   NotImplemented `json:"insertTextModeSupport,omitempty" mapstructure:"insertTextModeSupport,omitempty"`
+}
+
+type CompletionItemKindClientCapabilities struct {
+	ValueSet []CompletionItemKind `json:"valueSet,omitempty" mapstructure:"valueSet,omitempty"`
 }

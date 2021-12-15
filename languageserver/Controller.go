@@ -205,11 +205,11 @@ func (c *Controller) WorkspaceDidChangeConfiguration(settings interface{}) error
 }
 
 // Callable RPC method.
-// Wil be called by the language client if a completion request is triggered (by typing a special character etc..)
-func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentifier, position lsp.Position, context *lsp.CompletionContext) error {
+// Will be called by the language client if a completion request is triggered (by typing a special character etc..)
+func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentifier, position lsp.Position, context *lsp.CompletionContext) (*lsp.CompletionList, error) {
 	if context == nil {
-		return nil
+		return nil, nil
 	}
 	// TODO: Handle completion request...
-	return nil
+	return nil, nil
 }

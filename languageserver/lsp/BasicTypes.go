@@ -80,5 +80,5 @@ type ConfigurationItem struct {
 }
 
 // A type used for fields which presumably are not used but would need other types to be implemented and therefore
-// cost too much effort. Slice type is used, as it will be initialized to nil...
-type Unsupported []string
+// cost too much effort
+type NotImplemented interface{}
