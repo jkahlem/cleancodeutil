@@ -206,10 +206,56 @@ func (c *Controller) WorkspaceDidChangeConfiguration(settings interface{}) error
 
 // Callable RPC method.
 // Will be called by the language client if a completion request is triggered (by typing a special character etc..)
-func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentifier, position lsp.Position, context *lsp.CompletionContext) (*lsp.CompletionList, error) {
-	if context == nil {
-		return nil, nil
-	}
+func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentifier, position lsp.Position, context lsp.CompletionContext) (*lsp.CompletionList, error) {
 	// TODO: Handle completion request...
-	return nil, nil
+	// The below implementation is just an example-wise implementation.
+	// The example case: user types "completionTest" as method name and then types a opening bracket '('
+	// The IDE will autocomplete it as two brackets '()' and will send a request to the language server.
+	// The language server will therefore compute something for auto completion, which happens here.
+	// the normal "textedit" property will give the main-text edit (which needs to be on the same line !!), while the additionalTextEdits are for
+	// edits on other places.
+	//
+	// Short things short, here is still a lot to do. By the way, the '¥n' in the textEdit text is not working as line breaks,
+	// don't know how it is for additionalTextEdits. Maybe multiple-line edits needs multiple additionalTextEdits ...
+	log.Info("Got textDocument.completion request with char '%s' and kind %v", context.TriggerCharacter, context.TriggerKind)
+	testStr := "completionTest" // completionTest(*)
+	// Cursor position ---------------------------^
+	item := lsp.CompletionItem{
+		Label:            "TestAsd",
+		Kind:             lsp.Text,
+		Preselect:        true,
+		InsertTextFormat: lsp.ITF_PlainText,
+		InsertTextMode:   lsp.AsIs,
+		SortText:         "TestAsd",
+		FilterText:       "(TestAsd",
+		TextEdit: &lsp.TextEdit{
+			NewText: "(int someNumber) {¥n¥treturn 0;¥n}",
+			Range: lsp.Range{Start: lsp.Position{
+				Line:      position.Line,
+				Character: position.Character - 1,
+			}, End: lsp.Position{
+				Line:      position.Line,
+				Character: position.Character + 1,
+			}},
+		},
+		AdditionalTextEdits: []lsp.TextEdit{
+			{
+				NewText: "public void ",
+				Range: lsp.Range{
+					Start: lsp.Position{
+						Line:      position.Line,
+						Character: position.Character - 1 - len(testStr), // in real work, get the length by analyzing the line ...
+					}, End: lsp.Position{
+						Line:      position.Line,
+						Character: position.Character - 1 - len(testStr),
+					},
+				},
+			},
+		},
+	}
+	list := lsp.CompletionList{
+		IsIncomplete: false,
+		Items:        []lsp.CompletionItem{item},
+	}
+	return &list, nil
 }

@@ -29,43 +29,43 @@ type SaveOptions struct {
 }
 
 type WorkspaceServerCapabilities struct {
-	WorkspaceFolders *WorkspaceFoldersServerCapabilities `json:"workspaceFolders,omitempty"`
-	FileOperations   *FileOperationsServerCapabilities   `json:"fileOperations,omitempty"`
+	WorkspaceFolders *WorkspaceFoldersServerCapabilities `json:"workspaceFolders,omitempty" mapstructure:"workspaceFolders,omitempty"`
+	FileOperations   *FileOperationsServerCapabilities   `json:"fileOperations,omitempty" mapstructure:"fileOperations,omitempty"`
 }
 
 type WorkspaceFoldersServerCapabilities struct {
 	Supported bool `json:"supported,omitempty"`
 
 	// string or bool. if string, its treated as id (see specification)
-	ChangeNotifications interface{} `json:"changeNotifications,omitempty"`
+	ChangeNotifications interface{} `json:"changeNotifications,omitempty" mapstructure:"changeNotifications,omitempty"`
 }
 
 type FileOperationsServerCapabilities struct {
-	DidCreate  *FileOperationRegistrationOptions `json:"didCreate,omitempty"`
-	WillCreate *FileOperationRegistrationOptions `json:"willCreate,omitempty"`
-	DidRename  *FileOperationRegistrationOptions `json:"didRename,omitempty"`
-	WillRename *FileOperationRegistrationOptions `json:"willRename,omitempty"`
-	DidDelete  *FileOperationRegistrationOptions `json:"didDelete,omitempty"`
-	WillDelete *FileOperationRegistrationOptions `json:"willDelete,omitempty"`
+	DidCreate  *FileOperationRegistrationOptions `json:"didCreate,omitempty" mapstructure:"didCreate,omitempty"`
+	WillCreate *FileOperationRegistrationOptions `json:"willCreate,omitempty" mapstructure:"willCreate,omitempty"`
+	DidRename  *FileOperationRegistrationOptions `json:"didRename,omitempty" mapstructure:"didRename,omitempty"`
+	WillRename *FileOperationRegistrationOptions `json:"willRename,omitempty" mapstructure:"willRename,omitempty"`
+	DidDelete  *FileOperationRegistrationOptions `json:"didDelete,omitempty" mapstructure:"didDelete,omitempty"`
+	WillDelete *FileOperationRegistrationOptions `json:"willDelete,omitempty" mapstructure:"willDelete,omitempty"`
 }
 
 type FileOperationRegistrationOptions struct {
-	Filters []FileOperationFilter `json:"filters"`
+	Filters []FileOperationFilter `json:"filters" mapstructure:"filters"`
 }
 
 type FileOperationFilter struct {
-	Scheme  string               `json:"scheme,omitempty"`
-	Pattern FileOperationPattern `json:"pattern"`
+	Scheme  string               `json:"scheme,omitempty" mapstructure:"scheme,omitempty"`
+	Pattern FileOperationPattern `json:"pattern" mapstructure:"pattern"`
 }
 
 type FileOperationPattern struct {
-	Glob    string                       `json:"glob"`
-	Matches FileOperationPatternKind     `json:"matches,omitempty"`
-	Options *FileOperationPatternOptions `json:"options,omitempty"`
+	Glob    string                       `json:"glob" mapstructure:"glob"`
+	Matches FileOperationPatternKind     `json:"matches,omitempty" mapstructure:"matches,omitempty"`
+	Options *FileOperationPatternOptions `json:"options,omitempty" mapstructure:"options,omitempty"`
 }
 
 type FileOperationPatternOptions struct {
-	IgnoreCase bool `json:"ignoreCase,omitempty"`
+	IgnoreCase bool `json:"ignoreCase,omitempty" mapstructure:"ignoreCase,omitempty"`
 }
 
 type FileOperationPatternKind string
@@ -76,14 +76,12 @@ const (
 )
 
 type ExecuteCommandOptions struct {
-	Commands []string `json:"commands"`
+	Commands []string `json:"commands" mapstructure:"commands"`
 }
 
-type WorkDoneProgressOptions struct{}
-
 type CompletionOptions struct {
-	WorkDoneProgressOptions
-	TriggerCharacters   []string `json:"triggerCharacters,omitempty"`
-	AllCommitCharacters []string `json:"allCommitCharacters,omitempty"`
-	ResolveProvider     bool     `json:"resolveProvider"`
+	WorkDoneProgress    bool     `json:"workDoneProgress" mapstructure:"workDoneProgress"` // TODO: make this extendable ?
+	TriggerCharacters   []string `json:"triggerCharacters,omitempty" mapstructure:"triggerCharacters,omitempty"`
+	AllCommitCharacters []string `json:"allCommitCharacters,omitempty" mapstructure:"allCommitCharacters,omitempty"`
+	ResolveProvider     bool     `json:"resolveProvider" mapstructure:"resolveProvider"`
 }

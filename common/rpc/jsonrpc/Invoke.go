@@ -71,7 +71,7 @@ func mapParamsByName(fn *Function, source reflect.Value) ([]reflect.Value, *Resp
 		} else if position, expectedType := getExpectedParameterTypeAndPosition(pair.Key.String(), fn.Params()); expectedType == nil {
 			continue
 		} else if value, err := utils.CastValueToTypeIfPossible(pair.Value, expectedType); err != nil {
-			responseError := NewResponseError(InvalidParams, fmt.Sprintf("Unexpected parameter type for parameter %s", expectedType))
+			responseError := NewResponseError(InvalidParams, fmt.Sprintf("Unexpected parameter type for parameter '%s': Expected %s", pair.Key, expectedType))
 			return nil, &responseError
 		} else {
 			destination[position] = value

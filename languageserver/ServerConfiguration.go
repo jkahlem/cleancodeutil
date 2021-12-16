@@ -44,6 +44,13 @@ func (config *ServerConfiguration) ServerCapabilities() lsp.ServerCapabilities {
 		ExecuteCommandProvider: &lsp.ExecuteCommandOptions{
 			Commands: []string{CommandRefreshDiagnostics, CommandReconnectToPredictor},
 		},
+		CompletionProvider: &lsp.CompletionOptions{
+			WorkDoneProgress: false,
+			// Trigger completion on open bracket (so when typing the method name has ended)
+			TriggerCharacters:   []string{"("},
+			AllCommitCharacters: nil,
+			ResolveProvider:     false,
+		},
 	}
 }
 

@@ -9,8 +9,8 @@ const (
 )
 
 type CompletionContext struct {
-	TriggerKind      CompletionTriggerKind `json:"triggerKind"`
-	TriggerCharacter string                `json:"triggerCharacter,omitempty"`
+	TriggerKind      CompletionTriggerKind `json:"triggerKind" mapstructure:"triggerKind"`
+	TriggerCharacter string                `json:"triggerCharacter,omitempty" mapstructure:"triggerCharacter,omitempty"`
 }
 
 type CompletionList struct {
@@ -27,11 +27,19 @@ const (
 )
 
 type InsertReplaceEdit struct {
-	NewText string `json:"newText"`
+	NewText string `json:"newText" mapstructure:"newText"`
 	// Range if insert is requested
-	Insert Range `json:"insert"`
+	Insert Range `json:"insert" mapstructure:"insert"`
 	// Range if replace is requested
-	Replace Range `json:"replace"`
+	Replace Range `json:"replace" mapstructure:"replace"`
+}
+
+type TextEdit struct {
+	// The range of the text document to be manipulated. To insert text into a document
+	// create a range where start == end
+	Range Range `json:"range" mapstructure:"range"`
+	// The stirng to be inserted. For delete operations use an empty string.
+	NewText string `json:"newText" mapstructure:"newText"`
 }
 
 type InsertTextMode int
@@ -86,10 +94,10 @@ type CompletionItem struct {
 	SortText            string              `json:"sortText,omitempty"`
 	FilterText          string              `json:"filterText,omitempty"`
 	InsertText          string              `json:"insertText,omitempty"`
-	InsertTextFormat    *InsertTextFormat   `json:"insertTextFormat,omitempty"`
-	InsertTextMode      *InsertTextMode     `json:"insertTextMode,omitempty"`
-	TextEdit            *InsertReplaceEdit  `json:"textEdit,omitempty"`
-	AdditionalTextEdits NotImplemented      `json:"additionalTextEdits,omitempty"`
+	InsertTextFormat    InsertTextFormat    `json:"insertTextFormat,omitempty"`
+	InsertTextMode      InsertTextMode      `json:"insertTextMode,omitempty"`
+	TextEdit            *TextEdit           `json:"textEdit,omitempty"`
+	AdditionalTextEdits []TextEdit          `json:"additionalTextEdits,omitempty"`
 	CommitCharacters    []string            `json:"commitCharacters,omitempty"`
 	Command             NotImplemented      `json:"command,omitempty"`
 	Data                interface{}         `json:"data,omitempty"`
