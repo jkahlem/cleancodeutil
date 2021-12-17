@@ -5,6 +5,7 @@ import (
 	"returntypes-langserver/common/csv"
 	"returntypes-langserver/common/java"
 	"returntypes-langserver/common/packagetree"
+	"strings"
 )
 
 // This visitor visists the elements of a Java Code File and writes each method/class found as a CSV record to the
@@ -90,8 +91,12 @@ func (visitor *ExtractionVisitor) VisitMethod(method *java.Method) {
 func (visitor *ExtractionVisitor) extractParameters(method *java.Method) []string {
 	result := make([]string, 0, len(method.Parameters))
 	for _, parameter := range method.Parameters {
-		resolvedParameterType, _ := visitor.resolve(&parameter.Type)
-		csvStr := fmt.Sprintf("%s %s", resolvedParameterType, parameter.Name)
+		//resolvedParameterType, _ := visitor.resolve(&parameter.Type)
+		unqualifiedTypeName := parameter.Type.TypeName
+		if splitted := strings.Split(parameter.Type.TypeName, "."); len(splitted) > 1 {
+			unqualifiedTypeName = splitted[len(splitted)-1]
+		}
+		csvStr := fmt.Sprintf("%s %s", unqualifiedTypeName, parameter.Name)
 		result = append(result, csvStr)
 	}
 	return result

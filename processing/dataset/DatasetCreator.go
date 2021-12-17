@@ -154,12 +154,33 @@ func (c *creator) convertMethodsToDatasetRows() ([]csv.DatasetRow, []csv.Dataset
 		rowsReturnTypes[i].MethodName = string(predictor.GetPredictableMethodName(method.MethodName))
 		rowsReturnTypes[i].TypeLabel = returnTypeLabel
 	}
-	rowsParameters := make([]csv.DatasetRow2, len(c.methodsParameters))
-	for i, method := range c.methodsParameters {
+	rowsParameters := make([]csv.DatasetRow2, 0, len(c.methodsParameters))
+	context := "string, int, float, enum, object, boolean"
+	for _, method := range c.methodsParameters {
 		name, pars := c.convertMethodDefinitionToSentence(method)
-		rowsParameters[i].Prefix = "generate parameters"
-		rowsParameters[i].MethodName = name
-		rowsParameters[i].Parameters = pars
+		row := csv.DatasetRow2{
+			Prefix:     "generate parameters",
+			MethodName: name,
+			Parameters: pars,
+		}
+		rowsParameters = append(rowsParameters, row)
+		if !csv.IsEmptyList(method.Parameters) {
+			for _, par := range method.Parameters {
+				splitted := strings.Split(par, " ")
+				parType, parName := string(predictor.GetPredictableMethodName(splitted[0])), string(predictor.GetPredictableMethodName(splitted[1]))
+				ctx := context
+				if strings.Index(context, parType) == -1 {
+					ctx = fmt.Sprintf("%s, %s", context, parType)
+				}
+				// TOOD: don't need a special fallback, as type assignment should for example pick "object" if it does not know any better thing
+				row2 := csv.DatasetRow2{
+					Prefix:     "type assignment",
+					MethodName: fmt.Sprintf("name: %s. context: %s.", parName, ctx), // input_text
+					Parameters: parType,                                             // target_text
+				}
+				rowsParameters = append(rowsParameters, row2)
+			}
+		}
 	}
 	return rowsReturnTypes, rowsParameters
 }

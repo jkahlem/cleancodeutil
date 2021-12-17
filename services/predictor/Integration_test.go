@@ -51,8 +51,10 @@ func TestGenerateMethods(t *testing.T) {
 	// given
 	configuration.LoadConfigFromJsonString(buildPredictorConfig())
 	methods := make([]PredictableMethodName, 2)
-	methods[0] = PredictableMethodName(string(GetPredictableMethodName("findByNameOrAge")))
-	methods[1] = PredictableMethodName(string(GetPredictableMethodName("compare")))
+	//methods[0] = PredictableMethodName(string(GetPredictableMethodName("findByNameOrAge")))
+	//methods[1] = PredictableMethodName(string(GetPredictableMethodName("compare")))
+	methods[0] = "name: user name context: string, int, object, person"
+	methods[1] = "name: age context: string, int, object, person"
 
 	// when
 	elements, err := GenerateMethods(methods)

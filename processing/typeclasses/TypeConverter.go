@@ -96,7 +96,7 @@ func (m *typeClassMapper) MapMethodsTypesToTypeClass(methods []csv.Method) ([]cs
 		}
 		result[i] = method
 		result[i].ReturnType = returnType
-		result[i].Parameters = m.mapParameterTypesToTypeClass(method.Parameters)
+		result[i].Parameters = method.Parameters // m.mapParameterTypesToTypeClass(method.Parameters)
 	}
 	return result, nil
 }
