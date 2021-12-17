@@ -174,9 +174,10 @@ func (c *creator) convertMethodsToDatasetRows() ([]csv.DatasetRow, []csv.Dataset
 				}
 				// TOOD: don't need a special fallback, as type assignment should for example pick "object" if it does not know any better thing
 				row2 := csv.DatasetRow2{
-					Prefix:     "type assignment",
-					MethodName: fmt.Sprintf("name: %s. context: %s.", parName, ctx), // input_text
-					Parameters: parType,                                             // target_text
+					Prefix: "type assignment",
+					// the "name" variable has currently already a dot '.' at the end. So no need to add it another time ...
+					MethodName: fmt.Sprintf("method: %s name: %s. context: %s.", name, parName, ctx), // input_text
+					Parameters: parType,                                                              // target_text
 				}
 				rowsParameters = append(rowsParameters, row2)
 			}
