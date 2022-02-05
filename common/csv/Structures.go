@@ -5,8 +5,10 @@ import (
 	"returntypes-langserver/common/errors"
 	"returntypes-langserver/common/log"
 	"strconv"
-	"strings"
 )
+
+// Generate Marshal / Unmarshal methods (-> Marshaller.go)
+//go:generate go run ./marshallerGenerator
 
 type Method struct {
 	MethodName string
@@ -40,17 +42,6 @@ type DatasetRow2 struct {
 type TypeLabel struct {
 	Name  string
 	Label int
-}
-
-type MethodSummarizationData struct {
-	Name        string                          `json:"name"`
-	Occurences  int                             `json:"occurences"`
-	ReturnTypes []MethodSummarizationReturnType `json:"returnTypes"`
-}
-
-type MethodSummarizationReturnType struct {
-	Name  string `json:"name"`
-	Count int    `json:"count"`
 }
 
 // Returns true if the label is defined in the methods label list
@@ -166,44 +157,6 @@ func (typeLabel TypeLabel) ToRecord() []string {
 	return []string{
 		typeLabel.Name,
 		fmt.Sprintf("%d", typeLabel.Label),
-	}
-}
-
-func UnmarshalMethodSummarizationData(records [][]string) []MethodSummarizationData {
-	data := make([]MethodSummarizationData, len(records))
-	for i, record := range records {
-		data[i].Name = record[0]
-		data[i].Occurences = parseInt(record[1], false)
-		data[i].ReturnTypes = UnmarshalMethodSummarizationReturnType(SplitList(record[2]))
-	}
-	return data
-}
-
-func UnmarshalMethodSummarizationReturnType(valuePairList []string) []MethodSummarizationReturnType {
-	returnTypes := make([]MethodSummarizationReturnType, 0, len(valuePairList))
-	for _, pair := range valuePairList {
-		splitted := strings.Split(pair, "=")
-		if len(splitted) != 2 {
-			continue
-		}
-
-		returnTypes = append(returnTypes, MethodSummarizationReturnType{
-			Name:  splitted[0],
-			Count: parseInt(splitted[1], false),
-		})
-	}
-	return returnTypes
-}
-
-func (data MethodSummarizationData) ToRecord() []string {
-	pairs := make([]string, 0, len(data.ReturnTypes))
-	for _, returnType := range data.ReturnTypes {
-		pairs = append(pairs, fmt.Sprintf("%s=%d", returnType.Name, returnType.Count))
-	}
-	return []string{
-		data.Name,
-		fmt.Sprintf("%d", data.Occurences),
-		MakeList(pairs),
 	}
 }
 

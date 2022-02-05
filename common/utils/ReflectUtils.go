@@ -24,6 +24,18 @@ func UnwrapInterface(value reflect.Value) reflect.Value {
 	return value
 }
 
+// Unwraps a reflected type from any pointers / interfaces "on top" of it and returns it.
+// For example having an interface{} which is a pointer to a struct will be unwrapped to the struct type.
+// Just returns the type if it is not wrapped and returns nil if type is also nil.
+func UnwrapType(typ reflect.Type) reflect.Type {
+	if typ == nil {
+		return nil
+	} else if typ.Kind() == reflect.Interface || typ.Kind() == reflect.Ptr {
+		return UnwrapType(typ.Elem())
+	}
+	return typ
+}
+
 // Returns true if value may be nil, so value.IsNil will not panic.
 func MayBeNil(value reflect.Value) bool {
 	if value.IsValid() {
