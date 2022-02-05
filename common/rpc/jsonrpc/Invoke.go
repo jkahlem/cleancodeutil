@@ -44,14 +44,14 @@ func prepareParamsForFunctionCall(fn *Function, params interface{}) ([]reflect.V
 }
 
 // Maps the parameters as reflect values by looking at the position of the incoming parameters.
-func mapParamsByPosition(fn *Function, source reflect.Value) ([]reflect.Value, *ResponseError) {
+func mapParamsByPosition(fn *Function, sourceParams reflect.Value) ([]reflect.Value, *ResponseError) {
 	fnType := fn.Fn.Type()
 	destination := createZeroParams(fn)
-	if err := checkParamsLengthForFunctionCall(fn, source); err != nil {
+	if err := checkParamsLengthForFunctionCall(fn, sourceParams); err != nil {
 		return nil, err
 	}
 	for i := 0; i < fnType.NumIn(); i++ {
-		if value, err := utils.CastValueToTypeIfPossible(source.Index(i), fnType.In(i)); err != nil {
+		if value, err := utils.CastValueToTypeIfPossible(sourceParams.Index(i), fnType.In(i)); err != nil {
 			err := NewResponseError(InvalidParams, fmt.Sprintf("Unexpected parameter type at index %d", i))
 			return nil, &err
 		} else {

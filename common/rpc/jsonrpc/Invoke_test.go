@@ -88,7 +88,7 @@ func TestInvokeFunctionWithComplexParameter(t *testing.T) {
 		called = true
 		par1val = par1
 	}
-	structAsJson := `{"id":5,"information":{"name":"testtest"}}`
+	structAsJson := `{"id":5,"information":{"name":"testtest"},"optional":{"name":"test"}}`
 	var structObj interface{}
 	json.Unmarshal([]byte(structAsJson), &structObj)
 
@@ -100,6 +100,33 @@ func TestInvokeFunctionWithComplexParameter(t *testing.T) {
 	assert.True(t, called)
 	assert.Equal(t, 5, par1val.Id)
 	assert.Equal(t, "testtest", par1val.Information.Name)
+	assert.Equal(t, "test", par1val.Optional.Name)
+}
+
+func TestInvokeFunctionWithPointerParameter(t *testing.T) {
+	// given
+	called := false
+	var par1val, par2val *TestStruct
+	FunctionWithPointerParameter := func(par1 *TestStruct, par2 *TestStruct) {
+		called = true
+		par1val = par1
+		par2val = par2
+	}
+	structAsJson := `{"id":5,"information":{"name":"testtest"}}`
+	var structObj interface{}
+	json.Unmarshal([]byte(structAsJson), &structObj)
+
+	// when
+	_, err := Invoke(funcOf(FunctionWithPointerParameter, "par1,par2"), Params(nil, structObj))
+
+	// then
+	assert.Nil(t, err)
+	assert.True(t, called)
+	assert.Nil(t, par1val)
+	assert.NotNil(t, par2val)
+	assert.Equal(t, 5, par2val.Id)
+	assert.Equal(t, "testtest", par2val.Information.Name)
+	assert.Nil(t, par2val.Optional)
 }
 
 func TestInvokeFunctionWithReturnValue(t *testing.T) {
@@ -236,14 +263,65 @@ func TestInvokeFunctionWithComplexReturnValue(t *testing.T) {
 	assert.Equal(t, "testtest", asStruct.Information.Name)
 }
 
+func TestInvokeFunctionWithPointerReturnValue(t *testing.T) {
+	// given
+	called := false
+	FunctionWithComplexReturnValue := func() *TestStruct {
+		called = true
+		return &TestStruct{
+			Id: 5,
+			Information: TestStructNested{
+				Name: "testtest",
+			},
+		}
+	}
+
+	// when
+	result, err := Invoke(funcOf(FunctionWithComplexReturnValue, ""), nil)
+	asStructPtr, isTypeOk := result.(*TestStruct)
+
+	// then
+	assert.Nil(t, err)
+	assert.True(t, called)
+	assert.True(t, isTypeOk)
+	assert.NotNil(t, asStructPtr)
+	assert.Equal(t, 5, asStructPtr.Id)
+	assert.Equal(t, "testtest", asStructPtr.Information.Name)
+	assert.Nil(t, asStructPtr.Optional)
+}
+
+func TestInvokeFunctionWithNilPointerReturnValue(t *testing.T) {
+	// given
+	called := false
+	FunctionWithComplexReturnValue := func() *TestStruct {
+		called = true
+		return nil
+	}
+
+	// when
+	result, err := Invoke(funcOf(FunctionWithComplexReturnValue, ""), nil)
+	asNilPtr, isTypeOk := result.(*TestStruct)
+
+	// then
+	assert.Nil(t, err)
+	assert.True(t, called)
+	assert.True(t, isTypeOk)
+	assert.Nil(t, asNilPtr)
+}
+
 // Test relevant structures
 
 type TestStruct struct {
-	Id          int              `mapstructure:"id"`
-	Information TestStructNested `mapstructure:"information"`
+	Id          int                       `mapstructure:"id"`
+	Information TestStructNested          `mapstructure:"information"`
+	Optional    *TestStructNestedOptional `mapstructure:"optional"`
 }
 
 type TestStructNested struct {
+	Name string `mapstructure:"name"`
+}
+
+type TestStructNestedOptional struct {
 	Name string `mapstructure:"name"`
 }
 

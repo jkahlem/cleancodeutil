@@ -37,30 +37,41 @@ func UnwrapType(typ reflect.Type) reflect.Type {
 }
 
 // Returns true if value may be nil, so value.IsNil will not panic.
-func MayBeNil(value reflect.Value) bool {
+func MayBeNilValue(value reflect.Value) bool {
 	if value.IsValid() {
-		switch value.Kind() {
-		case reflect.Chan:
-		case reflect.Func:
-		case reflect.Interface:
-		case reflect.Map:
-		case reflect.Ptr:
-		case reflect.Slice:
-			return true
-		}
+		return MayBeNilKind(value.Kind())
+	}
+	return false
+}
+
+// Returns true if the kind is a nillable kind
+func MayBeNilKind(kind reflect.Kind) bool {
+	switch kind {
+	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Ptr, reflect.Slice:
+		return true
 	}
 	return false
 }
 
 // Tries to cast the value to the expected type by:
+// - trying to set the nil value/zero value for the expected type if it is nillable
 // - trying to cast it straight to the value (so the value type and expected type are the same)
 // - trying to convert the type to the value and assign it then (e.g. convert float to int)
 // - trying to map the value to a struct if the value is a map and the expectedType is a struct
 // - trying to map the value to a slice if the value is an interface{} slice but the expected type is a typed slice (like []string)
 //   This will also do a type check for each of the values in the slice.
+// - trying to cast the value to the underlying type if expectedType is a pointer type and returns the pointer to the casted value.
 // If all of these attempts are failing, it will return an invalid reflect value and an error.
 func CastValueToTypeIfPossible(value reflect.Value, expectedType reflect.Type) (reflect.Value, errors.Error) {
 	v := UnwrapInterface(value)
+	if !v.IsValid() {
+		if MayBeNilKind(expectedType.Kind()) {
+			return reflect.Zero(expectedType), nil
+		} else {
+			return reflect.ValueOf(nil), errors.New("Type Error", fmt.Sprintf("Unexpected type: Expected %s but go invalid value.", expectedType))
+		}
+	}
+
 	if v.Type().AssignableTo(expectedType) {
 		return v, nil
 	} else if v.Type().ConvertibleTo(expectedType) {
@@ -69,6 +80,14 @@ func CastValueToTypeIfPossible(value reflect.Value, expectedType reflect.Type) (
 		return mapped, nil
 	} else if slice, err := CopyToSliceType(v, expectedType); err == nil {
 		return slice, nil
+	} else if expectedType.Kind() == reflect.Ptr {
+		if casted, err := CastValueToTypeIfPossible(v, expectedType.Elem()); err != nil {
+			return casted, err
+		} else if !casted.CanAddr() {
+			return casted, errors.New("Reflect Error", "Cannot get an address for the casted value")
+		} else {
+			return casted.Addr(), err
+		}
 	} else {
 		return reflect.ValueOf(nil), errors.New("Type Error", fmt.Sprintf("Unexpected type: Expected %s but got %s.", expectedType, v.Type()))
 	}
@@ -109,7 +128,7 @@ func MapToStruct(source reflect.Value, targetType reflect.Type) (reflect.Value, 
 // Wraps a value in a slice if it is not already a slice.
 func WrapInSlice(value interface{}) interface{} {
 	v := UnwrapInterface(reflect.ValueOf(value))
-	if v.IsValid() && v.Kind() != reflect.Slice && (!MayBeNil(v) || !v.IsNil()) {
+	if v.IsValid() && v.Kind() != reflect.Slice && (!MayBeNilValue(v) || !v.IsNil()) {
 		slice := make([]interface{}, 1)
 		slice[0] = value
 		return slice
