@@ -31,7 +31,7 @@
 //   These parameters are in the same order as the parameter types in the function definition.
 //   (Currently, parameters containing a comma in their name are not supported as there is no need for it at the moment)
 //
-// In the moment an interface is created (using finalize), it will immediately try to setup a connection to the service and listens to it.
+// When an interface is created (using finalize), it will immediately try to setup a connection to the service and listens to it.
 package rpc
 
 import (

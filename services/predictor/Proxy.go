@@ -5,6 +5,8 @@ import (
 	"returntypes-langserver/common/errors"
 )
 
+//go:generate go run ../serviceGenerator
+
 type Proxy struct {
 	// Predicts the return types of the given methods (which are in a "predictable" format, so in the sentence format)
 	// The return types are in the same order the method names were sent.
