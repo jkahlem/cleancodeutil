@@ -3,9 +3,9 @@ package java
 import (
 	"strings"
 
-	"returntypes-langserver/common/counter"
 	"returntypes-langserver/common/errors"
 	"returntypes-langserver/common/packagetree"
+	"returntypes-langserver/common/utils/counter"
 )
 
 type ResolutionState int

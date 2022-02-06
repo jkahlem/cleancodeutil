@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/counter"
 	"returntypes-langserver/common/csv"
 	"returntypes-langserver/common/errors"
 	"returntypes-langserver/common/java"
 	"returntypes-langserver/common/log"
+	"returntypes-langserver/common/utils/counter"
 	"returntypes-langserver/processing/dataset"
 	"returntypes-langserver/processing/extractor"
 	"returntypes-langserver/processing/git"
