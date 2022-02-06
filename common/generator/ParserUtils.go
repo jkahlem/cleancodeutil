@@ -36,6 +36,7 @@ func CurrentFile() string {
 	return os.Getenv("GOFILE")
 }
 
+// Returns the package name for the file. Panics, if no package is specified.
 func (ctx *context) Package() string {
 	if ctx.fileNode == nil || ctx.fileNode.Name == nil {
 		panic("No package specified in the source file.")

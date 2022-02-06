@@ -57,3 +57,33 @@ func TestStructParsing(t *testing.T) {
 	assert.Equal(t, `tagged:"value"`, field4.Tag)
 	assert.Equal(t, "string", field4.Type.Code())
 }
+
+func TestFunctionTypeParsing(t *testing.T) {
+	// given
+	ctx, _ := ParseFile("_testFile.go")
+	structs := ctx.ParseStructs()
+	// the field type is func(par1, par2 string, par3 int) (res1, res2 bool, res3 string)
+	fieldType := structs[0].Fields[1].Type
+
+	// when
+	fnType, ok := fieldType.FunctionType()
+
+	// then
+	assert.True(t, ok)
+
+	assert.Len(t, fnType.In, 3)
+	assert.Equal(t, "par1", fnType.In[0].Name)
+	assert.Equal(t, "string", fnType.In[0].Type.Code())
+	assert.Equal(t, "par2", fnType.In[1].Name)
+	assert.Equal(t, "string", fnType.In[1].Type.Code())
+	assert.Equal(t, "par3", fnType.In[2].Name)
+	assert.Equal(t, "int", fnType.In[2].Type.Code())
+
+	assert.Len(t, fnType.Out, 3)
+	assert.Equal(t, "res1", fnType.Out[0].Name)
+	assert.Equal(t, "bool", fnType.Out[0].Type.Code())
+	assert.Equal(t, "res2", fnType.Out[1].Name)
+	assert.Equal(t, "bool", fnType.Out[1].Type.Code())
+	assert.Equal(t, "res3", fnType.Out[2].Name)
+	assert.Equal(t, "string", fnType.Out[2].Type.Code())
+}
