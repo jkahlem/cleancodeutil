@@ -27,6 +27,10 @@ import (
 	"fmt"
 	"log"
 	"returntypes-langserver/common/generator"
+	"strings"
+	"text/template"
+
+	"github.com/fatih/structtag"
 )
 
 type TemplateAttributes struct {
@@ -56,36 +60,123 @@ func main() {
 			}
 		}
 	}*/
+	if proxyStruct, exists := findProxyStruct(structs); exists {
+		fmt.Println(buildProxy(proxyStruct))
+	} else {
+		fmt.Println("No proxy found")
+	}
 }
+
+func findProxyStruct(structs []generator.Struct) (generator.Struct, bool) {
+	for _, s := range structs {
+		if s.Name == "Proxy" {
+			return s, true
+		}
+	}
+	return generator.Struct{}, false
+}
+
+func buildProxy(proxyStruct generator.Struct) string {
+	outputCode := strings.Builder{}
+	outputCode.WriteString(ProxyFacadeDef)
+	for _, field := range proxyStruct.Fields {
+		if fnType, ok := field.Type.FunctionType(); ok {
+			if err := validateFunction(fnType, field); err != nil {
+				log.Fatal(err)
+			}
+			fnData := FunctionData{
+				FunctionName:  field.Name,
+				Documentation: commentEachLine(field.Documentation),
+				Parameters:    mapParametersToNameTypePairs(fnType.In),
+				Result:        mapParametersToNameTypePairs(fnType.Out),
+			}
+			if tmpl, err := template.New("boilerplate").Parse(ProxyFacadeFunctionTemplate); err != nil {
+				log.Fatal(err)
+			} else if err := tmpl.Execute(&outputCode, fnData); err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+	outputCode.WriteString(ProxyFacadeValidateFnDef)
+	return outputCode.String()
+}
+
+func validateFunction(fnType generator.FunctionType, field generator.StructField) error {
+	if tags, err := structtag.Parse(field.Tag); err != nil {
+		return err
+	} else if _, err := tags.Get("rpcmethod"); err != nil {
+		return fmt.Errorf("The required `rpcmethod` tag was not found for function %s.", field.Name)
+	} else if paramsTag, err := tags.Get("rpcparams"); err != nil {
+		return fmt.Errorf("The required `rpcparams` tag was not found for function %s.", field.Name)
+	} else if pars := strings.Split(paramsTag.Value(), ","); len(pars) != len(fnType.In) {
+		return fmt.Errorf("Function %s defines %d parameters but the tag defines %d parameters.", field.Name, len(fnType.In), len(pars))
+	}
+	return nil
+}
+
+func mapParametersToNameTypePairs(parameters []generator.Parameter) []NameTypePair {
+	result := make([]NameTypePair, 0, len(parameters))
+	for _, par := range parameters {
+		result = append(result, mapParameterToNameTypePair(par))
+	}
+	return result
+}
+
+func mapParameterToNameTypePair(par generator.Parameter) NameTypePair {
+	return NameTypePair{
+		Name: par.Name,
+		Type: par.Type.Code(),
+	}
+}
+
+func commentEachLine(documentation string) string {
+	lines := strings.Split(documentation, "\n")
+	if len(lines) == 0 {
+		return ""
+	} else {
+		lines = lines[0 : len(lines)-1]
+	}
+	for i := range lines {
+		lines[i] = "// " + lines[i]
+	}
+	return strings.Join(lines, "\n")
+}
+
+type FunctionData struct {
+	Documentation string
+	FunctionName  string
+	Parameters    []NameTypePair
+	Result        []NameTypePair
+}
+
+type NameTypePair struct {
+	Name string
+	Type string
+}
+
+const ProxyFacadeDef = "type ProxyFacade struct {\n\tProxy Proxy `rpcproxy:\"true\"`\n}\n\n"
+
+const ProxyFacadeFunctionTemplate = `{{.Documentation}}
+func (p *ProxyFacade) {{.FunctionName}}({{range $i, $e := .Parameters}}{{if $i}}, {{end}}{{.Name}} {{.Type}}{{end}}) ({{range $i, $e := .Result}}{{if $i}}, {{end}}{{.Name}} {{.Type}}{{end}}) {
+	if err := p.validate(p.Proxy.{{.FunctionName}}); err != nil {
+		return nil, err
+	}
+	return p.Proxy.{{.FunctionName}}({{range $i, $e := .Parameters}}{{if $i}}, {{end}}{{.Name}}{{end}})
+}
+
+`
+
+const ProxyFacadeValidateFnDef = `func (p *ProxyFacade) validate(fn interface{}) errors.Error {
+	fnVal := reflect.ValueOf(fn)
+	if !fnVal.IsValid() || fnVal.IsZero() {
+		return errors.New("RPC Error", "Interface function does not exist")
+	}
+	return nil
+}
+`
 
 const Imports = `
 import (
 	"reflect"
 	"returntypes-langserver/common/log"
 )`
-
-var marshallerTemplate = `
-func (t {{.TypeName}}) ToRecordTEST() []string {
-	if record, err := marshal(reflect.ValueOf(t)); err != nil {
-		log.Error(err)
-		log.ReportProblem("An error occured while marshalling data")
-		return nil
-	} else {
-		return record
-	}
-}
-
-func Unmarshal{{.TypeName}}TEST(records [][]string) []{{.TypeName}} {
-	typ := reflect.TypeOf({{.TypeName}}{})
-	result := make([]{{.TypeName}}, 0, len(records))
-	for _, record := range records {
-		if unmarshalled, err := unmarshal(record,  typ); err != nil {
-			log.Error(err)
-			log.ReportProblem("An error occured while unmarshalling data")
-		} else if c, ok := (unmarshalled.Interface()).({{.TypeName}}); ok {
-			result = append(result, c)
-		}
-	}
-	return result
-}
-`
