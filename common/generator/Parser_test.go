@@ -19,8 +19,9 @@ func TestParsing(t *testing.T) {
 
 	// then
 	assert.NoError(t, err)
-	assert.NotNil(t, ctx.fileNode)
-	assert.Equal(t, src, ctx.sourceCode)
+	assert.NotNil(t, ctx.files)
+	assert.NotNil(t, ctx.files[0].FileNode)
+	assert.Equal(t, src, ctx.files[0].Source)
 }
 
 func TestStructParsing(t *testing.T) {

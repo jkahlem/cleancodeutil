@@ -1,24 +1,18 @@
 // Generator for services
 //
-// Generates a lot of boilerplate code for services and writes them to one file (which were before manually managed in multiple files)
-// It does:
-// - Generate a proxy facade with functions which validates the underlying proxy (based on the struct)
-//   - Checks if each method of a proxy has the rpcmethod and rpcparams tags
-//   - Checks if each method of a proxy has exactly the same amount of parameters in the rpcparams tag as in the rpcmethod tag
-//   - For each method: Generates a method on the proxy with exactly the same name/arguments which validates the existence of the proxy and it's functions
-//   - Copies also the comments for the generated method
-//   * Need to find the proxy struct (File "Proxy.go" -> Struct Name "Proxy")
-//   * Need to go through the fields of the proxies including their comments
-// - Generate functions for initializing a callable proxy (facade)
-//   - basically a "proxy()" method which returns a singleton proxy facade (and initializes it) would be enough. But see the interface stuff for it.
-// - Generate functions for the singleton interface / singleton service stuff. This might also result into a rework of the interface stuff.
-//   - singleton service: Export only methods which are actually exported from the given class
-//     * Need to search for methods belonging to a specific class. Also: How to find the target class?
-// - Maybe also generate service Interfaces and the service mock stubs (if a mock does not exist at the moment, so optional.)
-//   - Is this really needed, except for the predictor stuff? (How to use the mock??)
-// - Controller generation? (Especially, or at least, the register methods stuff. But how to define the actual method names? see language server)
+// Generates a lot of boilerplate code for services and writes them to one file (which were before manually managed in multiple files).
+// TODO: ServiceFacade generation by "annotations", e.g.
+//   type predictor struct {} // Service
+//   type Predictor interface { // Service interface
 //
-// There are no further validations if for example names of generated functions are duplicated or something
+//   }
+// Structs with line comment == "Service" define the service to use (which should be singleton)
+// If an interface with the "Service interface" comment exist, use this one as:
+// - return type in the getServiceSingleton() method
+// - reference for the exported service methods. (Documentation should also be defined in the interface)
+// otherwise do it with the struct.
+// CHECK if there is not exactly one struct with service annotation, same for interface. Mocks should be different cases.
+// Maybe prefix these generator annotations. As they are really not the best way to do it. something like @ServiceGenerator:ServiceDefinition or something.
 
 // TODO: Remove/Rework the above comment. (As they are just some notes for creating the generator.)
 package main
@@ -27,7 +21,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path"
+	"path/filepath"
 	"returntypes-langserver/common/generator"
 	"strings"
 	"text/template"
@@ -36,7 +30,7 @@ import (
 )
 
 func main() {
-	ctx, err := generator.ParseFile(generator.CurrentFile())
+	ctx, err := generator.ParsePackage(filepath.Dir(generator.CurrentFile()))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -48,7 +42,7 @@ func main() {
 		fmt.Println("No proxy found")
 	}
 
-	if outputFile, err := os.Create(path.Join(path.Dir(generator.CurrentFile()), "generated.go")); err != nil {
+	if outputFile, err := os.Create(filepath.Join(filepath.Dir(generator.CurrentFile()), "generated.go")); err != nil {
 		log.Fatal(err)
 	} else {
 		fmt.Fprint(outputFile, generator.HeaderNote)

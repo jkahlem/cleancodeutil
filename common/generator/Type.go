@@ -4,12 +4,14 @@ import "go/ast"
 
 type Type struct {
 	base ast.Expr
+	file *SourceFilePair
 	ctx  *context
 }
 
 func (ctx *context) ofType(expr ast.Expr) Type {
 	return Type{
 		base: expr,
+		file: ctx.currentFile,
 		ctx:  ctx,
 	}
 }
@@ -17,10 +19,10 @@ func (ctx *context) ofType(expr ast.Expr) Type {
 // Returns the source code snippet for the type declaration
 func (t *Type) Code() string {
 	start, end := t.base.Pos()-1, t.base.End()-1
-	if t.ctx == nil || len(t.ctx.sourceCode) < int(end) {
+	if t.file == nil || len(t.file.Source) < int(end) {
 		return ""
 	}
-	return t.ctx.sourceCode[start:end]
+	return t.file.Source[start:end]
 }
 
 // Builds the given type as a function type if it is a function type (ok will be true). Otherwise, ok will be false.

@@ -7,6 +7,10 @@ import (
 type Struct struct {
 	// The name of the struct.
 	Name string
+	// Documentation above the struct definition (<- like this)
+	Documentation string
+	// Comments on the same line as the struct definition (= where the word "type" is)
+	LineComment string // like this
 	// The fields of the struct.
 	// Does not contain the fields of an embedded struct, but the existence of the embedded struct (the field has no name then).
 	// This is, because the embedded struct might be declared somewhere else (different file/package) and currently only the file scope is checked.
@@ -31,14 +35,17 @@ type StructField struct {
 func (ctx *context) ParseStructs() []Struct {
 	structs := make([]Struct, 0, 1)
 
-	ast.Inspect(ctx.fileNode, func(n ast.Node) bool {
-		if n == nil {
-			return false
-		} else if typeSpec, structType, ok := ctx.getStructNode(n); ok {
-			structs = append(structs, ctx.buildStruct(typeSpec, structType))
-		}
-		return true
-	})
+	for i, file := range ctx.files {
+		ctx.currentFile = &ctx.files[i]
+		ast.Inspect(file.FileNode, func(n ast.Node) bool {
+			if n == nil {
+				return false
+			} else if typeSpec, structType, ok := ctx.getStructNode(n); ok {
+				structs = append(structs, ctx.buildStruct(typeSpec, structType))
+			}
+			return true
+		})
+	}
 	return structs
 }
 
@@ -55,6 +62,12 @@ func (ctx *context) buildStruct(typeSpec *ast.TypeSpec, srcStruct *ast.StructTyp
 	destStruct := Struct{}
 	if typeSpec.Name != nil {
 		destStruct.Name = typeSpec.Name.Name
+	}
+	if typeSpec.Doc != nil {
+		destStruct.Documentation = typeSpec.Doc.Text()
+	}
+	if typeSpec.Comment != nil {
+		destStruct.LineComment = typeSpec.Comment.Text()
 	}
 	destStruct.Fields = make([]StructField, 0, len(srcStruct.Fields.List))
 	for _, field := range srcStruct.Fields.List {
