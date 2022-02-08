@@ -26,6 +26,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
+	"path"
 	"returntypes-langserver/common/generator"
 	"strings"
 	"text/template"
@@ -33,37 +35,25 @@ import (
 	"github.com/fatih/structtag"
 )
 
-type TemplateAttributes struct {
-	TypeName string
-}
-
 func main() {
 	ctx, err := generator.ParseFile(generator.CurrentFile())
 	if err != nil {
 		log.Fatal(err)
 	}
+	proxyBody := ""
 	structs := ctx.ParseStructs()
-	fmt.Println(structs)
-
-	// write type name templates to output file
-	/*if outputFile, err := os.Create(path.Join(path.Dir(targetFile), "Marshaller.go")); err != nil {
-		log.Fatal(err)
-	} else {
-		fmt.Fprint(outputFile, HeaderNote)
-		fmt.Fprintf(outputFile, "package %s\n", srcFileNode.Name.Name)
-		fmt.Fprint(outputFile, Imports)
-		for _, typeName := range typeNames {
-			if tmpl, err := template.New("boilerplate").Parse(marshallerTemplate); err != nil {
-				log.Fatal(err)
-			} else if err := tmpl.Execute(outputFile, TemplateAttributes{TypeName: typeName}); err != nil {
-				log.Fatal(err)
-			}
-		}
-	}*/
 	if proxyStruct, exists := findProxyStruct(structs); exists {
-		fmt.Println(buildProxy(proxyStruct))
+		proxyBody = buildProxy(proxyStruct)
 	} else {
 		fmt.Println("No proxy found")
+	}
+
+	if outputFile, err := os.Create(path.Join(path.Dir(generator.CurrentFile()), "generated.go")); err != nil {
+		log.Fatal(err)
+	} else {
+		fmt.Fprint(outputFile, generator.HeaderNote)
+		fmt.Fprintf(outputFile, "package %s\n", ctx.Package())
+		fmt.Fprint(outputFile, Imports, proxyBody, InterfaceDef)
 	}
 }
 
@@ -177,6 +167,55 @@ const ProxyFacadeValidateFnDef = `func (p *ProxyFacade) validate(fn interface{})
 
 const Imports = `
 import (
+	"io"
 	"reflect"
+	"sync"
+
+	"returntypes-langserver/common/errors"
 	"returntypes-langserver/common/log"
-)`
+	"returntypes-langserver/common/messages"
+	"returntypes-langserver/common/rpc"
+	"returntypes-langserver/common/rpc/jsonrpc"
+)
+
+`
+
+const InterfaceDef = `
+var interfaceSingleton rpc.Interface
+var interfaceMutex sync.Mutex
+
+// Returns a proxy which can be used to communicate with the client.
+func remote() *ProxyFacade {
+	if ifc := getInterface(); ifc != nil && ifc.ProxyFacade() != nil {
+		if facade, ok := ifc.ProxyFacade().(*ProxyFacade); ok {
+			return facade
+		}
+	}
+	return &ProxyFacade{}
+}
+
+// Returns the service connection
+func serviceConnection() io.ReadWriter {
+	if getInterface() != nil {
+		return getInterface().Connection()
+	}
+	return nil
+}
+
+// Returns the used service interface
+func getInterface() rpc.Interface {
+	interfaceMutex.Lock()
+	defer interfaceMutex.Unlock()
+
+	if interfaceSingleton == nil {
+		serviceConfig := serviceConfiguration()
+		if ifc, err := rpc.BuildInterfaceFromServiceConfiguration(serviceConfig, &ProxyFacade{}); err != nil {
+			if serviceConfig.OnInterfaceCreationError != nil {
+				serviceConfig.OnInterfaceCreationError(err)
+			}
+		} else {
+			interfaceSingleton = ifc
+		}
+	}
+	return interfaceSingleton
+}`

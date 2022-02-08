@@ -114,7 +114,7 @@ func CreateInterfaceOnConnection(connection Connection, messager messages.Messag
 
 // Adds a proxy facade (/client stub) to the interface representing the outgoing interface.
 func (builder *InterfaceBuilder) WithProxyFacade(proxyFacadePtrUnwrapped interface{}) *InterfaceBuilder {
-	if builder.err != nil {
+	if builder.err != nil || proxyFacadePtrUnwrapped == nil {
 		return builder
 	}
 

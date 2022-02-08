@@ -66,7 +66,7 @@ func (p *predictor) PredictReturnTypes(methodNames []PredictableMethodName) ([]s
 	for i, name := range methodNames {
 		strSlice[i] = string(name)
 	}
-	return getInterface().ProxyFacade().Predict(strSlice, ReturnTypesPrediction)
+	return remote().Predict(strSlice, ReturnTypesPrediction)
 }
 
 // Predicts the expected return type for the given method names. Returns a list of expected return types in the exact order
@@ -76,17 +76,17 @@ func (p *predictor) GenerateMethods(methodNames []PredictableMethodName) ([]stri
 	for i, name := range methodNames {
 		strSlice[i] = string(name)
 	}
-	return getInterface().ProxyFacade().Predict(strSlice, MethodGenerator)
+	return remote().Predict(strSlice, MethodGenerator)
 }
 
 // Starts the training and evaluation process. Returns the evaluation result if finished.
 func (p *predictor) TrainReturnTypes(labels, trainingSet, evaluationSet [][]string) (Evaluation, errors.Error) {
-	return getInterface().ProxyFacade().Train(p.asCsvString(trainingSet), p.asCsvString(evaluationSet), p.asCsvString(labels), ReturnTypesPrediction)
+	return remote().Train(p.asCsvString(trainingSet), p.asCsvString(evaluationSet), p.asCsvString(labels), ReturnTypesPrediction)
 }
 
 // Starts training + evaluation process for method generation
 func (p *predictor) TrainMethods(trainingSet, evaluationSet [][]string) (Evaluation, errors.Error) {
-	return getInterface().ProxyFacade().Train(p.asCsvString(trainingSet), p.asCsvString(evaluationSet), "", MethodGenerator)
+	return remote().Train(p.asCsvString(trainingSet), p.asCsvString(evaluationSet), "", MethodGenerator)
 }
 
 func (p *predictor) asCsvString(records [][]string) string {
