@@ -20,12 +20,11 @@ func (ctx *context) ParseInterfaces() []Interface {
 	interfaces := make([]Interface, 0, 1)
 
 	for i, file := range ctx.files {
-		ctx.currentFile = &ctx.files[i]
 		ast.Inspect(file.FileNode, func(n ast.Node) bool {
 			if n == nil {
 				return false
 			} else if typeSpec, interfaceType, ok := ctx.getInterfaceNode(n); ok {
-				interfaces = append(interfaces, ctx.buildInterface(typeSpec, interfaceType))
+				interfaces = append(interfaces, ctx.buildInterface(typeSpec, interfaceType, &ctx.files[i]))
 			}
 			return true
 		})
@@ -42,30 +41,30 @@ func (ctx *context) getInterfaceNode(node ast.Node) (*ast.TypeSpec, *ast.Interfa
 	return nil, nil, false
 }
 
-func (ctx *context) buildInterface(typeSpec *ast.TypeSpec, srcStruct *ast.InterfaceType) Interface {
+func (ctx *context) buildInterface(typeSpec *ast.TypeSpec, srcInterface *ast.InterfaceType, file *SourceFilePair) Interface {
 	destInterface := Interface{
 		Base:    getBaseValuesFromTypeSpec(typeSpec),
-		Methods: make([]InterfaceMethod, 0, len(srcStruct.Methods.List)),
+		Methods: make([]InterfaceMethod, 0, len(srcInterface.Methods.List)),
 	}
-	for _, method := range srcStruct.Methods.List {
-		destInterface.Methods = append(destInterface.Methods, ctx.buildInterfaceMethods(method)...)
+	for _, method := range srcInterface.Methods.List {
+		destInterface.Methods = append(destInterface.Methods, ctx.buildInterfaceMethods(method, file)...)
 	}
 	return destInterface
 }
 
-func (ctx *context) buildInterfaceMethods(srcField *ast.Field) []InterfaceMethod {
+func (ctx *context) buildInterfaceMethods(srcField *ast.Field, file *SourceFilePair) []InterfaceMethod {
 	methods := make([]InterfaceMethod, 0, len(srcField.Names))
 	if len(srcField.Names) > 0 {
 		for i := range srcField.Names {
-			methods = append(methods, ctx.buildInterfaceMethod(srcField, i))
+			methods = append(methods, ctx.buildInterfaceMethod(srcField, i, file))
 		}
 	}
 	return methods
 }
 
-func (ctx *context) buildInterfaceMethod(srcField *ast.Field, index int) InterfaceMethod {
+func (ctx *context) buildInterfaceMethod(srcField *ast.Field, index int, file *SourceFilePair) InterfaceMethod {
 	return InterfaceMethod{
 		Base: getBaseValuesFromField(srcField, index),
-		Type: ctx.ofType(srcField.Type),
+		Type: ctx.ofType(srcField.Type, file),
 	}
 }

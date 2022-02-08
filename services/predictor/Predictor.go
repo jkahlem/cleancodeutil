@@ -31,14 +31,20 @@ type MethodTypeMap map[PredictableMethodName]string
 
 // Interface used for the predictor to support multiple predictor implementations like the mock.
 type Predictor interface {
+	// Makes predictions for the methods in the map and sets the types as their value.
 	PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error
+	// Predicts the expected return type for the given method names. Returns a list of expected return types in the exact order
+	// the method names were passed.
 	PredictReturnTypes(methodNames []PredictableMethodName) ([]string, errors.Error)
+	// Generates the remained part of a method by it's method name
 	GenerateMethods(methodNames []PredictableMethodName) ([]string, errors.Error)
+	// Starts the training and evaluation process. Returns the evaluation result if finished.
 	TrainReturnTypes(labels, trainingSet, evaluationSet [][]string) (Evaluation, errors.Error)
+	// Starts the training and evaluation process. Returns the evaluation result if finished.
 	TrainMethods(trainingSet, evaluationSet [][]string) (Evaluation, errors.Error)
-}
+} // @ServiceGenerator:ServiceInterfaceDefinition
 
-type predictor struct{}
+type predictor struct{} // @ServiceGenerator:ServiceDefinition
 
 // Makes predictions for the methods in the map and sets the types as their value.
 func (p *predictor) PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error {

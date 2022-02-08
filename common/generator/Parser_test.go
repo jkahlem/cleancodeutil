@@ -127,3 +127,35 @@ func TestFunctionDeclarationParsing(t *testing.T) {
 	assert.Equal(t, "Multi line\nDocumentation\n", testMethod.Documentation)
 	assert.Equal(t, "func (t *TestStruct) SampleMethod(par1 string, par2 int) error", testMethod.Type.Code())
 }
+
+func TestMultipleSourcesParsing(t *testing.T) {
+	// given
+	src1 := `package somepackage
+	type TestStruct struct {
+		field1 string
+		Field2 func(par1, par2 string, par3 int) (res1, res2 bool, res3 string)
+	}`
+	src2 := `package somepackage
+	type DifferentStruct struct {
+		someField func(par2 string) error
+		otherField func(int) bool
+	}`
+	ctx, err := ParseSourceCode(src1, src2)
+
+	// when
+	structs := ctx.ParseStructs()
+
+	// then
+	assert.NoError(t, err)
+	assert.Equal(t, "field1", structs[0].Fields[0].Name)
+	assert.Equal(t, "string", structs[0].Fields[0].Type.Code())
+
+	assert.Equal(t, "Field2", structs[0].Fields[1].Name)
+	assert.Equal(t, "func(par1, par2 string, par3 int) (res1, res2 bool, res3 string)", structs[0].Fields[1].Type.Code())
+
+	assert.Equal(t, "someField", structs[1].Fields[0].Name)
+	assert.Equal(t, "func(par2 string) error", structs[1].Fields[0].Type.Code())
+
+	assert.Equal(t, "otherField", structs[1].Fields[1].Name)
+	assert.Equal(t, "func(int) bool", structs[1].Fields[1].Type.Code())
+}

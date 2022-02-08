@@ -1,6 +1,7 @@
 package predictor
 
 import (
+	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/errors"
 	"returntypes-langserver/common/log"
 	"returntypes-langserver/common/messages"
@@ -40,6 +41,7 @@ func serviceConfiguration() rpc.ServiceConfiguration {
 		OnInterfaceCreationError: func(err errors.Error) {
 			log.FatalError(err)
 		},
+		UseMock: configuration.PredictorUseMock(),
 	}
 }
 

@@ -9,7 +9,7 @@ import (
 //
 // The mock will not call the remote service and has no other dependencies.
 // The mock will always predict the type specified in MockReturnTypePrediction for any method to predict.
-type mock struct{}
+type mock struct{} // @ServiceGenerator:ServiceMockDefinition
 
 const MockReturnTypePrediction = "void"
 const MockGeneratedMethod = ": <object> parameter"

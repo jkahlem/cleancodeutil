@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type SourceFilePair struct {
@@ -15,9 +16,8 @@ type SourceFilePair struct {
 }
 
 type context struct {
-	files []SourceFilePair
-	// The file node which is currently parsed
-	currentFile *SourceFilePair
+	files   []SourceFilePair
+	fileset *token.FileSet
 }
 
 // Parses the source code of the passed file
@@ -36,31 +36,44 @@ func ParseFile(filePaths ...string) (*context, error) {
 // Parses the passed source code
 func ParseSourceCode(sourceCodes ...string) (*context, error) {
 	ctx := context{
-		files: make([]SourceFilePair, 0, len(sourceCodes)),
+		files:   make([]SourceFilePair, 0, len(sourceCodes)),
+		fileset: token.NewFileSet(),
 	}
-	for _, src := range sourceCodes {
-		fileNode, err := parser.ParseFile(token.NewFileSet(), "", src, parser.ParseComments)
+	for i := range sourceCodes {
+		fileNode, err := parser.ParseFile(ctx.fileset, "", sourceCodes[i], parser.ParseComments)
 		if err != nil {
 			return nil, err
 		}
 		ctx.files = append(ctx.files, SourceFilePair{
-			Source:   src,
+			Source:   sourceCodes[i],
 			FileNode: fileNode,
 		})
 	}
 	return &ctx, nil
 }
 
-func ParsePackage(directoryPath string) (*context, error) {
+func ParsePackage(directoryPath string, exceptions ...string) (*context, error) {
 	if files, err := os.ReadDir(directoryPath); err != nil {
 		return nil, err
 	} else {
 		paths := make([]string, 0, len(files))
-		for _, dir := range files {
-			paths = append(paths, filepath.Join(directoryPath, dir.Name()))
+		for _, file := range files {
+			if isStringInSlice(file.Name(), exceptions) || !strings.HasSuffix(file.Name(), ".go") {
+				continue
+			}
+			paths = append(paths, filepath.Join(directoryPath, file.Name()))
 		}
 		return ParseFile(paths...)
 	}
+}
+
+func isStringInSlice(str string, slice []string) bool {
+	for _, s := range slice {
+		if s == str {
+			return true
+		}
+	}
+	return false
 }
 
 // The file from where go generate was called on

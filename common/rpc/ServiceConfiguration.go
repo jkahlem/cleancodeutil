@@ -12,6 +12,7 @@ type ServiceConfiguration struct {
 	OnRecoverFailed          func(Recoverer)
 	OnConnectionError        func(Recoverer)
 	OnInterfaceCreationError func(errors.Error)
+	UseMock                  bool
 }
 
 func BuildInterfaceFromServiceConfiguration(config ServiceConfiguration, proxyFacade interface{}) (Interface, errors.Error) {

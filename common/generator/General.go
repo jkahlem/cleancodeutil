@@ -13,6 +13,10 @@ type Base struct {
 	// Documentation above the element definition
 	Documentation string
 	// Comments on the same line as the element definition
+	// For structs/interfaces, this will be the line after the closing '}'
+	//   type Example struct {
+	//		field string // line comment of field
+	//	 } // line comment of struct
 	LineComment string
 }
 

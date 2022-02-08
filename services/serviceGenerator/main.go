@@ -25,30 +25,107 @@ import (
 	"returntypes-langserver/common/generator"
 	"strings"
 	"text/template"
+	"unicode"
 
 	"github.com/fatih/structtag"
 )
 
+type ServiceFacadeTemplateAttributes struct {
+	ExportedServiceType string
+	ActualServiceType   string
+	MockServiceType     string
+	Methods             []FunctionData
+}
+
 func main() {
-	ctx, err := generator.ParsePackage(filepath.Dir(generator.CurrentFile()))
+	ctx, err := generator.ParsePackage(filepath.Dir(generator.CurrentFile()), "generated.go")
 	if err != nil {
 		log.Fatal(err)
 	}
 	proxyBody := ""
 	structs := ctx.ParseStructs()
+	interfaces := ctx.ParseInterfaces()
+	functions := ctx.ParseFunctionDeclarations()
 	if proxyStruct, exists := findProxyStruct(structs); exists {
 		proxyBody = buildProxy(proxyStruct)
 	} else {
 		fmt.Println("No proxy found")
 	}
+	serviceFacadeBody := buildServiceFacade(structs, interfaces, functions)
 
 	if outputFile, err := os.Create(filepath.Join(filepath.Dir(generator.CurrentFile()), "generated.go")); err != nil {
 		log.Fatal(err)
 	} else {
 		fmt.Fprint(outputFile, generator.HeaderNote)
 		fmt.Fprintf(outputFile, "package %s\n", ctx.Package())
-		fmt.Fprint(outputFile, Imports, proxyBody, InterfaceDef)
+		fmt.Fprint(outputFile, Imports)
+		fmt.Fprint(outputFile, proxyBody)
+		fmt.Fprint(outputFile, serviceFacadeBody)
+		fmt.Fprint(outputFile, InterfaceDef)
 	}
+}
+
+func buildServiceFacade(structs []generator.Struct, interfaces []generator.Interface, functions []generator.FunctionDeclaration) string {
+	outputCode := strings.Builder{}
+	if serviceStruct, exists := findServiceStruct(structs); exists {
+		serviceAttributes := ServiceFacadeTemplateAttributes{
+			ExportedServiceType: "*" + serviceStruct.Name,
+			ActualServiceType:   serviceStruct.Name,
+		}
+		if mock, exists := findServiceMock(structs); exists {
+			serviceAttributes.MockServiceType = mock.Name
+		}
+
+		if serviceInterface, exists := findServiceInterface(interfaces); exists {
+			fmt.Println("Service interface found")
+			// For service interfaces, export the interface as type
+			serviceAttributes.ExportedServiceType = serviceInterface.Name
+			for _, method := range serviceInterface.Methods {
+				fnType, ok := method.Type.FunctionType()
+				if !ok {
+					continue
+				}
+				serviceAttributes.Methods = append(serviceAttributes.Methods, FunctionData{
+					FunctionName:  method.Name,
+					Documentation: commentEachLine(method.Documentation),
+					Parameters:    mapParametersToNameTypePairs(fnType.In),
+					Result:        mapParametersToNameTypePairs(fnType.Out),
+				})
+			}
+		} else {
+			fmt.Println("No interface defined - build service facade by function declarations")
+			// build by function declarations
+			for _, function := range functions {
+				if function.ReceiverType != serviceAttributes.ExportedServiceType || !isExportedName(function.Name) {
+					continue
+				}
+				fnType, ok := function.Type.FunctionType()
+				if !ok {
+					continue
+				}
+				serviceAttributes.Methods = append(serviceAttributes.Methods, FunctionData{
+					FunctionName:  function.Name,
+					Documentation: commentEachLine(function.Documentation),
+					Parameters:    mapParametersToNameTypePairs(fnType.In),
+					Result:        mapParametersToNameTypePairs(fnType.Out),
+				})
+			}
+		}
+		if tmpl, err := template.New("boilerplate").Parse(ServiceFacadeTemplate); err != nil {
+			log.Fatal(err)
+		} else if err := tmpl.Execute(&outputCode, serviceAttributes); err != nil {
+			log.Fatal(err)
+		}
+	} else {
+		log.Fatal(fmt.Errorf("No service found"))
+	}
+	return outputCode.String()
+}
+
+// Checks if the name/identifier is exported (accessible from outside the package)
+func isExportedName(name string) bool {
+	firstChar := name[0]
+	return firstChar != '_' && unicode.IsLetter(rune(firstChar)) && !unicode.IsLower(rune(firstChar))
 }
 
 func findProxyStruct(structs []generator.Struct) (generator.Struct, bool) {
@@ -58,6 +135,38 @@ func findProxyStruct(structs []generator.Struct) (generator.Struct, bool) {
 		}
 	}
 	return generator.Struct{}, false
+}
+
+func findServiceStruct(structs []generator.Struct) (service generator.Struct, found bool) {
+	for _, s := range structs {
+		if strings.Contains(s.LineComment, "@ServiceGenerator:ServiceDefinition") {
+			if found {
+				log.Fatal(fmt.Errorf("Multiple service definitions found. Service definitions should be unique per package."))
+				return
+			}
+			service = s
+			found = true
+		}
+	}
+	return
+}
+
+func findServiceMock(structs []generator.Struct) (generator.Struct, bool) {
+	for _, s := range structs {
+		if strings.Contains(s.LineComment, "@ServiceGenerator:ServiceMockDefinition") {
+			return s, true
+		}
+	}
+	return generator.Struct{}, false
+}
+func findServiceInterface(interfaces []generator.Interface) (generator.Interface, bool) {
+	for _, i := range interfaces {
+		fmt.Println("->", i.LineComment, i.Documentation)
+		if strings.Contains(i.LineComment, "@ServiceGenerator:ServiceInterfaceDefinition") {
+			return i, true
+		}
+	}
+	return generator.Interface{}, false
 }
 
 func buildProxy(proxyStruct generator.Struct) string {
@@ -157,6 +266,38 @@ const ProxyFacadeValidateFnDef = `func (p *ProxyFacade) validate(fn interface{})
 	}
 	return nil
 }
+`
+
+const ServiceFacadeTemplate = `
+var singleton {{.ExportedServiceType}}
+var singletonMutex sync.Mutex
+
+func getSingleton() {{.ExportedServiceType}} {
+	singletonMutex.Lock()
+	defer singletonMutex.Unlock()
+
+	if singleton == nil {
+		singleton = createSingleton()
+	}
+	return singleton
+}
+
+func createSingleton() {{.ExportedServiceType}} {
+	{{if .MockServiceType}}
+	if serviceConfiguration().UseMock {
+		log.Info("Setup {{.ExportedServiceType}} service using mock...\n")
+		return &{{.MockServiceType}}{}
+	}
+	{{end}}
+	return &{{.ActualServiceType}}{}
+}
+
+{{range .Methods}}
+{{.Documentation}}
+func {{.FunctionName}}({{range $i, $e := .Parameters}}{{if $i}}, {{end}}{{.Name}} {{.Type}}{{end}}) ({{range $i, $e := .Result}}{{if $i}}, {{end}}{{.Name}} {{.Type}}{{end}}) {
+	return getSingleton().{{.FunctionName}}({{range $i, $e := .Parameters}}{{if $i}}, {{end}}{{.Name}}{{end}})
+}
+{{end}}
 `
 
 const Imports = `
