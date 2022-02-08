@@ -20,7 +20,7 @@ type StructField struct {
 	Type Type
 }
 
-// Parses a go file and extracts the struct informations contained in this file.
+// Parses a go file and extracts the struct definitions contained in this file.
 // Use parser.ParseComments to include documentations / comments.
 func (ctx *context) ParseStructs() []Struct {
 	structs := make([]Struct, 0, 1)

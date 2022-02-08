@@ -108,5 +108,22 @@ func TestInterfaceParsing(t *testing.T) {
 	assert.Equal(t, "SampleMethod", method1.Name)
 	assert.Equal(t, "Multi line\nDocumentation\n", method1.Documentation)
 	assert.Equal(t, "(string, int) error", method1.Type.Code())
+}
 
+func TestFunctionDeclarationParsing(t *testing.T) {
+	// given
+	ctx, err := ParseFile("_testFile.go")
+	assert.NoError(t, err)
+
+	// when
+	functions := ctx.ParseFunctionDeclarations()
+
+	// then
+	assert.Len(t, functions, 1)
+
+	testMethod := functions[0]
+	assert.Equal(t, "SampleMethod", testMethod.Name)
+	assert.Equal(t, "*TestStruct", testMethod.ReceiverType)
+	assert.Equal(t, "Multi line\nDocumentation\n", testMethod.Documentation)
+	assert.Equal(t, "func (t *TestStruct) SampleMethod(par1 string, par2 int) error", testMethod.Type.Code())
 }

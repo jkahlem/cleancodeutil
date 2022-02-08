@@ -13,3 +13,9 @@ type TestInterface interface {
 	// Documentation
 	SampleMethod(string, int) error
 }
+
+// Multi line
+// Documentation
+func (t *TestStruct) SampleMethod(par1 string, par2 int) error {
+	return nil
+}

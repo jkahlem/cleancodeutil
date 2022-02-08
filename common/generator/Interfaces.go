@@ -14,7 +14,7 @@ type InterfaceMethod struct {
 	Type Type
 }
 
-// Parses a go file and extracts the struct informations contained in this file.
+// Parses a go file and extracts the interface definitions contained in this file.
 // Use parser.ParseComments to include documentations / comments.
 func (ctx *context) ParseInterfaces() []Interface {
 	interfaces := make([]Interface, 0, 1)

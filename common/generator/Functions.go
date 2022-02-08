@@ -55,3 +55,65 @@ func (ctx *context) buildParameter(srcPar *ast.Field, index int) Parameter {
 	destPar.Type = ctx.ofType(srcPar.Type)
 	return destPar
 }
+
+type FunctionDeclaration struct {
+	Name          string
+	Documentation string
+	ReceiverType  string
+	Type          Type
+}
+
+// Parses a go file and extracts the function declarations contained in this file.
+// Use parser.ParseComments to include documentations / comments.
+func (ctx *context) ParseFunctionDeclarations() []FunctionDeclaration {
+	declarations := make([]FunctionDeclaration, 0, 1)
+
+	for i, file := range ctx.files {
+		ctx.currentFile = &ctx.files[i]
+		ast.Inspect(file.FileNode, func(n ast.Node) bool {
+			if n == nil {
+				return false
+			} else if funcDecl, ok := ctx.getFunctionDeclarationNode(n); ok {
+				declarations = append(declarations, ctx.buildFunctionDeclaration(funcDecl))
+			}
+			return true
+		})
+	}
+	return declarations
+}
+
+func (ctx *context) getFunctionDeclarationNode(node ast.Node) (*ast.FuncDecl, bool) {
+	if funcDecl, ok := node.(*ast.FuncDecl); ok {
+		return funcDecl, ok
+	}
+	return nil, false
+}
+
+func (ctx *context) buildFunctionDeclaration(srcFuncDecl *ast.FuncDecl) FunctionDeclaration {
+	destDecl := FunctionDeclaration{
+		Type: ctx.ofType(srcFuncDecl.Type),
+	}
+	if srcFuncDecl.Name != nil {
+		destDecl.Name = srcFuncDecl.Name.Name
+	}
+	if srcFuncDecl.Doc != nil {
+		destDecl.Documentation = srcFuncDecl.Doc.Text()
+	}
+	if srcFuncDecl.Recv != nil && len(srcFuncDecl.Recv.List) == 1 {
+		t := ctx.ofType(srcFuncDecl.Recv.List[0].Type)
+		destDecl.ReceiverType = t.Code()
+	}
+
+	return destDecl
+}
+
+func (ctx *context) getReceivers(receiverList *ast.FieldList) []string {
+	if receiverList == nil {
+		return nil
+	}
+	receivers := make([]string, 0, 1)
+	for _, receiver := range receiverList.List {
+		receivers = append(receivers, receiver.Names[0].Name)
+	}
+	return nil
+}
