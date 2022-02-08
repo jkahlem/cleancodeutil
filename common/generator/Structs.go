@@ -5,12 +5,7 @@ import (
 )
 
 type Struct struct {
-	// The name of the struct.
-	Name string
-	// Documentation above the struct definition (<- like this)
-	Documentation string
-	// Comments on the same line as the struct definition (= where the word "type" is)
-	LineComment string // like this
+	Base
 	// The fields of the struct.
 	// Does not contain the fields of an embedded struct, but the existence of the embedded struct (the field has no name then).
 	// This is, because the embedded struct might be declared somewhere else (different file/package) and currently only the file scope is checked.
@@ -18,14 +13,9 @@ type Struct struct {
 }
 
 type StructField struct {
-	// The name of the struct field
-	Name string
+	Base
 	// The tag for the struct field
 	Tag string
-	// Documentation above the field definition (<- like this)
-	Documentation string
-	// Comments on the same line as the struct field definition
-	LineComment string // like this
 	// Use *Type() methods on struct field to get the desired type (if it exists and is supported)
 	Type Type
 }
@@ -59,17 +49,10 @@ func (ctx *context) getStructNode(node ast.Node) (*ast.TypeSpec, *ast.StructType
 }
 
 func (ctx *context) buildStruct(typeSpec *ast.TypeSpec, srcStruct *ast.StructType) Struct {
-	destStruct := Struct{}
-	if typeSpec.Name != nil {
-		destStruct.Name = typeSpec.Name.Name
+	destStruct := Struct{
+		Base:   getBaseValuesFromTypeSpec(typeSpec),
+		Fields: make([]StructField, 0, len(srcStruct.Fields.List)),
 	}
-	if typeSpec.Doc != nil {
-		destStruct.Documentation = typeSpec.Doc.Text()
-	}
-	if typeSpec.Comment != nil {
-		destStruct.LineComment = typeSpec.Comment.Text()
-	}
-	destStruct.Fields = make([]StructField, 0, len(srcStruct.Fields.List))
 	for _, field := range srcStruct.Fields.List {
 		destStruct.Fields = append(destStruct.Fields, ctx.buildStructFields(field)...)
 	}
@@ -95,15 +78,9 @@ func (ctx *context) buildStructFields(srcField *ast.Field) []StructField {
 
 // Builds a single struct field. If index is lower than 0, then the field has no name (so is for example embedding another struct)
 func (ctx *context) buildStructField(srcField *ast.Field, index int) StructField {
-	field := StructField{}
-	if index >= 0 {
-		field.Name = srcField.Names[index].Name
-	}
-	if srcField.Doc != nil {
-		field.Documentation = srcField.Doc.Text()
-	}
-	if srcField.Comment != nil {
-		field.LineComment = srcField.Comment.Text()
+	field := StructField{
+		Base: getBaseValuesFromField(srcField, index),
+		Type: ctx.ofType(srcField.Type),
 	}
 	if srcField.Tag != nil {
 		rawTag := srcField.Tag.Value
@@ -112,6 +89,5 @@ func (ctx *context) buildStructField(srcField *ast.Field, index int) StructField
 			field.Tag = rawTag[1 : len(rawTag)-1]
 		}
 	}
-	field.Type = ctx.ofType(srcField.Type)
 	return field
 }

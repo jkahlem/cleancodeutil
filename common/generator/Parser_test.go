@@ -88,3 +88,25 @@ func TestFunctionTypeParsing(t *testing.T) {
 	assert.Equal(t, "res3", fnType.Out[2].Name)
 	assert.Equal(t, "string", fnType.Out[2].Type.Code())
 }
+
+func TestInterfaceParsing(t *testing.T) {
+	// given
+	ctx, err := ParseFile("_testFile.go")
+	assert.NoError(t, err)
+
+	// when
+	interfaces := ctx.ParseInterfaces()
+
+	// then
+	assert.Len(t, interfaces, 1)
+
+	testInterface := interfaces[0]
+	assert.Equal(t, "TestInterface", testInterface.Name)
+	assert.Len(t, testInterface.Methods, 1)
+
+	method1 := testInterface.Methods[0]
+	assert.Equal(t, "SampleMethod", method1.Name)
+	assert.Equal(t, "Multi line\nDocumentation\n", method1.Documentation)
+	assert.Equal(t, "(string, int) error", method1.Type.Code())
+
+}
