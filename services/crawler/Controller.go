@@ -1,9 +1,9 @@
 package crawler
 
 import (
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/log"
-	"returntypes-langserver/common/rpc"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/common/transfer/rpc"
 )
 
 // Handles incoming RPC requests/notifications from the crawler.

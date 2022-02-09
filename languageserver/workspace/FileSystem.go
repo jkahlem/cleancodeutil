@@ -1,9 +1,9 @@
 package workspace
 
 import (
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/java"
-	"returntypes-langserver/common/packagetree"
+	"returntypes-langserver/common/code/java"
+	"returntypes-langserver/common/code/packagetree"
+	"returntypes-langserver/common/debug/errors"
 )
 
 // Manages file operations on the virtual file system of a workspace.

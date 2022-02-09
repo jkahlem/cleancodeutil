@@ -3,7 +3,7 @@ package main
 import (
 	"io"
 	"log"
-	"returntypes-langserver/common/generator"
+	"returntypes-langserver/common/code/generator"
 	"strings"
 	"text/template"
 )

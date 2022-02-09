@@ -1,8 +1,8 @@
 package dataset
 
 import (
-	"returntypes-langserver/common/csv"
-	"returntypes-langserver/common/errors"
+	"returntypes-langserver/common/dataformat/csv"
+	"returntypes-langserver/common/debug/errors"
 )
 
 // For mapping type names to their labels (numbers/categories) in the dataset and vice versa

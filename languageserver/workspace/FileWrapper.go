@@ -1,7 +1,7 @@
 package workspace
 
 import (
-	"returntypes-langserver/common/java"
+	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/languageserver/diagnostics"
 )
 

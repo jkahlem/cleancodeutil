@@ -8,9 +8,9 @@ import (
 	"sync"
 
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/log"
-	"returntypes-langserver/common/rpc"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/common/transfer/rpc"
 )
 
 // A connection to the predictor using the TCP protocol.

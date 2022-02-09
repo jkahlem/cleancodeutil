@@ -2,7 +2,7 @@ package languageserver
 
 import (
 	"os"
-	"returntypes-langserver/common/errors"
+	"returntypes-langserver/common/debug/errors"
 )
 
 // A connection wrapping this application's standard io streams.

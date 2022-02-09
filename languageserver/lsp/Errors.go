@@ -1,6 +1,6 @@
 package lsp
 
-import "returntypes-langserver/common/rpc/jsonrpc"
+import "returntypes-langserver/common/transfer/rpc/jsonrpc"
 
 const LSPErrorTitle = "LSP Error"
 

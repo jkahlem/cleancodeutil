@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	"returntypes-langserver/common/generator"
+	"returntypes-langserver/common/code/generator"
 	"strings"
 )
 

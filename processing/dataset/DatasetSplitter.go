@@ -2,7 +2,7 @@ package dataset
 
 import (
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/csv"
+	"returntypes-langserver/common/dataformat/csv"
 	"sort"
 )
 

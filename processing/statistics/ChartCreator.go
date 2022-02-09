@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/log"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils"
 	"returntypes-langserver/processing/statistics/charts"
 	"returntypes-langserver/processing/typeclasses"

@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"returntypes-langserver/common/errors"
+	"returntypes-langserver/common/debug/errors"
 )
 
 // Returns file infos for all xml files in the given directory.

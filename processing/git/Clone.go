@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/log"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils"
 	"strings"
 

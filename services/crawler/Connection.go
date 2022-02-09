@@ -3,7 +3,7 @@ package crawler
 import (
 	"io"
 
-	"returntypes-langserver/common/errors"
+	"returntypes-langserver/common/debug/errors"
 )
 
 // Defines a connection to the crawler. Uses standard-IO of the crawler process for transmission.

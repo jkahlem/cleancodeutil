@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"sync"
 
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/java"
-	"returntypes-langserver/common/rpc"
+	"returntypes-langserver/common/code/java"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/transfer/rpc"
 )
 
 type ProxyFacade struct {

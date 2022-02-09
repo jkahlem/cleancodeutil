@@ -2,7 +2,7 @@ package main
 
 import (
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/log"
+	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/processing"
 	"returntypes-langserver/processing/git"
 	"returntypes-langserver/processing/typeclasses"

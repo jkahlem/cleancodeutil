@@ -1,8 +1,8 @@
 package statistics
 
 import (
-	"returntypes-langserver/common/csv"
-	"returntypes-langserver/common/java"
+	"returntypes-langserver/common/code/java"
+	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/services/predictor"
 )
 

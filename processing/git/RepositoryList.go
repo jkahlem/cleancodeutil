@@ -3,8 +3,8 @@ package git
 import (
 	"encoding/json"
 	"reflect"
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/log"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
 	"strings"
 )
 

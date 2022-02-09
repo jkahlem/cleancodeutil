@@ -5,10 +5,10 @@ import (
 	"os"
 	"path/filepath"
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/log"
+	"returntypes-langserver/common/debug/log"
 	"strings"
 
-	"returntypes-langserver/common/errors"
+	"returntypes-langserver/common/debug/errors"
 )
 
 // Loads the repositories to clone from the git input file and clones them to the project input dir (if not already exist)

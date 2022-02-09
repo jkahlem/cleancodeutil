@@ -1,6 +1,6 @@
 package dataset
 
-import "returntypes-langserver/common/errors"
+import "returntypes-langserver/common/debug/errors"
 
 // Creates a training and an evaluation set.
 func CreateTrainingAndEvaluationSet(methodsWithReturnTypesPath, classHierarchyPath string) errors.Error {

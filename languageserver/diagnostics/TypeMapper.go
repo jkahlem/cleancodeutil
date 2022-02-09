@@ -1,8 +1,8 @@
 package diagnostics
 
 import (
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/java"
+	"returntypes-langserver/common/code/java"
+	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/services/predictor"
 )
 

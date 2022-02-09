@@ -5,7 +5,7 @@ import (
 	"os/exec"
 
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/errors"
+	"returntypes-langserver/common/debug/errors"
 )
 
 // Wraps functionalities for running the crawler process and interacting with it.

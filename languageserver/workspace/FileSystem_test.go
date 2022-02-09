@@ -3,8 +3,8 @@ package workspace
 import (
 	"testing"
 
-	"returntypes-langserver/common/java"
-	"returntypes-langserver/common/packagetree"
+	"returntypes-langserver/common/code/java"
+	"returntypes-langserver/common/code/packagetree"
 
 	"github.com/stretchr/testify/assert"
 )

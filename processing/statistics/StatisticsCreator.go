@@ -8,9 +8,9 @@ import (
 	"strings"
 
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/csv"
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/log"
+	"returntypes-langserver/common/dataformat/csv"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/processing/dataset"
 	"returntypes-langserver/processing/extractor"
 	"returntypes-langserver/processing/git"

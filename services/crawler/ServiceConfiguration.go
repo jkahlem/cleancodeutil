@@ -1,10 +1,10 @@
 package crawler
 
 import (
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/log"
-	"returntypes-langserver/common/messages"
-	"returntypes-langserver/common/rpc"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/common/transfer/messages"
+	"returntypes-langserver/common/transfer/rpc"
 )
 
 //go:generate go run ../serviceGenerator

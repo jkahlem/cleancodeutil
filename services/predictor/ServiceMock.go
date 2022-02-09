@@ -1,7 +1,7 @@
 package predictor
 
 import (
-	"returntypes-langserver/common/errors"
+	"returntypes-langserver/common/debug/errors"
 )
 
 // Implements the predictor interface without using the external service for testing purposes where

@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"returntypes-langserver/common/log"
+	"returntypes-langserver/common/debug/log"
 
 	"github.com/go-git/go-billy/v5/osfs"
 	"github.com/go-git/go-git/v5"

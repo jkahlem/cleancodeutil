@@ -1,20 +1,21 @@
 // Generator for services
 //
-// Generates a lot of boilerplate code for services and writes them to one file (which were before manually managed in multiple files).
-// TODO: ServiceFacade generation by "annotations", e.g.
-//   type predictor struct {} // Service
-//   type Predictor interface { // Service interface
-//
-//   }
-// Structs with line comment == "Service" define the service to use (which should be singleton)
-// If an interface with the "Service interface" comment exist, use this one as:
-// - return type in the getServiceSingleton() method
-// - reference for the exported service methods. (Documentation should also be defined in the interface)
-// otherwise do it with the struct.
-// CHECK if there is not exactly one struct with service annotation, same for interface. Mocks should be different cases.
-// Maybe prefix these generator annotations. As they are really not the best way to do it. something like @ServiceGenerator:ServiceDefinition or something.
-
-// TODO: Remove/Rework the above comment. (As they are just some notes for creating the generator.)
+// Generates boilerplate code for services:
+// - Proxy functions/facades are build based on a provided class "Proxy". The calls on the proxy functions can be done by calling them on "remote()"
+//   e.g. remote().DoSomething()   (so the client provides a method "DoSomething")
+// - Generates a "service facade" where the service may be called from outside of the package. Also manages the service creation on any call (the service is a singleton).
+//   The struct which will be used as service needs an "annotation", so a comment
+//     // @ServiceGenerator:ServiceDefinition
+//   at the closing '}' bracket of the struct definition. There might be only one service definition per package.
+//   If a method of the service should not be generated/exposed to outside the package, prepend the following
+//   comment annotation to the function:
+//     // @ServiceGenerator:IgnoreMethod
+//   If the service should be created based on an interface (helpful if mocks exist), then this interface should be annotated as follows:
+//     // @ServiceGenerator:ServiceInterfaceDefinition
+//   (The service definition is still required).
+//   A mock might also be defined using
+//     // @ServiceGenerator:ServiceMockDefinition
+//   Each service should have a file with a "serviceConfiguration()" function, returning a rpc.ServiceConfiguration, which will be used for creating the service.
 package main
 
 import (
@@ -22,7 +23,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"returntypes-langserver/common/generator"
+	"returntypes-langserver/common/code/generator"
 )
 
 type ServiceFacadeTemplateAttributes struct {
@@ -78,11 +79,11 @@ import (
 	"reflect"
 	"sync"
 
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/log"
-	"returntypes-langserver/common/messages"
-	"returntypes-langserver/common/rpc"
-	"returntypes-langserver/common/rpc/jsonrpc"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/common/transfer/messages"
+	"returntypes-langserver/common/transfer/rpc"
+	"returntypes-langserver/common/transfer/rpc/jsonrpc"
 )
 
 `

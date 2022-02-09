@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/errors"
+	"returntypes-langserver/common/debug/errors"
 )
 
 var loadedTypeClasses *TypeClassConfiguration

@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"os"
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/log"
-	"returntypes-langserver/common/rpc"
-	"returntypes-langserver/common/rpc/jsonrpc"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/common/transfer/rpc"
+	"returntypes-langserver/common/transfer/rpc/jsonrpc"
 	"returntypes-langserver/languageserver/lsp"
 )
 

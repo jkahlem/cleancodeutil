@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
-	"returntypes-langserver/common/errors"
+	"returntypes-langserver/common/debug/errors"
 
 	"github.com/mitchellh/mapstructure"
 )

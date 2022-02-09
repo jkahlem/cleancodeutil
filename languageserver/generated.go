@@ -8,8 +8,8 @@ import (
 	"reflect"
 	"sync"
 
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/rpc"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/transfer/rpc"
 	"returntypes-langserver/languageserver/diagnostics"
 	"returntypes-langserver/languageserver/lsp"
 	"returntypes-langserver/languageserver/workspace"

@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/java"
+	"returntypes-langserver/common/code/java"
+	"returntypes-langserver/common/debug/errors"
 )
 
 // Converts the javaparser Range object into a LSP Range object.

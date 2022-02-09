@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"returntypes-langserver/common/errors"
+	"returntypes-langserver/common/debug/errors"
 )
 
 const ConfigurationErrorTitle = "Configuration Error"

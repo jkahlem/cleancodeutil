@@ -4,7 +4,7 @@ import (
 	"encoding/xml"
 	"io/ioutil"
 	"os"
-	"returntypes-langserver/common/errors"
+	"returntypes-langserver/common/debug/errors"
 )
 
 type FileNodesOnlyContainer struct {

@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"strings"
 
-	"returntypes-langserver/common/csv"
-	"returntypes-langserver/common/errors"
+	"returntypes-langserver/common/dataformat/csv"
+	"returntypes-langserver/common/debug/errors"
 )
 
 const PredictorErrorTitle = "Predictor Error"

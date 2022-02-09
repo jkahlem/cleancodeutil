@@ -1,11 +1,11 @@
 package dataset
 
 import (
+	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/csv"
-	"returntypes-langserver/common/errors"
-	"returntypes-langserver/common/java"
-	"returntypes-langserver/common/log"
+	"returntypes-langserver/common/dataformat/csv"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/processing/typeclasses"
 	"returntypes-langserver/services/predictor"
 	"strings"
