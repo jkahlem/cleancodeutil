@@ -26,10 +26,10 @@ import (
 )
 
 type ServiceFacadeTemplateAttributes struct {
-	ExportedServiceType string
-	ActualServiceType   string
-	MockServiceType     string
-	Methods             []FunctionData
+	ExposedServiceType string
+	ActualServiceType  string
+	MockServiceType    string
+	Methods            []FunctionData
 }
 
 func main() {

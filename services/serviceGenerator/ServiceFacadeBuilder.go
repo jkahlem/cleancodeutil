@@ -11,6 +11,7 @@ const (
 	ServiceDefinitionAnnotation          = "@ServiceGenerator:ServiceDefinition"
 	ServiceMockDefinitionAnnotation      = "@ServiceGenerator:ServiceMockDefinition"
 	ServiceInterfaceDefinitionAnnotation = "@ServiceGenerator:ServiceInterfaceDefinition"
+	IgnoreMethodAnnotation               = "@ServiceGenerator:IgnoreMethod"
 )
 
 func buildServiceFacade(parsedData ParsedData) string {
@@ -21,8 +22,8 @@ func buildServiceFacade(parsedData ParsedData) string {
 		return ""
 	}
 	serviceAttributes := ServiceFacadeTemplateAttributes{
-		ExportedServiceType: "*" + serviceStruct.Name,
-		ActualServiceType:   serviceStruct.Name,
+		ExposedServiceType: "*" + serviceStruct.Name,
+		ActualServiceType:  serviceStruct.Name,
 	}
 	if mock, exists := findServiceMock(parsedData.Structs); exists {
 		serviceAttributes.MockServiceType = mock.Name
@@ -30,13 +31,13 @@ func buildServiceFacade(parsedData ParsedData) string {
 
 	if serviceInterface, exists := findServiceInterface(parsedData.Interfaces); exists {
 		fmt.Println("Service interface found")
-		// For service interfaces, export the interface as type
-		serviceAttributes.ExportedServiceType = serviceInterface.Name
+		// For service interfaces, expose the interface as type
+		serviceAttributes.ExposedServiceType = serviceInterface.Name
 		serviceAttributes.Methods = getServiceMethodsByInterfaceDeclaration(serviceInterface)
 	} else {
 		fmt.Println("No interface defined - build service facade by function declarations")
 		// build by function declarations
-		serviceAttributes.Methods = getServiceMethodsByFunctionDeclarations(parsedData.Functions, serviceAttributes.ExportedServiceType)
+		serviceAttributes.Methods = getServiceMethodsByFunctionDeclarations(parsedData.Functions, serviceAttributes.ExposedServiceType)
 	}
 
 	WriteTemplate(&outputCode, ServiceFacadeTemplate, serviceAttributes)
@@ -63,7 +64,7 @@ func getServiceMethodsByInterfaceDeclaration(ifc generator.Interface) []Function
 func getServiceMethodsByFunctionDeclarations(functions []generator.FunctionDeclaration, expectedReceiver string) []FunctionData {
 	methods := make([]FunctionData, 0, 1)
 	for _, function := range functions {
-		if function.ReceiverType != expectedReceiver {
+		if function.ReceiverType != expectedReceiver || strings.Index(function.Documentation, IgnoreMethodAnnotation) != -1 {
 			continue
 		}
 		fnType, ok := function.Type.FunctionType()
@@ -114,10 +115,10 @@ func findServiceInterface(interfaces []generator.Interface) (generator.Interface
 }
 
 const ServiceFacadeTemplate = `
-var singleton {{.ExportedServiceType}}
+var singleton {{.ExposedServiceType}}
 var singletonMutex sync.Mutex
 
-func getSingleton() {{.ExportedServiceType}} {
+func getSingleton() {{.ExposedServiceType}} {
 	singletonMutex.Lock()
 	defer singletonMutex.Unlock()
 
@@ -127,10 +128,10 @@ func getSingleton() {{.ExportedServiceType}} {
 	return singleton
 }
 
-func createSingleton() {{.ExportedServiceType}} {
+func createSingleton() {{.ExposedServiceType}} {
 	{{if .MockServiceType}}
 	if serviceConfiguration().UseMock {
-		log.Info("Setup {{.ExportedServiceType}} service using mock...\n")
+		log.Info("Setup {{.ExposedServiceType}} service using mock...\n")
 		return &{{.MockServiceType}}{}
 	}
 	{{end}}

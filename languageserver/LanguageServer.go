@@ -284,6 +284,7 @@ func (ls *languageServer) RegisterCapability(registrations ...lsp.Registration) 
 }
 
 // Logs a message to the default log output.
+// @ServiceGenerator:IgnoreMethod
 func (ls *languageServer) log(format string, args ...interface{}) {
 	log.Print(log.LanguageServer, fmt.Sprintf("[LANGUAGE SERVER] %s\n", format), args...)
 }
