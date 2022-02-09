@@ -7,58 +7,58 @@ type DocumentURI string
 type URI string
 
 type Range struct {
-	Start Position `json:"start" mapstructure:"start"`
-	End   Position `json:"end" mapstructure:"end"`
+	Start Position `json:"start"`
+	End   Position `json:"end"`
 }
 
 type Position struct {
-	Line      int `json:"line" mapstructure:"line"`
-	Character int `json:"character" mapstructure:"character"`
+	Line      int `json:"line"`
+	Character int `json:"character"`
 }
 
 type Location struct {
-	URI   DocumentURI `json:"uri" mapstructure:"uri"`
-	Range Range       `json:"range" mapstructure:"range"`
+	URI   DocumentURI `json:"uri"`
+	Range Range       `json:"range"`
 }
 
 type WorkspaceFolder struct {
-	URI  DocumentURI `json:"uri" mapstructure:"uri"`
-	Name string      `json:"name" mapstructure:"name"`
+	URI  DocumentURI `json:"uri"`
+	Name string      `json:"name"`
 }
 
 type TextDocumentItem struct {
-	URI        DocumentURI `json:"uri" mapstructure:"uri"`
-	LanguageId string      `json:"languageId" mapstructure:"languageId"`
-	Version    int         `json:"version" mapstructure:"version"`
-	Text       string      `json:"text" mapstructure:"text"`
+	URI        DocumentURI `json:"uri"`
+	LanguageId string      `json:"languageId"`
+	Version    int         `json:"version"`
+	Text       string      `json:"text"`
 }
 
 type TextDocumentIdentifier struct {
-	URI DocumentURI `json:"uri" mapstructure:"uri"`
+	URI DocumentURI `json:"uri"`
 }
 
 type VersionedTextDocumentIdentifier struct {
 	TextDocumentIdentifier `mapstructure:",squash"`
-	Version                int `json:"version" mapstructure:"version"`
+	Version                int `json:"version"`
 }
 
 type TextDocumentContentChangeEvent struct {
-	Text        string `json:"text" mapstructure:"text"`
-	Range       *Range `json:"range,omitempty" mapstructure:"range,omitempty"`
-	RangeLength int    `json:"rangeLength,omitempty" mapstructure:"rangeLength,omitempty"`
+	Text        string `json:"text"`
+	Range       *Range `json:"range,omitempty"`
+	RangeLength int    `json:"rangeLength,omitempty"`
 }
 
 type FileCreate struct {
-	Uri string `json:"uri" mapstructure:"uri"`
+	Uri string `json:"uri"`
 }
 
 type FileRename struct {
-	OldUri string `json:"oldUri" mapstructure:"oldUri"`
-	NewUri string `json:"newUri" mapstructure:"newUri"`
+	OldUri string `json:"oldUri"`
+	NewUri string `json:"newUri"`
 }
 
 type FileDelete struct {
-	Uri string `json:"uri" mapstructure:"uri"`
+	Uri string `json:"uri"`
 }
 
 type MessageType int
@@ -71,12 +71,12 @@ const (
 )
 
 type MessageActionItem struct {
-	Title string `json:"title" mapstructure:"title"`
+	Title string `json:"title"`
 }
 
 type ConfigurationItem struct {
-	ScopeURI DocumentURI `json:"scopeUri,omitempty" mapstructure:"scopeUri,omitempty"`
-	Section  string      `json:"section,omitempty" mapstructure:"section,omitempty"`
+	ScopeURI DocumentURI `json:"scopeUri,omitempty"`
+	Section  string      `json:"section,omitempty"`
 }
 
 // A type used for fields which presumably are not used but would need other types to be implemented and therefore

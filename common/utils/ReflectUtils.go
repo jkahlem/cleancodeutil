@@ -5,8 +5,6 @@ import (
 	"reflect"
 
 	"returntypes-langserver/common/debug/errors"
-
-	"github.com/mitchellh/mapstructure"
 )
 
 // Returns true if the type is implementing the error interface.
@@ -119,7 +117,7 @@ func MapToStruct(source reflect.Value, targetType reflect.Type) (reflect.Value, 
 		return reflect.Zero(targetType), errors.New("Error", "Invalid values")
 	}
 	destination := reflect.New(targetType)
-	if err := mapstructure.Decode(source.Interface(), destination.Interface()); err != nil {
+	if err := DecodeMapToStruct(source.Interface(), destination.Interface()); err != nil {
 		return reflect.Zero(targetType), errors.Wrap(err, "Error", fmt.Sprintf("Could not map json object to desired structure"))
 	}
 	return destination.Elem(), nil

@@ -17,22 +17,22 @@ const (
 )
 
 type Diagnostic struct {
-	Range              Range                          `json:"range" mapstructure:"range"`
-	Message            string                         `json:"message" mapstructure:"message"`
-	Severity           DiagnosticSeverity             `json:"severity,omitempty" mapstructure:"severity,omitempty"`
-	Code               interface{}                    `json:"code,omitempty" mapstructure:"code,omitempty"` // string or integer
-	CodeDescription    *CodeDescription               `json:"codeDescription,omitempty" mapstructure:"codeDescription,omitempty"`
-	Source             string                         `json:"source,omitempty" mapstructure:"source,omitempty"`
-	Tags               []DiagnosticTag                `json:"tags,omitempty" mapstructure:"tags,omitempty"`
-	RelatedInformation []DiagnosticRelatedInformation `json:"relatedInformation,omitempty" mapstructure:"relatedInformation,omitempty"`
-	Data               interface{}                    `json:"data,omitempty" mapstructure:"data,omitempty"`
+	Range              Range                          `json:"range"`
+	Message            string                         `json:"message"`
+	Severity           DiagnosticSeverity             `json:"severity,omitempty"`
+	Code               interface{}                    `json:"code,omitempty"` // string or integer
+	CodeDescription    *CodeDescription               `json:"codeDescription,omitempty"`
+	Source             string                         `json:"source,omitempty"`
+	Tags               []DiagnosticTag                `json:"tags,omitempty"`
+	RelatedInformation []DiagnosticRelatedInformation `json:"relatedInformation,omitempty"`
+	Data               interface{}                    `json:"data,omitempty"`
 }
 
 type CodeDescription struct {
-	HRef URI `json:"href" mapstructure:"href"`
+	HRef URI `json:"href"`
 }
 
 type DiagnosticRelatedInformation struct {
-	Location Location `json:"location" mapstructure:"location"`
-	Message  string   `json:"message" mapstructure:"message"`
+	Location Location `json:"location"`
+	Message  string   `json:"message"`
 }

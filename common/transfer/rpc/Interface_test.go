@@ -439,11 +439,11 @@ func TestTryRecoverAfterUnrecoverable(t *testing.T) {
 // Test relevant structures
 
 type TestNestedStruct struct {
-	Nested *NestedStringValueWrapper `json:"nested,omitempty" mapstructure:"nested,omitempty"`
+	Nested *NestedStringValueWrapper `json:"nested,omitempty"`
 }
 
 type NestedStringValueWrapper struct {
-	Value string `json:"value" mapstructure:"value"`
+	Value string `json:"value"`
 }
 
 type TestProxy struct {
@@ -460,7 +460,7 @@ type TestProxyFacade struct {
 }
 
 type TestStruct struct {
-	Text string `json:"text" mapstructure:"text"`
+	Text string `json:"text"`
 }
 
 type TestControllerImplementation struct{}

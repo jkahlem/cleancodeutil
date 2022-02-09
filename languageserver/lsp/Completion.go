@@ -9,8 +9,8 @@ const (
 )
 
 type CompletionContext struct {
-	TriggerKind      CompletionTriggerKind `json:"triggerKind" mapstructure:"triggerKind"`
-	TriggerCharacter string                `json:"triggerCharacter,omitempty" mapstructure:"triggerCharacter,omitempty"`
+	TriggerKind      CompletionTriggerKind `json:"triggerKind"`
+	TriggerCharacter string                `json:"triggerCharacter,omitempty"`
 }
 
 type CompletionList struct {
@@ -27,19 +27,19 @@ const (
 )
 
 type InsertReplaceEdit struct {
-	NewText string `json:"newText" mapstructure:"newText"`
+	NewText string `json:"newText"`
 	// Range if insert is requested
-	Insert Range `json:"insert" mapstructure:"insert"`
+	Insert Range `json:"insert"`
 	// Range if replace is requested
-	Replace Range `json:"replace" mapstructure:"replace"`
+	Replace Range `json:"replace"`
 }
 
 type TextEdit struct {
 	// The range of the text document to be manipulated. To insert text into a document
 	// create a range where start == end
-	Range Range `json:"range" mapstructure:"range"`
+	Range Range `json:"range"`
 	// The stirng to be inserted. For delete operations use an empty string.
-	NewText string `json:"newText" mapstructure:"newText"`
+	NewText string `json:"newText"`
 }
 
 type InsertTextMode int

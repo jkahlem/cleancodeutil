@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 
 	"returntypes-langserver/common/debug/errors"
-
-	"github.com/mitchellh/mapstructure"
+	"returntypes-langserver/common/utils"
 )
 
 const JSONRPCErrorTitle = "JSONRPC Error"
@@ -52,7 +51,7 @@ func distinguishMessage(message map[string]interface{}) (interface{}, errors.Err
 
 func mapRequest(message map[string]interface{}) (interface{}, errors.Error) {
 	request := Request{}
-	if err := mapstructure.Decode(message, &request); err != nil {
+	if err := utils.DecodeMapToStruct(message, &request); err != nil {
 		return nil, errors.Wrap(err, JSONRPCErrorTitle, "Could not map request")
 	}
 	return request, nil
@@ -60,7 +59,7 @@ func mapRequest(message map[string]interface{}) (interface{}, errors.Error) {
 
 func mapResponse(message map[string]interface{}) (interface{}, errors.Error) {
 	response := Response{}
-	if err := mapstructure.Decode(message, &response); err != nil {
+	if err := utils.DecodeMapToStruct(message, &response); err != nil {
 		return nil, errors.Wrap(err, JSONRPCErrorTitle, "Could not map response")
 	}
 	return response, nil
@@ -68,7 +67,7 @@ func mapResponse(message map[string]interface{}) (interface{}, errors.Error) {
 
 func mapNotification(message map[string]interface{}) (interface{}, errors.Error) {
 	notification := Notification{}
-	if err := mapstructure.Decode(message, &notification); err != nil {
+	if err := utils.DecodeMapToStruct(message, &notification); err != nil {
 		return nil, errors.Wrap(err, JSONRPCErrorTitle, "Could not map notification")
 	}
 	return notification, nil

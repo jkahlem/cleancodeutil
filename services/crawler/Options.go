@@ -3,13 +3,13 @@ package crawler
 // Defines possible options which can be used for the crawling process.
 type Options struct {
 	// Save ranges of methods definitions in XML output
-	UseRanges bool `json:"useRanges" mapstructure:"useRanges"`
+	UseRanges bool `json:"useRanges"`
 	// Paths should be saved as absolute paths
-	UseAbsolutePaths bool `json:"useAbsolutePaths" mapstructure:"useAbsolutePaths"`
+	UseAbsolutePaths bool `json:"useAbsolutePaths"`
 	// If true, the crawler will not stop crawling if a file could not be parsed
-	Forced bool `json:"forced" mapstructure:"forced"`
+	Forced bool `json:"forced"`
 	// If true, the crawler will not send log notifications
-	Silent bool `json:"silent" mapstructure:"silent"`
+	Silent bool `json:"silent"`
 }
 
 type OptionsBuilder struct {

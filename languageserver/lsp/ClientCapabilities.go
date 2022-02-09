@@ -2,63 +2,63 @@ package lsp
 
 // Client capabilities
 type ClientInfo struct {
-	Name    string `json:"name" mapstructure:"name"`
-	Version string `json:"version,omitempty" mapstructure:"version,omitempty"`
+	Name    string `json:"name"`
+	Version string `json:"version,omitempty"`
 }
 
 type ClientCapabilities struct {
-	TextDocument *TextDocumentClientCapabilities `json:"textDocument,omitempty" mapstructure:"textDocument,omitempty"`
-	Workspace    *WorkspaceClientCapabilities    `json:"workspace,omitempty" mapstructure:"workspace,omitempty"`
+	TextDocument *TextDocumentClientCapabilities `json:"textDocument,omitempty"`
+	Workspace    *WorkspaceClientCapabilities    `json:"workspace,omitempty"`
 }
 
 type TextDocumentClientCapabilities struct {
-	Synchronization    *TextDocumentSyncClientCapabilities   `json:"synchronization,omitempty" mapstructure:"synchronization,omitempty"`
-	PublishDiagnostics *PublishDiagnosticsClientCapabilities `json:"publishDiagnostics,omitempty" mapstructure:"publishDiagnostics,omitempty"`
-	Completion         *CompletionClientCapabilities         `json:"completion,omitempty" mapstructure:"completion,omitempty"`
+	Synchronization    *TextDocumentSyncClientCapabilities   `json:"synchronization,omitempty"`
+	PublishDiagnostics *PublishDiagnosticsClientCapabilities `json:"publishDiagnostics,omitempty"`
+	Completion         *CompletionClientCapabilities         `json:"completion,omitempty"`
 }
 
 type TextDocumentSyncClientCapabilities struct {
-	DynamicRegistration bool `json:"dynamicRegistration,omitempty" mapstructure:"dynamicRegistration,omitempty"`
-	WillSave            bool `json:"willSave,omitempty" mapstructure:"willSave,omitempty"`
-	WillSaveWaitUntil   bool `json:"willSaveWaitUntil,omitempty" mapstructure:"willSaveWaitUntil,omitempty"`
-	DidSave             bool `json:"didSave,omitempty" mapstructure:"didSave,omitempty"`
+	DynamicRegistration bool `json:"dynamicRegistration,omitempty"`
+	WillSave            bool `json:"willSave,omitempty"`
+	WillSaveWaitUntil   bool `json:"willSaveWaitUntil,omitempty"`
+	DidSave             bool `json:"didSave,omitempty"`
 }
 
 type PublishDiagnosticsClientCapabilities struct {
-	RelatedInformation     bool              `json:"relatedInformation,omitempty" mapstructure:"relatedInformation,omitempty"`
-	TagSupport             *ClientTagSupport `json:"tagSupport,omitempty" mapstructure:"tagSupport,omitempty"`
-	VersionSupport         bool              `json:"versionSupport,omitempty" mapstructure:"versionSupport,omitempty"`
-	CodeDescriptionSupport bool              `json:"codeDescriptionSupport,omitempty" mapstructure:"codeDescriptionSupport,omitempty"`
-	DataSupport            bool              `json:"dataSupport,omitempty" mapstructure:"dataSupport,omitempty"`
+	RelatedInformation     bool              `json:"relatedInformation,omitempty"`
+	TagSupport             *ClientTagSupport `json:"tagSupport,omitempty"`
+	VersionSupport         bool              `json:"versionSupport,omitempty"`
+	CodeDescriptionSupport bool              `json:"codeDescriptionSupport,omitempty"`
+	DataSupport            bool              `json:"dataSupport,omitempty"`
 }
 
 type WorkspaceClientCapabilities struct {
-	Configuration bool `json:"configuration,omitempty" mapstructure:"configuration,omitempty"`
+	Configuration bool `json:"configuration,omitempty"`
 }
 
 type ClientTagSupport struct {
-	ValueSet []DiagnosticTag `json:"valueSet,omitempty" mapstructure:"valueSet,omitempty"`
+	ValueSet []DiagnosticTag `json:"valueSet,omitempty"`
 }
 
 type CompletionClientCapabilities struct {
-	DynamicRegistration bool                                  `json:"dynamicRegistration" mapstructure:"dynamicRegistration"`
-	CompletionItem      *CompletionItemClientCapabilities     `json:"completionItem,omitempty" mapstructure:"completionItem,omitempty"`
-	CompletionItemKind  *CompletionItemKindClientCapabilities `json:"completionItemKind,omitempty" mapstructure:"completionItemKind,omitempty"`
-	ContextSupport      bool                                  `json:"contextSupport" mapstructure:"contextSupport"`
+	DynamicRegistration bool                                  `json:"dynamicRegistration"`
+	CompletionItem      *CompletionItemClientCapabilities     `json:"completionItem,omitempty"`
+	CompletionItemKind  *CompletionItemKindClientCapabilities `json:"completionItemKind,omitempty"`
+	ContextSupport      bool                                  `json:"contextSupport"`
 }
 
 type CompletionItemClientCapabilities struct {
-	SnippetSupport          bool           `json:"snippetSupport" mapstructure:"snippetSupport"`
-	CommitCharactersSupport bool           `json:"commitCharactersSupport" mapstructure:"commitCharactersSupport"`
-	DocumentationFormat     NotImplemented `json:"documentationFormat,omitempty" mapstructure:"documentationFormat,omitempty"`
-	DeprecatedSupport       bool           `json:"deprecatedSupport" mapstructure:"deprecatedSupport"`
-	PreselectSupport        bool           `json:"preselectSupport" mapstructure:"preselectSupport"`
-	TagSupport              NotImplemented `json:"tagSupport,omitempty" mapstructure:"tagSupport,omitempty"`
-	InsertReplaceSupport    bool           `json:"insertReplaceSupport" mapstructure:"insertReplaceSupport"`
-	ResolveSupport          NotImplemented `json:"resolveSupport,omitempty" mapstructure:"resolveSupport,omitempty"`
-	InsertTextModeSupport   NotImplemented `json:"insertTextModeSupport,omitempty" mapstructure:"insertTextModeSupport,omitempty"`
+	SnippetSupport          bool           `json:"snippetSupport"`
+	CommitCharactersSupport bool           `json:"commitCharactersSupport"`
+	DocumentationFormat     NotImplemented `json:"documentationFormat,omitempty"`
+	DeprecatedSupport       bool           `json:"deprecatedSupport"`
+	PreselectSupport        bool           `json:"preselectSupport"`
+	TagSupport              NotImplemented `json:"tagSupport,omitempty"`
+	InsertReplaceSupport    bool           `json:"insertReplaceSupport"`
+	ResolveSupport          NotImplemented `json:"resolveSupport,omitempty"`
+	InsertTextModeSupport   NotImplemented `json:"insertTextModeSupport,omitempty"`
 }
 
 type CompletionItemKindClientCapabilities struct {
-	ValueSet []CompletionItemKind `json:"valueSet,omitempty" mapstructure:"valueSet,omitempty"`
+	ValueSet []CompletionItemKind `json:"valueSet,omitempty"`
 }

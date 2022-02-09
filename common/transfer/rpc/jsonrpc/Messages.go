@@ -1,27 +1,27 @@
 package jsonrpc
 
 type MessageBase struct {
-	JsonRPC string `json:"jsonrpc" mapstructure:"jsonrpc"`
+	JsonRPC string `json:"jsonrpc"`
 }
 
 type Request struct {
-	MessageBase `mapstructure:",squash"`
-	Id          interface{} `json:"id" mapstructure:"id"`
-	Method      string      `json:"method" mapstructure:"method"`
-	Params      interface{} `json:"params" mapstructure:"params"`
+	MessageBase `json:",squash"`
+	Id          interface{} `json:"id"`
+	Method      string      `json:"method"`
+	Params      interface{} `json:"params"`
 }
 
 type Response struct {
-	MessageBase `mapstructure:",squash"`
-	Id          interface{}    `json:"id" mapstructure:"id"`
-	Result      interface{}    `json:"result,omitempty" mapstructure:"result"`
-	Error       *ResponseError `json:"error,omitempty" mapstructure:"error"`
+	MessageBase `json:",squash"`
+	Id          interface{}    `json:"id"`
+	Result      interface{}    `json:"result,omitempty"`
+	Error       *ResponseError `json:"error,omitempty"`
 }
 
 type Notification struct {
-	MessageBase `mapstructure:",squash"`
-	Method      string      `json:"method" mapstructure:"method"`
-	Params      interface{} `json:"params" mapstructure:"params"`
+	MessageBase `json:",squash"`
+	Method      string      `json:"method"`
+	Params      interface{} `json:"params"`
 }
 
 func NewRequest(method string) Request {

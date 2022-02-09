@@ -13,8 +13,8 @@ const (
 
 type ResponseError struct {
 	Code    ErrorCode   `json:"code" mapelement:"code"`
-	Message string      `json:"message" mapstructure:"message"`
-	Data    interface{} `json:"data,omitempty" mapstructure:"data"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 func (err ResponseError) Error() string {
