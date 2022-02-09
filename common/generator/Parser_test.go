@@ -46,7 +46,7 @@ func TestStructParsing(t *testing.T) {
 	field2 := testStruct.Fields[1]
 	assert.Equal(t, "Field2", field2.Name)
 	assert.Equal(t, "in line comment\n", field2.LineComment)
-	assert.Equal(t, "func(par1, par2 string, par3 int) (res1, res2 bool, res3 string)", field2.Type.Code())
+	assert.Equal(t, "func(par1, par2 string, par3 ...int) (res1, res2 bool, res3 string)", field2.Type.Code())
 
 	field3 := testStruct.Fields[2]
 	assert.Equal(t, "Field3", field3.Name)
@@ -78,7 +78,7 @@ func TestFunctionTypeParsing(t *testing.T) {
 	assert.Equal(t, "par2", fnType.In[1].Name)
 	assert.Equal(t, "string", fnType.In[1].Type.Code())
 	assert.Equal(t, "par3", fnType.In[2].Name)
-	assert.Equal(t, "int", fnType.In[2].Type.Code())
+	assert.Equal(t, "...int", fnType.In[2].Type.Code())
 
 	assert.Len(t, fnType.Out, 3)
 	assert.Equal(t, "res1", fnType.Out[0].Name)

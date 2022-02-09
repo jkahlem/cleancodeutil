@@ -24,7 +24,7 @@ type languageServer struct {
 	diagnosticsCreator *diagnostics.Creator
 	count              int
 	predictorRecoverer rpc.Recoverer
-}
+} // @ServiceGenerator:ServiceDefinition
 
 func (ls *languageServer) Configuration() *ServerConfiguration {
 	return &ls.configuration
@@ -194,9 +194,9 @@ func (ls *languageServer) getDiagnosticsCreator() *diagnostics.Creator {
 func (ls *languageServer) PublishDiagnostics(path string, diagnostics []lsp.Diagnostic, version int) {
 	if ls.isClientSupportingDiagnostics() {
 		if ls.isClientSupportingDiagnosticVersions() {
-			getInterface().ProxyFacade().PublishDiagnostics(lsp.FilePathToDocumentURI(path), diagnostics, version)
+			remote().PublishDiagnostics(lsp.FilePathToDocumentURI(path), diagnostics, version)
 		} else {
-			getInterface().ProxyFacade().PublishDiagnostics(lsp.FilePathToDocumentURI(path), diagnostics, 0)
+			remote().PublishDiagnostics(lsp.FilePathToDocumentURI(path), diagnostics, 0)
 		}
 	}
 }
@@ -213,13 +213,13 @@ func (ls *languageServer) isClientSupportingDiagnostics() bool {
 
 // Shows a message to the user in the IDE.
 func (ls *languageServer) ShowMessage(msgType lsp.MessageType, message string) {
-	getInterface().ProxyFacade().ShowMessage(msgType, message)
+	remote().ShowMessage(msgType, message)
 }
 
 // Makes a request to the user with possible actions (appears for example as buttons the user can click)
 func (ls *languageServer) ShowMessageRequest(msgType lsp.MessageType, message string, actions []Action) {
 	go func() {
-		if clickedAction, err := getInterface().ProxyFacade().ShowMessageRequest(msgType, message, mapActions(actions)); err == nil {
+		if clickedAction, err := remote().ShowMessageRequest(msgType, message, mapActions(actions)); err == nil {
 			for _, a := range actions {
 				if a.Name == clickedAction.Title {
 					a.Event()
@@ -231,7 +231,7 @@ func (ls *languageServer) ShowMessageRequest(msgType lsp.MessageType, message st
 
 // Logs a message to the IDE.
 func (ls *languageServer) LogMessage(msgType lsp.MessageType, message string) {
-	getInterface().ProxyFacade().LogMessage(msgType, message)
+	remote().LogMessage(msgType, message)
 }
 
 // Recovers the predictor connection.
@@ -255,7 +255,7 @@ func (ls *languageServer) loadConfiguration(items ...string) errors.Error {
 	if !ls.configuration.ConfigurationClientCapabilities() {
 		return nil
 	}
-	results, err := getInterface().ProxyFacade().GetConfiguration(lsp.MapConfigurationItems(items...))
+	results, err := remote().GetConfiguration(lsp.MapConfigurationItems(items...))
 	for i, config := range results {
 		if items[i] == ReturnTypesConfigSection {
 			if asJson, err := json.Marshal(config); err != nil {
@@ -278,7 +278,7 @@ func (ls *languageServer) RegisterDidChangeWorkspaceCapability() chan errors.Err
 func (ls *languageServer) RegisterCapability(registrations ...lsp.Registration) chan errors.Error {
 	promise := make(chan errors.Error)
 	go func() {
-		promise <- getInterface().ProxyFacade().RegisterCapability(registrations)
+		promise <- remote().RegisterCapability(registrations)
 	}()
 	return promise
 }

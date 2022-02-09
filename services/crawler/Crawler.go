@@ -10,12 +10,11 @@ import (
 
 const CrawlerErrorTitle = "Crawler Error"
 
-type crawler struct {
-}
+type crawler struct{} // @ServiceGenerator:ServiceDefinition
 
 // Gets the content of one java file.
 func (c *crawler) GetCodeElements(path string, options Options) (java.FileContainer, errors.Error) {
-	xml, err := getInterface().ProxyFacade().GetFileContent(path, options)
+	xml, err := remote().GetFileContent(path, options)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +23,7 @@ func (c *crawler) GetCodeElements(path string, options Options) (java.FileContai
 
 // Gets the content of all java files in the specified directory.
 func (c *crawler) GetCodeElementsOfDirectory(path string, options Options) (java.FileContainer, errors.Error) {
-	xml, err := getInterface().ProxyFacade().GetDirectoryContents(path, options)
+	xml, err := remote().GetDirectoryContents(path, options)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +32,7 @@ func (c *crawler) GetCodeElementsOfDirectory(path string, options Options) (java
 
 // Gets the content of all java files in the specified directory.
 func (c *crawler) GetRawCodeElementsOfDirectory(path string, options Options) (string, errors.Error) {
-	xml, err := getInterface().ProxyFacade().GetDirectoryContents(path, options)
+	xml, err := remote().GetDirectoryContents(path, options)
 	if err != nil {
 		return "", err
 	}
