@@ -1,0 +1,157 @@
+package methodgeneration
+
+import (
+	"fmt"
+	"returntypes-langserver/common/code/packagetree"
+	"returntypes-langserver/common/configuration"
+	"returntypes-langserver/common/dataformat/csv"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/processing/dataset/base"
+	"returntypes-langserver/processing/typeclasses"
+	"returntypes-langserver/services/predictor"
+	"strings"
+)
+
+type creator struct {
+	typeClassMapper   typeclasses.Mapper
+	methods           []csv.Method
+	methodsParameters []csv.Method
+	err               errors.Error
+}
+
+// Creates a new dataset creator
+func New(methods []csv.Method, tree *packagetree.Tree) base.Creator {
+	return &creator{
+		methods:         methods,
+		typeClassMapper: typeclasses.New(tree),
+	}
+}
+
+// Loads return types/class hierarchy data from the given files and creates datasets from it
+func (c *creator) Create() errors.Error {
+	datasetMethods := c.getDatasetRows()
+	// TODO: Split into evaluation sets?
+	c.saveDataset(datasetMethods)
+	return c.err
+}
+
+// Creates dataset rows from the loaded methods
+func (c *creator) getDatasetRows() []csv.DatasetRow2 {
+	c.mapMethodReturnTypesToTypeClasses()
+	c.filterMethodsToRelevantMethods()
+	return c.convertMethodsToDatasetRows()
+}
+
+// Map parameter types to type classes (if no type assignments used?)
+func (c *creator) mapMethodReturnTypesToTypeClasses() {
+	if c.err != nil {
+		return
+	}
+
+	if methods, err := c.typeClassMapper.MapMethodsTypesToTypeClass(c.methods); err != nil {
+		c.err = err
+		return
+	} else {
+		c.methods = methods
+	}
+}
+
+// Filters methods to the "relevant" methods for the dataset (no getters/setters etc.)
+func (c *creator) filterMethodsToRelevantMethods() {
+	if c.err != nil {
+		return
+	}
+
+	// TODO: needed ? At least "summarization" is not needed I think. Possibly, other filters might be needed in the future here.
+
+	c.logln("filter methods to relevant methods...")
+	relevantMethods := base.FilterMethodsByLabels(c.methods)
+	c.methodsParameters = relevantMethods
+	//summarizedMap := base.CreateMapOfSummarizedMethods(relevantMethods)
+	//c.methodsParameters = base.SummarizeMethodsForParameters(summarizedMap, relevantMethods)
+}
+
+// Creates dataset rows of the methods
+func (c *creator) convertMethodsToDatasetRows() []csv.DatasetRow2 {
+	if c.err != nil {
+		return nil
+	}
+	c.logln("Create dataset rows")
+	rowsParameters := make([]csv.DatasetRow2, 0, len(c.methodsParameters))
+	context := "string, int, float, enum, object, boolean"
+	for _, method := range c.methodsParameters {
+		name, pars := c.convertMethodDefinitionToSentence(method)
+		row := csv.DatasetRow2{
+			Prefix:     "generate parameters",
+			MethodName: name,
+			Parameters: pars,
+		}
+		rowsParameters = append(rowsParameters, row)
+		if !csv.IsEmptyList(method.Parameters) {
+			for _, par := range method.Parameters {
+				splitted := strings.Split(par, " ")
+				parType, parName := string(predictor.GetPredictableMethodName(splitted[0])), string(predictor.GetPredictableMethodName(splitted[1]))
+				ctx := context
+				if strings.Index(context, parType) == -1 {
+					ctx = fmt.Sprintf("%s, %s", context, parType)
+				}
+				// TOOD: don't need a special fallback, as type assignment should for example pick "object" if it does not know any better thing
+				row2 := csv.DatasetRow2{
+					Prefix: "type assignment",
+					// the "name" variable has currently already a dot '.' at the end. So no need to add it another time ...
+					MethodName: fmt.Sprintf("method: %s name: %s. context: %s.", name, parName, ctx), // input_text
+					Parameters: parType,                                                              // target_text
+				}
+				rowsParameters = append(rowsParameters, row2)
+			}
+		}
+	}
+	return rowsParameters
+}
+
+func (c *creator) convertMethodDefinitionToSentence(method csv.Method) (string, string) {
+	methodName := string(predictor.GetPredictableMethodName(method.MethodName))
+	parameters := make([]string, 0, len(method.Parameters))
+	if csv.IsEmptyList(method.Parameters) {
+		parameters = append(parameters, "void")
+	} else {
+		for _, par := range method.Parameters {
+			splitted := strings.Split(par, " ")
+			parameters = append(parameters, string(predictor.GetPredictableMethodName(splitted[1]))) //append(parameters, fmt.Sprintf("%s %s", splitted[0], string(predictor.GetPredictableMethodName(splitted[1]))))
+		}
+	}
+	return fmt.Sprintf("%s.", methodName), strings.Join(parameters, ", ") + "."
+}
+
+// Saves the dataset to the output path
+func (c *creator) saveDataset(trainingSet []csv.DatasetRow2) {
+	c.logln("Save methods datasets")
+	c.writeDataset(configuration.MethodsTrainingSetOutputPath(), trainingSet)
+}
+
+// Writes dataset rows into a csv file
+func (c *creator) writeDataset(outputPath string, dataset []csv.DatasetRow2) {
+	if c.err != nil {
+		return
+	}
+	records := make([][]string, len(dataset))
+	for i, row := range dataset {
+		records[i] = row.ToRecord()
+	}
+
+	if err := csv.WriteCsvRecords(outputPath, records); err != nil {
+		c.err = err
+	}
+}
+
+func (c *creator) logln(str string) {
+	if c.err != nil {
+		return
+	}
+	log.Info(str + "\n")
+}
+
+func (c *creator) Err() errors.Error {
+	return c.err
+}

@@ -11,7 +11,7 @@ import (
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
-	"returntypes-langserver/processing/dataset"
+	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/processing/extractor"
 	"returntypes-langserver/processing/git"
 	"returntypes-langserver/services/predictor"
@@ -22,7 +22,7 @@ const UnknownType string = "unknown"
 
 // Creates statistics
 type StatisticsCreator struct {
-	typeLabelMapper *dataset.TypeLabelMapper
+	typeLabelMapper *base.TypeLabelMapper
 	builder         StatisticsBuilder
 }
 
@@ -63,7 +63,7 @@ func (c *StatisticsCreator) Create() errors.Error {
 }
 
 func (c *StatisticsCreator) prepare() errors.Error {
-	c.typeLabelMapper = &dataset.TypeLabelMapper{}
+	c.typeLabelMapper = &base.TypeLabelMapper{}
 	if err := c.typeLabelMapper.LoadFromFile(configuration.DatasetLabelsOutputPath()); err != nil {
 		return err
 	}

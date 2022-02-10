@@ -1,9 +1,5 @@
 package rpc
 
-// For some reasons, the tests in this file are not running perfectly when run using the simple "run test"/"run file tests",
-// where occasionally the tests will timeout. (Deadlocks?) However, the "debug test" mode works perfectly fine,
-// so this might be a go problem?
-
 import (
 	"fmt"
 	"io"

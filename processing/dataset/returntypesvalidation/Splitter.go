@@ -1,4 +1,4 @@
-package dataset
+package returntypesvalidation
 
 import (
 	"returntypes-langserver/common/configuration"
