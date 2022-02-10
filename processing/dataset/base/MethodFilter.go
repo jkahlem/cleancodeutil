@@ -8,13 +8,11 @@ import (
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/processing/typeclasses"
 	"returntypes-langserver/services/predictor"
-	"strings"
 )
 
 type methodNode struct {
 	name        string
 	returnTypes []returnType
-	parameters  []returnType // use better type name ...
 }
 
 type returnType struct {
@@ -61,52 +59,6 @@ func (node *methodNode) MostUsedReturnType() string {
 	return maxUsedType.name
 }
 
-// Counts one up on the given return type for this method
-func (node *methodNode) CountUpParameters(parsKey string) {
-	if rType := node.findParameters(parsKey); rType != nil {
-		rType.count++
-	} else {
-		node.parameters = append(node.parameters, returnType{
-			name:  parsKey,
-			count: 1,
-		})
-	}
-}
-
-func (node *methodNode) findParameters(parsKey string) *returnType {
-	for i := range node.parameters {
-		if node.parameters[i].name == parsKey {
-			return &node.parameters[i]
-		}
-	}
-	return nil
-}
-
-// Returns the most used return type for this method. In case of a tie, the first return type will be returned
-func (node *methodNode) MostUsedParameters() string {
-	maxUsedType := returnType{
-		name:  "",
-		count: 0,
-	}
-
-	for _, pars := range node.parameters {
-		if pars.count > maxUsedType.count {
-			maxUsedType = pars
-		}
-	}
-
-	return maxUsedType.name
-}
-
-func ParameterKey(pars []string) string {
-	/*key := ""
-	for _, par := range pars {
-		splitted := strings.Split(par, " ")
-		key += splitted[0] + ","
-	}*/
-	return strings.Join(pars, ",")
-}
-
 // Summarizes methods with the same predictable name to one method containing the most used return type.
 // Other data like labels or filepath will get lost
 func SummarizeMethodsForReturnTypes(summarizedMethods summarizedMethodsMap, methods []csv.Method) []csv.Method {
@@ -134,26 +86,12 @@ func SummarizeMethodsForReturnTypes(summarizedMethods summarizedMethodsMap, meth
 	return result
 }
 
-// Summarizes methods with the same predictable name to one method containing the most used parameter definition
-// Other data like labels or filepath will get lost
-func SummarizeMethodsForParameters(summarizedMethods summarizedMethodsMap, methods []csv.Method) []csv.Method {
-	result := make([]csv.Method, 0, len(summarizedMethods))
-	for _, node := range summarizedMethods {
-		result = append(result, csv.Method{
-			MethodName: node.name,
-			Parameters: strings.Split(node.MostUsedParameters(), ","),
-		})
-	}
-	return result
-}
-
 func CreateMapOfSummarizedMethods(methods []csv.Method) summarizedMethodsMap {
 	methodMap := make(summarizedMethodsMap)
 	for _, method := range methods {
 		key := createMethodKey(method)
 		if node, isDuplicate := methodMap[key]; isDuplicate {
 			node.CountUpReturnType(method.ReturnType)
-			node.CountUpParameters(ParameterKey(method.Parameters))
 			continue
 		}
 
@@ -161,7 +99,6 @@ func CreateMapOfSummarizedMethods(methods []csv.Method) summarizedMethodsMap {
 			name: method.MethodName,
 		}
 		node.CountUpReturnType(method.ReturnType)
-		node.CountUpParameters(ParameterKey(method.Parameters))
 		methodMap[key] = &node
 	}
 	return methodMap

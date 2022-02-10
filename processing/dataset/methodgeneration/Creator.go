@@ -49,12 +49,35 @@ func (c *creator) mapMethodReturnTypesToTypeClasses() {
 		return
 	}
 
-	if methods, err := c.typeClassMapper.MapMethodsTypesToTypeClass(c.methods); err != nil {
-		c.err = err
-		return
-	} else {
-		c.methods = methods
+	// TODO: Check for configuration if type classes or the raw types should be used.
+	for i, method := range c.methods {
+		if parameters, err := c.mapParameterTypesToTypeClasses(method.Parameters); err != nil {
+			c.err = err
+			return
+		} else {
+			c.methods[i].Parameters = parameters
+		}
 	}
+}
+
+// Maps the parameters to have a type class instead of the type name ...
+func (c *creator) mapParameterTypesToTypeClasses(parameters []string) ([]string, errors.Error) {
+	if csv.IsEmptyList(parameters) {
+		return nil, nil
+	}
+	results := make([]string, 0, len(parameters))
+	for _, parameter := range parameters {
+		// splitted has for each element the pattern "<type> <name>"
+		splitted := strings.Split(parameter, " ")
+		// TODO: Method labels for parameter types? (e.g. array type for array type parameters ...)
+		if typeClass, err := c.typeClassMapper.MapParameterTypeToTypeClass(splitted[0], nil); err != nil {
+			return nil, err
+		} else {
+			splitted[0] = typeClass
+			results = append(results, strings.Join(splitted, " "))
+		}
+	}
+	return results, nil
 }
 
 // Filters methods to the "relevant" methods for the dataset (no getters/setters etc.)

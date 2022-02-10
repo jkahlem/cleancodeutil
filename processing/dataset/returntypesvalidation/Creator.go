@@ -46,26 +46,31 @@ func (c *creator) getDatasetRows() []csv.DatasetRow {
 	return c.convertMethodsToDatasetRows()
 }
 
-// *Method which should be splitted by dataset
 func (c *creator) mapMethodReturnTypesToTypeClasses() {
 	if c.err != nil {
 		return
 	}
 
-	if methods, err := c.typeClassMapper.MapMethodsTypesToTypeClass(c.methods); err != nil {
-		c.err = err
-		return
-	} else {
-		c.methods = methods
+	for i, method := range c.methods {
+		if returnType, err := c.typeClassMapper.MapReturnTypeToTypeClass2(method.ReturnType, method.Labels); err != nil {
+			c.err = err
+			return
+		} else {
+			c.methods[i].ReturnType = returnType
+		}
 	}
 
 	if !configuration.StatisticsSkipCreation() {
-		if err := c.writeMethodsWithTypeClasses(); err != nil {
-			log.ReportProblem("Could not write data for statistics generation.")
-			if configuration.StrictMode() {
-				c.err = err
-				return
-			}
+		c.createMethodsWithTypeClassesStatistics()
+	}
+}
+
+func (c *creator) createMethodsWithTypeClassesStatistics() {
+	if err := c.writeMethodsWithTypeClasses(); err != nil {
+		log.ReportProblem("Could not write data for statistics generation.")
+		if configuration.StrictMode() {
+			c.err = err
+			return
 		}
 	}
 }

@@ -3,12 +3,8 @@ package typeclasses
 import (
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
-	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
-	"strings"
 )
-
-// TODO: This class should either only work with string -> string convertions, or should be in a different package?
 
 const TypeClassMapperErrorTitle = "Type Class Mapper Error"
 const DefaultType = "java.lang.Object"
@@ -19,9 +15,9 @@ type Mapper interface {
 	// The package tree the mapper will use for type class mapping
 	SetPackageTree(*packagetree.Tree)
 	// Returns the type class of a method's return type
-	MapReturnTypeToTypeClass(csv.Method) (string, errors.Error)
-	// Maps all types of the methods to a type class
-	MapMethodsTypesToTypeClass([]csv.Method) ([]csv.Method, errors.Error)
+	MapReturnTypeToTypeClass(typeName string, methodLabels []string) (string, errors.Error)
+	// Maps a parameter type to a type class
+	MapParameterTypeToTypeClass(typeName string, methodLabels []string) (string, errors.Error)
 }
 
 // Maps a type to it's type class
@@ -36,6 +32,36 @@ func New(tree *packagetree.Tree) Mapper {
 	mapper := typeClassMapper{tree: tree}
 	mapper.setup()
 	return &mapper
+}
+
+func (m *typeClassMapper) MapParameterTypeToTypeClass(typeName string, methodLabels []string) (string, errors.Error) {
+	if m.tree == nil {
+		return UnknownType, errors.New(TypeClassMapperErrorTitle, "No package tree set")
+	} else if m.config.ArrayType != nil && m.findMethodLabel(methodLabels, java.ArrayType) {
+		return m.config.ArrayType.Label, nil
+	}
+	return m.mapTypeToTypeClass(typeName), nil
+}
+
+func (m *typeClassMapper) MapReturnTypeToTypeClass(typeName string, methodLabels []string) (string, errors.Error) {
+	if m.tree == nil {
+		return UnknownType, errors.New(TypeClassMapperErrorTitle, "No package tree set")
+	} else if m.config.ChainMethodType != nil && m.findMethodLabel(methodLabels, java.ChainMethod) {
+		return m.config.ChainMethodType.Label, nil
+	} else if m.config.ArrayType != nil && m.findMethodLabel(methodLabels, java.ArrayType) {
+		return m.config.ArrayType.Label, nil
+	}
+
+	return m.mapTypeToTypeClass(typeName), nil
+}
+
+func (m *typeClassMapper) findMethodLabel(allLabels []string, labelToFind java.MethodLabel) bool {
+	for _, methodLabel := range allLabels {
+		if methodLabel == string(labelToFind) {
+			return true
+		}
+	}
+	return false
 }
 
 func (m *typeClassMapper) SetPackageTree(tree *packagetree.Tree) {
@@ -62,73 +88,6 @@ func (m *typeClassMapper) mapTypeClasses(typeClasses TypeClassConfiguration) {
 		}
 	}
 	m.config = typeClasses
-}
-
-// Maps the return type of multiple methods to it's type class
-//
-// Deprecated: Use MapMethodsTypesToTypeClass instead ...
-func (m *typeClassMapper) MapReturnTypesToTypeClass(methods []csv.Method) ([]csv.Method, errors.Error) {
-	if m.tree == nil {
-		return nil, errors.New(TypeClassMapperErrorTitle, "No package tree set")
-	}
-	result := make([]csv.Method, len(methods))
-	for i, method := range methods {
-		if returnType, err := m.MapReturnTypeToTypeClass(method); err != nil {
-			return nil, err
-		} else {
-			result[i] = method
-			result[i].ReturnType = returnType
-		}
-	}
-	return result, nil
-}
-
-// Maps the return type of multiple methods to it's type class
-func (m *typeClassMapper) MapMethodsTypesToTypeClass(methods []csv.Method) ([]csv.Method, errors.Error) {
-	if m.tree == nil {
-		return nil, errors.New(TypeClassMapperErrorTitle, "No package tree set")
-	}
-	result := make([]csv.Method, len(methods))
-	for i, method := range methods {
-		returnType, err := m.MapReturnTypeToTypeClass(method)
-		if err != nil {
-			return nil, err
-		}
-		result[i] = method
-		result[i].ReturnType = returnType
-		result[i].Parameters = method.Parameters // m.mapParameterTypesToTypeClass(method.Parameters)
-	}
-	return result, nil
-}
-
-// maps the parameters to have a type class instead of the type name ...
-func (m *typeClassMapper) mapParameterTypesToTypeClass(parameters []string) []string {
-	if csv.IsEmptyList(parameters) {
-		return nil
-	}
-	results := make([]string, 0, len(parameters))
-	for _, parameter := range parameters {
-		// splitted has for each element the pattern "<type> <name>"
-		splitted := strings.Split(parameter, " ")
-		splitted[0] = m.mapTypeToTypeClass(splitted[0])
-		results = append(results, strings.Join(splitted, " "))
-	}
-	return results
-}
-
-// Returns the name of the type class for the method's return type
-func (m *typeClassMapper) MapReturnTypeToTypeClass(method csv.Method) (string, errors.Error) {
-	if m.tree == nil {
-		return UnknownType, errors.New(TypeClassMapperErrorTitle, "No package tree set")
-	}
-	if m.config.ChainMethodType != nil && method.HasLabel(string(java.ChainMethod)) {
-		return m.config.ChainMethodType.Label, nil
-	}
-	if m.config.ArrayType != nil && method.HasLabel(string(java.ArrayType)) {
-		return m.config.ArrayType.Label, nil
-	}
-
-	return m.mapTypeToTypeClass(method.ReturnType), nil
 }
 
 // Returns the type class of the given type
