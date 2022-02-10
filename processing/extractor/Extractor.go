@@ -6,6 +6,7 @@ import (
 	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
+	"returntypes-langserver/common/dataformat/excel"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
 )
@@ -122,12 +123,32 @@ func (extractor *Extractor) extract() {
 			methodsRecords, classesRecords = visitor.methods, visitor.classes
 		}
 	}
-	if err := csv.WriteCsvRecords(configuration.MethodsWithReturnTypesOutputPath(), methodsRecords); err != nil {
+	extractor.writeCsvRecords(configuration.MethodsWithReturnTypesOutputPath(), methodsRecords)
+	extractor.writeCsvRecords(configuration.ClassHierarchyOutputPath(), classesRecords)
+	extractor.buildExcelOutput()
+}
+
+func (extractor *Extractor) writeCsvRecords(path string, records [][]string) {
+	if extractor.err != nil {
+		return
+	}
+	extractor.err = csv.WriteCsvRecords(path, records)
+}
+
+func (extractor *Extractor) buildExcelOutput() {
+	if extractor.err != nil {
+		return
+	}
+
+	excelFile, err := excel.FromCSV(configuration.MethodsWithReturnTypesOutputPath(), csv.Method{})
+	if err != nil {
 		extractor.err = err
 		return
 	}
-	if err := csv.WriteCsvRecords(configuration.ClassHierarchyOutputPath(), classesRecords); err != nil {
-		extractor.err = err
+
+	excelFile.Path = configuration.MethodsWithReturnTypesExcelOutputPath()
+	if err := excelFile.Save(); err != nil {
+		extractor.err = errors.Wrap(err, "Excel Error", "Could not save excel file.")
 		return
 	}
 }

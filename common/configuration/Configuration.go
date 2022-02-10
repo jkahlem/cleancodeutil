@@ -294,6 +294,10 @@ func MethodSummarizationDataOutputPath() string {
 	return filepath.Join(StatisticsOutputDir(), "methodSummarizationData.csv")
 }
 
+func MethodsWithReturnTypesExcelOutputPath() string {
+	return filepath.Join(StatisticsOutputDir(), "methods.xlsx")
+}
+
 // The path the dataset files will be saved to
 func DatasetOutputDir() string {
 	return filepath.Join(MainOutputDir(), "dataset")

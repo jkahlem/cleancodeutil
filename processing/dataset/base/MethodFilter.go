@@ -148,8 +148,17 @@ func FilterMethodsByLabels(methods []csv.Method) []csv.Method {
 
 // Returns true if the passed method should be filtered
 func IsFilterForMethodsLabelsActive(method csv.Method) bool {
-	return (method.HasLabel(string(java.Getter)) && configuration.MethodFilterGetter()) ||
-		(method.HasLabel(string(java.Setter)) && configuration.MethodFilterSetter()) ||
-		(method.HasLabel(string(java.Override)) && configuration.MethodFilterOverride()) ||
-		(method.HasLabel(string(java.TestCode)) && configuration.MethodFilterTestCode())
+	return (findMethodLabel(method.Labels, java.Getter) && configuration.MethodFilterGetter()) ||
+		(findMethodLabel(method.Labels, java.Setter) && configuration.MethodFilterSetter()) ||
+		(findMethodLabel(method.Labels, java.Override) && configuration.MethodFilterOverride()) ||
+		(findMethodLabel(method.Labels, java.TestCode) && configuration.MethodFilterTestCode())
+}
+
+func findMethodLabel(allLabels []string, labelToFind java.MethodLabel) bool {
+	for _, methodLabel := range allLabels {
+		if methodLabel == string(labelToFind) {
+			return true
+		}
+	}
+	return false
 }
