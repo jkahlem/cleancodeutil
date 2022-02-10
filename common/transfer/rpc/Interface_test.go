@@ -15,6 +15,7 @@ import (
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/transfer/messages"
 	"returntypes-langserver/common/transfer/rpc/jsonrpc"
+	"returntypes-langserver/common/utils"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -29,11 +30,11 @@ const FnCheckIfNestedValueAndStringAreEqual = "checkIfNestedValueAndStringAreEqu
 func TestInterfaceCreation(t *testing.T) {
 	// given
 	controller := TestControllerImplementation{}
-	connection := TestConnection{}
-	messager := CreateMessager(&connection)
+	connection := NewTestConnection()
+	messager := CreateMessager(connection)
 
 	// when
-	_, err := CreateInterfaceOnConnection(&connection, messager).WithProxyFacade(&TestProxyFacade{}).WithController(&controller).Finalize()
+	_, err := CreateInterfaceOnConnection(connection, messager).WithProxyFacade(&TestProxyFacade{}).WithController(&controller).Finalize()
 
 	// then
 	assert.NoError(t, err)
@@ -71,11 +72,11 @@ func TestMultipleRequestsToExternalMethod(t *testing.T) {
 	responseMessage := ""
 	for i := 0; i < 10; i++ {
 		// Create a string of unsorted responses. (The order of responses should not matter)
-		j := i
+		requestId := i
 		if i%2 == 1 {
-			j = 10 - i
+			requestId = 10 - i
 		}
-		responseMessage += CreateResponse(j+1, "responseString")
+		responseMessage += CreateResponse(requestId+1, "responseString")
 	}
 	connection.setReceivedContent(responseMessage)
 	facade, _ := ifc.ProxyFacade().(*TestProxyFacade)
@@ -518,6 +519,7 @@ type TestConnection struct {
 	mutex                 sync.Mutex
 	unrecoverableAttempts int
 	recoverable           bool
+	establishmentState    utils.Revision
 }
 
 func (t *TestConnection) getChan() chan bool {
@@ -533,6 +535,7 @@ func (t *TestConnection) Read(toRead []byte) (int, error) {
 	if t.unrecoverableAttempts > 0 {
 		return 0, errors.Wrap(io.ErrClosedPipe, "Connection error", "Could not read")
 	}
+	t.establishmentState.WaitUntilOutdated()
 	if t.in != nil && len(t.in) > 0 {
 		n := copy(toRead, t.in)
 		t.in = t.in[n:]
@@ -557,6 +560,7 @@ func (t *TestConnection) sentContent() string {
 
 func (t *TestConnection) setReceivedContent(content string) {
 	t.in = []byte(content)
+	t.establishmentState.SetOutdated()
 }
 
 func (t *TestConnection) Connect() errors.Error {
@@ -587,25 +591,31 @@ func (t *TestConnection) establishConnectionAfterAttempts(attempts int) {
 	t.unrecoverableAttempts = attempts
 }
 
+func NewTestConnection() *TestConnection {
+	return &TestConnection{
+		establishmentState: utils.NewRevision(),
+	}
+}
+
 // Helper functions
 
 func CreateSimpleTestInterface(t *testing.T) (*TestConnection, Interface) {
-	connection := TestConnection{}
-	return CreateTestInterface(t, &connection, nil, nil)
+	connection := NewTestConnection()
+	return CreateTestInterface(t, connection, nil, nil)
 }
 
 func CreateUnstableTestInterface(t *testing.T, failingAttemptsCount int) (*TestConnection, Interface) {
-	connection := TestConnection{}
+	connection := NewTestConnection()
 	connection.setRecoverable(true)
 	connection.establishConnectionAfterAttempts(failingAttemptsCount)
-	return CreateTestInterface(t, &connection, nil, nil)
+	return CreateTestInterface(t, connection, nil, nil)
 }
 
 func CreateUnstableTestInterfaceWithEvents(t *testing.T, failingAttemptsCount int, onConnectionError, onRecoverFailed func(Recoverer)) (*TestConnection, Interface) {
-	connection := TestConnection{}
+	connection := NewTestConnection()
 	connection.setRecoverable(true)
 	connection.establishConnectionAfterAttempts(failingAttemptsCount)
-	return CreateTestInterface(t, &connection, onConnectionError, func(r Recoverer) {
+	return CreateTestInterface(t, connection, onConnectionError, func(r Recoverer) {
 		onRecoverFailed(r)
 	})
 }
@@ -616,7 +626,7 @@ func CreateTestInterface(t *testing.T, connection *TestConnection, onConnectionE
 	ifc, err := CreateInterfaceOnConnection(connection, messager).WithProxyFacade(&TestProxyFacade{}).WithController(&controller).
 		OnConnectionError(onConnectionError).OnRecoverFailed(onRecoverFailed).Finalize()
 	if err != nil {
-		t.Error(err)
+		panic(err)
 	}
 	return connection, ifc
 }

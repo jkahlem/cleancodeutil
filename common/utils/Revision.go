@@ -17,9 +17,9 @@ type Revision interface {
 }
 
 func NewRevision() Revision {
-	rev := revision{}
-	rev.onOutdated = make(chan bool)
-	return &rev
+	return &revision{
+		onOutdated: make(chan bool),
+	}
 }
 
 // Blocks the thread until the version is outdated

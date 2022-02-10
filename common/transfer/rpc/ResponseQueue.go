@@ -69,7 +69,7 @@ func (q *responseQueue) pickResponseWithId(id int) (jsonrpc.Response, utils.Revi
 	return jsonrpc.Response{}, nil
 }
 
-// Closes the response queue and realeases all waiting go routines
+// Closes the response queue and releases all waiting go routines
 func (q *responseQueue) Close() {
 	q.mutex.Lock()
 	defer q.mutex.Unlock()

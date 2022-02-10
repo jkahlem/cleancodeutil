@@ -7,8 +7,8 @@ import (
 
 // Wraps a bufio reader and writer in one object.
 // The bufio package provides already a bufio.ReadWriter which also combines the functionalities
-// of a bufio Reader and a Writer, but with the great drawback that the buffering is double layered,
-// so flushing the written content to a bufio.ReadWriter will write it's content to the underlying bufio.Writer
+// of a bufio Reader and a Writer, but with the drawback that buffering is double layered, so flushing
+// the written content to a bufio.ReadWriter will write it's content to the underlying bufio.Writer
 // which buffers it again and does NOT flush it forward to the "real" writer (file/connection etc).
 type BufferedReadWriter struct {
 	bufr *bufio.Reader
