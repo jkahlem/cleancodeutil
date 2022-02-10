@@ -8,7 +8,7 @@ import (
 	"returntypes-langserver/common/debug/log"
 )
 
-func (t Method) ToRecordTEST() []string {
+func (t Method) ToRecord() []string {
 	if record, err := marshal(reflect.ValueOf(t)); err != nil {
 		log.Error(err)
 		log.ReportProblem("An error occured while marshalling data")
@@ -18,7 +18,7 @@ func (t Method) ToRecordTEST() []string {
 	}
 }
 
-func UnmarshalMethodTEST(records [][]string) []Method {
+func UnmarshalMethod(records [][]string) []Method {
 	typ := reflect.TypeOf(Method{})
 	result := make([]Method, 0, len(records))
 	for _, record := range records {
@@ -32,7 +32,7 @@ func UnmarshalMethodTEST(records [][]string) []Method {
 	return result
 }
 
-func (t Class) ToRecordTEST() []string {
+func (t Class) ToRecord() []string {
 	if record, err := marshal(reflect.ValueOf(t)); err != nil {
 		log.Error(err)
 		log.ReportProblem("An error occured while marshalling data")
@@ -42,7 +42,7 @@ func (t Class) ToRecordTEST() []string {
 	}
 }
 
-func UnmarshalClassTEST(records [][]string) []Class {
+func UnmarshalClass(records [][]string) []Class {
 	typ := reflect.TypeOf(Class{})
 	result := make([]Class, 0, len(records))
 	for _, record := range records {
@@ -56,7 +56,7 @@ func UnmarshalClassTEST(records [][]string) []Class {
 	return result
 }
 
-func (t TypeConversion) ToRecordTEST() []string {
+func (t TypeConversion) ToRecord() []string {
 	if record, err := marshal(reflect.ValueOf(t)); err != nil {
 		log.Error(err)
 		log.ReportProblem("An error occured while marshalling data")
@@ -66,7 +66,7 @@ func (t TypeConversion) ToRecordTEST() []string {
 	}
 }
 
-func UnmarshalTypeConversionTEST(records [][]string) []TypeConversion {
+func UnmarshalTypeConversion(records [][]string) []TypeConversion {
 	typ := reflect.TypeOf(TypeConversion{})
 	result := make([]TypeConversion, 0, len(records))
 	for _, record := range records {
@@ -80,7 +80,7 @@ func UnmarshalTypeConversionTEST(records [][]string) []TypeConversion {
 	return result
 }
 
-func (t DatasetRow) ToRecordTEST() []string {
+func (t ReturnTypesDatasetRow) ToRecord() []string {
 	if record, err := marshal(reflect.ValueOf(t)); err != nil {
 		log.Error(err)
 		log.ReportProblem("An error occured while marshalling data")
@@ -90,21 +90,21 @@ func (t DatasetRow) ToRecordTEST() []string {
 	}
 }
 
-func UnmarshalDatasetRowTEST(records [][]string) []DatasetRow {
-	typ := reflect.TypeOf(DatasetRow{})
-	result := make([]DatasetRow, 0, len(records))
+func UnmarshalReturnTypesDatasetRow(records [][]string) []ReturnTypesDatasetRow {
+	typ := reflect.TypeOf(ReturnTypesDatasetRow{})
+	result := make([]ReturnTypesDatasetRow, 0, len(records))
 	for _, record := range records {
 		if unmarshalled, err := unmarshal(record, typ); err != nil {
 			log.Error(err)
 			log.ReportProblem("An error occured while unmarshalling data")
-		} else if c, ok := (unmarshalled.Interface()).(DatasetRow); ok {
+		} else if c, ok := (unmarshalled.Interface()).(ReturnTypesDatasetRow); ok {
 			result = append(result, c)
 		}
 	}
 	return result
 }
 
-func (t DatasetRow2) ToRecordTEST() []string {
+func (t MethodGenerationDatasetRow) ToRecord() []string {
 	if record, err := marshal(reflect.ValueOf(t)); err != nil {
 		log.Error(err)
 		log.ReportProblem("An error occured while marshalling data")
@@ -114,21 +114,21 @@ func (t DatasetRow2) ToRecordTEST() []string {
 	}
 }
 
-func UnmarshalDatasetRow2TEST(records [][]string) []DatasetRow2 {
-	typ := reflect.TypeOf(DatasetRow2{})
-	result := make([]DatasetRow2, 0, len(records))
+func UnmarshalMethodGenerationDatasetRow(records [][]string) []MethodGenerationDatasetRow {
+	typ := reflect.TypeOf(MethodGenerationDatasetRow{})
+	result := make([]MethodGenerationDatasetRow, 0, len(records))
 	for _, record := range records {
 		if unmarshalled, err := unmarshal(record, typ); err != nil {
 			log.Error(err)
 			log.ReportProblem("An error occured while unmarshalling data")
-		} else if c, ok := (unmarshalled.Interface()).(DatasetRow2); ok {
+		} else if c, ok := (unmarshalled.Interface()).(MethodGenerationDatasetRow); ok {
 			result = append(result, c)
 		}
 	}
 	return result
 }
 
-func (t TypeLabel) ToRecordTEST() []string {
+func (t TypeLabel) ToRecord() []string {
 	if record, err := marshal(reflect.ValueOf(t)); err != nil {
 		log.Error(err)
 		log.ReportProblem("An error occured while marshalling data")
@@ -138,7 +138,7 @@ func (t TypeLabel) ToRecordTEST() []string {
 	}
 }
 
-func UnmarshalTypeLabelTEST(records [][]string) []TypeLabel {
+func UnmarshalTypeLabel(records [][]string) []TypeLabel {
 	typ := reflect.TypeOf(TypeLabel{})
 	result := make([]TypeLabel, 0, len(records))
 	for _, record := range records {

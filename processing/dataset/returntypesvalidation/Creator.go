@@ -40,7 +40,7 @@ func (c *creator) Create() errors.Error {
 }
 
 // Creates dataset rows from the loaded methods
-func (c *creator) getDatasetRows() []csv.DatasetRow {
+func (c *creator) getDatasetRows() []csv.ReturnTypesDatasetRow {
 	c.mapMethodReturnTypesToTypeClasses()
 	c.filterMethodsToRelevantMethods()
 	return c.convertMethodsToDatasetRows()
@@ -52,7 +52,7 @@ func (c *creator) mapMethodReturnTypesToTypeClasses() {
 	}
 
 	for i, method := range c.methods {
-		if returnType, err := c.typeClassMapper.MapReturnTypeToTypeClass2(method.ReturnType, method.Labels); err != nil {
+		if returnType, err := c.typeClassMapper.MapReturnTypeToTypeClass(method.ReturnType, method.Labels); err != nil {
 			c.err = err
 			return
 		} else {
@@ -96,12 +96,12 @@ func (c *creator) filterMethodsToRelevantMethods() {
 }
 
 // Creates dataset rows of the methods
-func (c *creator) convertMethodsToDatasetRows() []csv.DatasetRow {
+func (c *creator) convertMethodsToDatasetRows() []csv.ReturnTypesDatasetRow {
 	if c.err != nil {
 		return nil
 	}
 	c.logln("Create dataset rows")
-	rowsReturnTypes := make([]csv.DatasetRow, len(c.methods))
+	rowsReturnTypes := make([]csv.ReturnTypesDatasetRow, len(c.methods))
 	for i, method := range c.methods {
 		returnTypeLabel := c.typeLabelMapper.GetLabel(method.ReturnType)
 		rowsReturnTypes[i].MethodName = string(predictor.GetPredictableMethodName(method.MethodName))
@@ -125,7 +125,7 @@ func (c *creator) convertMethodDefinitionToSentence(method csv.Method) (string, 
 }
 
 // Splits a dataset to a training set and evaluation set
-func (c *creator) splitDataset(dataset []csv.DatasetRow) (trainingSet, evaluationSet []csv.DatasetRow) {
+func (c *creator) splitDataset(dataset []csv.ReturnTypesDatasetRow) (trainingSet, evaluationSet []csv.ReturnTypesDatasetRow) {
 	if c.err != nil {
 		return
 	}
@@ -135,7 +135,7 @@ func (c *creator) splitDataset(dataset []csv.DatasetRow) (trainingSet, evaluatio
 }
 
 // Saves the dataset to the output path
-func (c *creator) saveDatasets(trainingSet, evaluationSet []csv.DatasetRow) {
+func (c *creator) saveDatasets(trainingSet, evaluationSet []csv.ReturnTypesDatasetRow) {
 	c.logln("Save datasets")
 	c.writeDataset(configuration.TrainingSetOutputPath(), trainingSet)
 	c.writeDataset(configuration.EvaluationSetOutputPath(), evaluationSet)
@@ -152,7 +152,7 @@ func (c *creator) saveLabelMappings() {
 }
 
 // Writes dataset rows into a csv file
-func (c *creator) writeDataset(outputPath string, dataset []csv.DatasetRow) {
+func (c *creator) writeDataset(outputPath string, dataset []csv.ReturnTypesDatasetRow) {
 	if c.err != nil {
 		return
 	}

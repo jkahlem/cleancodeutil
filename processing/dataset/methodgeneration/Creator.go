@@ -14,10 +14,9 @@ import (
 )
 
 type creator struct {
-	typeClassMapper   typeclasses.Mapper
-	methods           []csv.Method
-	methodsParameters []csv.Method
-	err               errors.Error
+	typeClassMapper typeclasses.Mapper
+	methods         []csv.Method
+	err             errors.Error
 }
 
 // Creates a new dataset creator
@@ -37,7 +36,7 @@ func (c *creator) Create() errors.Error {
 }
 
 // Creates dataset rows from the loaded methods
-func (c *creator) getDatasetRows() []csv.DatasetRow2 {
+func (c *creator) getDatasetRows() []csv.MethodGenerationDatasetRow {
 	c.mapMethodReturnTypesToTypeClasses()
 	c.filterMethodsToRelevantMethods()
 	return c.convertMethodsToDatasetRows()
@@ -86,26 +85,21 @@ func (c *creator) filterMethodsToRelevantMethods() {
 		return
 	}
 
-	// TODO: needed ? At least "summarization" is not needed I think. Possibly, other filters might be needed in the future here.
-
 	c.logln("filter methods to relevant methods...")
-	relevantMethods := base.FilterMethodsByLabels(c.methods)
-	c.methodsParameters = relevantMethods
-	//summarizedMap := base.CreateMapOfSummarizedMethods(relevantMethods)
-	//c.methodsParameters = base.SummarizeMethodsForParameters(summarizedMap, relevantMethods)
+	c.methods = base.FilterMethodsByLabels(c.methods)
 }
 
 // Creates dataset rows of the methods
-func (c *creator) convertMethodsToDatasetRows() []csv.DatasetRow2 {
+func (c *creator) convertMethodsToDatasetRows() []csv.MethodGenerationDatasetRow {
 	if c.err != nil {
 		return nil
 	}
 	c.logln("Create dataset rows")
-	rowsParameters := make([]csv.DatasetRow2, 0, len(c.methodsParameters))
+	rowsParameters := make([]csv.MethodGenerationDatasetRow, 0, len(c.methods))
 	context := "string, int, float, enum, object, boolean"
-	for _, method := range c.methodsParameters {
+	for _, method := range c.methods {
 		name, pars := c.convertMethodDefinitionToSentence(method)
-		row := csv.DatasetRow2{
+		row := csv.MethodGenerationDatasetRow{
 			Prefix:     "generate parameters",
 			MethodName: name,
 			Parameters: pars,
@@ -120,7 +114,7 @@ func (c *creator) convertMethodsToDatasetRows() []csv.DatasetRow2 {
 					ctx = fmt.Sprintf("%s, %s", context, parType)
 				}
 				// TOOD: don't need a special fallback, as type assignment should for example pick "object" if it does not know any better thing
-				row2 := csv.DatasetRow2{
+				row2 := csv.MethodGenerationDatasetRow{
 					Prefix: "type assignment",
 					// the "name" variable has currently already a dot '.' at the end. So no need to add it another time ...
 					MethodName: fmt.Sprintf("method: %s name: %s. context: %s.", name, parName, ctx), // input_text
@@ -148,13 +142,13 @@ func (c *creator) convertMethodDefinitionToSentence(method csv.Method) (string, 
 }
 
 // Saves the dataset to the output path
-func (c *creator) saveDataset(trainingSet []csv.DatasetRow2) {
+func (c *creator) saveDataset(trainingSet []csv.MethodGenerationDatasetRow) {
 	c.logln("Save methods datasets")
 	c.writeDataset(configuration.MethodsTrainingSetOutputPath(), trainingSet)
 }
 
 // Writes dataset rows into a csv file
-func (c *creator) writeDataset(outputPath string, dataset []csv.DatasetRow2) {
+func (c *creator) writeDataset(outputPath string, dataset []csv.MethodGenerationDatasetRow) {
 	if c.err != nil {
 		return
 	}

@@ -43,7 +43,7 @@ import (
 )`
 
 var marshallerTemplate = `
-func (t {{.TypeName}}) ToRecordTEST() []string {
+func (t {{.TypeName}}) ToRecord() []string {
 	if record, err := marshal(reflect.ValueOf(t)); err != nil {
 		log.Error(err)
 		log.ReportProblem("An error occured while marshalling data")
@@ -53,7 +53,7 @@ func (t {{.TypeName}}) ToRecordTEST() []string {
 	}
 }
 
-func Unmarshal{{.TypeName}}TEST(records [][]string) []{{.TypeName}} {
+func Unmarshal{{.TypeName}}(records [][]string) []{{.TypeName}} {
 	typ := reflect.TypeOf({{.TypeName}}{})
 	result := make([]{{.TypeName}}, 0, len(records))
 	for _, record := range records {

@@ -189,12 +189,12 @@ func (c *StatisticsCreator) convertLabelToTypeName(typeLabel int) string {
 }
 
 // Loads and unmarshals rows of the given dataset
-func (c *StatisticsCreator) loadDatasetRows(path string) ([]csv.DatasetRow, errors.Error) {
+func (c *StatisticsCreator) loadDatasetRows(path string) ([]csv.ReturnTypesDatasetRow, errors.Error) {
 	records, err := csv.ReadRecords(path)
 	if err != nil {
 		return nil, err
 	}
-	return csv.UnmarshalDatasetRow(records), nil
+	return csv.UnmarshalReturnTypesDatasetRow(records), nil
 }
 
 // Adds statistics using the methods which were extracted from the project before filtering them for the dataset.

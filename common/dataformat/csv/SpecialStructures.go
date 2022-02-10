@@ -2,6 +2,9 @@ package csv
 
 import (
 	"fmt"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
+	"strconv"
 	"strings"
 )
 
@@ -54,4 +57,18 @@ func (data MethodSummarizationData) ToRecord() []string {
 		fmt.Sprintf("%d", data.Occurences),
 		MakeList(pairs),
 	}
+}
+
+func parseInt(raw string, strict bool) int {
+	result, err := strconv.ParseInt(raw, 10, 32)
+	if err != nil {
+		wrappedErr := errors.Wrap(err, CsvErrorTitle, "Could not unmarshal csv data")
+		if strict {
+			log.ReportProblemWithError(wrappedErr, "An error occured while unmarshalling data")
+		} else {
+			log.Error(wrappedErr)
+			log.ReportProblem("An error occured while unmarshalling data")
+		}
+	}
+	return int(result)
 }

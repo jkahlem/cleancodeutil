@@ -7,7 +7,7 @@ import (
 )
 
 // Helper type for sorting dataset rows by the same type
-type SortDatasetRow []csv.DatasetRow
+type SortDatasetRow []csv.ReturnTypesDatasetRow
 
 func (dataset SortDatasetRow) Len() int {
 	return len(dataset)
@@ -25,15 +25,15 @@ func (dataset SortDatasetRow) Swap(a, b int) {
 
 // Splits a dataset into a training and a evaluation set by the given relation (t:e  ->  training : evaluation)
 // The relation does apply on a type level, to prevent for example that the training set has 1000 boolean rows and the evaluation set has none.
-func SplitToTrainingAndEvaluationSet(dataset []csv.DatasetRow, proportion configuration.DatasetProportion) (trainingSet, evaluationSet []csv.DatasetRow) {
+func SplitToTrainingAndEvaluationSet(dataset []csv.ReturnTypesDatasetRow, proportion configuration.DatasetProportion) (trainingSet, evaluationSet []csv.ReturnTypesDatasetRow) {
 	if !isValidProportion(proportion) {
 		return
 	}
 
 	sort.Sort(SortDatasetRow(dataset))
 
-	trainingSet = make([]csv.DatasetRow, 0)
-	evaluationSet = make([]csv.DatasetRow, 0)
+	trainingSet = make([]csv.ReturnTypesDatasetRow, 0)
+	evaluationSet = make([]csv.ReturnTypesDatasetRow, 0)
 
 	for j, i := 0, 1; i < len(dataset); i++ {
 		if dataset[i].TypeLabel != dataset[i-1].TypeLabel || i+1 == len(dataset) {
@@ -55,10 +55,10 @@ func isValidProportion(proportion configuration.DatasetProportion) bool {
 }
 
 // Helper function that splits a part of the dataset (with same type) to the given relation.
-func splitRowsToTrainingAndEvaluationSet(dataset []csv.DatasetRow, proportion configuration.DatasetProportion) (trainingSet, evaluationSet []csv.DatasetRow) {
+func splitRowsToTrainingAndEvaluationSet(dataset []csv.ReturnTypesDatasetRow, proportion configuration.DatasetProportion) (trainingSet, evaluationSet []csv.ReturnTypesDatasetRow) {
 	trainingSetSize, evaluationSetSize := calculateDatasetSizes(len(dataset), proportion)
-	trainingSet = make([]csv.DatasetRow, trainingSetSize)
-	evaluationSet = make([]csv.DatasetRow, evaluationSetSize)
+	trainingSet = make([]csv.ReturnTypesDatasetRow, trainingSetSize)
+	evaluationSet = make([]csv.ReturnTypesDatasetRow, evaluationSetSize)
 	for i := 0; i < len(dataset); i++ {
 		if i < trainingSetSize {
 			trainingSet[i] = dataset[i]
