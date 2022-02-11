@@ -74,7 +74,7 @@ func LoadDefaultPackagesToTree(packageTree *packagetree.Tree) errors.Error {
 			return err
 		}
 
-		classRecords := csv.UnmarshalClasses(records)
+		classRecords := csv.UnmarshalClass(records)
 		FillPackageTreeByCsvClassNodes(packageTree, classRecords)
 	}
 	return nil

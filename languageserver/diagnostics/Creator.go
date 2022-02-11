@@ -3,7 +3,6 @@ package diagnostics
 import (
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
-	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/languageserver/lsp"
 	"returntypes-langserver/processing/typeclasses"
@@ -73,11 +72,7 @@ func (d *Creator) getActualAndExpectedMethodTypes(method *java.Method, mappings 
 // Maps the return type of the method to it's type class.
 func (d *Creator) getTypeClassForMethodReturnType(method *java.Method) (string, errors.Error) {
 	resolvedType, _ := java.Resolve(&method.ReturnType, d.tree)
-	typeClass, err := d.getTypeClassMapper().MapReturnTypeToTypeClass(csv.Method{
-		MethodName: method.MethodName,
-		ReturnType: resolvedType,
-		Labels:     java.GetMethodLabels(method),
-	})
+	typeClass, err := d.getTypeClassMapper().MapReturnTypeToTypeClass(resolvedType, java.GetMethodLabels(method))
 	if err != nil {
 		return "", err
 	}

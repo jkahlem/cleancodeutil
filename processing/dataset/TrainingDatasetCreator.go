@@ -61,7 +61,7 @@ func loadMethodsAndClasses(methodsWithReturnTypesPath, classHierarchyPath string
 		classesRecords = append(classesRecords, defaultClassesRecords...)
 	}
 
-	return csv.UnmarshalMethod(methodsRecords), csv.UnmarshalClasses(classesRecords), nil
+	return csv.UnmarshalMethod(methodsRecords), csv.UnmarshalClass(classesRecords), nil
 }
 
 func createPackageTree(classes []csv.Class) *packagetree.Tree {
