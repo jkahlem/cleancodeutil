@@ -19,6 +19,8 @@ type ExtractionVisitor struct {
 	packageTree *packagetree.Tree
 	// The currently visited java code file.
 	currentFile *java.CodeFile
+	// The currently visited class
+	currentClass *java.Class
 }
 
 func (visitor *ExtractionVisitor) VisitCodeFile(codeFile *java.CodeFile) {
@@ -36,6 +38,8 @@ func (visitor *ExtractionVisitor) VisitClass(class *java.Class) {
 			class.Classes[i].Accept(visitor)
 		}
 	}
+
+	visitor.currentClass = class
 	if class.Methods != nil {
 		for i := range class.Methods {
 			class.Methods[i].Accept(visitor)
@@ -81,25 +85,49 @@ func (visitor *ExtractionVisitor) VisitMethod(method *java.Method) {
 	visitor.methods = append(visitor.methods, csv.Method{
 		MethodName: method.MethodName,
 		ReturnType: resolvedReturnType,
-		Parameters: visitor.extractParameters(method),
+		Parameters: visitor.mapParameters(method.Parameters),
 		Labels:     java.GetMethodLabels(method),
 		FilePath:   filePath,
+		ClassName:  visitor.getCurrentClassName(),
+		Modifier:   method.Modifier,
+		Exceptions: visitor.mapExceptions(method.Exceptions),
 	}.ToRecord())
 }
 
-// Extracts parameters of the method in this format: "<type> <method>"
-func (visitor *ExtractionVisitor) extractParameters(method *java.Method) []string {
-	result := make([]string, 0, len(method.Parameters))
-	for _, parameter := range method.Parameters {
+// Maps parameters in this format: "<type> <method>"
+func (visitor *ExtractionVisitor) mapParameters(parameters []java.Parameter) []string {
+	result := make([]string, 0, len(parameters))
+	for _, parameter := range parameters {
 		//resolvedParameterType, _ := visitor.resolve(&parameter.Type)
-		unqualifiedTypeName := parameter.Type.TypeName
-		if splitted := strings.Split(parameter.Type.TypeName, "."); len(splitted) > 1 {
-			unqualifiedTypeName = splitted[len(splitted)-1]
-		}
+		unqualifiedTypeName := visitor.getUnqualifiedTypeName(parameter.Type.TypeName)
 		csvStr := fmt.Sprintf("%s %s", unqualifiedTypeName, parameter.Name)
 		result = append(result, csvStr)
 	}
 	return result
+}
+
+// Gets the name of the class which is currently visited
+func (visitor *ExtractionVisitor) getCurrentClassName() string {
+	if visitor.currentClass == nil {
+		return ""
+	}
+	return visitor.currentClass.ClassName
+}
+
+// Maps exceptions into a string slice with their unqualified type names
+func (visitor *ExtractionVisitor) mapExceptions(exceptions []java.Type) []string {
+	result := make([]string, 0, len(exceptions))
+	for _, exception := range exceptions {
+		//resolvedParameterType, _ := visitor.resolve(&parameter.Type)
+		result = append(result, visitor.getUnqualifiedTypeName(exception.TypeName))
+	}
+	return result
+}
+
+// Gets the unqualified name from an identifier (which might already be unqualified)
+func (visitor *ExtractionVisitor) getUnqualifiedTypeName(identifier string) string {
+	splitted := strings.Split(identifier, ".")
+	return splitted[len(splitted)-1]
 }
 
 func (visitor *ExtractionVisitor) VisitImport(_import *java.Import) {

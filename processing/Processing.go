@@ -26,13 +26,13 @@ func ProcessDatasetCreation() {
 	// First, clone repositories if needed
 	//clone()
 	// Load the java code of each repository and summarize it using the crawler
-	//summarizeJavaCode()
+	summarizeJavaCode()
 	// Extract method/classes of all of the repositories and put them into one file for methods and one for classes.
-	//createBasicData()
+	createBasicData()
 	// Create a dataset based on the method/class files above.
 	//createDataset()
 	// Train the predictor
-	trainPredictor()
+	//trainPredictor()
 	// Create statistics
 	//createStatistics()
 	// Log any problems occured during creation process
@@ -123,10 +123,11 @@ func createBasicData() {
 
 // Returns true if the basic data for dataset creation is available
 func isDataForDatasetAvailable() bool {
-	if ready := isMethodsWithReturnTypesAvailable(); !ready {
+	if configuration.ForceExtraction() {
 		return false
-	}
-	if ready := isClassHierarchyAvailable(); !ready {
+	} else if ready := isMethodsWithReturnTypesAvailable(); !ready {
+		return false
+	} else if ready := isClassHierarchyAvailable(); !ready {
 		return false
 	}
 	return true

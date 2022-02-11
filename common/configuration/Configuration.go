@@ -70,6 +70,13 @@ func CrawlerPath() string {
 	return AbsolutePathFromGoProjectDir(loadedConfig.CrawlerPath)
 }
 
+func ForceExtraction() bool {
+	if loadedConfig == nil {
+		return false
+	}
+	return loadedConfig.ForceExtraction
+}
+
 func DatasetSize() DatasetProportion {
 	if loadedConfig == nil {
 		return DatasetProportion{

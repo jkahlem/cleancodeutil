@@ -28,5 +28,8 @@ func (typeParameter *TypeParameter) Accept(visitor Visitor) {
 	visitor.VisitTypeParameter(typeParameter)
 }
 
-func (typeParameter *Parameter) Accept(visitor Visitor) {
+func (parameter *Parameter) Accept(visitor Visitor) {
+}
+
+func (field *ClassField) Accept(visitor Visitor) {
 }

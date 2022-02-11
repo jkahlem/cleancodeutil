@@ -1,7 +1,6 @@
 package java
 
 import (
-	"encoding/xml"
 	"returntypes-langserver/common/code/packagetree"
 	"strings"
 )
@@ -11,7 +10,6 @@ import (
 // the type definition is removed from the package tree, the resolution state of the type
 // will be resetted and needs to be resolved again (if possible).
 type Type struct {
-	XMLName             xml.Name    `xml:"type"`
 	TypeName            string      `xml:",chardata"`
 	IsArrayType         bool        `xml:"isArrayType,attr"`
 	parentElement       JavaElement `xml:"-"`

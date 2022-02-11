@@ -4,12 +4,15 @@ package csv
 //go:generate go run ./marshallerGenerator
 
 type Method struct {
-	MethodName string
-	ReturnType string
-	Labels     []string
-	FilePath   string
+	MethodName string `excel:"Method name"`
+	ReturnType string `excel:"Return type"`
 	// Parameters are in this format: "<type> <name>" (seperated by a single space)
-	Parameters []string
+	Parameters []string `excel:"Parameters"`
+	ClassName  string   `excel:"Class name"`
+	Exceptions []string `excel:"Exceptions"`
+	Labels     []string `excel:"Labels"`
+	Modifier   []string `excel:"Modifier"`
+	FilePath   string   `excel:"File path"`
 }
 
 type Class struct {

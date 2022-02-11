@@ -24,6 +24,8 @@ type configFile struct {
 	DefaultTypeClasses string `json:"defaultTypeClasses"`
 	// A path to the crawler's jar file
 	CrawlerPath string `json:"crawlerPath"`
+	// If true, will always recollect the data from the crawled xml files
+	ForceExtraction bool `json:"forceExtraction"`
 	// The size of the splitted datasets as a proportion
 	DatasetSize DatasetProportion `json:"datasetSize"`
 	// Method filtering options for dataset creation
@@ -144,8 +146,9 @@ func createDefaultConfig() {
 		ProjectInputDir:    "",
 		MainOutputDir:      filepath.Join(GoProjectDir(), "results"),
 		DefaultLibraries:   []string{filepath.Join(GoProjectDir(), "resources", "data", "javalang.csv")},
-		CrawlerPath:        filepath.Join(GoProjectDir(), "resources", "crawler", "returntypes-crawler.jar"),
 		DefaultTypeClasses: filepath.Join(GoProjectDir(), "resources", "data", "typeClasses.json"),
+		CrawlerPath:        filepath.Join(GoProjectDir(), "resources", "crawler", "returntypes-crawler.jar"),
+		ForceExtraction:    false,
 		DatasetSize: DatasetProportion{
 			Training:   7,
 			Evaluation: 3,

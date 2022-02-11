@@ -1,6 +1,7 @@
 package extractor
 
 import (
+	"os"
 	"path/filepath"
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
@@ -9,6 +10,8 @@ import (
 	"returntypes-langserver/common/dataformat/excel"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
+
+	"github.com/xuri/excelize/v2"
 )
 
 const ExtractorErrorTitle = "Extractor Error"
@@ -140,15 +143,21 @@ func (extractor *Extractor) buildExcelOutput() {
 		return
 	}
 
-	excelFile, err := excel.FromCSV(configuration.MethodsWithReturnTypesOutputPath(), csv.Method{})
-	if err != nil {
+	if excelFile, err := excel.FromCSV(configuration.MethodsWithReturnTypesOutputPath(), csv.Method{}); err != nil {
+		extractor.err = err
+		return
+	} else if err := extractor.saveExcelFile(excelFile); err != nil {
 		extractor.err = err
 		return
 	}
+}
 
-	excelFile.Path = configuration.MethodsWithReturnTypesExcelOutputPath()
-	if err := excelFile.Save(); err != nil {
-		extractor.err = errors.Wrap(err, "Excel Error", "Could not save excel file.")
-		return
+func (extractor *Extractor) saveExcelFile(file *excelize.File) errors.Error {
+	file.Path = configuration.MethodsWithReturnTypesExcelOutputPath()
+	if err := os.MkdirAll(filepath.Dir(file.Path), 0777); err != nil {
+		return errors.Wrap(err, "Excel Error", "Could not create directories")
+	} else if err := file.Save(); err != nil {
+		return errors.Wrap(err, "Excel Error", "Could not save excel file.")
 	}
+	return nil
 }

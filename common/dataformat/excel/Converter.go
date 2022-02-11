@@ -11,6 +11,7 @@ import (
 )
 
 const DefaultSheetName = "Sheet"
+const ExcelHeaderTag = "excel"
 
 // Reads a .csv file from the given path and builds an excel file from it. The structType defines a struct type, which should be used as reference for creating
 // the right headers. The struct's type definition can define the header values using the "excel" tag.
@@ -41,7 +42,7 @@ func buildLayoutByStruct(structType interface{}) (Layout, errors.Error) {
 
 	header := make([]string, 0, reflected.NumField())
 	for i := 0; i < reflected.NumField(); i++ {
-		header = append(header, reflected.Field(i).Tag.Get("excel"))
+		header = append(header, reflected.Field(i).Tag.Get(ExcelHeaderTag))
 	}
 	return NewLayout().WithColumns(header...).Build(), nil
 }

@@ -1,0 +1,17 @@
+{
+    "search.exclude": {
+        "dataset": true,
+        "**/*.csv": true
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "bin": true,
+        "resources": true,
+        "dataset": true
+    }
+}

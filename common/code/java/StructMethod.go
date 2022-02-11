@@ -15,6 +15,8 @@ type Method struct {
 	MethodNameRange Range           `xml:"methodNameRange>range"`
 	ReturnTypeRange Range           `xml:"returnTypeRange>range"`
 	Parameters      []Parameter     `xml:"parameters>parameter"`
+	Modifier        []string        `xml:"modifiers>modifier"`
+	Exceptions      []Type          `xml:"exceptions>exception"`
 	parentElement   JavaElement     `xml:"-"`
 }
 

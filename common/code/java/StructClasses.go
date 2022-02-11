@@ -26,6 +26,7 @@ type Class struct {
 	Methods           []Method        `xml:"methods>method"`
 	TypeParameters    []TypeParameter `xml:"typeParameters>typeParameter"`
 	ExtendsImplements []Type          `xml:"extends>type"`
+	Fields            []ClassField    `xml:"fields>field"`
 	parentElement     JavaElement     `xml:"-"`
 }
 
