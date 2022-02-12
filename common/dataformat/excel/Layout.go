@@ -4,11 +4,15 @@ import "github.com/xuri/excelize/v2"
 
 type Layout struct {
 	Columns []Column
+	style   Style
 }
 
 type Column struct {
 	Header string
 	Width  float64
+}
+
+type Style struct {
 }
 
 func ApplyLayout(layout Layout, excelFile *excelize.File, sheetName string) {
@@ -41,4 +45,16 @@ func (b *layoutBuilder) WithColumns(headers ...string) *layoutBuilder {
 
 func (b *layoutBuilder) Build() Layout {
 	return *b.layout
+}
+
+func EmptyLayout() Layout {
+	return NewLayout().Build()
+}
+
+func getHeaderStringsFromLayout(layout Layout) []string {
+	header := make([]string, 0, len(layout.Columns))
+	for _, col := range layout.Columns {
+		header = append(header, col.Header)
+	}
+	return header
 }
