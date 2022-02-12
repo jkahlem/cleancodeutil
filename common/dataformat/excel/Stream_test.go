@@ -8,6 +8,60 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestBuildHeaderByStruct(t *testing.T) {
+	// given
+	captor := &InfoCaptor{}
+	w := newStructFormatWriter(TestStructWithHeaders{})
+	w.SetWriter(captor)
+
+	// when
+	err := w.BuildLayout(EmptyLayout())
+
+	// then
+	assert.NoError(t, err)
+	utils.AssertStringSlice(t, getHeaderStringsFromLayout(captor.layout), "NAME", "", "number", "Text")
+}
+
+func TestColumnInsert(t *testing.T) {
+	// given
+	destination := make([][]string, 0)
+
+	// when
+	err := Stream().FromSlice(ABCRow()).WithStaticHeaders("Col0", "Col1", "Col2").InsertColumnsAt(Col(1), "Empty1", "Empty2").ToSlice(&destination)
+
+	// then
+	assert.NoError(t, err)
+
+	header := destination[0]
+	row := destination[1]
+	utils.AssertStringSlice(t, header, "Col0", "Empty1", "Empty2", "Col1", "Col2")
+	utils.AssertStringSlice(t, row, "A", "", "", "B", "C")
+}
+
+func TestColumnSwap(t *testing.T) {
+	// given
+	destination := make([][]string, 0)
+
+	// when
+	err := Stream().FromSlice(ABCRow()).WithStaticHeaders("Col0", "Col1", "Col2").Swap(Col(1), Col(2)).ToSlice(&destination)
+
+	// then
+	assert.NoError(t, err)
+
+	header := destination[0]
+	row := destination[1]
+	utils.AssertStringSlice(t, header, "Col0", "Col2", "Col1")
+	utils.AssertStringSlice(t, row, "A", "C", "B")
+}
+
+/*-- Unit test helper --*/
+
+func ABCRow() [][]string {
+	return [][]string{
+		{"A", "B", "C"},
+	}
+}
+
 type TestStructWithHeaders struct {
 	Name string `excel:"NAME"`
 	// No tag defined: use empty header
@@ -30,17 +84,3 @@ func (w *InfoCaptor) BuildLayout(layout Layout) errors.Error {
 }
 
 func (w *InfoCaptor) SetWriter(writer StreamWriter) {}
-
-func TestBuildHeaderByStruct(t *testing.T) {
-	// given
-	captor := &InfoCaptor{}
-	w := newStructFormatWriter(TestStructWithHeaders{})
-	w.SetWriter(captor)
-
-	// when
-	err := w.BuildLayout(EmptyLayout())
-
-	// then
-	assert.NoError(t, err)
-	utils.AssertStringSlice(t, getHeaderStringsFromLayout(captor.layout), "NAME", "", "number", "Text")
-}

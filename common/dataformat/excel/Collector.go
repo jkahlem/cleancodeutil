@@ -80,17 +80,20 @@ func (c *file) addRowToExcelFile(rowIndex int, values ...string) errors.Error {
 }
 
 type sliceCollector struct {
-	slice [][]string
+	slice *[][]string
 }
 
-func newSliceCollector(slice [][]string) Collector {
+func newSliceCollector(slice *[][]string) Collector {
 	return &sliceCollector{
 		slice: slice,
 	}
 }
 
 func (c *sliceCollector) Write(record []string, style Style) errors.Error {
-	c.slice = append(c.slice, record)
+	if c.slice == nil {
+		return errors.New("Excel Error", "Could not write to nil pointer slice.")
+	}
+	*c.slice = append(*c.slice, record)
 	return nil
 }
 

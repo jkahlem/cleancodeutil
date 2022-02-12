@@ -4,6 +4,23 @@ import "returntypes-langserver/common/debug/errors"
 
 type Col int
 
+type WriteableStream interface {
+	Transform(transformer RecordTransformer) WriteableStream
+	InsertColumnsAt(position Col, columns ...string) WriteableStream
+	Swap(i, j Col) WriteableStream
+	ToFile(path string) errors.Error
+	ToSlice(slice *[][]string) errors.Error
+}
+
+// A writeable stream which may have a base layout
+type BaseLayoutStream interface {
+	WriteableStream
+	// Sets the base layout for the stream using the given struct
+	FormattedByStruct(structType interface{}) WriteableStream
+	// Sets the base layout for the stream using the given headers
+	WithStaticHeaders(headers ...string) WriteableStream
+}
+
 type stream struct {
 	loader Loader
 	parts  []StreamWriter
@@ -26,35 +43,45 @@ func Stream() *streamStart {
 
 /*-- Loader methods --*/
 
-func (s *streamStart) FromCSVFile(path string) *stream {
+func (s *streamStart) FromCSVFile(path string) BaseLayoutStream {
 	return s.startStream(newCsvLoader(path))
 }
 
-func (s *streamStart) startStream(loader Loader) *stream {
+func (s *streamStart) FromSlice(records [][]string) BaseLayoutStream {
+	return s.startStream(newSliceLoader(records))
+}
+
+func (s *streamStart) startStream(loader Loader) BaseLayoutStream {
 	return &stream{
 		loader: loader,
 	}
 }
 
-/*-- Writer Methods --*/
+/*-- Base layout methods --*/
 
-func (s *stream) FormattedByStruct(structType interface{}) *stream {
+func (s *stream) FormattedByStruct(structType interface{}) WriteableStream {
 	return s.addWriter(newStructFormatWriter(structType))
 }
 
-func (s *stream) Transform(transformer RecordTransformer) *stream {
+func (s *stream) WithStaticHeaders(headers ...string) WriteableStream {
+	return s.addWriter(newStaticFormatWriter(headers))
+}
+
+/*-- Writer Methods --*/
+
+func (s *stream) Transform(transformer RecordTransformer) WriteableStream {
 	return s.addWriter(newTransformer(transformer))
 }
 
-func (s *stream) InsertColumnsAt(position Col, columns ...string) *stream {
+func (s *stream) InsertColumnsAt(position Col, columns ...string) WriteableStream {
 	return s.addWriter(newColumnInserter(position, columns...))
 }
 
-func (s *stream) Swap(i, j int) *stream {
+func (s *stream) Swap(i, j Col) WriteableStream {
 	return s.addWriter(newColumnSwapper(i, j))
 }
 
-func (s *stream) addWriter(writer StreamWriter) *stream {
+func (s *stream) addWriter(writer StreamWriter) WriteableStream {
 	s.parts = append(s.parts, writer)
 	return s
 }
@@ -65,7 +92,7 @@ func (s *stream) ToFile(path string) errors.Error {
 	return s.collect(newFileCollector(path))
 }
 
-func (s *stream) ToSlice(slice [][]string) errors.Error {
+func (s *stream) ToSlice(slice *[][]string) errors.Error {
 	return s.collect(newSliceCollector(slice))
 }
 

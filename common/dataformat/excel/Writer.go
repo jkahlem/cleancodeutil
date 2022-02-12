@@ -13,7 +13,7 @@ type StreamWriter interface {
 	SetWriter(StreamWriter)
 }
 
-// Writes records considering the order of the struct layout
+// Writes headers considering the struct layout
 type structFormatWriter struct {
 	format interface{}
 	writer StreamWriter
@@ -62,12 +62,48 @@ func (w *structFormatWriter) SetWriter(writer StreamWriter) {
 	w.writer = writer
 }
 
-type columnSwapper struct {
-	i, j   int
+// Writes headers by the defined order
+type staticFormatWriter struct {
+	header []string
 	writer StreamWriter
 }
 
-func newColumnSwapper(i, j int) StreamWriter {
+func newStaticFormatWriter(header []string) StreamWriter {
+	return &staticFormatWriter{
+		header: header,
+	}
+}
+
+func (w *staticFormatWriter) Write(record []string) errors.Error {
+	if w.writer == nil {
+		return nil
+	} else {
+		return w.writer.Write(record)
+	}
+}
+
+func (w *staticFormatWriter) BuildLayout(layout Layout) errors.Error {
+	if w.writer == nil {
+		return nil
+	}
+	layout.Columns = make([]Column, 0, len(w.header))
+	for _, header := range w.header {
+		layout.Columns = append(layout.Columns, Column{Header: header})
+	}
+	return w.writer.BuildLayout(layout)
+}
+
+func (w *staticFormatWriter) SetWriter(writer StreamWriter) {
+	w.writer = writer
+}
+
+// Swaps the defined columns
+type columnSwapper struct {
+	i, j   Col
+	writer StreamWriter
+}
+
+func newColumnSwapper(i, j Col) StreamWriter {
 	return &columnSwapper{
 		i: i,
 		j: j,
@@ -98,6 +134,7 @@ func (w *columnSwapper) SetWriter(writer StreamWriter) {
 	w.writer = writer
 }
 
+// Inserts columns at the given position
 type columnInserter struct {
 	columnsToInsert  []string
 	emptySpace       []string
@@ -117,7 +154,8 @@ func (w *columnInserter) Write(record []string) errors.Error {
 	if w.writer == nil {
 		return nil
 	}
-	inserted := record[:w.positionToInsert]
+	inserted := make([]string, w.positionToInsert, len(record)+len(w.emptySpace))
+	copy(inserted, record[:w.positionToInsert])
 	inserted = append(inserted, w.emptySpace...)
 	inserted = append(inserted, record[w.positionToInsert:]...)
 	return w.writer.Write(inserted)
@@ -127,14 +165,22 @@ func (w *columnInserter) BuildLayout(layout Layout) errors.Error {
 	pos := int(w.positionToInsert)
 	if w.writer == nil {
 		return nil
-	} else if !(pos >= 0 && pos <= len(layout.Columns)) {
-		return errors.New("Excel Error", fmt.Sprintf("Column insertion position exceeds bounds. (Is %d, needs to be between 0 and %d)", w.positionToInsert, len(layout.Columns)))
+	} else if pos < 0 {
+		return errors.New("Excel Error", fmt.Sprintf("Column insertion position: Expected value greater than or equal to 0 but got %d", w.positionToInsert))
+	} else if pos > len(layout.Columns) {
+		for i := len(layout.Columns); i < pos; i++ {
+			layout.Columns = append(layout.Columns, Column{Header: ""})
+		}
 	}
-	columns := layout.Columns[:w.positionToInsert]
+	columns := make([]Column, w.positionToInsert, len(layout.Columns)+len(w.columnsToInsert))
+	copy(columns, layout.Columns[:w.positionToInsert])
 	for _, header := range w.columnsToInsert {
 		columns = append(columns, Column{Header: header})
 	}
-	columns = append(columns, layout.Columns[w.positionToInsert:]...)
+	if len(layout.Columns[w.positionToInsert:]) > 0 {
+		columns = append(columns, layout.Columns[w.positionToInsert:]...)
+	}
+	layout.Columns = columns
 	return w.writer.BuildLayout(layout)
 }
 
@@ -144,6 +190,7 @@ func (w *columnInserter) SetWriter(writer StreamWriter) {
 
 type RecordTransformer func([]string) []string
 
+// Transforms the data of a record before passing it further through the stream
 type transformerWriter struct {
 	transformer RecordTransformer
 	writer      StreamWriter
