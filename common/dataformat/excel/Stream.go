@@ -5,11 +5,21 @@ import "returntypes-langserver/common/debug/errors"
 type Col int
 
 type WriteableStream interface {
+	// Performs changes on the data of a record
 	Transform(transformer RecordTransformer) WriteableStream
+	// Inserts the new columns at the given position (zero-indexed)
 	InsertColumnsAt(position Col, columns ...string) WriteableStream
+	// Swaps two columns
 	Swap(i, j Col) WriteableStream
+	// For external writer
+	Do(StreamWriter) WriteableStream
+
+	// Writes all records to the given excel file
 	ToFile(path string) errors.Error
+	// Writes all records to the given slice
 	ToSlice(slice *[][]string) errors.Error
+	// For external collectors
+	To(Collector) errors.Error
 }
 
 // A writeable stream which may have a base layout
@@ -19,6 +29,8 @@ type BaseLayoutStream interface {
 	WithColumnsFromStruct(structType interface{}) WriteableStream
 	// Sets the base layout for the stream using the given headers
 	WithStaticHeaders(headers ...string) WriteableStream
+	// For external writer which define a base layout
+	With(StreamWriter) WriteableStream
 }
 
 type stream struct {
@@ -44,14 +56,14 @@ func Stream() *streamStart {
 /*-- Loader methods --*/
 
 func (s *streamStart) FromCSVFile(path string) BaseLayoutStream {
-	return s.startStream(newCsvLoader(path))
+	return s.From(newCsvLoader(path))
 }
 
 func (s *streamStart) FromSlice(records [][]string) BaseLayoutStream {
-	return s.startStream(newSliceLoader(records))
+	return s.From(newSliceLoader(records))
 }
 
-func (s *streamStart) startStream(loader Loader) BaseLayoutStream {
+func (s *streamStart) From(loader Loader) BaseLayoutStream {
 	return &stream{
 		loader: loader,
 	}
@@ -65,6 +77,10 @@ func (s *stream) WithColumnsFromStruct(structType interface{}) WriteableStream {
 
 func (s *stream) WithStaticHeaders(headers ...string) WriteableStream {
 	return s.addWriter(newStaticFormatWriter(headers))
+}
+
+func (s *stream) With(writer StreamWriter) WriteableStream {
+	return s.addWriter(writer)
 }
 
 /*-- Writer Methods --*/
@@ -81,6 +97,10 @@ func (s *stream) Swap(i, j Col) WriteableStream {
 	return s.addWriter(newColumnSwapper(i, j))
 }
 
+func (s *stream) Do(writer StreamWriter) WriteableStream {
+	return s.addWriter(writer)
+}
+
 func (s *stream) addWriter(writer StreamWriter) WriteableStream {
 	s.parts = append(s.parts, writer)
 	return s
@@ -89,14 +109,14 @@ func (s *stream) addWriter(writer StreamWriter) WriteableStream {
 /*-- Collector Methods --*/
 
 func (s *stream) ToFile(path string) errors.Error {
-	return s.collect(newFileCollector(path))
+	return s.To(newFileCollector(path))
 }
 
 func (s *stream) ToSlice(slice *[][]string) errors.Error {
-	return s.collect(newSliceCollector(slice))
+	return s.To(newSliceCollector(slice))
 }
 
-func (s *stream) collect(collector Collector) errors.Error {
+func (s *stream) To(collector Collector) errors.Error {
 	defer collector.Close()
 
 	s.connect(collector)
