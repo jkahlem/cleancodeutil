@@ -2,6 +2,7 @@ package utils
 
 import (
 	"reflect"
+	"strings"
 )
 
 // Explodes slices in a list of arguments to the same level of the other arguments (but not for nested slices).
@@ -29,4 +30,13 @@ func ExplodeSlices(args ...interface{}) []interface{} {
 		}
 	}
 	return params
+}
+
+// Splits the passed string to a key value pair. If the string has no key value pair, ```ok``` will be false.
+func KeyValueByEqualSign(raw string) (key, value string, ok bool) {
+	splitted := strings.Split(raw, "=")
+	if len(splitted) != 2 {
+		return "", "", false
+	}
+	return splitted[0], splitted[1], true
 }

@@ -5,6 +5,8 @@ import (
 	"reflect"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/utils"
+	"strconv"
+	"strings"
 )
 
 type StreamWriter interface {
@@ -36,18 +38,19 @@ func (w *structFormatWriter) Write(record []string) errors.Error {
 func (w *structFormatWriter) BuildLayout(layout Layout) errors.Error {
 	if w.writer == nil {
 		return nil
-	} else if err := w.buildLayoutByStruct(layout, w.format); err != nil {
+	} else if l, err := w.buildLayoutByStruct(layout, w.format); err != nil {
 		return err
+	} else {
+		return w.writer.BuildLayout(l)
 	}
-	return w.writer.BuildLayout(layout)
 }
 
-func (w *structFormatWriter) buildLayoutByStruct(layout Layout, structType interface{}) errors.Error {
+func (w *structFormatWriter) buildLayoutByStruct(layout Layout, structType interface{}) (Layout, errors.Error) {
 	reflected := utils.UnwrapType(reflect.TypeOf(structType))
 	if reflected == nil {
-		return errors.New("Excel Error", "Could not identify struct type")
+		return layout, errors.New("Excel Error", "Could not identify struct type")
 	} else if reflected.Kind() != reflect.Struct {
-		return errors.New("Excel Error", "Expected a struct type passed.")
+		return layout, errors.New("Excel Error", "Expected a struct type passed.")
 	}
 
 	header := make([]Column, 0, reflected.NumField())
@@ -56,13 +59,25 @@ func (w *structFormatWriter) buildLayoutByStruct(layout Layout, structType inter
 		header = append(header, w.buildColumn(tag))
 	}
 	layout.Columns = header
-	return nil
+	return layout, nil
 }
 
 func (w *structFormatWriter) buildColumn(tag string) Column {
-	return Column{
-		Header: tag,
+	splitted := strings.Split(tag, ",")
+	col := Column{
+		Header: splitted[0],
 	}
+	for _, attribute := range splitted[1:] {
+		if key, value, ok := utils.KeyValueByEqualSign(attribute); ok {
+			switch key {
+			case "width":
+				if parsed, err := strconv.ParseFloat(value, 64); err == nil {
+					col.Width = parsed
+				}
+			}
+		}
+	}
+	return col
 }
 
 func (w *structFormatWriter) SetWriter(writer StreamWriter) {

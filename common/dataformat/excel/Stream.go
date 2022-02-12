@@ -133,6 +133,7 @@ type collector struct {
 
 func (c *collector) BuildLayout(layout Layout) errors.Error {
 	c.layout = layout
+	c.collector.ApplyLayout(layout)
 	return nil
 }
 

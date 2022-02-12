@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/common/utils"
 	"strconv"
-	"strings"
 )
 
 // For structures which cannot be easily marshalled
@@ -34,15 +34,12 @@ func UnmarshalMethodSummarizationData(records [][]string) []MethodSummarizationD
 func UnmarshalMethodSummarizationReturnType(valuePairList []string) []MethodSummarizationReturnType {
 	returnTypes := make([]MethodSummarizationReturnType, 0, len(valuePairList))
 	for _, pair := range valuePairList {
-		splitted := strings.Split(pair, "=")
-		if len(splitted) != 2 {
-			continue
+		if key, value, ok := utils.KeyValueByEqualSign(pair); ok {
+			returnTypes = append(returnTypes, MethodSummarizationReturnType{
+				Name:  key,
+				Count: parseInt(value, false),
+			})
 		}
-
-		returnTypes = append(returnTypes, MethodSummarizationReturnType{
-			Name:  splitted[0],
-			Count: parseInt(splitted[1], false),
-		})
 	}
 	return returnTypes
 }

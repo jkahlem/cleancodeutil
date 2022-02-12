@@ -8,6 +8,7 @@ import (
 )
 
 type Collector interface {
+	ApplyLayout(Layout) errors.Error
 	Write([]string, *Style) errors.Error
 	Close() errors.Error
 }
@@ -31,6 +32,23 @@ func newFileCollectorByExcelFile(excelFile *excelize.File) Collector {
 	return &file{
 		excelFile: excelFile,
 	}
+}
+
+func (w *file) ApplyLayout(layout Layout) errors.Error {
+	if w.excelFile == nil {
+		return w.cancelWithError(errors.New("Excel Error", "Cannot apply layout: Output excel file does not exist"))
+	} else if w.closed {
+		return errors.New("Excel Error", "Cannot apply layout: File is already closed")
+	}
+	for i, col := range layout.Columns {
+		colId := getColumnIdentifier(i)
+		if col.Width > 0 {
+			if err := w.excelFile.SetColWidth(DefaultSheetName, colId, colId, col.Width); err != nil {
+				return errors.Wrap(err, "Excel Error", "Cannot apply layout")
+			}
+		}
+	}
+	return nil
 }
 
 func (w *file) Write(record []string, style *Style) errors.Error {
@@ -70,26 +88,26 @@ func (w *file) cancelWithError(err errors.Error) errors.Error {
 }
 
 // Adds the given row to the excel file. rowIndex should be the zero-based index of the row.
-func (c *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors.Error {
+func (w *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors.Error {
 	for colIndex, value := range values {
 		if len(value) > 0 {
 			cell := getCellIdentifier(colIndex, rowIndex)
-			if err := c.excelFile.SetCellValue(DefaultSheetName, cell, value); err != nil {
+			if err := w.excelFile.SetCellValue(DefaultSheetName, cell, value); err != nil {
 				return errors.Wrap(err, "Excel Error", fmt.Sprintf("Could not add row to excel file for %s (value: %v)", cell, value))
 			}
 		}
 	}
-	return c.applyRowStyle(rowIndex, len(values), styleId)
+	return w.applyRowStyle(rowIndex, len(values), styleId)
 }
 
-func (c *file) applyRowStyle(rowIndex, valuesLength, styleId int) errors.Error {
-	if err := c.excelFile.SetRowStyle(DefaultSheetName, rowIndex+1, rowIndex+1, styleId); err != nil {
+func (w *file) applyRowStyle(rowIndex, valuesLength, styleId int) errors.Error {
+	if err := w.excelFile.SetRowStyle(DefaultSheetName, rowIndex+1, rowIndex+1, styleId); err != nil {
 		return errors.Wrap(err, "Excel Error", "Cannot apply row style")
 	}
 	// The row style does somehow not apply to cells which were set (even if called before setting cell values)
 	// therefore we need to set the cell's style seperately..
 	startCell, endCell := getCellIdentifier(0, rowIndex), getCellIdentifier(valuesLength, rowIndex)
-	if err := c.excelFile.SetCellStyle(DefaultSheetName, startCell, endCell, styleId); err != nil {
+	if err := w.excelFile.SetCellStyle(DefaultSheetName, startCell, endCell, styleId); err != nil {
 		return errors.Wrap(err, "Excel Error", "Cannot apply row style")
 	}
 	return nil
@@ -114,5 +132,9 @@ func (c *sliceCollector) Write(record []string, style *Style) errors.Error {
 }
 
 func (c *sliceCollector) Close() errors.Error {
+	return nil
+}
+
+func (c *sliceCollector) ApplyLayout(layout Layout) errors.Error {
 	return nil
 }
