@@ -29,9 +29,9 @@ func TestExcelFileGeneration(t *testing.T) {
 	style := Style{}
 
 	// when
-	collector.Write(records[0], style)
-	collector.Write(records[1], style)
-	collector.Write(records[2], style)
+	collector.Write(records[0], &style)
+	collector.Write(records[1], &style)
+	collector.Write(records[2], &style)
 	actualRows, _ := file.GetRows(DefaultSheetName)
 
 	// then

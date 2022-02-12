@@ -16,7 +16,7 @@ type WriteableStream interface {
 type BaseLayoutStream interface {
 	WriteableStream
 	// Sets the base layout for the stream using the given struct
-	FormattedByStruct(structType interface{}) WriteableStream
+	WithColumnsFromStruct(structType interface{}) WriteableStream
 	// Sets the base layout for the stream using the given headers
 	WithStaticHeaders(headers ...string) WriteableStream
 }
@@ -59,7 +59,7 @@ func (s *streamStart) startStream(loader Loader) BaseLayoutStream {
 
 /*-- Base layout methods --*/
 
-func (s *stream) FormattedByStruct(structType interface{}) WriteableStream {
+func (s *stream) WithColumnsFromStruct(structType interface{}) WriteableStream {
 	return s.addWriter(newStructFormatWriter(structType))
 }
 
@@ -101,7 +101,7 @@ func (s *stream) collect(collector Collector) errors.Error {
 
 	s.connect(collector)
 	head := s.parts[0]
-	if err := head.BuildLayout(EmptyLayout()); err != nil {
+	if err := head.BuildLayout(DefaultLayout()); err != nil {
 		return errors.Wrap(err, "Excel Error", "Could not build layout")
 	}
 	for {
@@ -128,6 +128,7 @@ type collector struct {
 	layout        Layout
 	collector     Collector
 	headerWritten bool
+	oddRow        bool
 }
 
 func (c *collector) BuildLayout(layout Layout) errors.Error {
@@ -143,7 +144,7 @@ func (c *collector) WriteHeader() errors.Error {
 	for _, col := range c.layout.Columns {
 		header = append(header, col.Header)
 	}
-	return c.collector.Write(header, c.layout.style)
+	return c.collector.Write(header, &c.layout.HeaderStyle)
 }
 
 func (c *collector) Write(record []string) errors.Error {
@@ -154,8 +155,18 @@ func (c *collector) Write(record []string) errors.Error {
 		if err := c.WriteHeader(); err != nil {
 			return err
 		}
+		c.headerWritten = true
 	}
-	return c.collector.Write(record, c.layout.style)
+	c.oddRow = !c.oddRow
+	return c.collector.Write(record, c.getRowStyle())
+}
+
+func (c *collector) getRowStyle() *Style {
+	if c.oddRow {
+		return &c.layout.OddRowStyle
+	} else {
+		return &c.layout.EvenRowStyle
+	}
 }
 
 func (c *collector) SetWriter(StreamWriter) {}

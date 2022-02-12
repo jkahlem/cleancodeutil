@@ -36,26 +36,33 @@ func (w *structFormatWriter) Write(record []string) errors.Error {
 func (w *structFormatWriter) BuildLayout(layout Layout) errors.Error {
 	if w.writer == nil {
 		return nil
-	} else if layout, err := w.buildLayoutByStruct(w.format); err != nil {
+	} else if err := w.buildLayoutByStruct(layout, w.format); err != nil {
 		return err
-	} else {
-		return w.writer.BuildLayout(layout)
 	}
+	return w.writer.BuildLayout(layout)
 }
 
-func (w *structFormatWriter) buildLayoutByStruct(structType interface{}) (Layout, errors.Error) {
+func (w *structFormatWriter) buildLayoutByStruct(layout Layout, structType interface{}) errors.Error {
 	reflected := utils.UnwrapType(reflect.TypeOf(structType))
 	if reflected == nil {
-		return EmptyLayout(), errors.New("Excel Error", "Could not identify struct type")
+		return errors.New("Excel Error", "Could not identify struct type")
 	} else if reflected.Kind() != reflect.Struct {
-		return EmptyLayout(), errors.New("Excel Error", "Expected a struct type passed.")
+		return errors.New("Excel Error", "Expected a struct type passed.")
 	}
 
-	header := make([]string, 0, reflected.NumField())
+	header := make([]Column, 0, reflected.NumField())
 	for i := 0; i < reflected.NumField(); i++ {
-		header = append(header, reflected.Field(i).Tag.Get(ExcelHeaderTag))
+		tag := reflected.Field(i).Tag.Get(ExcelHeaderTag)
+		header = append(header, w.buildColumn(tag))
 	}
-	return NewLayout().WithColumns(header...).Build(), nil
+	layout.Columns = header
+	return nil
+}
+
+func (w *structFormatWriter) buildColumn(tag string) Column {
+	return Column{
+		Header: tag,
+	}
 }
 
 func (w *structFormatWriter) SetWriter(writer StreamWriter) {
