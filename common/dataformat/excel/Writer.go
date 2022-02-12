@@ -62,6 +62,11 @@ func (w *structFormatWriter) buildLayoutByStruct(layout Layout, structType inter
 	return layout, nil
 }
 
+const (
+	ColumnWidthAttr = "width"
+	ColumnHideAttr  = "hide"
+)
+
 func (w *structFormatWriter) buildColumn(tag string) Column {
 	splitted := strings.Split(tag, ",")
 	col := Column{
@@ -70,9 +75,13 @@ func (w *structFormatWriter) buildColumn(tag string) Column {
 	for _, attribute := range splitted[1:] {
 		if key, value, ok := utils.KeyValueByEqualSign(attribute); ok {
 			switch key {
-			case "width":
+			case ColumnWidthAttr:
 				if parsed, err := strconv.ParseFloat(value, 64); err == nil {
 					col.Width = parsed
+				}
+			case ColumnHideAttr:
+				if value == "true" {
+					col.Hide = true
 				}
 			}
 		}

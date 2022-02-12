@@ -19,6 +19,7 @@ type Layout struct {
 type Column struct {
 	Header string
 	Width  float64
+	Hide   bool
 }
 
 type Style struct {

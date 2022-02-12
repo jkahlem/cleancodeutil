@@ -42,10 +42,22 @@ func (w *file) ApplyLayout(layout Layout) errors.Error {
 	}
 	for i, col := range layout.Columns {
 		colId := getColumnIdentifier(i)
-		if col.Width > 0 {
-			if err := w.excelFile.SetColWidth(DefaultSheetName, colId, colId, col.Width); err != nil {
-				return errors.Wrap(err, "Excel Error", "Cannot apply layout")
-			}
+		if err := w.applyColumnLayout(col, colId); err != nil {
+			return errors.Wrap(err, "Excel Error", "Cannot apply layout")
+		}
+	}
+	return nil
+}
+
+func (w *file) applyColumnLayout(col Column, colId string) error {
+	if col.Width > 0 {
+		if err := w.excelFile.SetColWidth(DefaultSheetName, colId, colId, col.Width); err != nil {
+			return err
+		}
+	}
+	if col.Hide {
+		if err := w.excelFile.SetColVisible(DefaultSheetName, colId, false); err != nil {
+			return err
 		}
 	}
 	return nil

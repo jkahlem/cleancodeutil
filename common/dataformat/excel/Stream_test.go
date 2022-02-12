@@ -74,7 +74,6 @@ func TestColumnTransform(t *testing.T) {
 	utils.AssertStringSlice(t, row, "A", "ASD", "C")
 }
 
-/*
 // This "test" is more of a debugging function to actually generate excel files
 func TestExcelFileSaving(t *testing.T) {
 	// given
@@ -105,7 +104,7 @@ func TestExcelFileSavingByStruct(t *testing.T) {
 
 	// then
 	assert.NoError(t, err)
-}*/
+}
 
 /*-- Unit test helper --*/
 
@@ -116,10 +115,10 @@ func ABCRow() [][]string {
 }
 
 type TestStructWithHeaders struct {
-	Name string `excel:"NAME,width=50"`
+	Name string `excel:"NAME,hide=true"`
 	// No tag defined: use empty header
 	FieldWithEmptyHeader string
-	Number               int    `excel:"number"`
+	Number               int    `excel:"number,width=50"`
 	Text                 string `excel:"Text"`
 }
 
