@@ -12,7 +12,7 @@ type Method struct {
 	Exceptions []string `excel:"Exceptions"`
 	Labels     []string `excel:"Labels"`
 	Modifier   []string `excel:"Modifier"`
-	FilePath   string   `excel:"File path"`
+	FilePath   string   `excel:"File path,hide=true"`
 }
 
 type Class struct {
