@@ -252,3 +252,67 @@ func (w *transformerWriter) BuildLayout(layout Layout) errors.Error {
 func (w *transformerWriter) SetWriter(writer StreamWriter) {
 	w.writer = writer
 }
+
+type RecordComparer func(a, b []string) bool
+type Merger func(new, old []string) []string
+
+// Merges two records lists together
+type merger struct {
+	oldData   [][]string
+	comparer  RecordComparer
+	writer    StreamWriter
+	mergeFunc Merger
+}
+
+func newMerger(oldData [][]string, comparer RecordComparer, mergeFunc Merger) StreamWriter {
+	m := &merger{
+		comparer:  comparer,
+		oldData:   oldData,
+		mergeFunc: mergeFunc,
+	}
+	return m
+}
+
+func (w *merger) Write(record []string) errors.Error {
+	if w.comparer == nil {
+		return errors.New("Excel Error", "No comparer function defined for merging process")
+	} else if w.writer == nil {
+		return nil
+	}
+	w.trimOldData()
+	oldRecord := w.findRecordInOldData(record)
+	if oldRecord != nil {
+		return w.writer.Write(w.mergeFunc(record, oldRecord))
+	}
+	return w.writer.Write(record)
+}
+
+func (w *merger) findRecordInOldData(record []string) []string {
+	for i, oldRecord := range w.oldData {
+		if oldRecord != nil && w.comparer(record, oldRecord) {
+			w.oldData[i] = nil
+			return oldRecord
+		}
+	}
+	return nil
+}
+
+func (w *merger) trimOldData() {
+	for i, r := range w.oldData {
+		if r != nil {
+			w.oldData = w.oldData[i:]
+			break
+		}
+	}
+}
+
+func (w *merger) BuildLayout(layout Layout) errors.Error {
+	if w.writer == nil {
+		return nil
+	}
+	return w.writer.BuildLayout(layout)
+}
+
+func (w *merger) SetWriter(writer StreamWriter) {
+	w.writer = writer
+}
