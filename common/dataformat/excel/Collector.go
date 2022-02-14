@@ -2,6 +2,8 @@ package excel
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"returntypes-langserver/common/debug/errors"
 
 	"github.com/xuri/excelize/v2"
@@ -84,7 +86,9 @@ func (w *file) Close() errors.Error {
 		return nil
 	} else {
 		w.closed = true
-		if err := w.excelFile.Save(); err != nil {
+		if err := os.MkdirAll(filepath.Dir(w.excelFile.Path), 0777); err != nil {
+			return errors.Wrap(err, "Excel Error", "Could not create directories")
+		} else if err := w.excelFile.Save(); err != nil {
 			return errors.Wrap(err, "Excel Error", "Could not save excel file")
 		}
 		return nil

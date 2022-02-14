@@ -1,7 +1,6 @@
 package extractor
 
 import (
-	"os"
 	"path/filepath"
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
@@ -10,8 +9,7 @@ import (
 	"returntypes-langserver/common/dataformat/excel"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
-
-	"github.com/xuri/excelize/v2"
+	"strings"
 )
 
 const ExtractorErrorTitle = "Extractor Error"
@@ -143,21 +141,34 @@ func (extractor *Extractor) buildExcelOutput() {
 		return
 	}
 
-	if excelFile, err := excel.FromCSV(configuration.MethodsWithReturnTypesOutputPath(), csv.Method{}); err != nil {
-		extractor.err = err
-		return
-	} else if err := extractor.saveExcelFile(excelFile); err != nil {
+	err := excel.Stream().
+		FromCSVFile(configuration.MethodsWithReturnTypesOutputPath()).
+		WithColumnsFromStruct(csv.Method{}).
+		Transform(extractor.unqualifyTypeNamesInRecord).
+		ToFile(configuration.MethodsWithReturnTypesExcelOutputPath())
+	if err != nil {
 		extractor.err = err
 		return
 	}
 }
 
-func (extractor *Extractor) saveExcelFile(file *excelize.File) errors.Error {
-	file.Path = configuration.MethodsWithReturnTypesExcelOutputPath()
-	if err := os.MkdirAll(filepath.Dir(file.Path), 0777); err != nil {
-		return errors.Wrap(err, "Excel Error", "Could not create directories")
-	} else if err := file.Save(); err != nil {
-		return errors.Wrap(err, "Excel Error", "Could not save excel file.")
+func (extractor *Extractor) unqualifyTypeNamesInRecord(methodRecord []string) []string {
+	method := csv.UnmarshalMethod([][]string{methodRecord})[0]
+
+	for i, exception := range method.Exceptions {
+		method.Exceptions[i] = extractor.unqualifyTypeName(exception)
 	}
-	return nil
+	for i, parameter := range method.Parameters {
+		par := strings.Split(parameter, " ")
+		par[0] = extractor.unqualifyTypeName(par[0])
+		method.Parameters[i] = strings.Join(par, " ")
+	}
+	method.ReturnType = extractor.unqualifyTypeName(method.ReturnType)
+
+	return method.ToRecord()
+}
+
+func (extractor *Extractor) unqualifyTypeName(typeName string) string {
+	parts := strings.Split(typeName, ".")
+	return parts[len(parts)-1]
 }
