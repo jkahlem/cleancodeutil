@@ -1,6 +1,7 @@
 package extractor
 
 import (
+	"fmt"
 	"path/filepath"
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
@@ -160,7 +161,12 @@ func (extractor *Extractor) unqualifyTypeNamesInRecord(methodRecord []string) []
 	}
 	for i, parameter := range method.Parameters {
 		par := strings.Split(parameter, " ")
-		par[0] = extractor.unqualifyTypeName(par[0])
+		// Add spaces here so they are present after .ToRecord() conversion
+		space := ""
+		if i > 0 {
+			space = " "
+		}
+		par[0] = fmt.Sprintf("%s**%s**", space, extractor.unqualifyTypeName(par[0]))
 		method.Parameters[i] = strings.Join(par, " ")
 	}
 	method.ReturnType = extractor.unqualifyTypeName(method.ReturnType)

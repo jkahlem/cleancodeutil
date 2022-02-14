@@ -63,8 +63,9 @@ func (w *structFormatWriter) buildLayoutByStruct(layout Layout, structType inter
 }
 
 const (
-	ColumnWidthAttr = "width"
-	ColumnHideAttr  = "hide"
+	ColumnWidthAttr    = "width"
+	ColumnHideAttr     = "hide"
+	ColumnMarkdownAttr = "markdown"
 )
 
 func (w *structFormatWriter) buildColumn(tag string) Column {
@@ -82,6 +83,10 @@ func (w *structFormatWriter) buildColumn(tag string) Column {
 			case ColumnHideAttr:
 				if value == "true" {
 					col.Hide = true
+				}
+			case ColumnMarkdownAttr:
+				if value == "true" {
+					col.Markdown = true
 				}
 			}
 		}

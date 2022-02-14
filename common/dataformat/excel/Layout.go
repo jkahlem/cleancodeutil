@@ -17,9 +17,10 @@ type Layout struct {
 }
 
 type Column struct {
-	Header string
-	Width  float64
-	Hide   bool
+	Header   string
+	Width    float64
+	Hide     bool
+	Markdown bool
 }
 
 type Style struct {
@@ -85,7 +86,7 @@ func DefaultLayout() Layout {
 			BackgroundColor: "#C6E0B4",
 		},
 		EvenRowStyle: Style{
-			BackgroundColor: "#BFBFBF",
+			BackgroundColor: "#D8D8D8",
 		},
 		OddRowStyle: Style{
 			BackgroundColor: "#FFFFFF",

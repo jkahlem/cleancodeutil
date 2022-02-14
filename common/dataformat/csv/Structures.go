@@ -7,7 +7,7 @@ type Method struct {
 	MethodName string `excel:"Method name,width=30"`
 	ReturnType string `excel:"Return type,width=20"`
 	// Parameters are in this format: "<type> <name>" (seperated by a single space)
-	Parameters []string `excel:"Parameters,width=95"`
+	Parameters []string `excel:"Parameters,width=95,markdown=true"`
 	ClassName  string   `excel:"Class name,width=25"`
 	Exceptions []string `excel:"Exceptions,width=20"`
 	Labels     []string `excel:"Labels,width=15"`

@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"returntypes-langserver/common/debug/errors"
+	"strings"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -19,6 +20,7 @@ type file struct {
 	excelFile *excelize.File
 	closed    bool
 	index     int
+	layout    Layout
 }
 
 func newFileCollector(outputPath string) Collector {
@@ -48,6 +50,7 @@ func (w *file) ApplyLayout(layout Layout) errors.Error {
 			return errors.Wrap(err, "Excel Error", "Cannot apply layout")
 		}
 	}
+	w.layout = layout
 	return nil
 }
 
@@ -108,12 +111,33 @@ func (w *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors
 	for colIndex, value := range values {
 		if len(value) > 0 {
 			cell := getCellIdentifier(colIndex, rowIndex)
-			if err := w.excelFile.SetCellValue(DefaultSheetName, cell, value); err != nil {
+			if w.layout.Columns[colIndex].Markdown {
+				if err := w.excelFile.SetCellRichText(DefaultSheetName, cell, w.parseMarkdown(value)); err != nil {
+					return errors.Wrap(err, "Excel Error", fmt.Sprintf("Could not add row to excel file for %s (value: %v)", cell, value))
+				}
+			} else if err := w.excelFile.SetCellValue(DefaultSheetName, cell, value); err != nil {
 				return errors.Wrap(err, "Excel Error", fmt.Sprintf("Could not add row to excel file for %s (value: %v)", cell, value))
 			}
 		}
 	}
 	return w.applyRowStyle(rowIndex, len(values), styleId)
+}
+
+// Very naive markdown parser that only parses for bold text
+func (w *file) parseMarkdown(value string) []excelize.RichTextRun {
+	isBold := false
+	richText := make([]excelize.RichTextRun, 0)
+	for _, part := range strings.Split(value, "**") {
+		richTextPart := excelize.RichTextRun{Text: part}
+		if isBold {
+			richTextPart.Font = &excelize.Font{
+				Bold: true,
+			}
+		}
+		richText = append(richText, richTextPart)
+		isBold = !isBold
+	}
+	return richText
 }
 
 func (w *file) applyRowStyle(rowIndex, valuesLength, styleId int) errors.Error {
