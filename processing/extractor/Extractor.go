@@ -168,7 +168,7 @@ func (extractor *Extractor) unqualifyTypeNamesInRecord(methodRecord []string) []
 		if i > 0 {
 			space = " "
 		}
-		par[0] = fmt.Sprintf("%s**%s**", space, extractor.unqualifyTypeName(par[0]))
+		par[0] = fmt.Sprintf("%s%s", space, extractor.unqualifyTypeName(par[0]))
 		method.Parameters[i] = strings.Join(par, " ")
 	}
 	method.ReturnType = extractor.unqualifyTypeName(method.ReturnType)

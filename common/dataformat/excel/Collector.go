@@ -17,16 +17,18 @@ type Collector interface {
 }
 
 type file struct {
-	excelFile *excelize.File
-	closed    bool
-	index     int
-	layout    Layout
+	excelFile    *excelize.File
+	closed       bool
+	index        int
+	layout       Layout
+	streamWriter *excelize.StreamWriter
 }
 
 func newFileCollector(outputPath string) Collector {
 	f := excelize.NewFile()
 	f.Path = outputPath
 	f.SetActiveSheet(f.NewSheet(DefaultSheetName))
+
 	return &file{
 		excelFile: f,
 	}
@@ -43,10 +45,11 @@ func (w *file) ApplyLayout(layout Layout) errors.Error {
 		return w.cancelWithError(errors.New("Excel Error", "Cannot apply layout: Output excel file does not exist"))
 	} else if w.closed {
 		return errors.New("Excel Error", "Cannot apply layout: File is already closed")
+	} else if err := w.checkStreamWriter(); err != nil {
+		return err
 	}
 	for i, col := range layout.Columns {
-		colId := getColumnIdentifier(i)
-		if err := w.applyColumnLayout(col, colId); err != nil {
+		if err := w.applyColumnWidth(col, i); err != nil {
 			return errors.Wrap(err, "Excel Error", "Cannot apply layout")
 		}
 	}
@@ -54,17 +57,17 @@ func (w *file) ApplyLayout(layout Layout) errors.Error {
 	return nil
 }
 
-func (w *file) applyColumnLayout(col Column, colId string) error {
+func (w *file) applyColumnWidth(col Column, zeroIndexedCol int) error {
 	if col.Width > 0 {
-		if err := w.excelFile.SetColWidth(DefaultSheetName, colId, colId, col.Width); err != nil {
+		if err := w.streamWriter.SetColWidth(zeroIndexedCol+1, zeroIndexedCol+1, col.Width); err != nil {
 			return err
 		}
 	}
-	if col.Hide {
+	/*if col.Hide {
 		if err := w.excelFile.SetColVisible(DefaultSheetName, colId, false); err != nil {
 			return err
 		}
-	}
+	}*/
 	return nil
 }
 
@@ -75,6 +78,8 @@ func (w *file) Write(record []string, style *Style) errors.Error {
 		return errors.New("Excel Error", "Cannot write row: File is already closed")
 	} else if style == nil {
 		return errors.New("Excel Error", "Cannot write row: style is nil.")
+	} else if err := w.checkStreamWriter(); err != nil {
+		return err
 	} else if styleId, err := style.ToExcelStyle(w.excelFile); err != nil {
 		return err
 	} else {
@@ -84,10 +89,24 @@ func (w *file) Write(record []string, style *Style) errors.Error {
 	}
 }
 
+func (w *file) checkStreamWriter() errors.Error {
+	if w.streamWriter == nil {
+		if sw, err := w.excelFile.NewStreamWriter(DefaultSheetName); err != nil {
+			return errors.Wrap(err, "Excel Error", "Could not open file stream")
+		} else {
+			w.streamWriter = sw
+		}
+	}
+	return nil
+}
+
 func (w *file) Close() errors.Error {
 	if w.closed || w.excelFile == nil {
 		return nil
 	} else {
+		if err := w.streamWriter.Flush(); err != nil {
+			return errors.Wrap(err, "Excel Error", "Could not flush stream")
+		}
 		w.closed = true
 		if err := os.MkdirAll(filepath.Dir(w.excelFile.Path), 0777); err != nil {
 			return errors.Wrap(err, "Excel Error", "Could not create directories")
@@ -108,8 +127,9 @@ func (w *file) cancelWithError(err errors.Error) errors.Error {
 
 // Adds the given row to the excel file. rowIndex should be the zero-based index of the row.
 func (w *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors.Error {
+	cells := make([]interface{}, 0, len(values))
 	for colIndex, value := range values {
-		if len(value) > 0 {
+		/*if len(value) > 0 {
 			cell := getCellIdentifier(colIndex, rowIndex)
 			if w.layout.Columns[colIndex].Markdown {
 				if err := w.excelFile.SetCellRichText(DefaultSheetName, cell, w.parseMarkdown(value)); err != nil {
@@ -118,9 +138,25 @@ func (w *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors
 			} else if err := w.excelFile.SetCellValue(DefaultSheetName, cell, value); err != nil {
 				return errors.Wrap(err, "Excel Error", fmt.Sprintf("Could not add row to excel file for %s (value: %v)", cell, value))
 			}
+		}*/
+		cellStyle := styleId
+		if len(w.layout.Columns) > colIndex && w.layout.Columns[colIndex].Hide {
+			// Because the stream writer implementation from the excelize package does not support setting column visibility,
+			// we just set a different style where font colour = background colour, so it does not look like there is something, as it distracts...
+			if id, err := w.layout.HiddenStyle.ToExcelStyle(w.excelFile); err == nil {
+				cellStyle = id
+			}
 		}
+		cells = append(cells, excelize.Cell{
+			Value:   value,
+			StyleID: cellStyle,
+		})
 	}
-	return w.applyRowStyle(rowIndex, len(values), styleId)
+	if err := w.streamWriter.SetRow(getCellIdentifier(0, rowIndex), cells); err != nil {
+		return errors.Wrap(err, "Excel Error", fmt.Sprintf("Could not write row %d", rowIndex))
+	}
+	return nil
+	//return w.applyRowStyle(rowIndex, len(values), styleId)
 }
 
 // Very naive markdown parser that only parses for bold text

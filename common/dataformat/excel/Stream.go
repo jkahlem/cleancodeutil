@@ -145,8 +145,8 @@ func (s *stream) To(collector Collector) errors.Error {
 			return errors.Wrap(err, "Excel Error", "An error occured when loading a record from stream")
 		} else if record == nil {
 			// End when no record is left
-			s.log("Excel stream finished")
-			return nil
+			s.log("Excel stream finished\n")
+			return collector.Close()
 		} else if err = head.Write(record); err != nil {
 			return errors.Wrap(err, "Excel Error", "An error occured while writing an excel row.")
 		}

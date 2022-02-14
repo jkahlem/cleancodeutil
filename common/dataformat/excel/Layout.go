@@ -14,6 +14,8 @@ type Layout struct {
 	EvenRowStyle Style
 	// Style on each odd row. (This begins from the first row under the header)
 	OddRowStyle Style
+	// Style for hidden fields
+	HiddenStyle Style
 }
 
 type Column struct {
@@ -27,6 +29,7 @@ type Style struct {
 	Bold            bool
 	BackgroundColor string
 	FontColor       string
+	NoBorder        bool
 	styleId         int
 	file            *excelize.File
 }
@@ -40,6 +43,9 @@ func (s *Style) ToExcelStyle(file *excelize.File) (int, errors.Error) {
 	destStyle := excelize.Style{
 		Font:   &excelize.Font{Color: "#000000", Size: 12},
 		Border: []excelize.Border{s.border("top"), s.border("left"), s.border("bottom"), s.border("right")},
+	}
+	if s.NoBorder {
+		destStyle.Border = nil
 	}
 	if s.Bold {
 		destStyle.Font.Bold = true
@@ -90,6 +96,11 @@ func DefaultLayout() Layout {
 		},
 		OddRowStyle: Style{
 			BackgroundColor: "#FFFFFF",
+		},
+		HiddenStyle: Style{
+			BackgroundColor: "#FFFFFF",
+			FontColor:       "#FFFFFF",
+			NoBorder:        true,
 		},
 	}
 }
