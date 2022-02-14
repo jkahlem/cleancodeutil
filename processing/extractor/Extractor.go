@@ -142,7 +142,9 @@ func (extractor *Extractor) buildExcelOutput() {
 		return
 	}
 
-	err := excel.Stream().
+	log.Info("Write output to excel file ...\n")
+
+	err := excel.ReportingStream().
 		FromCSVFile(configuration.MethodsWithReturnTypesOutputPath()).
 		WithColumnsFromStruct(csv.Method{}).
 		Transform(extractor.unqualifyTypeNamesInRecord).

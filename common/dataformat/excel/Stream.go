@@ -1,8 +1,17 @@
 package excel
 
-import "returntypes-langserver/common/debug/errors"
+import (
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
+)
 
 type Col int
+
+type StreamStart interface {
+	FromCSVFile(path string) BaseLayoutStream
+	FromSlice(records [][]string) BaseLayoutStream
+	From(loader Loader) BaseLayoutStream
+}
 
 type WriteableStream interface {
 	// Performs changes on the data of a record
@@ -34,12 +43,10 @@ type BaseLayoutStream interface {
 }
 
 type stream struct {
-	loader Loader
-	parts  []StreamWriter
+	loader      Loader
+	parts       []StreamWriter
+	isReporting bool
 }
-
-// Helper class to enforce starting stream creation with a loader.
-type streamStart struct{}
 
 // Creates a stream to process data on a stream, starting with loading the data, altering data, columns and so on and writing them to the file.
 // Example:
@@ -49,24 +56,29 @@ type streamStart struct{}
 //     .InsertColumnsAt(excel.Col(1), "Groups", "Labels")
 //     .Swap(excel.Col(2), excel.Col(5))
 //     .ToFile("path/to/output.xlsx")
-func Stream() *streamStart {
-	return &streamStart{}
+func Stream() StreamStart {
+	return &stream{}
+}
+
+func ReportingStream() StreamStart {
+	return &stream{
+		isReporting: true,
+	}
 }
 
 /*-- Loader methods --*/
 
-func (s *streamStart) FromCSVFile(path string) BaseLayoutStream {
+func (s *stream) FromCSVFile(path string) BaseLayoutStream {
 	return s.From(newCsvLoader(path))
 }
 
-func (s *streamStart) FromSlice(records [][]string) BaseLayoutStream {
+func (s *stream) FromSlice(records [][]string) BaseLayoutStream {
 	return s.From(newSliceLoader(records))
 }
 
-func (s *streamStart) From(loader Loader) BaseLayoutStream {
-	return &stream{
-		loader: loader,
-	}
+func (s *stream) From(loader Loader) BaseLayoutStream {
+	s.loader = loader
+	return s
 }
 
 /*-- Base layout methods --*/
@@ -124,16 +136,27 @@ func (s *stream) To(collector Collector) errors.Error {
 	if err := head.BuildLayout(DefaultLayout()); err != nil {
 		return errors.Wrap(err, "Excel Error", "Could not build layout")
 	}
-	for {
+	for i := 0; true; i++ {
+		if (i % 50) == 0 {
+			s.log("Excel stream at record %d ...\n", i)
+		}
 		record, err := s.loader.Load()
 		if err != nil {
 			return errors.Wrap(err, "Excel Error", "An error occured when loading a record from stream")
 		} else if record == nil {
 			// End when no record is left
+			s.log("Excel stream finished")
 			return nil
 		} else if err = head.Write(record); err != nil {
 			return errors.Wrap(err, "Excel Error", "An error occured while writing an excel row.")
 		}
+	}
+	return nil
+}
+
+func (s *stream) log(msg string, args ...interface{}) {
+	if s.isReporting {
+		log.Info(msg, args...)
 	}
 }
 
