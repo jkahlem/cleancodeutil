@@ -1,0 +1,399 @@
+{
+    "datasets": [{
+        "name": "default",
+        "filter": {
+            "exclude": {
+                "label":["testMethod"]
+            }
+        },
+        "convertNumbers": true,
+        "subsets": [
+            {
+                "name": "saveRemove",
+                "filter": {
+                    "include": {
+                        "method": ["save*", "remove*"]
+                    }
+                }
+            },
+            {
+                "name": "staticOpenCreate",
+                "filter": {
+                    "include": {
+                        "method": ["open*", "create*"],
+                        "modifier": ["static"]
+                    }
+                }
+            },
+            {
+                "name": "quietly",
+                "filter": {
+                    "include": {
+                        "method": [{
+                            "value": ".*quiet(ly)?",
+                            "type": "regexp"
+                        }, {
+                            "value": ".*silent(ly)?",
+                            "type": "regexp"
+                        }]
+                    }
+                }
+            },
+            {
+                "name": "eventHandler",
+                "filter": {
+                    "include": {
+                        "method": ["on*"]
+                    }
+                }
+            },
+            {
+                "name": "builder",
+                "filter": {
+                    "include": {
+                        "classname": ["*Builder"]
+                    }
+                }
+            },
+            {
+                "name": "conditional",
+                "filter": {
+                    "include": {
+                        "method": ["*if*"]
+                    }
+                }
+            },
+            {
+                "name": "for",
+                "filter": {
+                    "include": {
+                        "method": ["*for*"]
+                    }
+                }
+            },
+            {
+                "name": "tryPattern",
+                "filter": {
+                    "include": {
+                        "method": ["try*"]
+                    }
+                }
+            },
+            {
+                "name": "finder",
+                "filter": {
+                    "method": ["find*"]
+                }
+            },
+            {
+                "name": "attacher",
+                "filter": {
+                    "method": ["attach*", "bind*"]
+                }
+            },
+            {
+                "name": "adder",
+                "filter": {
+                    "method": ["add*"]
+                }
+            },
+            {
+                "name": "realGettersAndSetters",
+                "filter": {
+                    "include": {
+                        "labels": ["singleAssignment", "singleReturn"]
+                    }
+                }
+            },
+            {
+                "name": "replacer",
+                "filter": {
+                    "include": {
+                        "method": ["replace*"]
+                    }
+                }
+            },
+            {
+                "name": "sorter",
+                "filter": {
+                    "include": {
+                        "method": ["sort*"]
+                    }
+                }
+            },
+            {
+                "name": "initializer",
+                "filter": {
+                    "include": {
+                        "method": ["init*"]
+                    }
+                }
+            },
+            {
+                "name": "registerer",
+                "filter": {
+                    "include": {
+                        "method": ["register*", "unregister*"]
+                    }
+                }
+            },
+            {
+                "name": "validator",
+                "filter": {
+                    "include": {
+                        "method": ["validate*", "reuqire*"]
+                    }
+                }
+            },
+            {
+                "name": "checker",
+                "filter": {
+                    "include": {
+                        "method": ["check*"]
+                    }
+                }
+            },
+            {
+                "name": "withEr",
+                "filter": {
+                    "include": {
+                        "method": ["*with*"]
+                    }
+                }
+            },
+            {
+                "name": "isComparer",
+                "filter": {
+                    "include": {
+                        "method": ["*better*", "*same*", "*greater*", "*lesser*", "*equal*", "*worse*"]
+                    }
+                }
+            },
+            {
+                "name": "distance",
+                "filter": {
+                    "include": {
+                        "method": ["*distance*"]
+                    }
+                }
+            },
+            {
+                "name": "to-Er",
+                "filter": {
+                    "include": {
+                        "method": ["*to*"]
+                    }
+                }
+            },
+            {
+                "name": "from-Converter",
+                "filter": {
+                    "include": {
+                        "method": ["*from*"]
+                    }
+                }
+            },
+            {
+                "name": "by-Er",
+                "filter": {
+                    "include": {
+                        "method": ["* by *", "by *", "* by"]
+                    }
+                }
+            },
+            {
+                "name": "as-Converter",
+                "filter": {
+                    "include": {
+                        "method": ["* as *", "as *", "* as"]
+                    }
+                }
+            },
+            {
+                "name": "adapter",
+                "filter": {
+                    "include": {
+                        "method": ["adapt*"]
+                    }
+                }
+            },
+            {
+                "name": "creator",
+                "filter": {
+                    "include":{
+                        "method": ["new*", "create*", "generate*", "build*"]
+                    }
+                }
+            },
+            {
+                "name": "copy-er",
+                "filter": {
+                    "include": {
+                        "method": ["copy*"]
+                    }
+                }
+            },
+            {
+                "name": "boolget-should-contains",
+                "filter": {
+                    "include": {
+                        "method": ["should*", "contains*"]
+                    }
+                }
+            },
+            {
+                "name": "indexer",
+                "filter": {
+                    "include": {
+                        "method": ["*index of*"]
+                    }
+                }
+            },
+            {
+                "name": "putter",
+                "filter": {
+                    "include": {
+                        "method": ["put", "put *"]
+                    }
+                }
+            },
+            {
+                "name": "in-Er",
+                "filter": {
+                    "include": {
+                        "method": ["* in", "in *", "* in *"]
+                    }
+                }
+            },
+            {
+                "name": "lister",
+                "filter": {
+                    "include": {
+                        "method": ["list*"]
+                    }
+                }
+            },
+            {
+                "name": "printer",
+                "filter": {
+                    "include": {
+                        "method": ["print*"]
+                    }
+                }
+            },
+            {
+                "name": "visitor",
+                "filter": {
+                    "include": {
+                        "method": ["visit*"]
+                    }
+                }
+            },
+            {
+                "name": "acceptor",
+                "filter": {
+                    "include": {
+                        "method": ["accept*"]
+                    }
+                }
+            },
+            {
+                "name": "nexter",
+                "filter": {
+                    "include": {
+                        "method": ["*next*"]
+                    }
+                }
+            },
+            {
+                "name": "mapperTransformer",
+                "filter": {
+                    "include": {
+                        "method": ["map*", "transform*"]
+                    }
+                }
+            },
+            {
+                "name": "readWriter",
+                "filter": {
+                    "include": {
+                        "method": ["read*", "write*"]
+                    }
+                }
+            },
+            {
+                "name": "maybe-method",
+                "filter": {
+                    "include": {
+                        "method": ["maybe*"]
+                    }
+                }
+            },
+            {
+                "name": "willFuture",
+                "filter": {
+                    "include": {
+                        "method": ["will*"]
+                    }
+                }
+            },
+            {
+                "name": "comparator",
+                "filter": {
+                    "include": {
+                        "method": ["compare*"]
+                    }
+                }
+            },
+            {
+                "name": "parserDecoder",
+                "filter": {
+                    "include": {
+                        "method": ["parse*", "marshal*", "unmarshal*", "encode*", "decode*"]
+                    }
+                }
+            },
+            {
+                "name": "permissions-may",
+                "filter": {
+                    "include": {
+                        "method": ["may *"]
+                    }
+                }
+            },
+            {
+                "name": "applier",
+                "filter": {
+                    "include": {
+                        "method": ["apply*"]
+                    }
+                }
+            },
+            {
+                "name": "cloner",
+                "filter": {
+                    "include": {
+                        "method": ["clone*"]
+                    }
+                }
+            },
+            {
+                "name": "thrower",
+                "filter": {
+                    "include": {
+                        "method": ["*throw*"]
+                    }
+                }
+            },
+            {
+                "name": "searcher",
+                "filter": {
+                    "include": {
+                        "method": ["search*"]
+                    }
+                }
+            }
+        ],
+        "subsetLeftoverFile": null
+    }]
+}
