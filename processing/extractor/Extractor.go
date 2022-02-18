@@ -148,6 +148,8 @@ func (extractor *Extractor) buildExcelOutput() {
 		FromCSVFile(configuration.MethodsWithReturnTypesOutputPath()).
 		WithColumnsFromStruct(csv.Method{}).
 		Transform(extractor.unqualifyTypeNamesInRecord).
+		InsertColumnsAt(excel.Col(7), "Project", "Notes").
+		Transform(extractor.addProjectColumn).
 		ToFile(configuration.MethodsWithReturnTypesExcelOutputPath())
 	if err != nil {
 		extractor.err = err
@@ -179,4 +181,10 @@ func (extractor *Extractor) unqualifyTypeNamesInRecord(methodRecord []string) []
 func (extractor *Extractor) unqualifyTypeName(typeName string) string {
 	parts := strings.Split(typeName, ".")
 	return parts[len(parts)-1]
+}
+
+func (extractor *Extractor) addProjectColumn(record []string) []string {
+	filepath := record[len(record)-1]
+	record[7] = strings.Split(filepath, "\\")[0]
+	return record
 }
