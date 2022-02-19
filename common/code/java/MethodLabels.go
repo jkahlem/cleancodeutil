@@ -2,6 +2,7 @@ package java
 
 import (
 	"regexp"
+	"returntypes-langserver/common/utils"
 	"strings"
 )
 
@@ -14,6 +15,7 @@ const (
 	ChainMethod MethodLabel = "chainMethod"
 	ArrayType   MethodLabel = "arrayType"
 	TestCode    MethodLabel = "testCode"
+	TestMethod  MethodLabel = "testMethod"
 )
 
 // Creates a list of labels for the given method.
@@ -37,6 +39,9 @@ func GetMethodLabels(method *Method) []string {
 	if IsInTestFile(method) {
 		labels = append(labels, string(TestCode))
 	}
+	if IsTestMethod(method) {
+		labels = append(labels, string(TestMethod))
+	}
 
 	return labels
 }
@@ -50,6 +55,11 @@ func IsInTestFile(element JavaElement) bool {
 
 	matched, _ := regexp.Match(`(T|\bt)est.+\\`, []byte(codeFile.FilePath))
 	return matched
+}
+
+// Returns true if the method is a test method, so if it has a @Test annotation.
+func IsTestMethod(method *Method) bool {
+	return utils.ContainsString(method.Annotations, "Test")
 }
 
 // Returns true if the method is a getter.
