@@ -155,7 +155,7 @@ func isClassHierarchyAvailable() bool {
 }
 
 func createExcelOutput() {
-	if err := excelOutputter.CreateExcelOutput(); err != nil {
+	if err := excelOutputter.CreateOutput(); err != nil {
 		log.FatalError(err)
 	}
 }
