@@ -1,16 +1,13 @@
 package extractor
 
 import (
-	"fmt"
 	"path/filepath"
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
-	"returntypes-langserver/common/dataformat/excel"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
-	"strings"
 )
 
 const ExtractorErrorTitle = "Extractor Error"
@@ -127,7 +124,6 @@ func (extractor *Extractor) extract() {
 	}
 	extractor.writeCsvRecords(configuration.MethodsWithReturnTypesOutputPath(), methodsRecords)
 	extractor.writeCsvRecords(configuration.ClassHierarchyOutputPath(), classesRecords)
-	extractor.buildExcelOutput()
 }
 
 func (extractor *Extractor) writeCsvRecords(path string, records [][]string) {
@@ -135,56 +131,4 @@ func (extractor *Extractor) writeCsvRecords(path string, records [][]string) {
 		return
 	}
 	extractor.err = csv.WriteCsvRecords(path, records)
-}
-
-func (extractor *Extractor) buildExcelOutput() {
-	if extractor.err != nil {
-		return
-	}
-
-	log.Info("Write output to excel file ...\n")
-
-	err := excel.ReportingStream().
-		FromCSVFile(configuration.MethodsWithReturnTypesOutputPath()).
-		WithColumnsFromStruct(csv.Method{}).
-		Transform(extractor.unqualifyTypeNamesInRecord).
-		InsertColumnsAt(excel.Col(7), "Project", "Notes").
-		Transform(extractor.addProjectColumn).
-		ToFile(configuration.MethodsWithReturnTypesExcelOutputPath())
-	if err != nil {
-		extractor.err = err
-		return
-	}
-}
-
-func (extractor *Extractor) unqualifyTypeNamesInRecord(methodRecord []string) []string {
-	method := csv.UnmarshalMethod([][]string{methodRecord})[0]
-
-	for i, exception := range method.Exceptions {
-		method.Exceptions[i] = extractor.unqualifyTypeName(exception)
-	}
-	for i, parameter := range method.Parameters {
-		par := strings.Split(parameter, " ")
-		// Add spaces here so they are present after .ToRecord() conversion
-		space := ""
-		if i > 0 {
-			space = " "
-		}
-		par[0] = fmt.Sprintf("%s%s", space, extractor.unqualifyTypeName(par[0]))
-		method.Parameters[i] = strings.Join(par, " ")
-	}
-	method.ReturnType = extractor.unqualifyTypeName(method.ReturnType)
-
-	return method.ToRecord()
-}
-
-func (extractor *Extractor) unqualifyTypeName(typeName string) string {
-	parts := strings.Split(typeName, ".")
-	return parts[len(parts)-1]
-}
-
-func (extractor *Extractor) addProjectColumn(record []string) []string {
-	filepath := record[len(record)-1]
-	record[7] = strings.Split(filepath, "\\")[0]
-	return record
 }

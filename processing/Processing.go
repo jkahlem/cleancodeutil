@@ -14,6 +14,7 @@ import (
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils/counter"
 	"returntypes-langserver/processing/dataset"
+	"returntypes-langserver/processing/excelOutputter"
 	"returntypes-langserver/processing/extractor"
 	"returntypes-langserver/processing/git"
 	"returntypes-langserver/processing/statistics"
@@ -29,6 +30,8 @@ func ProcessDatasetCreation() {
 	summarizeJavaCode()
 	// Extract method/classes of all of the repositories and put them into one file for methods and one for classes.
 	createBasicData()
+	// Creates excel outputs for excel output configurations
+	createExcelOutput()
 	// Create a dataset based on the method/class files above.
 	//createDataset()
 	// Train the predictor
@@ -149,6 +152,12 @@ func isClassHierarchyAvailable() bool {
 		return false
 	}
 	return true
+}
+
+func createExcelOutput() {
+	if err := excelOutputter.CreateExcelOutput(); err != nil {
+		log.FatalError(err)
+	}
 }
 
 // Creates a dataset
