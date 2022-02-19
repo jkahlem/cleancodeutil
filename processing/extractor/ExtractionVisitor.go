@@ -88,7 +88,7 @@ func (visitor *ExtractionVisitor) VisitMethod(method *java.Method) {
 		Parameters: visitor.mapParameters(method.Parameters),
 		Labels:     java.GetMethodLabels(method),
 		FilePath:   filePath,
-		ClassName:  visitor.getCurrentClassName(),
+		ClassName:  visitor.getQualifiedCurrentClassName(),
 		Modifier:   method.Modifier,
 		Exceptions: visitor.mapExceptions(method.Exceptions),
 	}.ToRecord())
@@ -106,12 +106,27 @@ func (visitor *ExtractionVisitor) mapParameters(parameters []java.Parameter) []s
 	return result
 }
 
-// Gets the name of the class which is currently visited
-func (visitor *ExtractionVisitor) getCurrentClassName() string {
+// Gets the qualified name of the class which is currently visited. The name includes all classes in which it is defined.
+// Example:
+//   class A {
+//	   class B {}
+//   }
+// The return value for class B would be "A.B"
+func (visitor *ExtractionVisitor) getQualifiedCurrentClassName() string {
 	if visitor.currentClass == nil {
 		return ""
 	}
-	return visitor.currentClass.ClassName
+	return visitor.getQualifiedClassName(visitor.currentClass)
+}
+
+func (visitor *ExtractionVisitor) getQualifiedClassName(class *java.Class) string {
+	if class == nil {
+		return ""
+	} else if upperClass, ok := class.Parent().(*java.Class); ok && upperClass != nil {
+		return visitor.getQualifiedClassName(upperClass) + "." + class.ClassName
+	} else {
+		return class.ClassName
+	}
 }
 
 // Maps exceptions into a string slice with their unqualified type names
