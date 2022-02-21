@@ -14,11 +14,11 @@ type Method struct {
 	IsChainMethod      bool            `xml:"isChainMethod,attr"`
 	IsSingleReturn     bool            `xml:"isSingleReturn,attr"`
 	IsSingleAssignment bool            `xml:"isSingleAssignment,attr"`
+	ThrowsErrors       bool            `xml:"throwsErrors,attr"`
 	MethodNameRange    Range           `xml:"methodNameRange>range"`
 	ReturnTypeRange    Range           `xml:"returnTypeRange>range"`
 	Parameters         []Parameter     `xml:"parameters>parameter"`
 	Modifier           []string        `xml:"modifiers>modifier"`
-	Exceptions         []Type          `xml:"exceptions>exception"`
 	parentElement      JavaElement     `xml:"-"`
 }
 

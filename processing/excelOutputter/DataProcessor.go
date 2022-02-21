@@ -59,7 +59,7 @@ func (p *DatasetProcessor) createOutputStream(path string, channel *OutputChanne
 		err := excel.Stream().
 			FromChannel(channel.Output).
 			WithColumnsFromStruct(csv.Method{}).
-			InsertColumnsAt(excel.Col(7), "Project", "Notes").
+			InsertColumnsAt(excel.Col(6), "Project", "Notes").
 			Transform(addProjectColumn).
 			ToFile(path + ".xlsx")
 		log.Info("Saved excel file to: %s", path+".xlsx")

@@ -18,6 +18,7 @@ const (
 	TestMethod       MethodLabel = "testMethod"
 	SingleReturn     MethodLabel = "singleReturn"
 	SingleAssignment MethodLabel = "singleAssignment"
+	ThrowsErrors     MethodLabel = "throwsErrors"
 )
 
 // Creates a list of labels for the given method.
@@ -40,6 +41,9 @@ func GetMethodLabels(method *Method) []string {
 	}
 	if method.IsSingleAssignment {
 		labels = append(labels, string(SingleAssignment))
+	}
+	if method.ThrowsErrors {
+		labels = append(labels, string(ThrowsErrors))
 	}
 	if method.ReturnType.IsArrayType {
 		labels = append(labels, string(ArrayType))

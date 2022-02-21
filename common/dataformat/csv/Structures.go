@@ -9,7 +9,6 @@ type Method struct {
 	MethodName string `excel:"Method name,width=30"`
 	// Parameters are in this format: "<type> <name>" (seperated by a single space)
 	Parameters []string `excel:"Parameters,width=95,markdown=true"`
-	Exceptions []string `excel:"Exceptions,width=20"`
 	Labels     []string `excel:"Labels,width=15"`
 	Modifier   []string `excel:"Modifier,width=12"`
 	FilePath   string   `excel:"File path,hide=true"`

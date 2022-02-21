@@ -90,7 +90,6 @@ func (visitor *ExtractionVisitor) VisitMethod(method *java.Method) {
 		FilePath:   filePath,
 		ClassName:  visitor.getQualifiedCurrentClassName(),
 		Modifier:   method.Modifier,
-		Exceptions: visitor.mapExceptions(method.Exceptions),
 	}.ToRecord())
 }
 
@@ -127,16 +126,6 @@ func (visitor *ExtractionVisitor) getQualifiedClassName(class *java.Class) strin
 	} else {
 		return class.ClassName
 	}
-}
-
-// Maps exceptions into a string slice with their unqualified type names
-func (visitor *ExtractionVisitor) mapExceptions(exceptions []java.Type) []string {
-	result := make([]string, 0, len(exceptions))
-	for _, exception := range exceptions {
-		//resolvedParameterType, _ := visitor.resolve(&parameter.Type)
-		result = append(result, visitor.getUnqualifiedTypeName(exception.TypeName))
-	}
-	return result
 }
 
 // Gets the unqualified name from an identifier (which might already be unqualified)

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
-	"returntypes-langserver/common/dataformat/excel"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
 	"strings"
@@ -53,27 +52,12 @@ func createOutputOnRecords(records [][]string, path string, config Configuration
 	}
 }
 
-func CreateOutputOld() errors.Error {
-	log.Info("Write output to excel file ...\n")
-
-	return excel.ReportingStream().
-		FromCSVFile(configuration.MethodsWithReturnTypesOutputPath()).
-		WithColumnsFromStruct(csv.Method{}).
-		Transform(unqualifyTypeNamesInRecord).
-		InsertColumnsAt(excel.Col(7), "Project", "Notes").
-		Transform(addProjectColumn).
-		ToFile(configuration.MethodsWithReturnTypesExcelOutputDir() + "\\methods.xlsx")
-}
-
 func unqualifyTypeNamesInRecord(methodRecord []string) []string {
 	method := csv.UnmarshalMethod([][]string{methodRecord})[0]
 	return unqualifyTypeNames(method).ToRecord()
 }
 
 func unqualifyTypeNames(method csv.Method) csv.Method {
-	for i, exception := range method.Exceptions {
-		method.Exceptions[i] = unqualifyTypeName(exception)
-	}
 	for i, parameter := range method.Parameters {
 		par := strings.Split(parameter, " ")
 		// Add spaces here so they are present after .ToRecord() conversion
