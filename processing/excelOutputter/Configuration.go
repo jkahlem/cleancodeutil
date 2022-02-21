@@ -14,7 +14,7 @@ type PatternType string
 
 const (
 	Wildcard PatternType = "wildcard"
-	RegEx    PatternType = "regex"
+	RegExp   PatternType = "regexp"
 )
 
 type Configuration struct {
@@ -24,14 +24,14 @@ type Configuration struct {
 type Dataset struct {
 	Name             string    `json:"name"`
 	Filter           Filter    `json:"filter"`
-	ConvertNumbers   bool      `json:"convertNumbers"`
+	NoOutput         bool      `json:"noOutput"`
 	Subsets          []Dataset `json:"subsets"`
 	LeftoverFilename string    `json:"leftoverFilename"`
 }
 
 type Filter struct {
-	Includes *FilterConfiguration `json:"includes"`
-	Excludes *FilterConfiguration `json:"excludes"`
+	Includes *FilterConfiguration `json:"include"`
+	Excludes *FilterConfiguration `json:"exclude"`
 }
 
 type FilterConfiguration struct {
@@ -76,9 +76,9 @@ func (f *FilterConfiguration) checkPatternsOnTargetList(patterns []Pattern, targ
 }
 
 type Pattern struct {
-	Pattern      string      `json:"pattern"`
-	Type         PatternType `json:"type"`
-	regexPattern *regexp.Regexp
+	Pattern string      `json:"pattern"`
+	Type    PatternType `json:"type"`
+	matcher Matcher
 }
 
 func (p *Pattern) UnmarshalJSON(data []byte) error {
@@ -96,9 +96,9 @@ func (p *Pattern) UnmarshalJSON(data []byte) error {
 			return err
 		}
 	} else {
-		return fmt.Errorf("unsupported pattern")
+		return fmt.Errorf("unsupported pattern: %v", v)
 	}
-	return p.buildRegex()
+	return p.buildMatcher()
 }
 
 func (p *Pattern) unmarshalPattern(jsonObj map[string]interface{}) error {
@@ -106,38 +106,53 @@ func (p *Pattern) unmarshalPattern(jsonObj map[string]interface{}) error {
 		p.Pattern = pattern
 		return nil
 	} else {
-		return fmt.Errorf("unsupported pattern")
+		return fmt.Errorf("unsupported pattern: %v", jsonObj["pattern"])
 	}
 }
 
 func (p *Pattern) unmarshalType(jsonObj map[string]interface{}) error {
-	if typ, ok := jsonObj["type"].(PatternType); ok && (typ == RegEx || typ == Wildcard) {
-		p.Type = typ
+	if typ, ok := jsonObj["type"].(string); ok && (typ == string(RegExp) || typ == string(Wildcard)) {
+		p.Type = PatternType(typ)
 		return nil
 	} else {
-		return fmt.Errorf("unsupported type")
+		return fmt.Errorf("unsupported type: %v", jsonObj["type"])
 	}
 }
 
 // Returns true if str fulfills this pattern.
 func (p *Pattern) Match(str string) bool {
-	if p.regexPattern == nil {
+	if p.matcher == nil {
 		return false
 	}
-	return p.regexPattern.Match([]byte(str))
+	return p.matcher.Match([]byte(str))
 }
 
-func (p *Pattern) buildRegex() error {
+func (p *Pattern) buildMatcher() error {
 	pattern := p.Pattern
 	if p.Type == Wildcard {
+		// for simple patterns, use strings library as it is faster
+		if test(p.Pattern, "^\\*[a-zA-Z0-9]+$") {
+			p.matcher = SuffixMatcher(p.Pattern[1:])
+			return nil
+		} else if test(p.Pattern, "^[a-zA-Z0-9]+\\*$") {
+			p.matcher = PrefixMatcher(p.Pattern[:len(p.Pattern)-1])
+			return nil
+		} else if test(p.Pattern, "^\\*[a-zA-Z0-9]+\\*$") {
+			p.matcher = ContainingMatcher(p.Pattern[1 : len(p.Pattern)-1])
+			return nil
+		}
 		pattern = p.wildcardToRegex(p.Pattern)
 	}
 	reg, err := regexp.Compile(pattern)
 	if err != nil {
 		return err
 	}
-	p.regexPattern = reg
+	p.matcher = reg
 	return nil
+}
+
+type Matcher interface {
+	Match([]byte) bool
 }
 
 func (p *Pattern) wildcardToRegex(wildcard string) string {
@@ -146,12 +161,39 @@ func (p *Pattern) wildcardToRegex(wildcard string) string {
 	return fmt.Sprintf("(^|%s)%s", PatternDelimiter, wildcard)
 }
 
+func test(s, expr string) bool {
+	r, err := regexp.Compile(expr)
+	if err != nil {
+		return false
+	}
+	return r.MatchString(s)
+}
+
+type SuffixMatcher string
+type PrefixMatcher string
+type ContainingMatcher string
+
+func (suffix SuffixMatcher) Match(target []byte) bool {
+	return strings.HasSuffix(string(target), string(suffix))
+}
+
+func (prefix PrefixMatcher) Match(target []byte) bool {
+	return strings.HasPrefix(string(target), string(prefix))
+}
+
+func (substr ContainingMatcher) Match(target []byte) bool {
+	return strings.Contains(string(target), string(substr))
+}
+
 func LoadConfiguration(filepath string) (Configuration, errors.Error) {
 	contents, err := os.ReadFile(filepath)
 	if err != nil {
 		return Configuration{}, errors.Wrap(err, "Excel Output Error", "Could not load configuration.")
 	}
+	return LoadConfigurationFromJson(contents)
+}
 
+func LoadConfigurationFromJson(contents []byte) (Configuration, errors.Error) {
 	var config Configuration
 	if err := json.Unmarshal(contents, &config); err != nil {
 		return Configuration{}, errors.Wrap(err, "Excel Output Error", "Could not parse configuration.")

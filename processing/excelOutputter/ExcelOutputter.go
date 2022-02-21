@@ -14,18 +14,64 @@ import (
 func CreateOutput() errors.Error {
 	log.Info("Write output to excel file ...\n")
 
+	config, err := LoadConfiguration(configuration.AbsolutePathFromGoProjectDir("datasets.json"))
+	if err != nil {
+		return err
+	}
+	log.Info("Dataset configuration loaded\n")
+	//log.Info("Dataset processors created\n")
+	records, err := csv.ReadRecords(configuration.MethodsWithReturnTypesOutputPath())
+	if err != nil {
+		return err
+	}
+
+	log.Info("Write records...\n")
+	log.Info("Write records from %d to %d...\n", 0, 10000)
+	createOutputOnRecords(records[0:10000], configuration.MethodsWithReturnTypesExcelOutputDir(), config)
+
+	return nil
+}
+
+func createOutputOnRecords(records [][]string, path string, config Configuration) {
+	processors := make([]DatasetProcessor, 0, len(config.Datasets))
+	for _, dataset := range config.Datasets {
+		processors = append(processors, NewDatasetProcessor(dataset, configuration.MethodsWithReturnTypesExcelOutputDir()))
+	}
+	for recordIndex, method := range csv.UnmarshalMethod(records) {
+		if (recordIndex+1)%100 == 0 {
+			log.Info("Write record %d of %d\n", recordIndex+1, len(records))
+		}
+		method = unqualifyTypeNames(method)
+		for i := range processors {
+			if !processors[i].accepts(method) {
+				continue
+			}
+			processors[i].process(method)
+		}
+	}
+	for i := range processors {
+		processors[i].close()
+	}
+}
+
+func CreateOutputOld() errors.Error {
+	log.Info("Write output to excel file ...\n")
+
 	return excel.ReportingStream().
 		FromCSVFile(configuration.MethodsWithReturnTypesOutputPath()).
 		WithColumnsFromStruct(csv.Method{}).
 		Transform(unqualifyTypeNamesInRecord).
 		InsertColumnsAt(excel.Col(7), "Project", "Notes").
 		Transform(addProjectColumn).
-		ToFile(configuration.MethodsWithReturnTypesExcelOutputPath())
+		ToFile(configuration.MethodsWithReturnTypesExcelOutputDir() + "\\methods.xlsx")
 }
 
 func unqualifyTypeNamesInRecord(methodRecord []string) []string {
 	method := csv.UnmarshalMethod([][]string{methodRecord})[0]
+	return unqualifyTypeNames(method).ToRecord()
+}
 
+func unqualifyTypeNames(method csv.Method) csv.Method {
 	for i, exception := range method.Exceptions {
 		method.Exceptions[i] = unqualifyTypeName(exception)
 	}
@@ -40,8 +86,7 @@ func unqualifyTypeNamesInRecord(methodRecord []string) []string {
 		method.Parameters[i] = strings.Join(par, " ")
 	}
 	method.ReturnType = unqualifyTypeName(method.ReturnType)
-
-	return method.ToRecord()
+	return method
 }
 
 func unqualifyTypeName(typeName string) string {

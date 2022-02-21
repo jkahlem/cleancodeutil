@@ -6,7 +6,7 @@
                 "label":["testMethod"]
             }
         },
-        "convertNumbers": true,
+        "noOutput": true,
         "subsets": [
             {
                 "name": "saveRemove",
@@ -30,10 +30,10 @@
                 "filter": {
                     "include": {
                         "method": [{
-                            "value": ".*quiet(ly)?",
+                            "pattern": ".*quiet(ly)?",
                             "type": "regexp"
                         }, {
-                            "value": ".*silent(ly)?",
+                            "pattern": ".*silent(ly)?",
                             "type": "regexp"
                         }]
                     }
@@ -82,13 +82,17 @@
             {
                 "name": "finder",
                 "filter": {
-                    "method": ["find*"]
+                    "include": {
+                        "method": ["find*"]
+                    }
                 }
             },
             {
                 "name": "attacher",
                 "filter": {
-                    "method": ["attach*", "bind*"]
+                    "include": {
+                        "method": ["attach*", "bind*"]
+                    }
                 }
             },
             {

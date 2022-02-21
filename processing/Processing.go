@@ -27,9 +27,9 @@ func ProcessDatasetCreation() {
 	// First, clone repositories if needed
 	//clone()
 	// Load the java code of each repository and summarize it using the crawler
-	summarizeJavaCode()
+	//summarizeJavaCode()
 	// Extract method/classes of all of the repositories and put them into one file for methods and one for classes.
-	createBasicData()
+	//createBasicData()
 	// Creates excel outputs for excel output configurations
 	createExcelOutput()
 	// Create a dataset based on the method/class files above.

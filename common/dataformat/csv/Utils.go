@@ -7,13 +7,13 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path/filepath"
 	"reflect"
 	"strconv"
 	"strings"
 
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/utils"
 )
 
 const CsvErrorTitle string = "CSV Error"
@@ -62,10 +62,7 @@ func ReadRecords(input string) ([][]string, errors.Error) {
 // Writes the records to the file at the given path.
 // The file (and directory) will be created if it does not exist.
 func WriteCsvRecords(path string, records [][]string) errors.Error {
-	if err := os.MkdirAll(filepath.Dir(path), 0777); err != nil {
-		return errors.Wrap(err, CsvErrorTitle, "Could not save CSV file")
-	}
-	file, err := os.Create(path)
+	file, err := utils.CreateFile(path)
 	if err != nil {
 		return errors.Wrap(err, CsvErrorTitle, "Could not save CSV file")
 	}

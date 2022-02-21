@@ -51,3 +51,23 @@ func (l *sliceLoader) Load() ([]string, errors.Error) {
 	}
 	return l.records[l.currentIndex], nil
 }
+
+type channelLoader struct {
+	ch           chan []string
+	currentIndex int
+}
+
+func newChannelLoader(ch chan []string) Loader {
+	return &channelLoader{
+		ch: ch,
+	}
+}
+
+func (l *channelLoader) Load() ([]string, errors.Error) {
+	record, isOpen := <-l.ch
+	if record == nil && isOpen {
+		// As long as the channel is not closed, pass an empty record if nil is passed.
+		record = make([]string, 0)
+	}
+	return record, nil
+}

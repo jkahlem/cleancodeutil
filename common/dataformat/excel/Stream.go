@@ -8,8 +8,13 @@ import (
 type Col int
 
 type StreamStart interface {
+	// Loads all records from a csv file through the stream
 	FromCSVFile(path string) BaseLayoutStream
+	// Loads all records from a slice and passes them through the stream
 	FromSlice(records [][]string) BaseLayoutStream
+	// Loads all records from a channel and passes them through the stream.
+	// This operation will block the thread if the channel is not closed and has no data anymore.
+	FromChannel(channel chan []string) BaseLayoutStream
 	From(loader Loader) BaseLayoutStream
 }
 
@@ -74,6 +79,10 @@ func (s *stream) FromCSVFile(path string) BaseLayoutStream {
 
 func (s *stream) FromSlice(records [][]string) BaseLayoutStream {
 	return s.From(newSliceLoader(records))
+}
+
+func (s *stream) FromChannel(channel chan []string) BaseLayoutStream {
+	return s.From(newChannelLoader(channel))
 }
 
 func (s *stream) From(loader Loader) BaseLayoutStream {

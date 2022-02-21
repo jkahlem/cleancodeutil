@@ -106,6 +106,32 @@ func TestExcelFileSavingByStruct(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestChannelLoading(t *testing.T) {
+	// given
+	destination := make([][]string, 0)
+	channel := make(chan []string)
+	records := [][]string{
+		{"0", "1"},
+		{"X", "Y", "Z"},
+		{"A", "B", "C"},
+	}
+
+	go func() {
+		channel <- records[0]
+		channel <- records[1]
+		channel <- records[2]
+		close(channel)
+	}()
+
+	// when
+	err := Stream().FromChannel(channel).WithStaticHeaders("Col0", "Col1", "Col2").ToSlice(&destination)
+
+	// then
+	assert.NoError(t, err)
+	assert.Len(t, destination, 4)
+	utils.AssertStringSlice(t, destination[0], "Col0", "Col1", "Col2")
+}
+
 /*-- Unit test helper --*/
 
 func ABCRow() [][]string {
