@@ -9,13 +9,15 @@ import (
 type MethodLabel string
 
 const (
-	Getter      MethodLabel = "getter"
-	Setter      MethodLabel = "setter"
-	Override    MethodLabel = "override"
-	ChainMethod MethodLabel = "chainMethod"
-	ArrayType   MethodLabel = "arrayType"
-	TestCode    MethodLabel = "testCode"
-	TestMethod  MethodLabel = "testMethod"
+	Getter           MethodLabel = "getter"
+	Setter           MethodLabel = "setter"
+	Override         MethodLabel = "override"
+	ChainMethod      MethodLabel = "chainMethod"
+	ArrayType        MethodLabel = "arrayType"
+	TestCode         MethodLabel = "testCode"
+	TestMethod       MethodLabel = "testMethod"
+	SingleReturn     MethodLabel = "singleReturn"
+	SingleAssignment MethodLabel = "singleAssignment"
 )
 
 // Creates a list of labels for the given method.
@@ -32,6 +34,12 @@ func GetMethodLabels(method *Method) []string {
 	}
 	if method.IsChainMethod {
 		labels = append(labels, string(ChainMethod))
+	}
+	if method.IsSingleReturn {
+		labels = append(labels, string(SingleReturn))
+	}
+	if method.IsSingleAssignment {
+		labels = append(labels, string(SingleAssignment))
 	}
 	if method.ReturnType.IsArrayType {
 		labels = append(labels, string(ArrayType))
