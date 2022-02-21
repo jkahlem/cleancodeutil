@@ -26,8 +26,7 @@ func CreateOutput() errors.Error {
 	}
 
 	log.Info("Write records...\n")
-	log.Info("Write records from %d to %d...\n", 0, 10000)
-	createOutputOnRecords(records[0:10000], configuration.MethodsWithReturnTypesExcelOutputDir(), config)
+	createOutputOnRecords(records, configuration.MethodsWithReturnTypesExcelOutputDir(), config)
 
 	return nil
 }

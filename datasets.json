@@ -98,14 +98,16 @@
             {
                 "name": "adder",
                 "filter": {
-                    "method": ["add*"]
+                    "include": {
+                        "method": ["add*"]
+                    }
                 }
             },
             {
                 "name": "realGettersAndSetters",
                 "filter": {
                     "include": {
-                        "labels": ["singleAssignment", "singleReturn"]
+                        "label": ["singleAssignment", "singleReturn"]
                     }
                 }
             },
@@ -398,6 +400,6 @@
                 }
             }
         ],
-        "subsetLeftoverFilename": "otherMethods"
+        "leftoverFilename": "otherMethods"
    }]
 }

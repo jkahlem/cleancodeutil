@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/utils"
 	"strings"
 )
 
@@ -94,6 +95,8 @@ func (p *Pattern) UnmarshalJSON(data []byte) error {
 			return err
 		} else if err := p.unmarshalType(jsonObj); err != nil {
 			return err
+		} else if len(jsonObj) != 2 {
+			return fmt.Errorf("expected pattern object to have only 2 fields ('pattern' and 'type')")
 		}
 	} else {
 		return fmt.Errorf("unsupported pattern: %v", v)
@@ -195,7 +198,7 @@ func LoadConfiguration(filepath string) (Configuration, errors.Error) {
 
 func LoadConfigurationFromJson(contents []byte) (Configuration, errors.Error) {
 	var config Configuration
-	if err := json.Unmarshal(contents, &config); err != nil {
+	if err := utils.UnmarshalJSONStrict(contents, &config); err != nil {
 		return Configuration{}, errors.Wrap(err, "Excel Output Error", "Could not parse configuration.")
 	}
 
