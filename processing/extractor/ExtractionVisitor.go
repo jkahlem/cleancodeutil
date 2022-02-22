@@ -90,7 +90,26 @@ func (visitor *ExtractionVisitor) VisitMethod(method *java.Method) {
 		FilePath:   filePath,
 		ClassName:  visitor.getQualifiedCurrentClassName(),
 		Modifier:   method.Modifier,
+		ClassField: visitor.findClassFieldMatchInName(method.MethodName),
 	}.ToRecord())
+}
+
+// Searches for the longest match of a class field name in the given name. The match is case insensitive.
+// Returns an empty string if no match is found
+func (visitor *ExtractionVisitor) findClassFieldMatchInName(name string) string {
+	methodNameLower := strings.ToLower(name)
+	match := ""
+	for _, field := range visitor.currentClass.Fields {
+		if len(match) > len(field.Name) {
+			continue
+		}
+
+		fieldNameLower := strings.ToLower(field.Name)
+		if strings.Contains(methodNameLower, fieldNameLower) {
+			match = fieldNameLower
+		}
+	}
+	return match
 }
 
 // Maps parameters in this format: "<type> <method>"

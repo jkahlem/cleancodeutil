@@ -11,6 +11,7 @@ type Method struct {
 	Parameters []string `excel:"Parameters,width=95,markdown=true"`
 	Labels     []string `excel:"Labels,width=15"`
 	Modifier   []string `excel:"Modifier,width=12"`
+	ClassField string   `excel:"Class field,width=10"`
 	FilePath   string   `excel:"File path,hide=true"`
 }
 
