@@ -106,7 +106,7 @@ func (visitor *ExtractionVisitor) findClassFieldMatchInName(name string) string 
 
 		fieldNameLower := strings.ToLower(field.Name)
 		if strings.Contains(methodNameLower, fieldNameLower) {
-			match = fieldNameLower
+			match = field.Name
 		}
 	}
 	return match
