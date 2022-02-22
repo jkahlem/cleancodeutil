@@ -139,22 +139,21 @@ func (p *Pattern) Match(str string) bool {
 func (p *Pattern) buildMatcher() error {
 	pattern := p.Pattern
 	if p.Type == Wildcard {
-		lowerCase := strings.ToLower(p.Pattern)
 		// for simple patterns, use strings library as it is faster
-		if test(lowerCase, "^\\*[a-z0-9]+$") {
-			p.matcher = SuffixMatcher(lowerCase[1:])
+		if test(pattern, "^\\*[a-zA-Z0-9]+$") {
+			p.matcher = SuffixMatcher(pattern[1:])
 			return nil
-		} else if test(lowerCase, "^[a-z0-9]+\\*$") {
-			p.matcher = PrefixMatcher(lowerCase[:len(p.Pattern)-1])
+		} else if test(pattern, "^[a-zA-Z0-9]+\\*$") {
+			p.matcher = PrefixMatcher(pattern[:len(p.Pattern)-1])
 			return nil
-		} else if test(lowerCase, "^\\*[a-z0-9]+\\*$") {
-			p.matcher = ContainingMatcher(lowerCase[1 : len(p.Pattern)-1])
+		} else if test(pattern, "^\\*[a-zA-Z0-9]+\\*$") {
+			p.matcher = ContainingMatcher(pattern[1 : len(p.Pattern)-1])
 			return nil
-		} else if !strings.ContainsAny(lowerCase, "?*") {
-			p.matcher = EqualityMatcher(lowerCase)
+		} else if !strings.ContainsAny(pattern, "?*") {
+			p.matcher = EqualityMatcher(pattern)
 			return nil
 		}
-		pattern = p.wildcardToRegex(lowerCase)
+		pattern = p.wildcardToRegex(p.Pattern)
 	}
 	reg, err := regexp.Compile(pattern)
 	if err != nil {
@@ -203,6 +202,37 @@ func (substr EqualityMatcher) Match(target []byte) bool {
 	return string(target) == string(substr)
 }
 
+func validateFilter(filter *FilterConfiguration, datasetName string) errors.Error {
+	if filter != nil {
+		for _, pattern := range filter.Method {
+			if pattern.Pattern != strings.ToLower(pattern.Pattern) {
+				return errors.New("Excel Error", fmt.Sprintf("Invalid method name pattern in dataset %s: Uppercase characters are not allowed.", datasetName))
+			}
+		}
+	}
+	return nil
+}
+
+func validateDataset(dataset Dataset) errors.Error {
+	if err := validateFilter(dataset.Filter.Includes, dataset.Name); err != nil {
+		return err
+	} else if err := validateFilter(dataset.Filter.Excludes, dataset.Name); err != nil {
+		return err
+	} else if err := validateDatasets(dataset.Subsets); err != nil {
+		return err
+	}
+	return nil
+}
+
+func validateDatasets(datasets []Dataset) errors.Error {
+	for _, subset := range datasets {
+		if err := validateDataset(subset); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func LoadConfiguration(filepath string) (Configuration, errors.Error) {
 	contents, err := os.ReadFile(filepath)
 	if err != nil {
@@ -215,6 +245,9 @@ func LoadConfigurationFromJson(contents []byte) (Configuration, errors.Error) {
 	var config Configuration
 	if err := utils.UnmarshalJSONStrict(contents, &config); err != nil {
 		return Configuration{}, errors.Wrap(err, "Excel Output Error", "Could not parse configuration.")
+	}
+	if err := validateDatasets(config.Datasets); err != nil {
+		return config, err
 	}
 
 	return config, nil
