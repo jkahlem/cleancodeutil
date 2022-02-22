@@ -107,6 +107,7 @@
                 "name": "realGettersAndSetters",
                 "filter": {
                     "include": {
+                        "method": ["get*", "fetch*", "set*"],
                         "label": ["singleAssignment", "singleReturn"]
                     }
                 }

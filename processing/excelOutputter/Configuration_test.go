@@ -10,14 +10,14 @@ import (
 func TestMatcherBuilding(t *testing.T) {
 	// given
 	filter := FilterConfiguration{}
-	raw := `{"method": ["open*", "*to*", "*end"]}`
+	raw := `{"method": ["open*", "*to*", "*end", "method"]}`
 
 	// when
 	err := json.Unmarshal([]byte(raw), &filter)
 
 	// then
 	assert.NoError(t, err)
-	assert.Len(t, filter.Method, 3)
+	assert.Len(t, filter.Method, 4)
 
 	m1, ok := filter.Method[0].matcher.(PrefixMatcher)
 	assert.True(t, ok)
@@ -34,6 +34,11 @@ func TestMatcherBuilding(t *testing.T) {
 	assert.True(t, ok)
 	assert.True(t, m3.Match([]byte("has to end")))
 	assert.False(t, m3.Match([]byte("do not end it")))
+
+	m4, ok := filter.Method[3].matcher.(EqualityMatcher)
+	assert.True(t, ok)
+	assert.True(t, m4.Match([]byte("method")))
+	assert.False(t, m4.Match([]byte("a method")))
 }
 
 func TestConfigurationLoading(t *testing.T) {

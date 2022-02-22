@@ -7,7 +7,7 @@ import (
 
 type ClassField struct {
 	XMLName       xml.Name    `xml:"field"`
-	Name          string      `xml:"name,attr"`
+	Name          string      `xml:"name"`
 	Type          Type        `xml:"type"`
 	parentElement JavaElement `xml:"-"`
 }

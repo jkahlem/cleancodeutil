@@ -71,15 +71,15 @@ func (f *FilterConfiguration) checkPatternsOnTargetList(patterns []Pattern, targ
 	if len(patterns) == 0 {
 		return true
 	}
-	/*for _, target := range targets {
+	for _, target := range targets {
 		for i := range patterns {
 			if patterns[i].Match(target) {
 				return true
 			}
 		}
 	}
-	return false*/
-	return f.checkPatterns(patterns, strings.Join(targets, PatternDelimiter))
+	return false
+	//return f.checkPatterns(patterns, strings.Join(targets, PatternDelimiter))
 }
 
 type Pattern struct {
@@ -149,6 +149,9 @@ func (p *Pattern) buildMatcher() error {
 		} else if test(p.Pattern, "^\\*[a-zA-Z0-9]+\\*$") {
 			p.matcher = ContainingMatcher(p.Pattern[1 : len(p.Pattern)-1])
 			return nil
+		} else if !strings.ContainsAny(p.Pattern, "?*") {
+			p.matcher = EqualityMatcher(p.Pattern)
+			return nil
 		}
 		pattern = p.wildcardToRegex(p.Pattern)
 	}
@@ -181,6 +184,7 @@ func test(s, expr string) bool {
 type SuffixMatcher string
 type PrefixMatcher string
 type ContainingMatcher string
+type EqualityMatcher string
 
 func (suffix SuffixMatcher) Match(target []byte) bool {
 	return strings.HasSuffix(string(target), string(suffix))
@@ -192,6 +196,10 @@ func (prefix PrefixMatcher) Match(target []byte) bool {
 
 func (substr ContainingMatcher) Match(target []byte) bool {
 	return strings.Contains(string(target), string(substr))
+}
+
+func (substr EqualityMatcher) Match(target []byte) bool {
+	return string(target) == string(substr)
 }
 
 func LoadConfiguration(filepath string) (Configuration, errors.Error) {
