@@ -68,11 +68,6 @@ func (p *DatasetProcessor) createOutputStream(path string, channel *OutputChanne
 }
 
 func (p *DatasetProcessor) process(method csv.Method) {
-	// If the process method is called, this means that this processor should already accept the method.
-	// Add the method to the output file if one exists.
-
-	// TODO: the passed csv method should be already PREPROCESSED !!!
-	// - for example: the method name should be already splitted to a sentence, the number "2" should be already converted to "to" and so on.
 	if !p.targetSet.NoOutput {
 		p.outputChannel.Output <- method.ToRecord()
 	}

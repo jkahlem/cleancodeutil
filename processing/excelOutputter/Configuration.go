@@ -47,15 +47,18 @@ type FilterConfiguration struct {
 const PatternDelimiter = ","
 
 func (f *FilterConfiguration) appliesOn(method csv.Method) bool {
-	return f.checkPatterns(f.Method, method.MethodName) ||
-		f.checkPatternsOnTargetList(f.Modifier, method.Modifier) ||
-		f.checkPatternsOnTargetList(f.Parameter, method.Parameters) ||
-		f.checkPatternsOnTargetList(f.Label, method.Labels) ||
-		f.checkPatterns(f.ReturnType, method.ReturnType) ||
+	return f.checkPatterns(f.Method, method.MethodName) &&
+		f.checkPatternsOnTargetList(f.Modifier, method.Modifier) &&
+		f.checkPatternsOnTargetList(f.Parameter, method.Parameters) &&
+		f.checkPatternsOnTargetList(f.Label, method.Labels) &&
+		f.checkPatterns(f.ReturnType, method.ReturnType) &&
 		f.checkPatterns(f.ClassName, method.ClassName)
 }
 
 func (f *FilterConfiguration) checkPatterns(patterns []Pattern, target string) bool {
+	if len(patterns) == 0 {
+		return true
+	}
 	for i := range patterns {
 		if patterns[i].Match(target) {
 			return true
@@ -65,6 +68,9 @@ func (f *FilterConfiguration) checkPatterns(patterns []Pattern, target string) b
 }
 
 func (f *FilterConfiguration) checkPatternsOnTargetList(patterns []Pattern, targets []string) bool {
+	if len(patterns) == 0 {
+		return true
+	}
 	/*for _, target := range targets {
 		for i := range patterns {
 			if patterns[i].Match(target) {
