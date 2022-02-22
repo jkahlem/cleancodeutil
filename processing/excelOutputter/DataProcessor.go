@@ -7,6 +7,7 @@ import (
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/services/predictor"
+	"strings"
 )
 
 type DatasetProcessor struct {
@@ -84,7 +85,7 @@ func (p *DatasetProcessor) process(method csv.Method) {
 }
 
 func (p *DatasetProcessor) accepts(method csv.Method) bool {
-	method.MethodName = predictor.SplitMethodNameToSentence(method.MethodName)
+	method.MethodName = strings.ToLower(predictor.SplitMethodNameToSentence(method.MethodName))
 	filter := p.targetSet.Filter
 	if filter.Includes != nil {
 		if !filter.Includes.appliesOn(method) {

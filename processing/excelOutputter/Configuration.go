@@ -139,21 +139,22 @@ func (p *Pattern) Match(str string) bool {
 func (p *Pattern) buildMatcher() error {
 	pattern := p.Pattern
 	if p.Type == Wildcard {
+		lowerCase := strings.ToLower(p.Pattern)
 		// for simple patterns, use strings library as it is faster
-		if test(p.Pattern, "^\\*[a-zA-Z0-9]+$") {
-			p.matcher = SuffixMatcher(p.Pattern[1:])
+		if test(lowerCase, "^\\*[a-z0-9]+$") {
+			p.matcher = SuffixMatcher(lowerCase[1:])
 			return nil
-		} else if test(p.Pattern, "^[a-zA-Z0-9]+\\*$") {
-			p.matcher = PrefixMatcher(p.Pattern[:len(p.Pattern)-1])
+		} else if test(lowerCase, "^[a-z0-9]+\\*$") {
+			p.matcher = PrefixMatcher(lowerCase[:len(p.Pattern)-1])
 			return nil
-		} else if test(p.Pattern, "^\\*[a-zA-Z0-9]+\\*$") {
-			p.matcher = ContainingMatcher(p.Pattern[1 : len(p.Pattern)-1])
+		} else if test(lowerCase, "^\\*[a-z0-9]+\\*$") {
+			p.matcher = ContainingMatcher(lowerCase[1 : len(p.Pattern)-1])
 			return nil
-		} else if !strings.ContainsAny(p.Pattern, "?*") {
-			p.matcher = EqualityMatcher(p.Pattern)
+		} else if !strings.ContainsAny(lowerCase, "?*") {
+			p.matcher = EqualityMatcher(lowerCase)
 			return nil
 		}
-		pattern = p.wildcardToRegex(p.Pattern)
+		pattern = p.wildcardToRegex(lowerCase)
 	}
 	reg, err := regexp.Compile(pattern)
 	if err != nil {

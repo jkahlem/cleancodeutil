@@ -59,7 +59,7 @@
                 "name": "conditional",
                 "filter": {
                     "include": {
-                        "method": ["*if*"]
+                        "method": [{ "pattern": "\\bif\\b", "type": "regexp"}]
                     }
                 }
             },
@@ -67,7 +67,7 @@
                 "name": "for",
                 "filter": {
                     "include": {
-                        "method": ["*for*"]
+                        "method": [{ "pattern": "\\bfor\\b", "type": "regexp"}]
                     }
                 }
             },
