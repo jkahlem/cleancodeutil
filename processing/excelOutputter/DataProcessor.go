@@ -62,7 +62,7 @@ func (p *DatasetProcessor) createOutputStream(path string, channel *OutputChanne
 			InsertColumnsAt(excel.Col(7), "Project", "Notes").
 			Transform(addProjectColumn).
 			ToFile(path + ".xlsx")
-		log.Info("Saved excel file to: %s", path+".xlsx")
+		log.Info("Saved excel file to: %s", path+".xlsx\n")
 		channel.Errors <- err
 	}()
 }
@@ -117,7 +117,5 @@ func (p *DatasetProcessor) checkErrors(channel *OutputChannel) {
 	if err := <-channel.Errors; err != nil {
 		log.Error(err)
 		log.ReportProblemWithError(err, "Could not create excel output")
-	} else {
-		log.Info("No errors for %s...\n", p.targetSet.Name)
 	}
 }

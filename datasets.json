@@ -164,7 +164,7 @@
                 "name": "withEr",
                 "filter": {
                     "include": {
-                        "method": ["*with*"]
+                        "method": [{ "pattern": "\\bwith\\b", "type": "regexp"}]
                     }
                 }
             },
@@ -188,7 +188,7 @@
                 "name": "to-Er",
                 "filter": {
                     "include": {
-                        "method": ["*to*"]
+                        "method": [{ "pattern": "\\bto\\b", "type": "regexp"}]
                     }
                 }
             },
@@ -196,7 +196,7 @@
                 "name": "from-Converter",
                 "filter": {
                     "include": {
-                        "method": ["*from*"]
+                        "method": [{ "pattern": "\\bfrom\\b", "type": "regexp"}]
                     }
                 }
             },
@@ -204,7 +204,7 @@
                 "name": "by-Er",
                 "filter": {
                     "include": {
-                        "method": ["* by *", "by *", "* by"]
+                        "method": [{ "pattern": "\\bby\\b", "type": "regexp"}]
                     }
                 }
             },
@@ -212,7 +212,7 @@
                 "name": "as-Converter",
                 "filter": {
                     "include": {
-                        "method": ["* as *", "as *", "* as"]
+                        "method": [{ "pattern": "\\bas\\b", "type": "regexp"}]
                     }
                 }
             },
@@ -268,7 +268,7 @@
                 "name": "in-Er",
                 "filter": {
                     "include": {
-                        "method": ["* in", "in *", "* in *"]
+                        "method": [{ "pattern": "\\bin\\b", "type": "regexp"}]
                     }
                 }
             },
@@ -397,6 +397,23 @@
                 "filter": {
                     "include": {
                         "method": ["search*"]
+                    }
+                }
+            },
+            {
+                "name": "typicalBooleanGetter",
+                "filter": {
+                    "include": {
+                        "method": ["is *", "can *", "has *"],
+                        "returntype": ["boolean"]
+                    }
+                }
+            },
+            {
+                "name": "testCodeExceptForTestMethods",
+                "filter": {
+                    "include": {
+                        "label": ["testCode"]
                     }
                 }
             }
