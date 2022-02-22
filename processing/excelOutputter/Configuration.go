@@ -205,7 +205,7 @@ func (substr EqualityMatcher) Match(target []byte) bool {
 func validateFilter(filter *FilterConfiguration, datasetName string) errors.Error {
 	if filter != nil {
 		for _, pattern := range filter.Method {
-			if pattern.Pattern != strings.ToLower(pattern.Pattern) {
+			if pattern.Type != RegExp && pattern.Pattern != strings.ToLower(pattern.Pattern) {
 				return errors.New("Excel Error", fmt.Sprintf("Invalid method name pattern in dataset %s: Uppercase characters are not allowed.", datasetName))
 			}
 		}
