@@ -64,7 +64,7 @@ func getServiceMethodsByInterfaceDeclaration(ifc generator.Interface) []Function
 func getServiceMethodsByFunctionDeclarations(functions []generator.FunctionDeclaration, expectedReceiver string) []FunctionData {
 	methods := make([]FunctionData, 0, 1)
 	for _, function := range functions {
-		if function.ReceiverType != expectedReceiver || strings.Index(function.Documentation, IgnoreMethodAnnotation) != -1 {
+		if function.ReceiverType != expectedReceiver || strings.Contains(function.Documentation, IgnoreMethodAnnotation) {
 			continue
 		}
 		fnType, ok := function.Type.FunctionType()

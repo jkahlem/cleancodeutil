@@ -110,10 +110,9 @@ func (c *creator) convertMethodsToDatasetRows() []csv.MethodGenerationDatasetRow
 				splitted := strings.Split(par, " ")
 				parType, parName := string(predictor.GetPredictableMethodName(splitted[0])), string(predictor.GetPredictableMethodName(splitted[1]))
 				ctx := context
-				if strings.Index(context, parType) == -1 {
+				if !strings.Contains(context, parType) {
 					ctx = fmt.Sprintf("%s, %s", context, parType)
 				}
-				// TOOD: don't need a special fallback, as type assignment should for example pick "object" if it does not know any better thing
 				row2 := csv.MethodGenerationDatasetRow{
 					Prefix: "type assignment",
 					// the "name" variable has currently already a dot '.' at the end. So no need to add it another time ...

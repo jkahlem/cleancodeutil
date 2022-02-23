@@ -3,7 +3,7 @@
         "name": "default",
         "filter": {
             "exclude": {
-                "label":["testMethod"]
+                "label":["testMethod", "override"]
             }
         },
         "noOutput": true,
@@ -148,7 +148,7 @@
                 "name": "validator",
                 "filter": {
                     "include": {
-                        "method": ["validate*", "reuqire*"]
+                        "method": ["validate*", "reuqire*", "verify*"]
                     }
                 }
             },
@@ -356,7 +356,7 @@
                 "name": "parserDecoder",
                 "filter": {
                     "include": {
-                        "method": ["parse*", "marshal*", "unmarshal*", "encode*", "decode*"]
+                        "method": ["parse*", "marshal*", "unmarshal*", "encode*", "decode*", "serialize*", "deserialize*", "encrypt*", "decrypt*"]
                     }
                 }
             },
@@ -404,7 +404,7 @@
                 "name": "typicalBooleanGetter",
                 "filter": {
                     "include": {
-                        "method": ["is *", "can *", "has *"],
+                        "method": ["is *", "can *", "has *", "are *"],
                         "returntype": ["boolean"]
                     }
                 }
