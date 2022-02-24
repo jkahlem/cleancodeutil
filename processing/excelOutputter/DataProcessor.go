@@ -56,14 +56,15 @@ func (p *DatasetProcessor) createOutputStreams(path string) errors.Error {
 }
 
 func (p *DatasetProcessor) createOutputStream(path string, channel *OutputChannel) {
+	xlsxFilePath := path + ".xlsx"
 	go func() {
 		err := excel.Stream().
 			FromChannel(channel.Output).
 			WithColumnsFromStruct(csv.Method{}).
 			InsertColumnsAt(excel.Col(7), "Project", "Notes").
 			Transform(addProjectColumn).
-			ToFile(path + ".xlsx")
-		log.Info("Saved excel file to: %s", path+".xlsx\n")
+			ToFile(xlsxFilePath)
+		log.Info("Saved excel file to: %s\n", xlsxFilePath)
 		channel.Errors <- err
 	}()
 }

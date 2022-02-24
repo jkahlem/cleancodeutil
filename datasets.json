@@ -416,6 +416,132 @@
                         "label": ["testCode"]
                     }
                 }
+            },
+            {
+                "name": "of-er",
+                "filter": {
+                    "include": {
+                        "method": [{"type": "regexp", "pattern": "\\bof\\b"}]
+                    }
+                }
+            },
+            {
+                "name": "simpleConverter",
+                "filter": {
+                    "include": {
+                        "method": ["convert*"]
+                    }
+                }
+            },
+            {
+                "name": "tester",
+                "filter": {
+                    "include": {
+                        "method": ["test*"]
+                    },
+                    "exclude": {
+                        "label": ["testCode"]
+                    }
+                }
+            },
+            {
+                "name": "closer",
+                "filter": {
+                    "include": {
+                        "method": ["close*"]
+                    }
+                }
+            },
+            {
+                "name": "appender",
+                "filter": {
+                    "include": {
+                        "method": ["append*"]
+                    }
+                }
+            },
+            {
+                "name": "boundings",
+                "filter": {
+                    "include": {
+                        "method": ["*bound*"]
+                    }
+                }
+            },
+            {
+                "name": "joiner",
+                "filter": {
+                    "include": {
+                        "method": ["join*", "concat*", "trim*"]
+                    }
+                }
+            },
+            {
+                "name": "container",
+                "filter": {
+                    "include": {
+                        "method": ["contains*"]
+                    }
+                }
+            },
+            {
+                "name": "exister",
+                "filter": {
+                    "include": {
+                        "method": ["*exists"]
+                    }
+                }
+            },
+            {
+                "name": "ensurer",
+                "filter": {
+                    "include": {
+                        "method": ["ensure*"]
+                    }
+                }
+            },
+            {
+                "name": "provider",
+                "filter": {
+                    "include": {
+                        "method": ["provide*"]
+                    }
+                }
+            },
+            {
+                "name": "defaulter",
+                "filter": {
+                    "include": {
+                        "method": [{"type": "regexp", "pattern":"\\bor\\bdefault.*"}]
+                    }
+                }
+            },
+            {
+                "name": "filterer",
+                "filter": {
+                    "include": {
+                        "method":["filter*"]
+                    }
+                }
+            },
+            {
+                "name": "minmaxer",
+                "filter":{
+                    "include":{
+                        "method":["*min*max*"]
+                    }
+                }
+            },
+            {
+                "name": "or-er",
+                "filter":{
+                    "include":{
+                        "method":[{
+                            "type": "regexp",
+                            "pattern": "\\bor\\b"
+                        }]
+                    }
+                }
             }
         ],
         "leftoverFilename": "otherMethods"
