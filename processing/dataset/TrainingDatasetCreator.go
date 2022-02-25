@@ -11,9 +11,11 @@ import (
 	"returntypes-langserver/processing/dataset/returntypesvalidation"
 )
 
+type ModelType string
+
 const (
-	MethodGenerator      string = "MethodGenerator"
-	ReturnTypesValidator string = "ReturnTypesValidator"
+	MethodGenerator      ModelType = "MethodGenerator"
+	ReturnTypesValidator ModelType = "ReturnTypesValidator"
 )
 
 // Creates a training and an evaluation set.
@@ -21,23 +23,23 @@ func CreateTrainingAndEvaluationSet(methodsWithReturnTypesPath, classHierarchyPa
 	if methods, classes, err := loadMethodsAndClasses(methodsWithReturnTypesPath, classHierarchyPath); err != nil {
 		return err
 		// TODO: Load dataset type by configuration
-	} else if creator, err := getCreatorByDatasetType(ReturnTypesValidator, methods, classes); err != nil {
+	} else if creator, err := getCreatorByModelType(ReturnTypesValidator, methods, classes); err != nil {
 		return err
 	} else {
 		return creator.Create()
 	}
 }
 
-func getCreatorByDatasetType(datasetType string, methods []csv.Method, classes []csv.Class) (base.Creator, errors.Error) {
-	if datasetType == MethodGenerator {
+func getCreatorByModelType(modelType ModelType, methods []csv.Method, classes []csv.Class) (base.Creator, errors.Error) {
+	if modelType == MethodGenerator {
 		return methodgeneration.New(methods, createPackageTree(classes)), nil
-	} else if datasetType == ReturnTypesValidator {
+	} else if modelType == ReturnTypesValidator {
 		return returntypesvalidation.New(methods, createPackageTree(classes)), nil
 	} else {
-		if len(datasetType) == 0 {
+		if len(modelType) == 0 {
 			return nil, errors.New("Dataset Creation Error", "Could not create dataset: No dataset type specified.")
 		}
-		return nil, errors.New("Dataset Creation Error", "Could not create dataset: Unsupported dataset type ("+datasetType+")")
+		return nil, errors.New("Dataset Creation Error", "Could not create dataset: Unsupported dataset type ("+string(modelType)+")")
 	}
 }
 

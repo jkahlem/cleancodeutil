@@ -112,8 +112,10 @@ func getPathToRepositoryCloneDir(repositoryName string) string {
 // Returns the go-git CloneOptions for the given repository URL
 func cloneOptions(url string) *git.CloneOptions {
 	return &git.CloneOptions{
-		URL:      url,
-		Progress: os.Stdout,
+		URL:           url,
+		Progress:      os.Stdout,
+		ReferenceName: "master",
+		SingleBranch:  true,
 	}
 }
 
