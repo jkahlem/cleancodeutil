@@ -4,5 +4,6 @@ config.json
 *.log
 resources/crawler/*
 repositoryList.json
+repositoryList-small.json
 todo
 __debug_bin

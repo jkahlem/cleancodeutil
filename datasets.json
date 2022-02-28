@@ -75,7 +75,7 @@
                 "name": "tryPattern",
                 "filter": {
                     "include": {
-                        "method": ["try*"]
+                        "method": ["try*", "attempt*"]
                     }
                 }
             },

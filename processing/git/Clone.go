@@ -10,6 +10,7 @@ import (
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils"
+	"returntypes-langserver/processing/git/external"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
@@ -40,7 +41,7 @@ func CloneRepository(repository RepositoryDefinition) errors.Error {
 			repository.Url, fmtSize(info.Info.Size), fmtSize(configuration.ClonerMaximumCloneSize()))
 		return nil
 	} else if info != nil && info.Info.Size > LargeRepositorySize {
-		log.Info("Clone process may take a file because of cloning a large repository. (Size: %s)\n", fmtSize(info.Info.Size))
+		log.Info("Clone process may take a while because of cloning a large repository. (Size: %s)\n", fmtSize(info.Info.Size))
 	}
 	if err := clone(repository); err != nil {
 		return err
@@ -95,11 +96,14 @@ func checkSize(info *RepositoryInfoWrapper) bool {
 
 // Clones the repository.
 func clone(repository RepositoryDefinition) errors.Error {
-	if err := Clone(getPathToRepositoryCloneDir(repository.DirName), cloneOptions(repository.Url)); err != nil {
+	/*if err := Clone(getPathToRepositoryCloneDir(repository.DirName), cloneOptions(repository.Url)); err != nil {
 		if err != git.ErrRepositoryAlreadyExists {
 			os.RemoveAll(getPathToRepositoryCloneDir(repository.DirName))
 		}
 		return errors.Wrap(err, CloneErrorTitle, "Could not clone repository")
+	}*/
+	if err := external.CloneRepository(repository.Url, getPathToRepositoryCloneDir(repository.DirName)); err != nil {
+		return err
 	}
 	return nil
 }
