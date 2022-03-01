@@ -9,6 +9,7 @@ import (
 
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/configuration"
+	"returntypes-langserver/common/configuration/projectconfig"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
@@ -83,7 +84,16 @@ func summarizeJavaCodeForProject(projectDirName string) {
 	// Use the crawler to sumamrize the java code structures for a given project into one xml file
 	log.Info("Summarize java code for project %s\n", projectDirName)
 	projectDirPath := filepath.Join(configuration.ProjectInputDir(), projectDirName)
-	xml, err2 := crawler.GetRawCodeElementsOfDirectory(projectDirPath, crawler.NewOptions().Forced(!configuration.StrictMode()).Build())
+
+	projectConfig, err2 := projectconfig.GetProjectConfiguration(projectDirPath)
+	if err2 != nil {
+		log.ReportProblemWithError(err2, "Could not read project configuration")
+	}
+	crawlerOptions := crawler.NewOptions().
+		Forced(!configuration.StrictMode()).
+		WithJavaVersion(projectConfig.JavaVersion).
+		Build()
+	xml, err2 := crawler.GetRawCodeElementsOfDirectory(projectDirPath, crawlerOptions)
 	if err2 != nil {
 		log.ReportProblemWithError(err2, "Could not create output file for java code files")
 	}

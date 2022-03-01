@@ -10,6 +10,8 @@ type Options struct {
 	Forced bool `json:"forced"`
 	// If true, the crawler will not send log notifications
 	Silent bool `json:"silent"`
+	// Sets the java version which should be considered when parsing the code files.
+	JavaVersion int `json:"javaVersion"`
 }
 
 type OptionsBuilder struct {
@@ -37,6 +39,11 @@ func (o *OptionsBuilder) Forced(state bool) *OptionsBuilder {
 
 func (o *OptionsBuilder) Silent(state bool) *OptionsBuilder {
 	o.options.Silent = state
+	return o
+}
+
+func (o *OptionsBuilder) WithJavaVersion(version int) *OptionsBuilder {
+	o.options.JavaVersion = version
 	return o
 }
 
