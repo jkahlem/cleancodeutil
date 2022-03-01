@@ -6,7 +6,6 @@ import (
 	"os/exec"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
-	"strings"
 	"time"
 )
 
@@ -100,7 +99,7 @@ func (c *gitProcess) IsRunning() bool {
 type Git struct {
 	process *gitProcess
 	stdin   io.WriteCloser
-	stdout  io.ReadCloser
+	stderr  io.ReadCloser
 }
 
 type Options struct {
@@ -123,12 +122,12 @@ func (g *Git) runProcess(options Options) errors.Error {
 	if err != nil {
 		return err
 	}
-	stdout, err := g.process.Stderr()
+	stderr, err := g.process.Stderr()
 	if err != nil {
 		return err
 	}
 	g.stdin = stdin
-	g.stdout = stdout
+	g.stderr = stderr
 
 	if err := g.process.Start(); err != nil {
 		g.Close()
@@ -137,7 +136,7 @@ func (g *Git) runProcess(options Options) errors.Error {
 	go func() {
 		buffer := make([]byte, 256)
 		for {
-			n, err := stdout.Read(buffer)
+			n, err := stderr.Read(buffer)
 			if n > 0 {
 				fmt.Print(string(buffer[:n]))
 			}
@@ -147,14 +146,11 @@ func (g *Git) runProcess(options Options) errors.Error {
 			}
 			time.Sleep(500 * time.Millisecond)
 		}
+		fmt.Print("\n")
 	}()
 	err = g.process.Wait()
 	g.Close()
 	return err
-}
-
-func escapePercent(s string) string {
-	return strings.ReplaceAll(s, "%", "%%")
 }
 
 // Returns true if a connection to the crawler is present (so the crawler process is still running).
@@ -164,16 +160,16 @@ func (conn *Git) IsConnected() bool {
 
 // Reads bytes from the standard input stream of the crawler process.
 func (conn *Git) Read(bytes []byte) (int, error) {
-	if conn.stdout == nil {
+	if conn.stderr == nil {
 		return 0, errors.Wrap(io.ErrClosedPipe, GitErrorTitle, "Stream does not exist")
 	}
-	n, err := conn.stdout.Read(bytes)
+	n, err := conn.stderr.Read(bytes)
 	return n, err
 }
 
 // Writes bytes to the standard output stream of the crawler process.
 func (conn *Git) Write(bytes []byte) (int, error) {
-	if conn.stdout == nil {
+	if conn.stderr == nil {
 		return 0, errors.Wrap(io.ErrClosedPipe, GitErrorTitle, "Stream does not exist")
 	}
 	return conn.stdin.Write(bytes)
@@ -187,11 +183,11 @@ func (conn *Git) Close() errors.Error {
 		}
 		conn.stdin = nil
 	}
-	if conn.stdout != nil {
-		if err := conn.stdout.Close(); err != nil {
+	if conn.stderr != nil {
+		if err := conn.stderr.Close(); err != nil {
 			return errors.Wrap(err, GitErrorTitle, "Could not close stream")
 		}
-		conn.stdout = nil
+		conn.stderr = nil
 	}
 	if conn.process != nil && conn.process.IsRunning() {
 		if err := conn.process.Close(); err != nil {
