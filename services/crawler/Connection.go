@@ -3,12 +3,14 @@ package crawler
 import (
 	"io"
 
+	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/utils"
 )
 
 // Defines a connection to the crawler. Uses standard-IO of the crawler process for transmission.
 type connection struct {
-	process *crawlerProcess
+	process *utils.Process
 	stdin   io.WriteCloser
 	stdout  io.ReadCloser
 }
@@ -24,7 +26,7 @@ func (conn *connection) Connect() errors.Error {
 }
 
 func (conn *connection) connect() errors.Error {
-	conn.process = NewProcess()
+	conn.process = utils.NewProcess("java", "-jar", configuration.CrawlerPath())
 	stdin, err := conn.process.Stdin()
 	if err != nil {
 		return err
