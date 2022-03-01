@@ -7,6 +7,7 @@ import (
 	"os"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/utils"
 )
 
 var loadedTypeClasses *TypeClassConfiguration
@@ -36,7 +37,7 @@ func validateTypeClasses(config *TypeClassConfiguration) errors.Error {
 	if config == nil {
 		return errors.New(TypeClassMapperErrorTitle, "Invalid type class configuration")
 	}
-	uniqueCheckMap := make(map[string]bool)
+	loadedTypes := make(utils.StringSet)
 	for i, typeClass := range config.Classes {
 		if typeClass.IsArrayType {
 			if config.ArrayType != nil {
@@ -54,10 +55,10 @@ func validateTypeClasses(config *TypeClassConfiguration) errors.Error {
 			if typeName == DefaultType {
 				config.DefaultType = &config.Classes[i]
 			}
-			if _, exists := uniqueCheckMap[typeName]; exists {
+			if loadedTypes.Has(typeName) {
 				return errors.New(TypeClassMapperErrorTitle, fmt.Sprintf("The type %s is contained in different type classes. (Types must be unique in the type classes)", typeName))
 			}
-			uniqueCheckMap[typeName] = true
+			loadedTypes.Put(typeName)
 		}
 	}
 	if config.DefaultType == nil {

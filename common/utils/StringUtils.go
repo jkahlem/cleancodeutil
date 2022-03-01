@@ -40,3 +40,15 @@ func KeyValueByEqualSign(raw string) (key, value string, ok bool) {
 	}
 	return splitted[0], splitted[1], true
 }
+
+// Allows to store strings in a set.
+type StringSet map[string]struct{}
+
+func (s StringSet) Put(str string) {
+	s[str] = struct{}{}
+}
+
+func (s StringSet) Has(str string) bool {
+	_, ok := s[str]
+	return ok
+}
