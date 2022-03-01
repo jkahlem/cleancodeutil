@@ -1,12 +1,13 @@
 package external
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"os/exec"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
+	"strings"
+	"time"
 )
 
 const GitErrorTitle string = "Git Error"
@@ -29,8 +30,8 @@ func optionsToArgs(options Options) []string {
 	if options.Filter != nil {
 		args = append(args, buildFilter(*options.Filter))
 	}
-	args = append(args, options.URI)
-	args = append(args, options.OutputDir)
+	args = append(args, "--progress", "--verbose")
+	args = append(args, options.URI, options.OutputDir)
 	return args
 }
 
@@ -51,6 +52,14 @@ func (c *gitProcess) Stdout() (io.ReadCloser, errors.Error) {
 
 func (c *gitProcess) Stdin() (io.WriteCloser, errors.Error) {
 	pipe, err := c.cmd.StdinPipe()
+	if err != nil {
+		return pipe, errors.Wrap(err, GitErrorTitle, "Could not create io pipes")
+	}
+	return pipe, nil
+}
+
+func (c *gitProcess) Stderr() (io.ReadCloser, errors.Error) {
+	pipe, err := c.cmd.StderrPipe()
 	if err != nil {
 		return pipe, errors.Wrap(err, GitErrorTitle, "Could not create io pipes")
 	}
@@ -114,7 +123,7 @@ func (g *Git) runProcess(options Options) errors.Error {
 	if err != nil {
 		return err
 	}
-	stdout, err := g.process.Stdout()
+	stdout, err := g.process.Stderr()
 	if err != nil {
 		return err
 	}
@@ -126,19 +135,26 @@ func (g *Git) runProcess(options Options) errors.Error {
 		return err
 	}
 	go func() {
-		reader := bufio.NewReader(g.stdout)
-		var err2 error
-		var str string
-		for str, err2 = reader.ReadString('\n'); len(str) > 0 || err2 == nil; {
-			log.Info(str)
-		}
-		if err2 != nil {
-			log.Error(errors.Wrap(err2, "Error", "Error"))
+		buffer := make([]byte, 256)
+		for {
+			n, err := stdout.Read(buffer)
+			if n > 0 {
+				fmt.Print(string(buffer[:n]))
+			}
+			if err != nil {
+				log.Error(errors.Wrap(err, "Error", "error"))
+				break
+			}
+			time.Sleep(500 * time.Millisecond)
 		}
 	}()
 	err = g.process.Wait()
 	g.Close()
 	return err
+}
+
+func escapePercent(s string) string {
+	return strings.ReplaceAll(s, "%", "%%")
 }
 
 // Returns true if a connection to the crawler is present (so the crawler process is still running).
