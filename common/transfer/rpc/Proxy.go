@@ -181,7 +181,8 @@ func processRequest(rpcMethodName string, arguments interface{}, _interface *_in
 	}
 }
 
-// Maps the results of a request to a slice of reflect.Values
+// Maps the results of a request (by-name, so request is a json object) to a slice of reflect.Values
+// The slice may contain an error if defined.
 func mapResultsToSlice(results interface{}, err errors.Error, methodDef MethodDefinition) []reflect.Value {
 	expectedReturnType := methodDef.Type.Out(0)
 	returnValues := createZeroValueReturnValues(methodDef.Type)
@@ -196,9 +197,15 @@ func mapResultsToSlice(results interface{}, err errors.Error, methodDef MethodDe
 		}
 	}
 
-	returnValues[0] = returnValue
-	if err != nil {
-		returnValues[1] = reflect.ValueOf(err)
+	if utils.IsErrorType(methodDef.Type.Out(0)) {
+		if err != nil {
+			returnValues[0] = reflect.ValueOf(err)
+		}
+	} else {
+		returnValues[0] = returnValue
+		if err != nil && methodDef.Type.NumOut() > 1 {
+			returnValues[1] = reflect.ValueOf(err)
+		}
 	}
 	return returnValues
 }

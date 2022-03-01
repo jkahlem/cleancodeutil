@@ -8,7 +8,6 @@ import (
 	"sync"
 
 	"returntypes-langserver/common/debug/errors"
-	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils"
 )
 
@@ -40,7 +39,6 @@ func (r *ReadWriter) SetWritingMimeType(mimeType string) {
 // Reads a message from the underlying stream.
 func (r *ReadWriter) ReadMessage() (string, errors.Error) {
 	msg, err := r.readMessage()
-	log.Print(log.Messager, "<< Read Message:\n%s\n", msg.String())
 	return msg.Body, err
 }
 
@@ -123,7 +121,6 @@ func (r *ReadWriter) WriteMessage(content []byte) errors.Error {
 	} else if err := r.readWriter.Flush(); err != nil {
 		return errors.Wrap(err, "Error", "Could not write message")
 	}
-	log.Print(log.Messager, ">> Write Message:\n%s\n", msg.String())
 	return nil
 }
 

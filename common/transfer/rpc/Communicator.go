@@ -200,6 +200,8 @@ func (s *communicator) respond(id, result interface{}, err *jsonrpc.ResponseErro
 func (s *communicator) awaitResponse(id int) (interface{}, errors.Error) {
 	if response, err := s.responseQueue.PickResponseWithId(id); err != nil {
 		return nil, err
+	} else if response.Error != nil {
+		return nil, errors.Wrap(response.Error, "RPC Error", "Received response containing an error")
 	} else {
 		return response.Result, nil
 	}
@@ -257,6 +259,8 @@ func (s *communicator) writeJsonMessageToMessager2(obj interface{}) (errors.Erro
 			return err, true
 		}
 		return err, false
+	} else {
+		log.Print(log.Messager, ">> Write Message:\n%s\n", jsonObj)
 	}
 	return nil, false
 }
@@ -285,6 +289,7 @@ func (s *communicator) readMessageFromMessager2() (string, errors.Error, bool) {
 		}
 		return "", err, false
 	} else {
+		log.Print(log.Messager, "<< Read Message:\n%s\n", msg)
 		return msg, nil, false
 	}
 }

@@ -124,6 +124,21 @@ func TestRequestToExternalMethodWithErrorOnly(t *testing.T) {
 	assert.Equal(t, expectedRequest, connection.sentContent())
 }
 
+func TestRequestToExternalMethodReturningError(t *testing.T) {
+	// given
+	connection, ifc := CreateSimpleTestInterface(t)
+	responseMessage := CreateErrorResponse(1, int(jsonrpc.InternalError), "test error message")
+	facade, ok := ifc.ProxyFacade().(*TestProxyFacade)
+	connection.setReceivedContent(responseMessage)
+
+	// when
+	err := facade.Proxy.MethodOfExternalServiceWithErrorOnly("test")
+
+	// then
+	assert.Error(t, err)
+	assert.True(t, ok)
+}
+
 func TestRequestToExternalMethodReturningSlices(t *testing.T) {
 	// given
 	connection, ifc := CreateSimpleTestInterface(t)
@@ -634,6 +649,12 @@ func CreateResponse(id int, result string) string {
 	} else {
 		content = fmt.Sprintf(`{"jsonrpc":"2.0","id":%d,"result":null}`, id)
 	}
+	header := fmt.Sprintf("Content-Length: %d\r\nContent-Type: %s\r\n\r\n", len(content), jsonrpc.MediaType)
+	return header + content
+}
+
+func CreateErrorResponse(id, errorCode int, errMsg string) string {
+	content := fmt.Sprintf(`{"jsonrpc":"2.0","id":%d,"error":{"code":%d,"message":"%s"}}`, id, errorCode, errMsg)
 	header := fmt.Sprintf("Content-Length: %d\r\nContent-Type: %s\r\n\r\n", len(content), jsonrpc.MediaType)
 	return header + content
 }
