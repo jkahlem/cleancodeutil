@@ -66,11 +66,11 @@ func (c *CommandLineCloner) clone(options Options) errors.Error {
 	if err := process.Start(); err != nil {
 		return err
 	}
-	go c.showGitProcessReports(stderr)
+	go c.displayGitProgressReports(stderr)
 	return process.Wait()
 }
 
-func (c *CommandLineCloner) showGitProcessReports(reader io.Reader) {
+func (c *CommandLineCloner) displayGitProgressReports(reader io.Reader) {
 	buffer := make([]byte, 256)
 	for {
 		n, err := reader.Read(buffer)

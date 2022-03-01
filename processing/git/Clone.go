@@ -99,7 +99,11 @@ func clone(repository RepositoryDefinition) errors.Error {
 	return getCloner().Clone(repository.Url, getPathToRepositoryCloneDir(repository.DirName))
 }
 
+// Returns the cloner to use for the cloning process
 func getCloner() Cloner {
+	if configuration.ClonerUseCommandLineTool() {
+		return &CommandLineCloner{}
+	}
 	return &IntegratedCloner{}
 }
 

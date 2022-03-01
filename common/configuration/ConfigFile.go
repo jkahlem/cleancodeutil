@@ -52,6 +52,9 @@ type DatasetProportion struct {
 }
 
 type ClonerConfiguration struct {
+	// If true, uses the command line git tool to clone projects. This allows the use of some options (like "--filter") which speed up the clone process.
+	// "git" must be available on PATH to use this.
+	UseCommandLineTool bool `json:"useCommandLineTool"`
 	// Path to the repository list
 	RepositoryListPath string `json:"repositoryListPath"`
 	// Maximum size in kilobytes of the (github) repositories to clone. If exceeded, clone process will be skipped
@@ -139,6 +142,7 @@ func LoadConfigFromJsonString(jsonStr string) errors.Error {
 func createDefaultConfig() {
 	loadedConfig = &configFile{
 		Cloner: ClonerConfiguration{
+			UseCommandLineTool: false,
 			RepositoryListPath: "",
 			MaximumCloneSize:   1024 * 512,
 			Skip:               false,
