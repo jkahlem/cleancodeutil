@@ -5,9 +5,11 @@ import (
 	"encoding/binary"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
+	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
 
 	"github.com/go-git/go-billy/v5/osfs"
@@ -21,14 +23,36 @@ import (
 	"github.com/go-git/go-git/v5/storage/filesystem"
 )
 
-var ptransport *progressTransport
+type IntegratedCloner struct {
+	ptransport *progressTransport
+}
+
+func (c *IntegratedCloner) Clone(uri, outputDir string) errors.Error {
+	if err := c.clone(outputDir, c.buildCloneOptions(uri)); err != nil {
+		if err != git.ErrRepositoryAlreadyExists {
+			os.RemoveAll(outputDir)
+		}
+		return errors.Wrap(err, CloneErrorTitle, "Could not clone repository")
+	}
+	return nil
+}
+
+// Returns the go-git CloneOptions for the given repository URL
+func (c *IntegratedCloner) buildCloneOptions(url string) *git.CloneOptions {
+	return &git.CloneOptions{
+		URL:           url,
+		Progress:      os.Stdout,
+		ReferenceName: "master",
+		SingleBranch:  true,
+	}
+}
 
 // Clones a repository defined using the options to path.
 //
 // The large part of the code here is copied from https://gist.github.com/tyru/82cae8bad2b116f442d08eeef456e23e
 // The code was adapted to support go-git v5, be usable in a simple method call, stop reporting go routine
 // on ending and use the log.Info logger.
-func Clone(path string, options *git.CloneOptions) error {
+func (c *IntegratedCloner) clone(path string, options *git.CloneOptions) error {
 	fs := osfs.New(path)
 	// Git objects storer
 	dot, err := fs.Chroot(".git")
@@ -41,10 +65,10 @@ func Clone(path string, options *git.CloneOptions) error {
 	}
 
 	reporter := &progressReporter{total: 0, current: 0, finished: false}
-	setProgressReporter(reporter)
+	c.setProgressReporter(reporter)
 
 	end := make(chan bool, 1)
-	if isProtocolSupportedForProgressReport(options.URL) {
+	if c.isProtocolSupportedForProgressReport(options.URL) {
 		// Report the progress every second until the clone process ends
 		go func() {
 			for {
@@ -66,25 +90,25 @@ func Clone(path string, options *git.CloneOptions) error {
 	return err
 }
 
-func isProtocolSupportedForProgressReport(url string) bool {
+func (c *IntegratedCloner) isProtocolSupportedForProgressReport(url string) bool {
 	if strings.HasPrefix(url, "http:") || strings.HasPrefix(url, "https:") {
 		return true
 	}
 	return false
 }
 
-func setProgressReporter(reporter *progressReporter) {
-	initializeHttpClient()
-	ptransport.progress = reporter
+func (c *IntegratedCloner) setProgressReporter(reporter *progressReporter) {
+	c.initializeHttpClient()
+	c.ptransport.progress = reporter
 }
 
-func initializeHttpClient() {
-	if ptransport == nil {
-		ptransport = &progressTransport{
+func (c *IntegratedCloner) initializeHttpClient() {
+	if c.ptransport == nil {
+		c.ptransport = &progressTransport{
 			RoundTripper: http.DefaultTransport,
 		}
 		httpClient := httpproto.NewClient(&http.Client{
-			Transport: ptransport,
+			Transport: c.ptransport,
 		})
 		client.InstallProtocol("http", httpClient)
 		client.InstallProtocol("https", httpClient)

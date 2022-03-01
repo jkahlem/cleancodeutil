@@ -4,20 +4,20 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils"
-	"returntypes-langserver/processing/git/external"
 	"strings"
-
-	"github.com/go-git/go-git/v5"
 )
 
 const CloneErrorTitle = "Clone Error"
 const LargeRepositorySize = 1024 * 128
+
+type Cloner interface {
+	Clone(uri, outputDir string) errors.Error
+}
 
 // Contains repository info
 type RepositoryInfoWrapper struct {
@@ -96,31 +96,16 @@ func checkSize(info *RepositoryInfoWrapper) bool {
 
 // Clones the repository.
 func clone(repository RepositoryDefinition) errors.Error {
-	/*if err := Clone(getPathToRepositoryCloneDir(repository.DirName), cloneOptions(repository.Url)); err != nil {
-		if err != git.ErrRepositoryAlreadyExists {
-			os.RemoveAll(getPathToRepositoryCloneDir(repository.DirName))
-		}
-		return errors.Wrap(err, CloneErrorTitle, "Could not clone repository")
-	}*/
-	if err := external.CloneRepository(repository.Url, getPathToRepositoryCloneDir(repository.DirName)); err != nil {
-		return err
-	}
-	return nil
+	return getCloner().Clone(repository.Url, getPathToRepositoryCloneDir(repository.DirName))
+}
+
+func getCloner() Cloner {
+	return &IntegratedCloner{}
 }
 
 // Returns a path to the expected repository dir in the project input dir
 func getPathToRepositoryCloneDir(repositoryName string) string {
 	return filepath.Join(configuration.ProjectInputDir(), repositoryName)
-}
-
-// Returns the go-git CloneOptions for the given repository URL
-func cloneOptions(url string) *git.CloneOptions {
-	return &git.CloneOptions{
-		URL:           url,
-		Progress:      os.Stdout,
-		ReferenceName: "master",
-		SingleBranch:  true,
-	}
 }
 
 // Creates a repository info file from the github API
