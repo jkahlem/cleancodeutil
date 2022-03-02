@@ -4,7 +4,6 @@ import "flag"
 
 // Creates flags for command line arguments.
 func initCommandLineArguments() {
-	flag.StringVar(&loadedConfig.Cloner.RepositoryListPath, "gitinput", "", "the file containing a list of github urls to clone (https-only)")
 	flag.StringVar(&loadedConfig.ProjectInputDir, "input", "", "the main output dir containing some processing results and the final dataset")
 	flag.StringVar(&loadedConfig.MainOutputDir, "output", "", "the main output dir containing some processing results and the final dataset")
 	flag.BoolVar(&loadedConfig.ForceExtraction, "force", false, "if set, always tries to recollect data from crawler output")

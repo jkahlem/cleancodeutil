@@ -39,13 +39,6 @@ func ClonerSkip() bool {
 	return loadedConfig.Cloner.Skip
 }
 
-func ClonerRepositoryListPath() string {
-	if loadedConfig == nil {
-		return ""
-	}
-	return AbsolutePathFromGoProjectDir(loadedConfig.Cloner.RepositoryListPath)
-}
-
 func ClonerMaximumCloneSize() int {
 	if loadedConfig == nil {
 		return 1024 * 128

@@ -33,6 +33,12 @@ type RepositoryInfo struct {
 	Size int `json:"size"`
 }
 
+// Defines a repository to clone
+type RepositoryDefinition struct {
+	Url     string `json:"url"`
+	DirName string `json:"dirName"`
+}
+
 // Clones the repository with the given name. The clone process may wait a bit (to prevent github from rejecting the cloning)
 func CloneRepository(repository RepositoryDefinition) errors.Error {
 	info, _ := getRepositoryInfo(repository)
@@ -55,7 +61,7 @@ func CloneRepository(repository RepositoryDefinition) errors.Error {
 // Returns the repository info of a repository
 func getRepositoryInfo(repository RepositoryDefinition) (*RepositoryInfoWrapper, errors.Error) {
 	if strings.HasPrefix(repository.Url, "https://github.com") {
-		owner, repositoryName := getOwnerAndRepositoryFromURL(repository.Url)
+		owner, repositoryName := GetOwnerAndRepositoryFromURL(repository.Url)
 		if raw, err := getRepositoryInfoFromGithubAPI(owner, repositoryName); err != nil {
 			return nil, err
 		} else {

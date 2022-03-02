@@ -23,16 +23,27 @@ import (
 	"returntypes-langserver/services/predictor"
 )
 
-// Executes the dataset creation process
+type Processor struct {
+	projects []Project
+}
+
 func ProcessDatasetCreation() {
+	processor := Processor{
+		projects: GetProjects(),
+	}
+	processor.ProcessDatasetCreation()
+}
+
+// Executes the dataset creation process
+func (p *Processor) ProcessDatasetCreation() {
 	// First, clone repositories if needed
 	//clone()
 	// Load the java code of each repository and summarize it using the crawler
-	summarizeJavaCode()
+	p.summarizeJavaCode()
 	// Extract method/classes of all of the repositories and put them into one file for methods and one for classes.
-	createBasicData()
+	p.createBasicData()
 	// Creates excel outputs for excel output configurations
-	createExcelOutput()
+	p.createExcelOutput()
 	// Create a dataset based on the method/class files above.
 	//createDataset()
 	// Train the predictor
@@ -40,24 +51,32 @@ func ProcessDatasetCreation() {
 	// Create statistics
 	//createStatistics()
 	// Log any problems occured during creation process
-	logProblems()
+	p.logProblems()
 }
 
 // Clone repositories of repository list if not skipped
-func clone() {
+func (p *Processor) clone() {
 	if !configuration.ClonerSkip() {
 		log.Info("Start clone process\n")
-		if configuration.ClonerRepositoryListPath() == "" {
-			log.FatalError(errors.New("Error", "No valid git input file set in configuration or using the '-gitinput' commandline argument."))
-		}
-		if err := git.CloneRepositories(); err != nil {
+		repositories := p.mapProjectsToRepositoryList(p.projects)
+		if err := git.CloneRepositories(repositories); err != nil {
 			log.ReportProblemWithError(err, "The cloning process was not successful")
 		}
 	}
 }
 
+func (p *Processor) mapProjectsToRepositoryList(projects []Project) []git.RepositoryDefinition {
+	repositories := make([]git.RepositoryDefinition, 0, len(projects))
+	for _, project := range projects {
+		if len(project.GitUri) > 0 {
+			repositories = append(repositories, project.ToRepositoryDefinition())
+		}
+	}
+	return repositories
+}
+
 // Summarize java code using the crawler
-func summarizeJavaCode() {
+func (p *Processor) summarizeJavaCode() {
 	if files, err := ioutil.ReadDir(configuration.ProjectInputDir()); err != nil {
 		log.FatalError(errors.Wrap(err, "Error", "Could not open project input dir"))
 	} else if err := os.MkdirAll(configuration.CrawlerOutputDir(), 0777); err != nil {
@@ -65,16 +84,16 @@ func summarizeJavaCode() {
 	} else {
 		for _, file := range files {
 			if file.IsDir() {
-				summarizeJavaCodeForProject(file.Name())
+				p.summarizeJavaCodeForProject(file.Name())
 			}
 		}
 	}
 }
 
 // Summarizes the java code for one project
-func summarizeJavaCodeForProject(projectDirName string) {
+func (p *Processor) summarizeJavaCodeForProject(projectDirName string) {
 	// If an output file does already exist, skip summarizing the data for this project.
-	if exists, err := crawlerOutputFileExists(projectDirName); err != nil {
+	if exists, err := p.crawlerOutputFileExists(projectDirName); err != nil {
 		log.ReportProblemWithError(err, "Could not check if xml output file for %s exists", projectDirName)
 		return
 	} else if exists {
@@ -111,7 +130,7 @@ func summarizeJavaCodeForProject(projectDirName string) {
 }
 
 // Returns true if the crawler output file for the given project does exist
-func crawlerOutputFileExists(projectDirName string) (bool, errors.Error) {
+func (p *Processor) crawlerOutputFileExists(projectDirName string) (bool, errors.Error) {
 	_, err := os.Stat(filepath.Join(configuration.CrawlerOutputDir(), projectDirName+".xml"))
 	if err == nil {
 		return true, nil
@@ -122,8 +141,8 @@ func crawlerOutputFileExists(projectDirName string) (bool, errors.Error) {
 }
 
 // Creates the basic data for dataset creation (which is a list of all methods and the class hierarchy)
-func createBasicData() {
-	if !isDataForDatasetAvailable() {
+func (p *Processor) createBasicData() {
+	if !p.isDataForDatasetAvailable() {
 		extractor := extractor.Extractor{}
 		extractor.Run(configuration.CrawlerOutputDir())
 		if extractor.Err() != nil {
@@ -135,18 +154,18 @@ func createBasicData() {
 }
 
 // Returns true if the basic data for dataset creation is available
-func isDataForDatasetAvailable() bool {
+func (p *Processor) isDataForDatasetAvailable() bool {
 	if configuration.ForceExtraction() {
 		return false
-	} else if ready := isMethodsWithReturnTypesAvailable(); !ready {
+	} else if ready := p.isMethodsWithReturnTypesAvailable(); !ready {
 		return false
-	} else if ready := isClassHierarchyAvailable(); !ready {
+	} else if ready := p.isClassHierarchyAvailable(); !ready {
 		return false
 	}
 	return true
 }
 
-func isMethodsWithReturnTypesAvailable() bool {
+func (p *Processor) isMethodsWithReturnTypesAvailable() bool {
 	if methods, err := os.Stat(configuration.MethodsWithReturnTypesOutputPath()); err != nil {
 		return false
 	} else if methods.IsDir() {
@@ -155,7 +174,7 @@ func isMethodsWithReturnTypesAvailable() bool {
 	return true
 }
 
-func isClassHierarchyAvailable() bool {
+func (p *Processor) isClassHierarchyAvailable() bool {
 	if classHierarchy, err := os.Stat(configuration.ClassHierarchyOutputPath()); err != nil {
 		return false
 	} else if classHierarchy.IsDir() {
@@ -164,39 +183,39 @@ func isClassHierarchyAvailable() bool {
 	return true
 }
 
-func createExcelOutput() {
+func (p *Processor) createExcelOutput() {
 	if err := excelOutputter.CreateOutput(); err != nil {
 		log.FatalError(err)
 	}
 }
 
 // Creates a dataset
-func createDataset() {
+func (p *Processor) createDataset() {
 	if err := dataset.CreateTrainingAndEvaluationSet(configuration.MethodsWithReturnTypesOutputPath(), configuration.ClassHierarchyOutputPath()); err != nil {
 		log.FatalError(err)
 	}
 }
 
 // Trains the predictor with the created dataset if not skipped in configuration
-func trainPredictor() {
+func (p *Processor) trainPredictor() {
 	if configuration.PredictorSkipTraining() {
 		return
 	}
 	log.Info("Start training process\n")
-	if err := train(); err != nil {
+	if err := p.train(); err != nil {
 		log.ReportProblemWithError(err, "Could not train the predictor")
 	}
 }
 
 // Executes the training process
-func train() errors.Error {
+func (p *Processor) train() errors.Error {
 	/*if err := trainReturnTypes(); err != nil {
 		return err
 	}*/
-	return trainMethods()
+	return p.trainMethods()
 }
 
-func trainReturnTypes() errors.Error {
+func (p *Processor) trainReturnTypes() errors.Error {
 	// Load csv data
 	labels, err := csv.ReadRecords(configuration.DatasetLabelsOutputPath())
 	if err != nil {
@@ -229,7 +248,7 @@ func trainReturnTypes() errors.Error {
 	return nil
 }
 
-func trainMethods() errors.Error {
+func (p *Processor) trainMethods() errors.Error {
 	// Load csv data
 	trainingSet, err := csv.ReadRecords(configuration.MethodsTrainingSetOutputPath())
 	if err != nil {
@@ -253,7 +272,7 @@ func trainMethods() errors.Error {
 }
 
 // Creates statistics for the dataset creation
-func createStatistics() {
+func (p *Processor) createStatistics() {
 	if !configuration.StatisticsSkipCreation() {
 		if err := statistics.CreateStatistics(); err != nil {
 			log.ReportProblemWithError(err, "The statistics creation was not successful")
@@ -262,7 +281,7 @@ func createStatistics() {
 }
 
 // Logs any problems occured during dataset creation
-func logProblems() {
+func (p *Processor) logProblems() {
 	problems := log.GetProblems()
 	if !configuration.StrictMode() && len(problems) > 0 {
 		log.Info("During the dataset creation the following problems occured which may have influence on the quality and completeness of the resulting dataset:\n")

@@ -3,6 +3,7 @@ package git
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -28,6 +29,10 @@ type IntegratedCloner struct {
 }
 
 func (c *IntegratedCloner) Clone(uri, outputDir string) errors.Error {
+	if !c.isSupportedUrl(uri) {
+		return errors.New(CloneErrorTitle, fmt.Sprintf("The git repository under %s is currently not supported by the integrated cloner.", uri))
+	}
+
 	if err := c.clone(outputDir, c.buildCloneOptions(uri)); err != nil {
 		if err != git.ErrRepositoryAlreadyExists {
 			os.RemoveAll(outputDir)
@@ -35,6 +40,11 @@ func (c *IntegratedCloner) Clone(uri, outputDir string) errors.Error {
 		return errors.Wrap(err, CloneErrorTitle, "Could not clone repository")
 	}
 	return nil
+}
+
+// Returns true if the url is supported. (Currently only github with https protocol)
+func (c *IntegratedCloner) isSupportedUrl(url string) bool {
+	return len(url) > 0 && strings.HasPrefix(url, "https://github.com")
 }
 
 // Returns the go-git CloneOptions for the given repository URL

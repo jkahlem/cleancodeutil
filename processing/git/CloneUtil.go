@@ -12,13 +12,14 @@ import (
 )
 
 // Loads the repositories to clone from the git input file and clones them to the project input dir (if not already exist)
-func CloneRepositories() errors.Error {
-	if err := createRepositoryOutputDir(); err != nil {
+func CloneRepositories(repositories []RepositoryDefinition) errors.Error {
+	if len(repositories) == 0 {
+		return nil
+	} else if err := createRepositoryOutputDir(); err != nil {
 		return err
 	}
 
-	list := GetRepositoryList()
-	for _, repository := range list.Repositories {
+	for _, repository := range repositories {
 		if cloned, err := isAlreadyClonedRepository(repository.DirName); err != nil {
 			log.ReportProblemWithError(err, "Skipped cloning %s because an error occured", repository.DirName)
 			continue
@@ -40,7 +41,7 @@ func parseRepositoryListLine(line string) (url, name string) {
 	parts := strings.Split(line, " ")
 	if len(parts) == 1 {
 		url = parts[0]
-		_, name = getOwnerAndRepositoryFromURL(url)
+		_, name = GetOwnerAndRepositoryFromURL(url)
 	} else if len(parts) > 1 {
 		url = parts[0]
 		name = parts[1]
@@ -72,7 +73,7 @@ func isAlreadyClonedRepository(repositoryName string) (bool, errors.Error) {
 	return fileInfo.IsDir(), nil
 }
 
-func getOwnerAndRepositoryFromURL(url string) (owner, repository string) {
+func GetOwnerAndRepositoryFromURL(url string) (owner, repository string) {
 	splitted := strings.Split(url, "/")
 	repository = splitted[len(splitted)-1]
 	owner = splitted[len(splitted)-2]

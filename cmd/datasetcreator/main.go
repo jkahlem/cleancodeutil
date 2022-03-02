@@ -4,7 +4,6 @@ import (
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/processing"
-	"returntypes-langserver/processing/git"
 	"returntypes-langserver/processing/typeclasses"
 )
 
@@ -15,7 +14,6 @@ func main() {
 		log.FatalError(err)
 	}
 
-	LoadRepositoryList()
 	LoadTypeClasses()
 	StartDatasetCreation()
 }
@@ -24,13 +22,6 @@ func SetupLogger() {
 	log.SetupFileLogging()
 	log.SetLoggingToStdout(true)
 	log.SetSilentErrorLogging(!configuration.StrictMode())
-}
-
-func LoadRepositoryList() {
-	log.Info("Load repository list...\n")
-	if err := git.LoadRepositoryList(); err != nil {
-		log.FatalError(err)
-	}
 }
 
 func LoadTypeClasses() {
