@@ -23,11 +23,11 @@ type Configuration struct {
 }
 
 type Dataset struct {
-	Name             string    `json:"name"`
-	Filter           Filter    `json:"filter"`
-	NoOutput         bool      `json:"noOutput"`
-	Subsets          []Dataset `json:"subsets"`
-	LeftoverFilename string    `json:"leftoverFilename"`
+	Name               string    `json:"name"`
+	Filter             Filter    `json:"filter"`
+	NoOutput           bool      `json:"noOutput"`
+	Subsets            []Dataset `json:"subsets"`
+	ComplementFilename string    `json:"complementFilename"`
 }
 
 type Filter struct {

@@ -11,11 +11,11 @@ import (
 )
 
 type DatasetProcessor struct {
-	targetSet        Dataset
-	subsetProcessors []DatasetProcessor
-	path             string
-	leftoverChannel  *OutputChannel
-	outputChannel    *OutputChannel
+	targetSet         Dataset
+	subsetProcessors  []DatasetProcessor
+	path              string
+	complementChannel *OutputChannel
+	outputChannel     *OutputChannel
 }
 
 type OutputChannel struct {
@@ -32,10 +32,10 @@ func NewOutputChannel() *OutputChannel {
 
 func NewDatasetProcessor(targetSet Dataset, path string) DatasetProcessor {
 	processor := DatasetProcessor{
-		targetSet:        targetSet,
-		subsetProcessors: make([]DatasetProcessor, 0, len(targetSet.Subsets)),
-		leftoverChannel:  NewOutputChannel(),
-		outputChannel:    NewOutputChannel(),
+		targetSet:         targetSet,
+		subsetProcessors:  make([]DatasetProcessor, 0, len(targetSet.Subsets)),
+		complementChannel: NewOutputChannel(),
+		outputChannel:     NewOutputChannel(),
 	}
 	processor.createOutputStreams(path)
 	subdir := filepath.Join(path, targetSet.Name)
@@ -49,8 +49,8 @@ func (p *DatasetProcessor) createOutputStreams(path string) errors.Error {
 	if !p.targetSet.NoOutput {
 		p.createOutputStream(filepath.Join(path, p.targetSet.Name), p.outputChannel)
 	}
-	if len(p.targetSet.LeftoverFilename) > 0 {
-		p.createOutputStream(filepath.Join(path, p.targetSet.LeftoverFilename), p.leftoverChannel)
+	if len(p.targetSet.ComplementFilename) > 0 {
+		p.createOutputStream(filepath.Join(path, p.targetSet.ComplementFilename), p.complementChannel)
 	}
 	return nil
 }
@@ -80,8 +80,8 @@ func (p *DatasetProcessor) process(method csv.Method) {
 			acceptedBySubsetProcessor = true
 		}
 	}
-	if !acceptedBySubsetProcessor && len(p.targetSet.LeftoverFilename) > 0 {
-		p.leftoverChannel.Output <- method.ToRecord()
+	if !acceptedBySubsetProcessor && len(p.targetSet.ComplementFilename) > 0 {
+		p.complementChannel.Output <- method.ToRecord()
 	}
 }
 
@@ -106,9 +106,9 @@ func (p *DatasetProcessor) close() {
 		close(p.outputChannel.Output)
 		p.checkErrors(p.outputChannel)
 	}
-	if len(p.targetSet.LeftoverFilename) > 0 {
-		close(p.leftoverChannel.Output)
-		p.checkErrors(p.leftoverChannel)
+	if len(p.targetSet.ComplementFilename) > 0 {
+		close(p.complementChannel.Output)
+		p.checkErrors(p.complementChannel)
 	}
 	for i := range p.subsetProcessors {
 		p.subsetProcessors[i].close()

@@ -3,7 +3,7 @@
         "name": "default",
         "filter": {
             "exclude": {
-                "label":["testMethod", "override"]
+                "label":["testMethod", "testCode", "override"]
             }
         },
         "noOutput": true,
@@ -148,7 +148,7 @@
                 "name": "validator",
                 "filter": {
                     "include": {
-                        "method": ["validate*", "reuqire*", "verify*"]
+                        "method": ["validate*", "require*", "verify*"]
                     }
                 }
             },
@@ -544,6 +544,6 @@
                 }
             }
         ],
-        "leftoverFilename": "otherMethods"
+        "complementFilename": "otherMethods"
    }]
 }

@@ -1,0 +1,57 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "returntypesPredictor/datasets/filter-configuration",
+    "title": "FilterConfiguration",
+    "description": "Defines which filters should be applied inside a filter. Each properties values are seen as OR-conjunctions while each property is bound by an AND-conjunction.",
+    "type": "object",
+    "properties": {
+        "method": {
+            "description": "A list of patterns of method names which should fulfill this filter configuration.",
+            "type": "array",
+            "items": {
+                "$ref": "pattern.schema.json",
+                "type": ["object", "string"]
+            }
+        },
+        "modifier": {
+            "description": "A list of patterns of modifiers which should fulfill this filter configuration. The pattern is applied on each modifier by itself.",
+            "type": "array",
+            "items": {
+                "$ref": "pattern.schema.json",
+                "type": ["object", "string"]
+            }
+        },
+        "parameter": {
+            "description": "A list of patterns of parameters which should fulfill this filter configuration. The pattern is applied on each parameter by itself. Each parameter has the format '[Type] [Name]'.",
+            "type": "array",
+            "items": {
+                "$ref": "pattern.schema.json",
+                "type": ["object", "string"]
+            }
+        },
+        "label": {
+            "description": "A list of patterns of labels which should fulfill this filter configuration. The pattern is applied on each label by itself.",
+            "type": "array",
+            "items": {
+                "$ref": "pattern.schema.json",
+                "type": ["object", "string"]
+            }
+        },
+        "returntype": {
+            "description": "A list of patterns of returntypes which should fulfill this filter configuration.",
+            "type": "array",
+            "items": {
+                "$ref": "pattern.schema.json",
+                "type": ["object", "string"]
+            }
+        },
+        "classname": {
+            "description": "A list of patterns of class names which should fulfill this filter configuration.",
+            "type": "array",
+            "items": {
+                "$ref": "pattern.schema.json",
+                "type": ["object", "string"]
+            }
+        }
+    }
+}

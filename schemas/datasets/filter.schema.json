@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "returntypesPredictor/datasets/filter",
+    "title": "Filter",
+    "description": "A filter definition",
+    "type": "object",
+    "properties": {
+        "include": {
+            "description": "If set, only methods which fulfill the filter configuration are accepted.",
+            "type": "object",
+            "$ref": "filter-configuration.schema.json"
+        },
+        "exclude": {
+            "description": "If set, all methods fulfilling the filter configuration are not accepted. This is also true for methods which fulfill the filters under the include property.",
+            "type": "object",
+            "$ref": "filter-configuration.schema.json"
+        }
+    }
+}

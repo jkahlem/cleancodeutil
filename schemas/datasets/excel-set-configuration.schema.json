@@ -1,0 +1,35 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "returntypesPredictor/datasets/excel-set-configuration",
+    "title": "Excel Set Configuration",
+    "description": "An excel set configuration.",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "The name of the set. This name will be used for the output excel file. Subsets will be written into a sub directory with this name.",
+            "type": "string"
+        },
+        "filter": {
+            "description": "A filter which is used on each method before doing anything else with it. If the method does not fulfill this filter, then it is not accepted.",
+            "type": "object",
+            "$ref": "filter.schema.json"
+        },
+        "noOutput": {
+            "description": "If true, then no output is created for accepted methods by this set. Output of subsets might still be created.",
+            "type": "boolean"
+        },
+        "subsets": {
+            "description": "A list of subsets which are saved in a sub directory under this dataset's name. As they are subsets, only methods passing the filter of this set will be passed to the subsets.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#"
+            }
+        },
+        "complementFilename": {
+            "description": "The name of the file where the complement of this set and all of it's subsets is saved to.",
+            "type": "string"
+        }
+    },
+    "required": ["name"]
+}

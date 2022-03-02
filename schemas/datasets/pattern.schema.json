@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "returntypesPredictor/datasets/pattern",
+    "title": "Pattern",
+    "description": "Defines a pattern. If it is a string, it is interpreted as a wildcard match.",
+    "type": ["object", "string"],
+    "properties": {
+        "pattern": {
+            "description": "Defines the actual pattern to used concerning the type.",
+            "type": "string"
+        },
+	    "type": {
+            "description": "Defines how the pattern is to be interpreted.",
+            "type": "string",
+            "enum": ["regexp", "wildcard"]
+        }
+    },
+    "required": ["pattern", "type"]
+}

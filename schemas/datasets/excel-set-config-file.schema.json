@@ -1,0 +1,18 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "returntypesPredictor/dataset/excel-set-config-file",
+    "title": "Excel Set Configuration file",
+    "description": "Contains excel sets.",
+    "type": "object",
+    "properties": {
+        "datasets": {
+            "description": "A list of excel sets",
+            "type": "array",
+            "items": {
+                "$ref": "excel-set-configuration.schema.json",
+                "type": "object"
+            }
+        }
+    },
+    "required": ["datasets"]
+}
