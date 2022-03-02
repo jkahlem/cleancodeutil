@@ -1,6 +1,7 @@
 package processing
 
 import (
+	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/processing/git"
 )
@@ -26,4 +27,17 @@ func (p Project) ToRepositoryDefinition() git.RepositoryDefinition {
 		Url:     p.GitUri,
 		DirName: repository,
 	}
+}
+
+// Returns the path to the directory which is expected as the project's directory.
+func (p Project) ExpectedDirectoryPath() string {
+	if p.Directory != "" {
+		return configuration.AbsolutePathFromGoProjectDir(p.Directory)
+	}
+	dirName := p.AlternativeName
+	if p.AlternativeName == "" {
+		_, repository := git.GetOwnerAndRepositoryFromURL(p.GitUri)
+		dirName = repository
+	}
+	return filepath.Join(configuration.ProjectInputDir(), dirName)
 }

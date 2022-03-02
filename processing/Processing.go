@@ -3,7 +3,6 @@ package processing
 import (
 	"encoding/json"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -77,15 +76,11 @@ func (p *Processor) mapProjectsToRepositoryList(projects []Project) []git.Reposi
 
 // Summarize java code using the crawler
 func (p *Processor) summarizeJavaCode() {
-	if files, err := ioutil.ReadDir(configuration.ProjectInputDir()); err != nil {
-		log.FatalError(errors.Wrap(err, "Error", "Could not open project input dir"))
-	} else if err := os.MkdirAll(configuration.CrawlerOutputDir(), 0777); err != nil {
+	if err := os.MkdirAll(configuration.CrawlerOutputDir(), 0777); err != nil {
 		log.FatalError(errors.Wrap(err, "Error", "Could not create output directory"))
 	} else {
-		for _, file := range files {
-			if file.IsDir() {
-				p.summarizeJavaCodeForProject(file.Name())
-			}
+		for _, project := range p.projects {
+			p.summarizeJavaCodeForProject(project.ExpectedDirectoryPath())
 		}
 	}
 }
