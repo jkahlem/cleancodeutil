@@ -1,0 +1,38 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "returntypesPredictor/project/project-definition",
+    "title": "Project",
+    "description": "A project definition",
+    "type": ["object", "string"],
+    "properties": {
+        "gitUri": {
+            "description": "The URI from where the repository can be cloned using Git",
+            "type": "string"
+        },
+        "directory": {
+            "description": "Sets the directory where the project should be loaded from. If a git uri is set and the directory does not exist on the file system, the project will be cloned here. If no directory is set, the project's directory will be {projectInputDir}/{repositoryName}",
+            "type": "string"
+        },
+        "alternativeName": {
+            "description": "Sets an alternative name for the repository which is usefull if two different repositories have the same name. If set and the directory attribute is empty, the project's directory will be {projectInputDir}/{alternativeName}",
+            "type": "string"
+        },
+        "javaVersion": {
+            "description": "Sets the java version to be used for parsing the project's source code",
+            "type": "number"
+        }
+    },
+    "anyOf": [
+        {
+            "type": "string"
+        },
+        {
+            "type": "object",
+            "required": ["gitUri"]
+        },
+        {
+            "type": "object",
+            "required": ["directory"]
+        }
+    ]
+}

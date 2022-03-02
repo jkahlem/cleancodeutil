@@ -1,0 +1,18 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "returntypesPredictor/project/config-file",
+    "title": "ProjectConfigFile",
+    "description": "Contains project definitions",
+    "type": "object",
+    "properties": {
+        "projects": {
+            "description": "A list of project definitions",
+            "type": ["array", "string"],
+            "items": {
+                "$ref": "project-definition.schema.json",
+                "type": ["object", "string"]
+            }
+        }
+    },
+    "required": ["projects"]
+}

@@ -13,5 +13,11 @@
         "bin": true,
         "resources": true,
         "dataset": true
-    }
+    },
+    "json.schemas": [{
+        "fileMatch": [
+            "projects.json"
+        ],
+        "url": "./schemas/project-config-file.schema.json"
+    }]
 }
