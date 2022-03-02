@@ -8,6 +8,7 @@ import (
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/common/utils"
 )
 
 const ExtractorErrorTitle = "Extractor Error"
@@ -29,46 +30,43 @@ func (extractor *Extractor) Err() errors.Error {
 // - A file containing all method declarations with their return types
 //
 // The class names/return type names are resolved to their canonical name (as good as possible)
-func (extractor *Extractor) Run(inputDir string) {
+func (extractor *Extractor) Run(inputFiles []string) {
 	log.Info("Load extracted java code...\n")
-	extractor.createPackageTree(inputDir)
+	extractor.createPackageTree(inputFiles)
 	log.Info("Start extracting code elements...\n")
 	extractor.extract()
 }
 
 // Creates a package tree and loads the java elements into it
-func (extractor *Extractor) createPackageTree(inputDir string) {
+func (extractor *Extractor) createPackageTree(inputFiles []string) {
 	extractor.tree = packagetree.New()
 	java.LoadDefaultPackagesToTree(&extractor.tree)
-	extractor.loadJavaFilesFromXMLFiles(inputDir)
+	extractor.loadJavaFilesFromXMLFiles(inputFiles)
 }
 
 // Looks for the extracted code files in the input directory, unmarshals them and inserts the files into the package tree
-func (extractor *Extractor) loadJavaFilesFromXMLFiles(inputDir string) {
+func (extractor *Extractor) loadJavaFilesFromXMLFiles(inputFiles []string) {
 	if extractor.err != nil {
 		return
 	}
 
-	files, err := FindProjectXMLFiles(inputDir)
-	if err != nil {
-		extractor.err = errors.Wrap(err, ExtractorErrorTitle, "Could not load XML files")
-		return
-	}
+	extractor.xmlroots = make([]java.FileContainer, 0, len(inputFiles))
 
-	extractor.xmlroots = make([]java.FileContainer, 0, len(files))
+	for index, path := range inputFiles {
+		log.Info("[%d/%d] Read entries of %s\n", index+1, len(inputFiles), filepath.Base(path))
 
-	for index, entry := range files {
-		log.Info("[%d/%d] Read entries of %s\n", index+1, len(files), entry.Name())
+		if !utils.FileExists(path) {
+			log.Info("[%d/%d] XML file under %s not found.", index+1, len(inputFiles), path)
+			continue
+		}
 		extractor.err = nil
 
-		xmlPath := filepath.Join(inputDir, entry.Name())
-
-		xmlroot := extractor.loadJavaFilesFromXMLFile(xmlPath)
+		xmlroot := extractor.loadJavaFilesFromXMLFile(path)
 		if extractor.err != nil {
-			log.ReportProblemWithError(extractor.err, "Could not load code information for %s", xmlPath)
+			log.ReportProblemWithError(extractor.err, "Could not load code information for %s", path)
 		} else if xmlroot == nil {
 			err := errors.New("Error", "No code information available")
-			log.ReportProblemWithError(err, "No code information available for %s", xmlPath)
+			log.ReportProblemWithError(err, "No code information available for %s", path)
 		}
 
 		extractor.loadFilesToPackageTree(xmlroot)

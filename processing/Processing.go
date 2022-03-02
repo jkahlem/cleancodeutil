@@ -12,6 +12,7 @@ import (
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/common/utils"
 	"returntypes-langserver/common/utils/counter"
 	"returntypes-langserver/processing/dataset"
 	"returntypes-langserver/processing/excelOutputter"
@@ -80,24 +81,28 @@ func (p *Processor) summarizeJavaCode() {
 		log.FatalError(errors.Wrap(err, "Error", "Could not create output directory"))
 	} else {
 		for _, project := range p.projects {
-			p.summarizeJavaCodeForProject(project.ExpectedDirectoryPath())
+			p.summarizeJavaCodeForProject(project)
 		}
 	}
 }
 
 // Summarizes the java code for one project
-func (p *Processor) summarizeJavaCodeForProject(projectDirName string) {
+func (p *Processor) summarizeJavaCodeForProject(project Project) {
 	// If an output file does already exist, skip summarizing the data for this project.
-	if exists, err := p.crawlerOutputFileExists(projectDirName); err != nil {
-		log.ReportProblemWithError(err, "Could not check if xml output file for %s exists", projectDirName)
+	if exists, err := p.crawlerOutputFileExists(project); err != nil {
+		log.ReportProblemWithError(err, "Could not check if xml output file for %s exists", project.ProjectName())
 		return
 	} else if exists {
 		return
 	}
 
 	// Use the crawler to sumamrize the java code structures for a given project into one xml file
-	log.Info("Summarize java code for project %s\n", projectDirName)
-	projectDirPath := filepath.Join(configuration.ProjectInputDir(), projectDirName)
+	log.Info("Summarize java code for project %s\n", project.ProjectName())
+	projectDirPath := project.ExpectedDirectoryPath()
+	if !utils.FileExists(projectDirPath) {
+		log.ReportProblem("Skip project %s as it does not exist\n", project.ProjectName())
+		return
+	}
 
 	projectConfig, err2 := projectconfig.GetProjectConfiguration(projectDirPath)
 	if err2 != nil {
@@ -113,7 +118,7 @@ func (p *Processor) summarizeJavaCodeForProject(projectDirName string) {
 	}
 
 	// Write the summarized code structures to an xml file
-	file, err := os.Create(filepath.Join(configuration.CrawlerOutputDir(), projectDirName+".xml"))
+	file, err := os.Create(p.getXmlPathForProject(project))
 	if err != nil {
 		wrappedErr := errors.Wrap(err, "Error", "Could not create output file")
 		log.ReportProblemWithError(wrappedErr, "Could not create output file for java code files")
@@ -125,8 +130,8 @@ func (p *Processor) summarizeJavaCodeForProject(projectDirName string) {
 }
 
 // Returns true if the crawler output file for the given project does exist
-func (p *Processor) crawlerOutputFileExists(projectDirName string) (bool, errors.Error) {
-	_, err := os.Stat(filepath.Join(configuration.CrawlerOutputDir(), projectDirName+".xml"))
+func (p *Processor) crawlerOutputFileExists(project Project) (bool, errors.Error) {
+	_, err := os.Stat(p.getXmlPathForProject(project))
 	if err == nil {
 		return true, nil
 	} else if os.IsNotExist(err) {
@@ -139,13 +144,25 @@ func (p *Processor) crawlerOutputFileExists(projectDirName string) (bool, errors
 func (p *Processor) createBasicData() {
 	if !p.isDataForDatasetAvailable() {
 		extractor := extractor.Extractor{}
-		extractor.Run(configuration.CrawlerOutputDir())
+		extractor.Run(p.getXmlPathsForProjects(p.projects))
 		if extractor.Err() != nil {
 			log.FatalError(extractor.Err())
 		}
 		log.Info("Number of failed type resolutions: %d\n", counter.For(java.UnresolvedTypeCounter).GetCount())
 		log.Info("Number of failed type resolutions due to imports of external dependencies: %d\n", counter.For(java.DependencyImportCounter).GetCount())
 	}
+}
+
+func (p *Processor) getXmlPathsForProjects(projects []Project) []string {
+	directories := make([]string, 0, len(projects))
+	for _, project := range projects {
+		directories = append(directories, p.getXmlPathForProject(project))
+	}
+	return directories
+}
+
+func (p *Processor) getXmlPathForProject(project Project) string {
+	return filepath.Join(configuration.CrawlerOutputDir(), project.ProjectName()+".xml")
 }
 
 // Returns true if the basic data for dataset creation is available

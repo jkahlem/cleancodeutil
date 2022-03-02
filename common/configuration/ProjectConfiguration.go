@@ -37,6 +37,7 @@ func (c *ProjectConfiguration) fromFilePath(filePath string) error {
 	if err := json.Unmarshal(contents, &fileConfig); err != nil {
 		return err
 	}
+	*c = fileConfig.Projects
 	return nil
 }
 

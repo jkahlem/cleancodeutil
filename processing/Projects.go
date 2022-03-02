@@ -22,10 +22,9 @@ func GetProjects() []Project {
 }
 
 func (p Project) ToRepositoryDefinition() git.RepositoryDefinition {
-	_, repository := git.GetOwnerAndRepositoryFromURL(p.GitUri)
 	return git.RepositoryDefinition{
 		Url:     p.GitUri,
-		DirName: repository,
+		DirName: p.ProjectName(),
 	}
 }
 
@@ -34,10 +33,13 @@ func (p Project) ExpectedDirectoryPath() string {
 	if p.Directory != "" {
 		return configuration.AbsolutePathFromGoProjectDir(p.Directory)
 	}
-	dirName := p.AlternativeName
-	if p.AlternativeName == "" {
-		_, repository := git.GetOwnerAndRepositoryFromURL(p.GitUri)
-		dirName = repository
+	return filepath.Join(configuration.ProjectInputDir(), p.ProjectName())
+}
+
+func (p Project) ProjectName() string {
+	if p.AlternativeName != "" {
+		return p.AlternativeName
 	}
-	return filepath.Join(configuration.ProjectInputDir(), dirName)
+	_, repository := git.GetOwnerAndRepositoryFromURL(p.GitUri)
+	return repository
 }
