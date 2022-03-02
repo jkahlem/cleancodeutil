@@ -16,6 +16,12 @@ type configFile struct {
 	Cloner ClonerConfiguration `json:"cloner"`
 	// The directory containing the project repositories to be crawled
 	ProjectInputDir string `json:"projectInputDir"`
+	// Defines different project configurations. The value might be:
+	// - an array containing each project configurations.
+	// - a string pointing to a different file which contains the project configurations.
+	// The array may define a project by a detailed object or a simple string. If it is a string,
+	// then it is considered as the project's git uri.
+	Projects ProjectConfiguration `json:"projects"`
 	// The main output dir containing some processing results and the final dataset
 	MainOutputDir string `json:"mainOutputDir"`
 	// A list of mapping files in csv format for default java libraries (and other libraries to use)

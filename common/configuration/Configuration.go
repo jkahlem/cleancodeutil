@@ -18,6 +18,13 @@ func ProjectInputDir() string {
 	return AbsolutePathFromGoProjectDir(loadedConfig.ProjectInputDir)
 }
 
+func Projects() []Project {
+	if loadedConfig == nil {
+		return nil
+	}
+	return loadedConfig.Projects
+}
+
 func ClonerUseCommandLineTool() bool {
 	if loadedConfig == nil {
 		return false
