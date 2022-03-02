@@ -24,5 +24,10 @@
             "datasets.json"
         ],
         "url": "./schemas/datasets/excel-set-config-file.schema.json"
+    },{
+        "fileMatch": [
+            "config.json"
+        ],
+        "url": "./schemas/configuration/configuration.schema.json"
     }]
 }

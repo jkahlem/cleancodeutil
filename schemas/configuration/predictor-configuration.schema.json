@@ -1,0 +1,31 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "returntypesPredictor/configuration/predictor",
+    "title": "Predictor Configuration",
+    "description": "Contains configurations regarding the predictor, which holds the machine learning models.",
+    "type": "object",
+    "properties": {
+        "scriptPath": {
+            "description": "The path to the script starting the python scripts",
+            "type": "string"
+        },
+        "host": {
+            "description": "The host of the predictor",
+            "type": "string"
+        },
+        "port": {
+            "description": "The port the predictor listens to for predictions",
+            "type": "number",
+            "minimum": 1,
+            "maximum": 65535
+        },
+        "skipTraining": {
+            "description": "If true, the training process will be skipped",
+            "type": "boolean"
+        },
+        "useMock": {
+            "description": "If true, uses the mocked predictor implementation",
+            "type": "boolean"
+        }
+    }
+}

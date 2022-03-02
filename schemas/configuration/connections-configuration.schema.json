@@ -1,0 +1,18 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "returntypesPredictor/configuration/connections",
+    "title": "Connections Configuration",
+    "description": "Contains configurations regarding connection handling in general.",
+    "type": "object",
+    "properties": {
+        "timeout": {
+            "description": "The time to wait in ms after a failing connection attempt",
+            "type": "number",
+            "minimum": 0
+        },
+        "reconnectionAttempts": {
+            "description": "The amount of attempts for trying to reconnect",
+            "type": "number"
+        }
+    }
+}

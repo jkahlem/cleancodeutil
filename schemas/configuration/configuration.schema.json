@@ -1,0 +1,80 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "returntypesPredictor/configuration",
+    "title": "Configuration file",
+    "description": "Contains global configurations for the program",
+    "type": "object",
+    "properties": {
+        "cloner": {
+            "description": "Configurations for cloning",
+            "type": "object",
+            "$ref": "cloner-configuration.schema.json"
+        },
+        "projects": {
+            "description": "A list of projects which should be used for dataset creation. Can also be a string pointing to a json file containing these project definitions.",
+            "type": ["array", "string"],
+            "items": {
+                "$ref": "../projects/project-definition.schema.json",
+                "type": ["object", "string"]
+            }
+        },
+        "mainOutputDir": {
+            "description": "The main output dir containing some processing results and the final dataset",
+            "type": "string"
+        },
+        "defaultLibraries": {
+            "description": "A list of mapping files in csv format for default java libraries (and other libraries to use)",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "defaultTypeClasses": {
+            "description": "A file containg type mappings and the final labels",
+            "type": "string"
+        },
+        "crawlerPath": {
+            "description": "A path to the crawler's jar file",
+            "type": "string"
+        },
+        "forceExtraction": {
+            "description": "If true, will always recollect the data from the crawled xml files",
+            "type": "boolean"
+        },
+        "datasetSize": {
+            "description": "The size of the splitted datasets as a proportion. Will probably be replaced with new dataset configuration files.",
+            "type": "object",
+            "deprecated": true
+        },
+        "datasetMethodFilter": {
+            "description": "Method filtering options for dataset creation. Will probably be replaced with new dataset configuration files.",
+            "type": "object",
+            "deprecated": true
+        },
+        "predictor": {
+            "description": "Configurations for the predictor connection.",
+            "type": "object",
+            "$ref": "predictor-configuration.schema.json"
+        },
+        "strictMode": {
+            "description": "If true, the program will stop running when an error occurs which may influence the dataset output",
+            "type": "boolean"
+        },
+        "logger": {
+            "description": "Configurations for logging",
+            "type": "object",
+            "$ref": "logger-configuration.schema.json"
+        },
+        "connection": {
+            "description": "Configurations for connections",
+            "type": "object",
+            "$ref": "connections-configuration.schema.json"
+        },
+        "statistics": {
+            "description": "Configurations for statistics",
+            "type": "object",
+            "$ref": "statistics-configuration.schema.json"
+        }
+    },
+    "required": ["mainOutputDir"]
+}

@@ -1,0 +1,31 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "returntypesPredictor/configuration/logger",
+    "title": "Logger Configuration",
+    "description": "Contains configurations regarding logging",
+    "type": "object",
+    "properties": {
+        "port": {
+            "description": "The port the remote debug logger listens to",
+            "type": "number",
+            "minimum": 1,
+            "maximum": 65535
+        },
+        "activateRemoteLogging": {
+            "description": "If true, activates logging using the remote debugger in language server mode.",
+            "type": "boolean"
+        },
+        "layers": {
+            "description": "The layers which may be logged.",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": ["information", "critical", "communicator", "languageServer", "messager"]
+            }
+        },
+        "errorsInConsoleOutput": {
+            "description": "If true, errors are also fully visible in console output. (If the critical logging layer is not active, errors won't be logged anywhere) Otherwise, only a brief explanation of the error is shown. (The full error will be still written to the logfile if configured)",
+            "type": "boolean"
+        }
+    }
+}

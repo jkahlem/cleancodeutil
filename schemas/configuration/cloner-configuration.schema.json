@@ -1,0 +1,26 @@
+{
+    "$schema": "http://json-schema.org/schema",
+    "$id": "returntypesPredictor/configuration/cloner",
+    "title": "Cloner Configuration",
+    "description": "Contains configurations regarding cloning of projects",
+    "type": "object",
+    "properties": {
+        "useCommandLineTool": {
+            "description": "If true, uses the command line git tool to clone projects. This allows the use of some options (like '--filter') which speed up the clone process. 'git' must be available on PATH to use this.",
+            "type": "boolean"
+        },
+        "maximumCloneSize": {
+            "description": "Maximum size in kilobytes of the (github) repositories to clone. If exceeded, clone process will be skipped.",
+            "type": "number",
+            "minimum": 0
+        },
+        "skip": {
+            "description": "If true, skip clone process.",
+            "type": "boolean"
+        },
+        "outputDir": {
+            "description": "The directory where projects will be cloned to.",
+            "type": "string"
+        }
+    }
+}
