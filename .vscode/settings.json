@@ -21,7 +21,7 @@
         "url": "./schemas/projects/project-config-file.schema.json"
     },{
         "fileMatch": [
-            "datasets.json"
+            "excelSets.json"
         ],
         "url": "./schemas/datasets/excel-set-config-file.schema.json"
     },{

@@ -45,6 +45,8 @@ type configFile struct {
 	Connection ConnectionConfiguration `json:"connection"`
 	// Configurations for statistics
 	Statistics StatisticsConfiguration `json:"statistics"`
+	// The excel
+	ExcelSets string `json:"excelSets"`
 	// If true, then the program is in language server mode (command line only)
 	IsLangServMode bool
 }

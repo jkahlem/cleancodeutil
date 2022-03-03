@@ -13,7 +13,7 @@ import (
 func CreateOutput() errors.Error {
 	log.Info("Write output to excel file ...\n")
 
-	config, err := LoadConfiguration(configuration.AbsolutePathFromGoProjectDir("datasets.json"))
+	config, err := LoadConfiguration(configuration.ExcelSets())
 	if err != nil {
 		return err
 	}
