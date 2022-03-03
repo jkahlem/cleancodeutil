@@ -17,6 +17,9 @@ func IsMethodIncluded(method Method, filter configuration.Filter) bool {
 }
 
 func isAnyFilterFulfilled(method Method, filters configuration.FilterConfigurations) bool {
+	if len(filters) == 0 {
+		return true
+	}
 	for _, filter := range filters {
 		if isFilterFulfilled(method, filter) {
 			return true
@@ -25,13 +28,27 @@ func isAnyFilterFulfilled(method Method, filters configuration.FilterConfigurati
 	return false
 }
 
+func areAllFiltersFulfilled(method Method, filters configuration.FilterConfigurations) bool {
+	if len(filters) == 0 {
+		return true
+	}
+	for _, filter := range filters {
+		if !isFilterFulfilled(method, filter) {
+			return false
+		}
+	}
+	return true
+}
+
 func isFilterFulfilled(method Method, f configuration.FilterConfiguration) bool {
 	return checkPatterns(f.Method, method.MethodName) &&
 		checkPatternsOnTargetList(f.Modifier, method.Modifier) &&
 		checkPatternsOnTargetList(f.Parameter, method.Parameters) &&
 		checkPatternsOnTargetList(f.Label, method.Labels) &&
 		checkPatterns(f.ReturnType, method.ReturnType) &&
-		checkPatterns(f.ClassName, method.ClassName)
+		checkPatterns(f.ClassName, method.ClassName) &&
+		isAnyFilterFulfilled(method, f.AnyOf) &&
+		areAllFiltersFulfilled(method, f.AllOf)
 }
 
 func checkPatterns(patterns []configuration.Pattern, target string) bool {

@@ -31,12 +31,14 @@ func (f *FilterConfigurations) UnmarshalJSON(data []byte) error {
 }
 
 type FilterConfiguration struct {
-	Method     []Pattern `json:"method"`
-	Modifier   []Pattern `json:"modifier"`
-	Parameter  []Pattern `json:"parameter"`
-	Label      []Pattern `json:"label"`
-	ReturnType []Pattern `json:"returntype"`
-	ClassName  []Pattern `json:"classname"`
+	Method     []Pattern             `json:"method"`
+	Modifier   []Pattern             `json:"modifier"`
+	Parameter  []Pattern             `json:"parameter"`
+	Label      []Pattern             `json:"label"`
+	ReturnType []Pattern             `json:"returntype"`
+	ClassName  []Pattern             `json:"classname"`
+	AnyOf      []FilterConfiguration `json:"anyOf"`
+	AllOf      []FilterConfiguration `json:"allOf"`
 }
 
 type Matcher interface {

@@ -52,6 +52,22 @@
                 "$ref": "pattern.schema.json",
                 "type": ["object", "string"]
             }
+        },
+        "anyOf": {
+            "description": "A list of further filters from which at least one filter needs also to be fulfilled for a match.",
+            "type": "array",
+            "items": {
+                "$ref": "filter.schema.json",
+                "type": "object"
+            }
+        },
+        "allOf": {
+            "description": "A list of further filters from which at every filter also needs to be fulfilled for a match.",
+            "type": "array",
+            "items": {
+                "$ref": "filter.schema.json",
+                "type": "object"
+            }
         }
     }
 }
