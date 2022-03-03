@@ -83,11 +83,20 @@ func (c *ExcelSet) fromInterface(itf interface{}) error {
 	}
 }
 
-func validateFilter(filter *FilterConfiguration, datasetName string) errors.Error {
-	if filter != nil {
-		for _, pattern := range filter.Method {
-			if pattern.Type != RegExp && pattern.Pattern != strings.ToLower(pattern.Pattern) {
-				return errors.New("Excel Error", fmt.Sprintf("Invalid method name pattern in dataset %s: Uppercase characters are not allowed.", datasetName))
+func validateFilter(filter FilterConfiguration, datasetName string) errors.Error {
+	for _, pattern := range filter.Method {
+		if pattern.Type != RegExp && pattern.Pattern != strings.ToLower(pattern.Pattern) {
+			return errors.New("Excel Error", fmt.Sprintf("Invalid method name pattern in dataset %s: Uppercase characters are not allowed.", datasetName))
+		}
+	}
+	return nil
+}
+
+func validateFilters(filters FilterConfigurations, datasetName string) errors.Error {
+	if filters != nil {
+		for _, f := range filters {
+			if err := validateFilter(f, datasetName); err != nil {
+				return err
 			}
 		}
 	}
@@ -95,9 +104,9 @@ func validateFilter(filter *FilterConfiguration, datasetName string) errors.Erro
 }
 
 func validateDataset(dataset ExcelSet) errors.Error {
-	if err := validateFilter(dataset.Filter.Includes, dataset.Name); err != nil {
+	if err := validateFilters(dataset.Filter.Includes, dataset.Name); err != nil {
 		return err
-	} else if err := validateFilter(dataset.Filter.Excludes, dataset.Name); err != nil {
+	} else if err := validateFilters(dataset.Filter.Excludes, dataset.Name); err != nil {
 		return err
 	} else if err := validateDatasets(dataset.Subsets); err != nil {
 		return err

@@ -9,8 +9,25 @@ import (
 )
 
 type Filter struct {
-	Includes *FilterConfiguration `json:"include"`
-	Excludes *FilterConfiguration `json:"exclude"`
+	Includes FilterConfigurations `json:"include"`
+	Excludes FilterConfigurations `json:"exclude"`
+}
+
+type FilterConfigurations []FilterConfiguration
+
+func (f *FilterConfigurations) UnmarshalJSON(data []byte) error {
+	var v FilterConfiguration
+	if err := json.Unmarshal(data, &v); err == nil {
+		*f = append(*f, v)
+		return nil
+	}
+	var valueSlice []FilterConfiguration
+	if err := json.Unmarshal(data, &valueSlice); err == nil {
+		*f = valueSlice
+		return nil
+	} else {
+		return err
+	}
 }
 
 type FilterConfiguration struct {

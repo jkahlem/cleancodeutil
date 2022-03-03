@@ -73,5 +73,5 @@ func TestConfigurationLoading(t *testing.T) {
 
 	// then
 	assert.NoError(t, err)
-	assert.Equal(t, "save*", config[0].Subsets[0].Filter.Includes.Method[0].Pattern)
+	assert.Equal(t, "save*", config[0].Subsets[0].Filter.Includes[0].Method[0].Pattern)
 }

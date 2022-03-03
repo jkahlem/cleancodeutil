@@ -4,19 +4,28 @@ import "returntypes-langserver/common/configuration"
 
 func IsMethodIncluded(method Method, filter configuration.Filter) bool {
 	if filter.Includes != nil {
-		if !isFilterFulfilled(method, filter.Includes) {
+		if !isAnyFilterFulfilled(method, filter.Includes) {
 			return false
 		}
 	}
 	if filter.Excludes != nil {
-		if isFilterFulfilled(method, filter.Excludes) {
+		if isAnyFilterFulfilled(method, filter.Excludes) {
 			return false
 		}
 	}
 	return true
 }
 
-func isFilterFulfilled(method Method, f *configuration.FilterConfiguration) bool {
+func isAnyFilterFulfilled(method Method, filters configuration.FilterConfigurations) bool {
+	for _, filter := range filters {
+		if isFilterFulfilled(method, filter) {
+			return true
+		}
+	}
+	return false
+}
+
+func isFilterFulfilled(method Method, f configuration.FilterConfiguration) bool {
 	return checkPatterns(f.Method, method.MethodName) &&
 		checkPatternsOnTargetList(f.Modifier, method.Modifier) &&
 		checkPatternsOnTargetList(f.Parameter, method.Parameters) &&

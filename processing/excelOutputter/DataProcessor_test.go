@@ -22,11 +22,11 @@ func TestDataProcessorAccepting(t *testing.T) {
 	assert.False(t, processor.accepts(csv.Method{MethodName: predictor.SplitMethodNameToSentence("someMethodToExclude")}))
 }
 
-func buildFilter(raw string) *configuration.FilterConfiguration {
+func buildFilter(raw string) configuration.FilterConfigurations {
 	filter := configuration.FilterConfiguration{}
 	err := json.Unmarshal([]byte(raw), &filter)
 	if err != nil {
 		panic(err)
 	}
-	return &filter
+	return []configuration.FilterConfiguration{filter}
 }
