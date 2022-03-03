@@ -2,6 +2,7 @@ package excelOutputter
 
 import (
 	"encoding/json"
+	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/services/predictor"
 	"testing"
@@ -11,7 +12,7 @@ import (
 
 func TestDataProcessorAccepting(t *testing.T) {
 	// given
-	d := Dataset{Filter: Filter{
+	d := configuration.ExcelSet{Filter: configuration.Filter{
 		Includes: buildFilter(`{"method": ["test*"]}`),
 	}}
 	processor := NewDatasetProcessor(d, "")
@@ -21,8 +22,8 @@ func TestDataProcessorAccepting(t *testing.T) {
 	assert.False(t, processor.accepts(csv.Method{MethodName: predictor.SplitMethodNameToSentence("someMethodToExclude")}))
 }
 
-func buildFilter(raw string) *FilterConfiguration {
-	filter := FilterConfiguration{}
+func buildFilter(raw string) *configuration.FilterConfiguration {
+	filter := configuration.FilterConfiguration{}
 	err := json.Unmarshal([]byte(raw), &filter)
 	if err != nil {
 		panic(err)

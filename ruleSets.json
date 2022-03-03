@@ -1,0 +1,14 @@
+{
+    "rules": [
+        {
+            "name": "static create",
+            "when": {
+                "method": ["create*"],
+                "modifier": ["static"]
+            },
+            "then": {
+                
+            }
+        }
+    ]
+}

@@ -13,26 +13,20 @@ import (
 func CreateOutput() errors.Error {
 	log.Info("Write output to excel file ...\n")
 
-	config, err := LoadConfiguration(configuration.ExcelSets())
-	if err != nil {
-		return err
-	}
-	log.Info("Dataset configuration loaded\n")
-	//log.Info("Dataset processors created\n")
 	records, err := csv.ReadRecords(configuration.MethodsWithReturnTypesOutputPath())
 	if err != nil {
 		return err
 	}
 
 	log.Info("Write records...\n")
-	createOutputOnRecords(records, configuration.MethodsWithReturnTypesExcelOutputDir(), config)
+	createOutputOnRecords(records, configuration.MethodsWithReturnTypesExcelOutputDir(), configuration.ExcelSets())
 
 	return nil
 }
 
-func createOutputOnRecords(records [][]string, path string, config Configuration) {
-	processors := make([]DatasetProcessor, 0, len(config.Datasets))
-	for _, dataset := range config.Datasets {
+func createOutputOnRecords(records [][]string, path string, sets []configuration.ExcelSet) {
+	processors := make([]DatasetProcessor, 0, len(sets))
+	for _, dataset := range sets {
 		processors = append(processors, NewDatasetProcessor(dataset, configuration.MethodsWithReturnTypesExcelOutputDir()))
 	}
 	for recordIndex, method := range csv.UnmarshalMethod(records) {

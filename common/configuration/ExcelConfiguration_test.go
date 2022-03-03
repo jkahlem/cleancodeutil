@@ -1,7 +1,8 @@
-package excelOutputter
+package configuration
 
 import (
 	"encoding/json"
+	"returntypes-langserver/common/utils"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,23 +20,23 @@ func TestMatcherBuilding(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, filter.Method, 4)
 
-	m1, ok := filter.Method[0].matcher.(PrefixMatcher)
+	m1, ok := filter.Method[0].matcher.(utils.PrefixMatcher)
 	assert.True(t, ok)
 	assert.True(t, m1.Match([]byte("open the door")))
 	assert.False(t, m1.Match([]byte("not open")))
 
-	m2, ok := filter.Method[1].matcher.(ContainingMatcher)
+	m2, ok := filter.Method[1].matcher.(utils.ContainingMatcher)
 	assert.True(t, ok)
 	assert.True(t, m2.Match([]byte("a to b")))
 	assert.True(t, m2.Match([]byte("to string")))
 	assert.True(t, m2.Match([]byte("rename to")))
 
-	m3, ok := filter.Method[2].matcher.(SuffixMatcher)
+	m3, ok := filter.Method[2].matcher.(utils.SuffixMatcher)
 	assert.True(t, ok)
 	assert.True(t, m3.Match([]byte("has to end")))
 	assert.False(t, m3.Match([]byte("do not end it")))
 
-	m4, ok := filter.Method[3].matcher.(EqualityMatcher)
+	m4, ok := filter.Method[3].matcher.(utils.EqualityMatcher)
 	assert.True(t, ok)
 	assert.True(t, m4.Match([]byte("method")))
 	assert.False(t, m4.Match([]byte("a method")))
@@ -45,7 +46,7 @@ func TestConfigurationLoading(t *testing.T) {
 	// given
 	raw := `
 	{
-		"datasets": [{
+		"excelSets": [{
         	"name": "default",
         	"filter": {
 				"exclude": {
@@ -65,11 +66,12 @@ func TestConfigurationLoading(t *testing.T) {
 			]
 		}]
 	}`
+	config := make(ExcelSetConfiguration, 0)
 
 	// when
-	config, err := LoadConfigurationFromJson([]byte(raw))
+	err := config.fromJson([]byte(raw))
 
 	// then
 	assert.NoError(t, err)
-	assert.Equal(t, "save*", config.Datasets[0].Subsets[0].Filter.Includes.Method[0].Pattern)
+	assert.Equal(t, "save*", config[0].Subsets[0].Filter.Includes.Method[0].Pattern)
 }

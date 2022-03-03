@@ -2,6 +2,7 @@ package excelOutputter
 
 import (
 	"path/filepath"
+	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/dataformat/excel"
 	"returntypes-langserver/common/debug/errors"
@@ -11,7 +12,7 @@ import (
 )
 
 type DatasetProcessor struct {
-	targetSet         Dataset
+	targetSet         configuration.ExcelSet
 	subsetProcessors  []DatasetProcessor
 	path              string
 	complementChannel *OutputChannel
@@ -30,7 +31,7 @@ func NewOutputChannel() *OutputChannel {
 	}
 }
 
-func NewDatasetProcessor(targetSet Dataset, path string) DatasetProcessor {
+func NewDatasetProcessor(targetSet configuration.ExcelSet, path string) DatasetProcessor {
 	processor := DatasetProcessor{
 		targetSet:         targetSet,
 		subsetProcessors:  make([]DatasetProcessor, 0, len(targetSet.Subsets)),
@@ -87,18 +88,7 @@ func (p *DatasetProcessor) process(method csv.Method) {
 
 func (p *DatasetProcessor) accepts(method csv.Method) bool {
 	method.MethodName = strings.ToLower(predictor.SplitMethodNameToSentence(method.MethodName))
-	filter := p.targetSet.Filter
-	if filter.Includes != nil {
-		if !filter.Includes.appliesOn(method) {
-			return false
-		}
-	}
-	if filter.Excludes != nil {
-		if filter.Excludes.appliesOn(method) {
-			return false
-		}
-	}
-	return true
+	return csv.IsMethodIncluded(method, p.targetSet.Filter)
 }
 
 func (p *DatasetProcessor) close() {

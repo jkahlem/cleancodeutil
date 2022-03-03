@@ -248,11 +248,11 @@ func StatisticsProjectGroupingThreshold() float64 {
 	return loadedConfig.Statistics.ProjectGroupingThreshold
 }
 
-func ExcelSets() string {
+func ExcelSets() []ExcelSet {
 	if loadedConfig == nil {
-		return ""
+		return nil
 	}
-	return AbsolutePathFromGoProjectDir(loadedConfig.ExcelSets)
+	return loadedConfig.ExcelSets
 }
 
 func IsLangServMode() bool {

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"reflect"
+	"regexp"
 	"strings"
 )
 
@@ -51,4 +52,34 @@ func (s StringSet) Put(str string) {
 func (s StringSet) Has(str string) bool {
 	_, ok := s[str]
 	return ok
+}
+
+// Tests a string against a regexp pattern
+func TestString(s, expr string) bool {
+	r, err := regexp.Compile(expr)
+	if err != nil {
+		return false
+	}
+	return r.MatchString(s)
+}
+
+type SuffixMatcher string
+type PrefixMatcher string
+type ContainingMatcher string
+type EqualityMatcher string
+
+func (suffix SuffixMatcher) Match(target []byte) bool {
+	return strings.HasSuffix(string(target), string(suffix))
+}
+
+func (prefix PrefixMatcher) Match(target []byte) bool {
+	return strings.HasPrefix(string(target), string(prefix))
+}
+
+func (substr ContainingMatcher) Match(target []byte) bool {
+	return strings.Contains(string(target), string(substr))
+}
+
+func (substr EqualityMatcher) Match(target []byte) bool {
+	return string(target) == string(substr)
 }

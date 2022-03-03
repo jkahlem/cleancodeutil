@@ -1,0 +1,14 @@
+{
+    "datasets": [
+        {
+            "name": "defaultSet",
+            "filter": {
+                "exclude": [{"modifier": ["private"]},{"labels": ["testCode"]},{"method":[{"pattern": "[0-9]", "type": "regexp"}]}]
+            },
+            "isGroupOnly": true,
+            "specialFilters": {},
+            "modelOptions": {},
+            "subsets": []
+        }
+    ]
+}
