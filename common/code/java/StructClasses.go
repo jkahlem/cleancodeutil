@@ -12,9 +12,9 @@ const JavaErrorTitle = "Error"
 
 // Class Types
 const (
-	ENUM      = "ENUM"
-	INTERFACE = "INTERFACE"
-	CLASS     = "CLASS"
+	EnumClass      = "ENUM"
+	InterfaceClass = "INTERFACE"
+	StandardClass  = "CLASS"
 )
 
 type Class struct {

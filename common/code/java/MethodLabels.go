@@ -19,6 +19,7 @@ const (
 	SingleReturn     MethodLabel = "singleReturn"
 	SingleAssignment MethodLabel = "singleAssignment"
 	ThrowsErrors     MethodLabel = "throwsErrors"
+	InterfaceMethod  MethodLabel = "interfaceMethod"
 )
 
 // Creates a list of labels for the given method.
@@ -54,6 +55,9 @@ func GetMethodLabels(method *Method) []string {
 	if IsTestMethod(method) {
 		labels = append(labels, string(TestMethod))
 	}
+	if IsInterfaceMethod(method) {
+		labels = append(labels, string(InterfaceMethod))
+	}
 
 	return labels
 }
@@ -72,6 +76,16 @@ func IsInTestFile(element JavaElement) bool {
 // Returns true if the method is a test method, so if it has a @Test annotation.
 func IsTestMethod(method *Method) bool {
 	return utils.ContainsString(method.Annotations, "Test")
+}
+
+// Returns true if the method is defined as a method of an interface.
+func IsInterfaceMethod(method *Method) bool {
+	if parent := method.Parent(); parent != nil {
+		if parentClass, ok := parent.(*Class); ok {
+			return parentClass.ClassType == InterfaceClass
+		}
+	}
+	return false
 }
 
 // Returns true if the method is a getter.
