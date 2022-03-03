@@ -37,7 +37,7 @@ func ProcessDatasetCreation() {
 // Executes the dataset creation process
 func (p *Processor) ProcessDatasetCreation() {
 	// First, clone repositories if needed
-	//clone()
+	p.clone()
 	// Load the java code of each repository and summarize it using the crawler
 	p.summarizeJavaCode()
 	// Extract method/classes of all of the repositories and put them into one file for methods and one for classes.
@@ -45,11 +45,11 @@ func (p *Processor) ProcessDatasetCreation() {
 	// Creates excel outputs for excel output configurations
 	p.createExcelOutput()
 	// Create a dataset based on the method/class files above.
-	//createDataset()
+	//p.createDataset()
 	// Train the predictor
-	//trainPredictor()
+	//p.trainPredictor()
 	// Create statistics
-	//createStatistics()
+	//p.createStatistics()
 	// Log any problems occured during creation process
 	p.logProblems()
 }

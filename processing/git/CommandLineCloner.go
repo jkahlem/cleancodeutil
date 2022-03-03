@@ -3,6 +3,7 @@ package git
 import (
 	"fmt"
 	"io"
+	"os"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils"
@@ -77,7 +78,7 @@ func (c *CommandLineCloner) displayGitProgressReports(reader io.Reader) {
 		if n > 0 {
 			fmt.Print(string(buffer[:n]))
 		}
-		if err != nil {
+		if err != nil && err != os.ErrClosed {
 			fmt.Print("\n")
 			log.Error(errors.Wrap(err, "Error", "error"))
 			break
