@@ -51,8 +51,8 @@ func parseRepositoryListLine(line string) (url, name string) {
 
 // Creates the repository output dir if it does not already exist
 func createRepositoryOutputDir() errors.Error {
-	if _, err := os.Stat(configuration.ProjectInputDir()); os.IsNotExist(err) {
-		if err = os.MkdirAll(configuration.ProjectInputDir(), os.ModePerm); err != nil {
+	if _, err := os.Stat(configuration.ClonerOutputDir()); os.IsNotExist(err) {
+		if err = os.MkdirAll(configuration.ClonerOutputDir(), os.ModePerm); err != nil {
 			return errors.Wrap(err, CloneErrorTitle, "Could not create output directory")
 		}
 	} else if err != nil {
@@ -63,7 +63,7 @@ func createRepositoryOutputDir() errors.Error {
 
 // checks if the repository is already cloned (inside the project input dir)
 func isAlreadyClonedRepository(repositoryName string) (bool, errors.Error) {
-	fileInfo, err := os.Stat(filepath.Join(configuration.ProjectInputDir(), repositoryName))
+	fileInfo, err := os.Stat(filepath.Join(configuration.ClonerOutputDir(), repositoryName))
 	if err != nil {
 		if os.IsNotExist(err) {
 			return false, nil

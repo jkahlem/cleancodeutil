@@ -14,8 +14,6 @@ const ConfigurationErrorTitle = "Configuration Error"
 type configFile struct {
 	// Configurations for cloning
 	Cloner ClonerConfiguration `json:"cloner"`
-	// The directory containing the project repositories to be crawled
-	ProjectInputDir string `json:"projectInputDir"`
 	// Defines different project configurations. The value might be:
 	// - an array containing each project configurations.
 	// - a string pointing to a different file which contains the project configurations.
@@ -65,6 +63,8 @@ type ClonerConfiguration struct {
 	MaximumCloneSize int `json:"maximumCloneSize"`
 	// If true, skip clone process
 	Skip bool `json:"skip"`
+	// The directory where projects will be cloned into
+	OutputDir string `json:"outputDir"`
 }
 
 type PredictorConfiguration struct {
@@ -149,8 +149,8 @@ func createDefaultConfig() {
 			UseCommandLineTool: false,
 			MaximumCloneSize:   1024 * 512,
 			Skip:               false,
+			OutputDir:          "",
 		},
-		ProjectInputDir:    "",
 		MainOutputDir:      filepath.Join(GoProjectDir(), "results"),
 		DefaultLibraries:   []string{filepath.Join(GoProjectDir(), "resources", "data", "javalang.csv")},
 		DefaultTypeClasses: filepath.Join(GoProjectDir(), "resources", "data", "typeClasses.json"),

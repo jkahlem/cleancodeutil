@@ -115,7 +115,7 @@ func getCloner() Cloner {
 
 // Returns a path to the expected repository dir in the project input dir
 func getPathToRepositoryCloneDir(repositoryName string) string {
-	return filepath.Join(configuration.ProjectInputDir(), repositoryName)
+	return filepath.Join(configuration.ClonerOutputDir(), repositoryName)
 }
 
 // Creates a repository info file from the github API

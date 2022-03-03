@@ -11,18 +11,18 @@ import (
 	"time"
 )
 
-func ProjectInputDir() string {
-	if loadedConfig == nil {
-		return ""
-	}
-	return AbsolutePathFromGoProjectDir(loadedConfig.ProjectInputDir)
-}
-
 func Projects() []Project {
 	if loadedConfig == nil {
 		return nil
 	}
 	return loadedConfig.Projects
+}
+
+func ClonerOutputDir() string {
+	if loadedConfig == nil {
+		return ""
+	}
+	return AbsolutePathFromGoProjectDir(loadedConfig.Cloner.OutputDir)
 }
 
 func ClonerUseCommandLineTool() bool {

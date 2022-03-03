@@ -33,7 +33,7 @@ func (p Project) ExpectedDirectoryPath() string {
 	if p.Directory != "" {
 		return configuration.AbsolutePathFromGoProjectDir(p.Directory)
 	}
-	return filepath.Join(configuration.ProjectInputDir(), p.ProjectName())
+	return filepath.Join(configuration.ClonerOutputDir(), p.ProjectName())
 }
 
 func (p Project) ProjectName() string {

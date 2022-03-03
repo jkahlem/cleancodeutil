@@ -88,7 +88,7 @@ func (c *StatisticsCreator) createStatistics() (Statistics, errors.Error) {
 // Adds project info to the statistics
 func (c *StatisticsCreator) addProjectInfos() errors.Error {
 	// Traverse git repository directory for repository info.
-	if files, err := ioutil.ReadDir(configuration.ProjectInputDir()); err != nil {
+	if files, err := ioutil.ReadDir(configuration.ClonerOutputDir()); err != nil {
 		return errors.Wrap(err, StatisticsErrorTitle, "Could not read repositories")
 	} else {
 		for _, file := range files {
