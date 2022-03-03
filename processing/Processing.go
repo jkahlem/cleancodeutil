@@ -8,7 +8,6 @@ import (
 
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/configuration/projectconfig"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
@@ -104,13 +103,9 @@ func (p *Processor) summarizeJavaCodeForProject(project Project) {
 		return
 	}
 
-	projectConfig, err2 := projectconfig.GetProjectConfiguration(projectDirPath)
-	if err2 != nil {
-		log.ReportProblemWithError(err2, "Could not read project configuration")
-	}
 	crawlerOptions := crawler.NewOptions().
 		Forced(!configuration.StrictMode()).
-		WithJavaVersion(projectConfig.JavaVersion).
+		WithJavaVersion(project.JavaVersion).
 		Build()
 	xml, err2 := crawler.GetRawCodeElementsOfDirectory(projectDirPath, crawlerOptions)
 	if err2 != nil {
