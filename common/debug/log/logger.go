@@ -260,6 +260,7 @@ func ReportProblem(format string, args ...interface{}) {
 		problems = make([]string, 0, 1)
 	}
 	problems = append(problems, fmt.Sprintf(format, args...))
+	Info(format, args...)
 }
 
 // Returns a list of the problems reported

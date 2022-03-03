@@ -99,8 +99,8 @@ func (p *Processor) summarizeJavaCodeForProject(project Project) {
 	// Use the crawler to sumamrize the java code structures for a given project into one xml file
 	log.Info("Summarize java code for project %s\n", project.ProjectName())
 	projectDirPath := project.ExpectedDirectoryPath()
-	if !utils.FileExists(projectDirPath) {
-		log.ReportProblem("Skip project %s as it does not exist\n", project.ProjectName())
+	if !utils.DirExists(projectDirPath) {
+		log.ReportProblem("Skip project %s as it does not exist at %s\n", project.ProjectName(), projectDirPath)
 		return
 	}
 
