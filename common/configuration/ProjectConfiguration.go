@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"returntypes-langserver/common/utils"
+	"strings"
 )
 
 type ProjectConfiguration []Project
@@ -77,9 +78,13 @@ func (c *Project) fromInterface(itf interface{}) error {
 	if uri, ok := itf.(string); ok {
 		c.GitUri = uri
 	} else if jsonObj, ok := itf.(map[string]interface{}); ok {
-		return utils.DecodeMapToStructStrict(jsonObj, c)
+		if err := utils.DecodeMapToStructStrict(jsonObj, c); err != nil {
+			return err
+		}
 	} else {
 		return fmt.Errorf("Unsupported project configuration value: %v", itf)
 	}
+
+	c.GitUri = strings.TrimRight(c.GitUri, "/")
 	return nil
 }

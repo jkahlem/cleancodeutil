@@ -8,7 +8,7 @@ import (
 
 func TestUnmarshalProjectConfiguration(t *testing.T) {
 	// given
-	rawStr := `{"projects":["test", {"alternativeName": "someAlternativeName"}]}`
+	rawStr := `{"projects":["test", {"alternativeName": "someAlternativeName", "gitUri": "https://github.io/owner/repository//"}]}`
 	createDefaultConfig()
 
 	// when
@@ -19,4 +19,5 @@ func TestUnmarshalProjectConfiguration(t *testing.T) {
 	assert.Len(t, loadedConfig.Projects, 2)
 	assert.Equal(t, loadedConfig.Projects[0].GitUri, "test")
 	assert.Equal(t, loadedConfig.Projects[1].AlternativeName, "someAlternativeName")
+	assert.Equal(t, loadedConfig.Projects[1].GitUri, "https://github.io/owner/repository") // the uri should not end with a slash
 }
