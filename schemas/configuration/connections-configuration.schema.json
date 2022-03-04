@@ -1,6 +1,6 @@
 {
-    "$schema": "http://json-schema.org/schema",
-    "$id": "returntypesPredictor/configuration/connections",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "connections-configuration.schema.json",
     "title": "Connections Configuration",
     "description": "Contains configurations regarding connection handling in general.",
     "type": "object",

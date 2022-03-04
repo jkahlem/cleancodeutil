@@ -1,6 +1,6 @@
 {
-    "$schema": "http://json-schema.org/schema",
-    "$id": "returntypesPredictor/configuration/statistics",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "statistics-configuration.schema.json",
     "title": "Statistics Configuration",
     "description": "Contains configurations regarding statistics configurations",
     "type": "object",

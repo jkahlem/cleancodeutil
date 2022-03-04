@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
 	"returntypes-langserver/common/debug/errors"
@@ -44,4 +45,22 @@ func DirExists(path string) bool {
 		return false
 	}
 	return info.IsDir()
+}
+
+// Returns the filepath as a DocumentURI in the file scheme.
+func FilePathToURI(path string) string {
+	return fmt.Sprintf("file:///%s", filepath.ToSlash(path))
+}
+
+// Parses a DocumentURI as a local filepath if possible, otherwise returns an error.
+func URIToFilePath(uri string) (string, errors.Error) {
+	fileUrl, err := url.ParseRequestURI(string(uri))
+	if err != nil {
+		return "", errors.Wrap(err, "Error", "Could not parse URI")
+	} else if fileUrl.Scheme != "file" {
+		return "", errors.New("Error", "File scheme not supported")
+	}
+
+	path := fileUrl.Path[1:]
+	return filepath.FromSlash(path), nil
 }

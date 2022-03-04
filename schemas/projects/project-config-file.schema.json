@@ -1,6 +1,6 @@
 {
-    "$schema": "http://json-schema.org/schema",
-    "$id": "returntypesPredictor/project/config-file",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "project-config-file.schema.json",
     "title": "ProjectConfigFile",
     "description": "Contains project definitions",
     "type": "object",

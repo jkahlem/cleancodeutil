@@ -1,13 +1,10 @@
 package lsp
 
 import (
-	"fmt"
-	"net/url"
-	"path/filepath"
-	"strings"
-
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/utils"
+	"strings"
 )
 
 // Converts the javaparser Range object into a LSP Range object.
@@ -40,20 +37,13 @@ func ToJavaRange(lspRange Range) java.Range {
 
 // Returns the filepath as a DocumentURI in the file scheme.
 func FilePathToDocumentURI(path string) DocumentURI {
-	return DocumentURI(fmt.Sprintf("file:///%s", strings.Replace(filepath.ToSlash(path), ":", "%3A", 1)))
+	//return DocumentURI(fmt.Sprintf("file:///%s", strings.Replace(filepath.ToSlash(path), ":", "%3A", 1)))
+	return DocumentURI(utils.FilePathToURI(strings.Replace(path, ":", "%3A", 1)))
 }
 
 // Parses a DocumentURI as a local filepath if possible, otherwise returns an error.
 func DocumentURIToFilePath(uri DocumentURI) (string, errors.Error) {
-	fileUrl, err := url.ParseRequestURI(string(uri))
-	if err != nil {
-		return "", errors.Wrap(err, LSPErrorTitle, "Could not parse URI")
-	} else if fileUrl.Scheme != "file" {
-		return "", errors.New(LSPErrorTitle, "File scheme not supported")
-	}
-
-	path := fileUrl.Path[1:]
-	return filepath.FromSlash(path), nil
+	return utils.URIToFilePath(string(uri))
 }
 
 // Creates a file operation filter.

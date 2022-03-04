@@ -1,6 +1,6 @@
 {
-    "$schema": "http://json-schema.org/schema",
-    "$id": "returntypesPredictor/datasets/excel-set-configuration",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "excel-set-configuration.schema.json",
     "title": "Excel Set Configuration",
     "description": "An excel set configuration.",
     "type": "object",

@@ -1,6 +1,6 @@
 {
-    "$schema": "http://json-schema.org/schema",
-    "$id": "returntypesPredictor/configuration/logger",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "logger-configuration.schema.json",
     "title": "Logger Configuration",
     "description": "Contains configurations regarding logging",
     "type": "object",

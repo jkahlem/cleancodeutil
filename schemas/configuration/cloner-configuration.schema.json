@@ -1,6 +1,6 @@
 {
-    "$schema": "http://json-schema.org/schema",
-    "$id": "returntypesPredictor/configuration/cloner",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "cloner-configuration.schema.json",
     "title": "Cloner Configuration",
     "description": "Contains configurations regarding cloning of projects",
     "type": "object",

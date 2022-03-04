@@ -1,6 +1,6 @@
 {
-    "$schema": "http://json-schema.org/schema",
-    "$id": "returntypesPredictor/project/project-definition",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "project-definition.schema.json",
     "title": "Project",
     "description": "A project definition",
     "type": ["object", "string"],
