@@ -241,7 +241,7 @@
                 }
             },
             {
-                "name": "boolget-should-contains",
+                "name": "bool-should-contains",
                 "filter": {
                     "include": {
                         "method": ["should*", "contains*"]

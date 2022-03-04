@@ -17,18 +17,19 @@ import (
 	"returntypes-langserver/processing/excelOutputter"
 	"returntypes-langserver/processing/extractor"
 	"returntypes-langserver/processing/git"
+	"returntypes-langserver/processing/projects"
 	"returntypes-langserver/processing/statistics"
 	"returntypes-langserver/services/crawler"
 	"returntypes-langserver/services/predictor"
 )
 
 type Processor struct {
-	projects []Project
+	projects []projects.Project
 }
 
 func ProcessDatasetCreation() {
 	processor := Processor{
-		projects: GetProjects(),
+		projects: projects.GetProjects(),
 	}
 	processor.ProcessDatasetCreation()
 }
@@ -64,7 +65,7 @@ func (p *Processor) clone() {
 	}
 }
 
-func (p *Processor) mapProjectsToRepositoryList(projects []Project) []git.RepositoryDefinition {
+func (p *Processor) mapProjectsToRepositoryList(projects []projects.Project) []git.RepositoryDefinition {
 	repositories := make([]git.RepositoryDefinition, 0, len(projects))
 	for _, project := range projects {
 		if len(project.GitUri) > 0 {
@@ -86,7 +87,7 @@ func (p *Processor) summarizeJavaCode() {
 }
 
 // Summarizes the java code for one project
-func (p *Processor) summarizeJavaCodeForProject(project Project) {
+func (p *Processor) summarizeJavaCodeForProject(project projects.Project) {
 	// If an output file does already exist, skip summarizing the data for this project.
 	if exists, err := p.crawlerOutputFileExists(project); err != nil {
 		log.ReportProblemWithError(err, "Could not check if xml output file for %s exists", project.ProjectName())
@@ -125,7 +126,7 @@ func (p *Processor) summarizeJavaCodeForProject(project Project) {
 }
 
 // Returns true if the crawler output file for the given project does exist
-func (p *Processor) crawlerOutputFileExists(project Project) (bool, errors.Error) {
+func (p *Processor) crawlerOutputFileExists(project projects.Project) (bool, errors.Error) {
 	_, err := os.Stat(p.getXmlPathForProject(project))
 	if err == nil {
 		return true, nil
@@ -148,7 +149,7 @@ func (p *Processor) createBasicData() {
 	}
 }
 
-func (p *Processor) getXmlPathsForProjects(projects []Project) []string {
+func (p *Processor) getXmlPathsForProjects(projects []projects.Project) []string {
 	directories := make([]string, 0, len(projects))
 	for _, project := range projects {
 		directories = append(directories, p.getXmlPathForProject(project))
@@ -156,7 +157,7 @@ func (p *Processor) getXmlPathsForProjects(projects []Project) []string {
 	return directories
 }
 
-func (p *Processor) getXmlPathForProject(project Project) string {
+func (p *Processor) getXmlPathForProject(project projects.Project) string {
 	return filepath.Join(configuration.CrawlerOutputDir(), project.ProjectName()+".xml")
 }
 
@@ -281,7 +282,7 @@ func (p *Processor) trainMethods() errors.Error {
 // Creates statistics for the dataset creation
 func (p *Processor) createStatistics() {
 	if !configuration.StatisticsSkipCreation() {
-		if err := statistics.CreateStatistics(); err != nil {
+		if err := statistics.CreateStatistics(p.projects); err != nil {
 			log.ReportProblemWithError(err, "The statistics creation was not successful")
 		}
 	}

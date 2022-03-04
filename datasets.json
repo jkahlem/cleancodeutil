@@ -3,10 +3,22 @@
         {
             "name": "defaultSet",
             "filter": {
-                "exclude": [{"modifier": ["private"]},{"labels": ["testCode"]},{"method":[{"pattern": "[0-9]", "type": "regexp"}]}]
+                "exclude": [{
+                    "modifier": ["private", "native"]
+                },{
+                    "labels": ["testCode", "override"]
+                },{
+                    "method": [{
+                        "pattern": "[0-9_]",
+                        "type": "regexp"
+                    }]
+                }]
             },
             "isGroupOnly": true,
-            "specialFilters": {},
+            "specialOptions": {
+                "convert2And4ToWords": true,
+                "minMethodNameLength": 2
+            },
             "modelOptions": {},
             "subsets": []
         }

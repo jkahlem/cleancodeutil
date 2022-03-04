@@ -2,7 +2,6 @@ package statistics
 
 import (
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,9 +10,10 @@ import (
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/common/utils"
 	"returntypes-langserver/processing/dataset/base"
-	"returntypes-langserver/processing/extractor"
 	"returntypes-langserver/processing/git"
+	"returntypes-langserver/processing/projects"
 	"returntypes-langserver/services/predictor"
 )
 
@@ -33,21 +33,21 @@ type RepositoryInfo struct {
 }
 
 // Creates statistics and writes them to the output files
-func CreateStatistics() errors.Error {
+func CreateStatistics(projects []projects.Project) errors.Error {
 	log.Info("Create statistics for the dataset...\n")
 	creator := StatisticsCreator{}
-	return creator.Create()
+	return creator.Create(projects)
 }
 
 // Creates statistics and writes them to the output files
-func (c *StatisticsCreator) Create() errors.Error {
+func (c *StatisticsCreator) Create(projects []projects.Project) errors.Error {
 	// prepare creator
 	if err := c.prepare(); err != nil {
 		return err
 	}
 
 	// create statistics
-	stats, err := c.createStatistics()
+	stats, err := c.createStatistics(projects)
 	if err != nil {
 		return err
 	}
@@ -71,10 +71,10 @@ func (c *StatisticsCreator) prepare() errors.Error {
 }
 
 // Creates the statistics
-func (c *StatisticsCreator) createStatistics() (Statistics, errors.Error) {
-	if err := c.addProjectInfos(); err != nil {
+func (c *StatisticsCreator) createStatistics(projects []projects.Project) (Statistics, errors.Error) {
+	if err := c.addProjectInfos(projects); err != nil {
 		return Statistics{}, err
-	} else if err = c.addFileCounts(); err != nil {
+	} else if err = c.addFileCounts(projects); err != nil {
 		return Statistics{}, err
 	} else if err = c.addMethods(); err != nil {
 		return Statistics{}, err
@@ -86,18 +86,11 @@ func (c *StatisticsCreator) createStatistics() (Statistics, errors.Error) {
 }
 
 // Adds project info to the statistics
-func (c *StatisticsCreator) addProjectInfos() errors.Error {
-	// Traverse git repository directory for repository info.
-	if files, err := ioutil.ReadDir(configuration.ClonerOutputDir()); err != nil {
-		return errors.Wrap(err, StatisticsErrorTitle, "Could not read repositories")
-	} else {
-		for _, file := range files {
-			if file.IsDir() {
-				c.addProjectInfo(file.Name())
-			}
-		}
-		return nil
+func (c *StatisticsCreator) addProjectInfos(projects []projects.Project) errors.Error {
+	for _, project := range projects {
+		c.addProjectInfo(project.ProjectName())
 	}
+	return nil
 }
 
 // Adds project info (name and description) of the given repository/project
@@ -119,18 +112,15 @@ func (c *StatisticsCreator) loadRepositoryInfo(name string) (RepositoryInfo, boo
 }
 
 // Adds the file count statistics
-func (c *StatisticsCreator) addFileCounts() errors.Error {
-	if xmlFiles, err := extractor.FindProjectXMLFiles(configuration.CrawlerOutputDir()); err != nil {
-		return err
-	} else {
-		for _, file := range xmlFiles {
-			path := filepath.Join(configuration.CrawlerOutputDir(), file.Name())
-			if nodeCount, err := c.getFileNodesCountOfXmlFile(path); err != nil {
-				return err
-			} else {
-				projectId := strings.TrimSuffix(file.Name(), ".xml")
-				c.builder.AddFileCount(projectId, nodeCount)
-			}
+func (c *StatisticsCreator) addFileCounts(projects []projects.Project) errors.Error {
+	for _, project := range projects {
+		path := filepath.Join(configuration.CrawlerOutputDir(), project.ProjectName())
+		if !utils.FileExists(path) {
+			continue
+		} else if nodeCount, err := c.getFileNodesCountOfXmlFile(path); err != nil {
+			return err
+		} else {
+			c.builder.AddFileCount(project.ProjectName(), nodeCount)
 		}
 	}
 	return nil
