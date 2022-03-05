@@ -31,7 +31,7 @@ func (r *ByteReader) Read(p []byte) (int, error) {
 }
 
 // Helper to unmarshal static json strings to maps, especially useful for tests
-func MustUnmarshalToMap(raw string) map[string]interface{} {
+func MustUnmarshalJsonToMap(raw string) map[string]interface{} {
 	var v map[string]interface{}
 	if err := json.Unmarshal([]byte(raw), &v); err != nil {
 		panic(err)

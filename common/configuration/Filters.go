@@ -30,6 +30,18 @@ func (f *FilterConfigurations) UnmarshalJSON(data []byte) error {
 	}
 }
 
+func (f FilterConfigurations) DecodeValue(value interface{}) (interface{}, error) {
+	var v FilterConfiguration
+	if err := utils.DecodeMapToStructStrict(value, &v); err == nil {
+		return []FilterConfiguration{v}, nil
+	}
+	var valueSlice []FilterConfiguration
+	if err := utils.DecodeMapToStructStrict(value, &valueSlice); err == nil {
+		return valueSlice, nil
+	}
+	return value, nil
+}
+
 type FilterConfiguration struct {
 	Method     []Pattern             `json:"method"`
 	Modifier   []Pattern             `json:"modifier"`
@@ -71,6 +83,22 @@ func (p *Pattern) UnmarshalJSON(data []byte) error {
 		return fmt.Errorf("unsupported pattern: %v", v)
 	}
 	return p.buildMatcher()
+}
+
+func (p Pattern) DecodeValue(value interface{}) (interface{}, error) {
+	if pattern, ok := value.(string); ok {
+		p.Pattern = pattern
+		p.Type = Wildcard
+		return p, nil
+	} else if jsonObj, ok := value.(map[string]interface{}); ok {
+		if err := p.unmarshalPattern(jsonObj); err != nil {
+			return value, err
+		} else if err := p.unmarshalType(jsonObj); err != nil {
+			return value, err
+		}
+		return p, nil
+	}
+	return value, nil
 }
 
 func (p *Pattern) unmarshalPattern(jsonObj map[string]interface{}) error {

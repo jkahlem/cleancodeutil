@@ -26,6 +26,19 @@ func (c *ExcelSetConfiguration) UnmarshalJSON(data []byte) error {
 	}
 }
 
+func (c ExcelSetConfiguration) DecodeValue(value interface{}) (interface{}, error) {
+	var err error
+	if filePath, ok := value.(string); ok {
+		// Load configuration from different JSON file
+		err = c.fromFilePath(filePath)
+		value = c
+	} else if slice, ok := value.([]interface{}); ok {
+		err = c.fromSlice(slice)
+		value = c
+	}
+	return value, err
+}
+
 func (c *ExcelSetConfiguration) fromFilePath(filePath string) error {
 	contents, err := os.ReadFile(filePath)
 	if err != nil {

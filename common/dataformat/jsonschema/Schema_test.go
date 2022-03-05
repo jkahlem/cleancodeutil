@@ -27,7 +27,7 @@ func TestSchemas(t *testing.T) {
 
 	if assert.NoError(t, err) {
 		// when
-		err = schema.Validate(utils.MustUnmarshalToMap(raw))
+		err = schema.Validate(utils.MustUnmarshalJsonToMap(raw))
 
 		// then
 		assert.NoError(t, err)

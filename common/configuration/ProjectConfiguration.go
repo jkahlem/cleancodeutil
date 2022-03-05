@@ -29,6 +29,19 @@ func (c *ProjectConfiguration) UnmarshalJSON(data []byte) error {
 	}
 }
 
+func (c ProjectConfiguration) DecodeValue(value interface{}) (interface{}, error) {
+	var err error
+	if filePath, ok := value.(string); ok {
+		// Load configuration from different JSON file
+		err = c.fromFilePath(filePath)
+		value = c
+	} else if slice, ok := value.([]interface{}); ok {
+		err = c.fromSlice(slice)
+		value = c
+	}
+	return value, err
+}
+
 func (c *ProjectConfiguration) fromFilePath(filePath string) error {
 	contents, err := ioutil.ReadFile(AbsolutePathFromGoProjectDir(filePath))
 	if err != nil {
@@ -72,6 +85,14 @@ func (c *Project) UnmarshalJSON(data []byte) error {
 		return err
 	}
 	return c.fromInterface(v)
+}
+
+func (c Project) DecodeValue(value interface{}) (interface{}, error) {
+	if uri, ok := value.(string); ok {
+		c.GitUri = uri
+		return c, nil
+	}
+	return value, nil
 }
 
 func (c *Project) fromInterface(itf interface{}) error {
