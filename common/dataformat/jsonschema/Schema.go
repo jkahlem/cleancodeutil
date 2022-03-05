@@ -1,10 +1,12 @@
 package jsonschema
 
 import (
+	"encoding/json"
 	"os"
 	"path"
 	"path/filepath"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/utils"
 
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
@@ -23,6 +25,7 @@ type TopLevelSchemaBuilder interface {
 type ResourcesSchemaBuilder interface {
 	WithResources(resourceUris ...string) ResourcesSchemaBuilder
 	Compile() (Schema, errors.Error)
+	MustCompile() Schema
 }
 
 type TopLevel string
@@ -57,6 +60,14 @@ func (b *SchemaBuilder) Compile() (Schema, errors.Error) {
 	}
 }
 
+func (b *SchemaBuilder) MustCompile() Schema {
+	if schema, err := b.Compile(); err != nil {
+		panic(err)
+	} else {
+		return schema
+	}
+}
+
 func (b *SchemaBuilder) addResourceToCompiler(resource string) errors.Error {
 	uri := path.Join(b.root, resource)
 	if file, err := os.Open(filepath.FromSlash(uri)); err != nil {
@@ -77,6 +88,20 @@ func (s Schema) Validate(v interface{}) errors.Error {
 	}
 	if err := s.schema.Validate(v); err != nil {
 		return errors.Wrap(err, "Error", "Validation against json schema has failed")
+	}
+	return nil
+}
+
+func UnmarshalJSONStrict(source []byte, destination interface{}, schema Schema) errors.Error {
+	var v interface{}
+	if err := json.Unmarshal(source, &v); err != nil {
+		return errors.Wrap(err, "JSON Error", "Could not unmarshal JSON")
+	}
+	if err := schema.Validate(v); err != nil {
+		return err
+	}
+	if err := utils.DecodeMapToStructStrict(v, destination); err != nil {
+		return err
 	}
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"returntypes-langserver/common/dataformat/jsonschema"
 	"returntypes-langserver/common/utils"
 	"strings"
 )
@@ -48,7 +49,7 @@ func (c *ProjectConfiguration) fromFilePath(filePath string) error {
 		return err
 	}
 	var fileConfig projectConfigurationFileStructure
-	if err := json.Unmarshal(contents, &fileConfig); err != nil {
+	if err := jsonschema.UnmarshalJSONStrict(contents, &fileConfig, ProjectConfigurationFileSchema); err != nil {
 		return err
 	}
 	*c = fileConfig.Projects

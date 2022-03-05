@@ -5,7 +5,7 @@
     "description": "Contains excel sets.",
     "type": "object",
     "properties": {
-        "datasets": {
+        "excelSets": {
             "description": "A list of excel sets",
             "type": "array",
             "items": {
@@ -14,5 +14,5 @@
             }
         }
     },
-    "required": ["datasets"]
+    "required": ["excelSets"]
 }

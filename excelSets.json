@@ -1,5 +1,5 @@
 {
-    "datasets": [{
+    "excelSets": [{
         "name": "default",
         "filter": {
             "exclude": {

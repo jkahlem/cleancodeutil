@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"returntypes-langserver/common/dataformat/jsonschema"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/utils"
 	"strings"
@@ -40,7 +41,7 @@ func (c ExcelSetConfiguration) DecodeValue(value interface{}) (interface{}, erro
 }
 
 func (c *ExcelSetConfiguration) fromFilePath(filePath string) error {
-	contents, err := os.ReadFile(filePath)
+	contents, err := os.ReadFile(AbsolutePathFromGoProjectDir(filePath))
 	if err != nil {
 		return err
 	}
@@ -49,10 +50,7 @@ func (c *ExcelSetConfiguration) fromFilePath(filePath string) error {
 
 func (c *ExcelSetConfiguration) fromJson(contents []byte) error {
 	var config ExcelConfiguration
-	if err := utils.UnmarshalJSONStrict(contents, &config); err != nil {
-		return err
-	}
-	if err := validateDatasets(config.ExcelSets); err != nil {
+	if err := jsonschema.UnmarshalJSONStrict(contents, &config, ExcelSetConfigurationFileSchema); err != nil {
 		return err
 	}
 	*c = config.ExcelSets

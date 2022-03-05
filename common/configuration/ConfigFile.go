@@ -5,8 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"returntypes-langserver/common/dataformat/jsonschema"
 	"returntypes-langserver/common/debug/errors"
-	"returntypes-langserver/common/utils"
 )
 
 const ConfigurationErrorTitle = "Configuration Error"
@@ -209,7 +209,7 @@ func loadConfigFromFile() errors.Error {
 }
 
 func loadJsonConfig(content []byte) errors.Error {
-	if err := utils.UnmarshalJSONStrict(content, loadedConfig); err != nil {
+	if err := jsonschema.UnmarshalJSONStrict(content, &loadedConfig, ProjectConfigurationFileSchema); err != nil {
 		return errors.Wrap(err, ConfigurationErrorTitle, "Could not load json configuration")
 	}
 	return nil
