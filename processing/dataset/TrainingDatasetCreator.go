@@ -23,7 +23,7 @@ func CreateTrainingAndEvaluationSet(methodsWithReturnTypesPath, classHierarchyPa
 	if methods, classes, err := loadMethodsAndClasses(methodsWithReturnTypesPath, classHierarchyPath); err != nil {
 		return err
 		// TODO: Load dataset type by configuration
-	} else if creator, err := getCreatorByModelType(ReturnTypesValidator, methods, classes); err != nil {
+	} else if creator, err := getCreatorByModelType(MethodGenerator, methods, classes); err != nil {
 		return err
 	} else {
 		return creator.Create()
@@ -70,4 +70,46 @@ func createPackageTree(classes []csv.Class) *packagetree.Tree {
 	tree := packagetree.New()
 	java.FillPackageTreeByCsvClassNodes(&tree, classes)
 	return &tree
+}
+
+func Train(modelType ModelType) errors.Error {
+	if trainer, err := getTrainerByModelType(modelType); err != nil {
+		return err
+	} else {
+		return trainer.Train()
+	}
+}
+
+func getTrainerByModelType(modelType ModelType) (base.Trainer, errors.Error) {
+	if modelType == MethodGenerator {
+		return methodgeneration.NewTrainer(), nil
+	} else if modelType == ReturnTypesValidator {
+		return returntypesvalidation.NewTrainer(), nil
+	} else {
+		if len(modelType) == 0 {
+			return nil, errors.New("Dataset Creation Error", "Could not create dataset: No dataset type specified.")
+		}
+		return nil, errors.New("Dataset Creation Error", "Could not create dataset: Unsupported dataset type ("+string(modelType)+")")
+	}
+}
+
+func Evaluate() errors.Error {
+	if evaluator, err := getEvaluatorByModelType(ReturnTypesValidator); err != nil {
+		return err
+	} else {
+		return evaluator.Evaluate()
+	}
+}
+
+func getEvaluatorByModelType(modelType ModelType) (base.Evaluator, errors.Error) {
+	if modelType == MethodGenerator {
+		return methodgeneration.NewEvaluator(), nil
+	} else if modelType == ReturnTypesValidator {
+		return returntypesvalidation.NewEvaluator(), nil
+	} else {
+		if len(modelType) == 0 {
+			return nil, errors.New("Dataset Creation Error", "Could not create dataset: No dataset type specified.")
+		}
+		return nil, errors.New("Dataset Creation Error", "Could not create dataset: Unsupported dataset type ("+string(modelType)+")")
+	}
 }

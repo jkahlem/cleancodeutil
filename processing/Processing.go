@@ -1,14 +1,12 @@
 package processing
 
 import (
-	"encoding/json"
 	"io"
 	"os"
 	"path/filepath"
 
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils"
@@ -20,7 +18,6 @@ import (
 	"returntypes-langserver/processing/projects"
 	"returntypes-langserver/processing/statistics"
 	"returntypes-langserver/services/crawler"
-	"returntypes-langserver/services/predictor"
 )
 
 type Processor struct {
@@ -228,59 +225,11 @@ func (p *Processor) train() errors.Error {
 }
 
 func (p *Processor) trainReturnTypes() errors.Error {
-	// Load csv data
-	labels, err := csv.ReadRecords(configuration.DatasetLabelsOutputPath())
-	if err != nil {
-		return err
-	}
-	trainingSet, err := csv.ReadRecords(configuration.TrainingSetOutputPath())
-	if err != nil {
-		return err
-	}
-	evaluationSet, err := csv.ReadRecords(configuration.EvaluationSetOutputPath())
-	if err != nil {
-		return err
-	}
-
-	// Train the predictor
-	if msg, err := predictor.TrainReturnTypes(labels, trainingSet, evaluationSet); err != nil {
-		return err
-	} else {
-		// Write the evaluation result in a json file
-		if file, err := os.Create(configuration.EvaluationResultOutputPath()); err != nil {
-			log.Error(errors.Wrap(err, "Error", "Could not save evaluation result"))
-		} else {
-			defer file.Close()
-			if err := json.NewEncoder(file).Encode(msg); err != nil {
-				log.Error(errors.Wrap(err, "Error", "Could not save evaluation result"))
-			}
-		}
-		log.Info("Evaluation result:\n- Accuracy Score: %g\n- Eval loss: %g\n- F1 Score: %g\n- MCC: %g\n", msg.AccScore, msg.EvalLoss, msg.F1Score, msg.MCC)
-	}
-	return nil
+	return dataset.Train(dataset.ReturnTypesValidator)
 }
 
 func (p *Processor) trainMethods() errors.Error {
-	// Load csv data
-	trainingSet, err := csv.ReadRecords(configuration.MethodsTrainingSetOutputPath())
-	if err != nil {
-		return err
-	}
-	/*evaluationSet, err := csv.ReadRecords(configuration.MethodsEvaluationSetOutputPath())
-	if err != nil {
-		return err
-	}*/
-
-	/*formatted := make([][]string, 0, len(trainingSet))
-	for _, record := range trainingSet {
-		formatted = append(formatted, record[0:1])
-	}*/
-
-	// Train the predictor
-	if _, err := predictor.TrainMethods(trainingSet[0:40000], nil); err != nil {
-		return err
-	}
-	return nil
+	return dataset.Train(dataset.MethodGenerator)
 }
 
 // Creates statistics for the dataset creation
