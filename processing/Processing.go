@@ -291,7 +291,7 @@ func (p *Processor) createStatistics() {
 // Logs any problems occured during dataset creation
 func (p *Processor) logProblems() {
 	problems := log.GetProblems()
-	if !configuration.StrictMode() && len(problems) > 0 {
+	if len(problems) > 0 {
 		log.Info("During the dataset creation the following problems occured which may have influence on the quality and completeness of the resulting dataset:\n")
 		for _, problem := range log.GetProblems() {
 			log.Info("- %s\n", problem)
