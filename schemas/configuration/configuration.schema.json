@@ -33,9 +33,10 @@
             "description": "A file containg type mappings and the final labels",
             "type": "string"
         },
-        "crawlerPath": {
-            "description": "A path to the crawler's jar file",
-            "type": "string"
+        "crawler": {
+            "description": "Configurations for the crawler",
+            "type": "object",
+            "$ref": "crawler-configuration.schema.json"
         },
         "forceExtraction": {
             "description": "If true, will always recollect the data from the crawled xml files",

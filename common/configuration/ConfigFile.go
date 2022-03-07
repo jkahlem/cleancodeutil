@@ -26,8 +26,8 @@ type configFile struct {
 	DefaultLibraries []string `json:"defaultLibraries"`
 	// A file containg type mappings and the final labels
 	DefaultTypeClasses string `json:"defaultTypeClasses"`
-	// A path to the crawler's jar file
-	CrawlerPath string `json:"crawlerPath"`
+	// Configuration for the crawler
+	Crawler CrawlerConfiguration `json:"crawler"`
 	// If true, will always recollect the data from the crawled xml files
 	ForceExtraction bool `json:"forceExtraction"`
 	// The size of the splitted datasets as a proportion
@@ -67,6 +67,14 @@ type ClonerConfiguration struct {
 	Skip bool `json:"skip"`
 	// The directory where projects will be cloned into
 	OutputDir string `json:"outputDir"`
+}
+
+type CrawlerConfiguration struct {
+	// The path to the .jar file of the crawler version which should be used
+	ExecutablePath string `json:"executablePath"`
+	// The default java version the crawler should use to parse Java files (if not overwritten by project settings)
+	// If set to zero, then it is left to the parser library to decide which version should be used.
+	DefaultJavaVersion int `json:"defaultJavaVersion"`
 }
 
 type PredictorConfiguration struct {
@@ -156,8 +164,11 @@ func createDefaultConfig() {
 		MainOutputDir:      filepath.Join(GoProjectDir(), "results"),
 		DefaultLibraries:   []string{filepath.Join(GoProjectDir(), "resources", "data", "javalang.csv")},
 		DefaultTypeClasses: filepath.Join(GoProjectDir(), "resources", "data", "typeClasses.json"),
-		CrawlerPath:        filepath.Join(GoProjectDir(), "resources", "crawler", "returntypes-crawler.jar"),
-		ForceExtraction:    false,
+		Crawler: CrawlerConfiguration{
+			ExecutablePath:     filepath.Join(GoProjectDir(), "resources", "crawler", "returntypes-crawler.jar"),
+			DefaultJavaVersion: 0,
+		},
+		ForceExtraction: false,
 		DatasetSize: DatasetProportion{
 			Training:   7,
 			Evaluation: 3,

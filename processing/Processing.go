@@ -104,9 +104,13 @@ func (p *Processor) summarizeJavaCodeForProject(project projects.Project) {
 		return
 	}
 
+	javaVersion := project.JavaVersion
+	if javaVersion == 0 {
+		javaVersion = configuration.CrawlerDefaultJavaVersion()
+	}
 	crawlerOptions := crawler.NewOptions().
 		Forced(!configuration.StrictMode()).
-		WithJavaVersion(project.JavaVersion).
+		WithJavaVersion(javaVersion).
 		Build()
 	xml, err2 := crawler.GetRawCodeElementsOfDirectory(projectDirPath, crawlerOptions)
 	if err2 != nil {

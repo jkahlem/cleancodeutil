@@ -26,7 +26,7 @@ func (conn *connection) Connect() errors.Error {
 }
 
 func (conn *connection) connect() errors.Error {
-	conn.process = utils.NewProcess("java", "-jar", configuration.CrawlerPath())
+	conn.process = utils.NewProcess("java", "-jar", configuration.CrawlerExecutablePath())
 	stdin, err := conn.process.Stdin()
 	if err != nil {
 		return err

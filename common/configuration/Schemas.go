@@ -8,6 +8,7 @@ const (
 	// Global configuration schemas
 	ConfigurationSchemaPath            = "configuration/configuration.schema.json"
 	ClonerConfigurationSchemaPath      = "configuration/cloner-configuration.schema.json"
+	CrawlerConfigurationSchemaPath     = "configuration/crawler-configuration.schema.json"
 	ConnectionsConfigurationSchemaPath = "configuration/connections-configuration.schema.json"
 	LoggerConfigurationSchemaPath      = "configuration/logger-configuration.schema.json"
 	PredictorConfigurationSchemaPath   = "configuration/predictor-configuration.schema.json"
@@ -39,6 +40,7 @@ var ProjectConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
 var ConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
 	WithTopLevel(ConfigurationSchemaPath).
 	WithResources(ClonerConfigurationSchemaPath,
+		CrawlerConfigurationSchemaPath,
 		ConnectionsConfigurationSchemaPath,
 		LoggerConfigurationSchemaPath,
 		PredictorConfigurationSchemaPath,

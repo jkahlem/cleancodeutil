@@ -1,0 +1,19 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "crawler-configuration.schema.json",
+    "title": "Crawler Configuration",
+    "description": "Contains configurations concerning the crawler",
+    "type": "object",
+    "properties": {
+        "executablePath": {
+            "description": "Path to the .jar file of the crawler version which should be used.",
+            "type": "string"
+        },
+        "defaultJavaVersion": {
+            "description": "The java version the crawler should use to parse the java files if no version is set for the project. If zero, then it is left to the parser library to decide, which version to use.",
+            "type": "number",
+            "minimum": 0,
+            "maximum": 17
+        }
+    }
+}

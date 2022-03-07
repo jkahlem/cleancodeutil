@@ -70,11 +70,18 @@ func DefaultTypeClasses() string {
 	return AbsolutePathFromGoProjectDir(loadedConfig.DefaultTypeClasses)
 }
 
-func CrawlerPath() string {
+func CrawlerExecutablePath() string {
 	if loadedConfig == nil {
 		return ""
 	}
-	return AbsolutePathFromGoProjectDir(loadedConfig.CrawlerPath)
+	return AbsolutePathFromGoProjectDir(loadedConfig.Crawler.ExecutablePath)
+}
+
+func CrawlerDefaultJavaVersion() int {
+	if loadedConfig == nil {
+		return 0
+	}
+	return loadedConfig.Crawler.DefaultJavaVersion
 }
 
 func ForceExtraction() bool {
