@@ -1,0 +1,18 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "config-file.schema.json",
+    "title": "Dataset Configuration file",
+    "description": "Contains datasets.",
+    "type": "object",
+    "properties": {
+        "datasets": {
+            "description": "A list of datasets",
+            "type": "array",
+            "items": {
+                "$ref": "configuration.schema.json",
+                "type": "object"
+            }
+        }
+    },
+    "required": ["datasets"]
+}

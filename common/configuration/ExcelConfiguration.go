@@ -33,9 +33,6 @@ func (c ExcelSetConfiguration) DecodeValue(value interface{}) (interface{}, erro
 		// Load configuration from different JSON file
 		err = c.fromFilePath(filePath)
 		value = c
-	} else if slice, ok := value.([]interface{}); ok {
-		err = c.fromSlice(slice)
-		value = c
 	}
 	return value, err
 }

@@ -77,7 +77,7 @@
             "$ref": "statistics-configuration.schema.json"
         },
         "excelSets": {
-            "description": "Configuration for excel sets. Can also be a string pointing to a json file containing these excel set definitions.",
+            "description": "Configuration for excel sets. Can also be a string pointing to a json file containing excel set definitions.",
             "type": ["string", "array"],
             "items": {
                 "$ref": "../datasets/excel-set-configuration.schema.json",
@@ -88,6 +88,14 @@
             "description": "Configurations for evaluations",
             "type": "object",
             "$ref": "evaluation-configuration.schema.json"
+        },
+        "datasets": {
+            "description": "Configurations for datasets. Can also be a string pointing to a json file containing dataset definitions.",
+            "type": ["string", "array"],
+            "items": {
+                "$ref": "../datasets/dataset/configuration.schema.json",
+                "type": "object"
+            }
         }
     },
     "required": ["mainOutputDir"]

@@ -1,0 +1,13 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "model-options.schema.json",
+    "title": "Model options",
+    "description": "Defines different options which are used for the model.",
+    "type": "object",
+    "properties": {
+        "placeholder": {
+            "comment": "Currently there are no options...",
+            "type": "string"
+        }
+    }
+}

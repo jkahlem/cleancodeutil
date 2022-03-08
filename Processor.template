@@ -1,0 +1,47 @@
+// Common functionality for processing nested data structures (like the excel sets, datasets, evaluation sets)
+// Look at the stuff below: does it actually make sense to do this with some generator or something? As this is not used thaaat much..
+package dataprocessor
+
+type Filter interface {
+	Include(TargetType) bool
+}
+
+// Similar structure:
+// - One target data type (like []csv.Method for excel sets or []csv.DatasetRow for evaluation sets and so on)
+// - data structure
+//   - one top level data struct with a subset property with the next data structs.
+//   - generally also a filter for the target data type
+// -> Ends up to this structure:
+type TargetType struct {
+	Filter  Filter
+	Subsets []TargetType
+}
+
+type Processor struct {
+	TargetSet     TargetType
+	SubProcessors []Processor
+}
+
+func NewProcessor(set TargetType) Processor {
+	processor := Processor{
+		SubProcessors: make([]Processor, len(set.Subsets)),
+	}
+
+	// {Perform any initialization here}
+	for i, subset := range set.Subsets {
+		processor.SubProcessors[i] = NewProcessor(subset)
+	}
+	return processor
+}
+
+func (p *Processor) Process(t TargetType) {
+	if !p.TargetSet.Filter.Include(t) {
+		return
+	}
+
+	// {Do actual activity here}
+
+	for i := range p.SubProcessors {
+		p.SubProcessors[i].Process(t)
+	}
+}

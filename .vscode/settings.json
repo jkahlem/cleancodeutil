@@ -29,5 +29,10 @@
             "config.json"
         ],
         "url": "./schemas/configuration/configuration.schema.json"
+    },{
+        "fileMatch": [
+            "datasets.json"
+        ],
+        "url": "./schemas/datasets/dataset/config-file.schema.json"
     }]
 }

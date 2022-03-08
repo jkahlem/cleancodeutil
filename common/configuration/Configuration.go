@@ -25,6 +25,13 @@ func EvaluationSubsets() []EvaluationSet {
 	return loadedConfig.Evaluation.Subsets
 }
 
+func Datasets() []Dataset {
+	if loadedConfig == nil {
+		return nil
+	}
+	return loadedConfig.Datasets
+}
+
 func EvaluationScoreTypes() []string {
 	if loadedConfig == nil {
 		return nil

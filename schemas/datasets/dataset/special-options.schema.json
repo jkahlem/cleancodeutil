@@ -1,0 +1,17 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "special-options.schema.json",
+    "title": "Special options",
+    "description": "Defines special filter options which are used for creating the dataset. Options are applied before passing to subsets, so overwriting them might not take effect.",
+    "type": "object",
+    "properties": {
+        "convert2And4ToWords": {
+            "description": "If true, then the numbers 2 and 4 are converted to the words 'to' and 'for' if they are used in the middle of a method name. ([a-zA-Z_][24][a-zA-Z_]) This is also true for all subsets, so subsets cannot disable this setting.",
+            "type": "boolean"
+        },
+        "minMethodNameLength": {
+            "description": "Sets the minimum length of a method to pass the filter. As only methods with this length pass the filter (and therefore are passed to subsets), subsets can only narrow this setting further.",
+            "type": "number"
+        }
+    }
+}

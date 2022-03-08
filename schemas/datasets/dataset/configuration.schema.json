@@ -1,0 +1,44 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "configuration.schema.json",
+    "title": "Dataset Configuration",
+    "description": "A dataset configuration.",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "The name of the set. This name will be used for the output file. Subsets will be written into a sub directory with this name.",
+            "type": "string"
+        },
+        "description": {
+            "description": "A description of the dataset, e.g. which data/options are used and why for documentation purposes."
+        },
+        "filter": {
+            "description": "A filter which is used on each method before doing anything else with it. If the method does not fulfill this filter, then it is not accepted.",
+            "type": "object",
+            "$ref": "../filter.schema.json"
+        },
+        "isGroupOnly": {
+            "description": "If true, then no dataset output is created for this dataset, which is useful to group datasets. Output for subsets will still be created.",
+            "type": "boolean"
+        },
+        "modelOptions": {
+            "description": "Defines options which should be applied to the model for creating this dataset",
+            "type": "object",
+            "$ref": "model-options.schema.json"
+        },
+        "specialOptions": {
+            "description": "Defines special filter options which are used for creating the dataset. Options are applied before passing to subsets, so overwriting them might not take effect.",
+            "type": "object",
+            "$ref": "special-options.schema.json"
+        },
+        "subsets": {
+            "description": "A list of subsets which are saved in a sub directory under this dataset's name. As they are subsets, only methods passing the filter of this set will be passed to the subsets.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#"
+            }
+        }        
+    },
+    "required": ["name"]
+}
