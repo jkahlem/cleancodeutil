@@ -69,7 +69,7 @@ func IsInTestFile(element JavaElement) bool {
 		return false
 	}
 
-	matched, _ := regexp.Match(`(T|\bt)est.+\\`, []byte(codeFile.FilePath))
+	matched, _ := regexp.Match(`(T|\bt)est.*\\`, []byte(codeFile.FilePath))
 	return matched
 }
 

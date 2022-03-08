@@ -30,35 +30,41 @@ const (
 	EvaluationSetSchemaPath           = "datasets/evaluation-set.schema.json"
 )
 
-// TODO: Find a way to not use must compile?
-var ExcelSetConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
-	WithTopLevel(ExcelSetConfigurationFileSchemaPath).
-	WithResources(FilterSchemaPath, FilterConfigurationSchemaPath, PatternSchemaPath).
-	MustCompile()
+var ExcelSetConfigurationFileSchema,
+	ProjectConfigurationFileSchema,
+	EvaluationConfigurationFileSchema,
+	ConfigurationFileSchema jsonschema.Schema
 
-var ProjectConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
-	WithTopLevel(ProjectConfigurationFileSchemaPath).
-	WithResources(ProjectConfigurationSchemaPath).
-	MustCompile()
+func initializeSchemas() {
+	ExcelSetConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
+		WithTopLevel(ExcelSetConfigurationFileSchemaPath).
+		WithResources(FilterSchemaPath, FilterConfigurationSchemaPath, PatternSchemaPath).
+		MustCompile()
 
-var EvaluationConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
-	WithTopLevel(EvaluationConfigurationSchemaPath).
-	WithResources(EvaluationSetSchemaPath).
-	MustCompile()
+	ProjectConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
+		WithTopLevel(ProjectConfigurationFileSchemaPath).
+		WithResources(ProjectConfigurationSchemaPath).
+		MustCompile()
 
-var ConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
-	WithTopLevel(ConfigurationSchemaPath).
-	WithResources(ClonerConfigurationSchemaPath,
-		CrawlerConfigurationSchemaPath,
-		ConnectionsConfigurationSchemaPath,
-		LoggerConfigurationSchemaPath,
-		PredictorConfigurationSchemaPath,
-		StatisticsConfigurationSchemaPath,
-		ExcelSetConfigurationSchemaPath,
-		FilterSchemaPath,
-		FilterConfigurationSchemaPath,
-		PatternSchemaPath,
-		ProjectConfigurationSchemaPath,
-		EvaluationConfigurationSchemaPath,
-		EvaluationSetSchemaPath).
-	MustCompile()
+	EvaluationConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
+		WithTopLevel(EvaluationConfigurationSchemaPath).
+		WithResources(EvaluationSetSchemaPath).
+		MustCompile()
+
+	ConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
+		WithTopLevel(ConfigurationSchemaPath).
+		WithResources(ClonerConfigurationSchemaPath,
+			CrawlerConfigurationSchemaPath,
+			ConnectionsConfigurationSchemaPath,
+			LoggerConfigurationSchemaPath,
+			PredictorConfigurationSchemaPath,
+			StatisticsConfigurationSchemaPath,
+			ExcelSetConfigurationSchemaPath,
+			FilterSchemaPath,
+			FilterConfigurationSchemaPath,
+			PatternSchemaPath,
+			ProjectConfigurationSchemaPath,
+			EvaluationConfigurationSchemaPath,
+			EvaluationSetSchemaPath).
+		MustCompile()
+}
