@@ -4,6 +4,7 @@ import (
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/processing/dataset/base"
+	"returntypes-langserver/services/predictor"
 )
 
 type Evaluator struct{}
@@ -25,8 +26,14 @@ func NewEvaluator() base.Evaluator {
 }
 
 func (e *Evaluator) Evaluate() errors.Error {
-	set := e.loadEvaluationSet()
-	methods := e.generateMethodDefinitions(set)
+	set, err := e.loadEvaluationSet()
+	if err != nil {
+		return err
+	}
+	methods, err := e.generateMethodDefinitions(set)
+	if err != nil {
+		return err
+	}
 	evalset := e.getEvaluationSetConfig()
 
 	for _, m := range methods {
@@ -37,12 +44,26 @@ func (e *Evaluator) Evaluate() errors.Error {
 	return nil
 }
 
-func (e *Evaluator) loadEvaluationSet() [][]string {
-	return nil
+func (e *Evaluator) loadEvaluationSet() ([][]string, errors.Error) {
+	return nil, nil
 }
 
-func (e *Evaluator) generateMethodDefinitions(evaluationSet [][]string) []Method {
-	return nil
+func (e *Evaluator) generateMethodDefinitions(evaluationSet [][]string) ([]Method, errors.Error) {
+	methodNames := make([]predictor.PredictableMethodName, len(evaluationSet))
+	for i := range evaluationSet {
+		methodNames[i] = predictor.PredictableMethodName(evaluationSet[i][0])
+	}
+	predicted, err := predictor.GenerateMethods(methodNames)
+
+	outputMethods := make([]Method, len(predicted))
+	for i := range predicted {
+		outputMethods[i] = e.parseOutputToMethod(predicted[i])
+	}
+	return nil, err
+}
+
+func (e *Evaluator) parseOutputToMethod(output string) Method {
+	return Method{}
 }
 
 func (e *Evaluator) getEvaluationSetConfig() *EvaluationSet {

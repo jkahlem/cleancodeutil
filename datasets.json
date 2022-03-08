@@ -4,14 +4,9 @@
             "name": "defaultSet",
             "filter": {
                 "exclude": [{
-                    "modifier": ["private", "native"]
+                    "modifier": ["native"]
                 },{
                     "labels": ["testCode", "override"]
-                },{
-                    "method": [{
-                        "pattern": "[0-9_]",
-                        "type": "regexp"
-                    }]
                 }]
             },
             "isGroupOnly": true,
@@ -20,7 +15,24 @@
                 "minMethodNameLength": 2
             },
             "modelOptions": {},
-            "subsets": []
+            "subsets": [{
+                "name": "withoutPrivates",
+                "filter":{
+                    "exclude": {
+                        "modifier":["private"]
+                    }
+                }
+            }, {
+                "name": "withoutNumbers",
+                "filter":{
+                    "exclude": {
+                        "method": [{
+                            "pattern": "[0-9_]",
+                            "type": "regexp"
+                        }]
+                    }
+                }
+            }]
         }
     ]
 }

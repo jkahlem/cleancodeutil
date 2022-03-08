@@ -20,13 +20,6 @@ const (
 	MethodGenerator       SupportedModels = "MethodGenerator"
 )
 
-type Evaluation struct {
-	AccScore float64 `json:"accScore"`
-	EvalLoss float64 `json:"evalLoss"`
-	F1Score  float64 `json:"f1Score"`
-	MCC      float64 `json:"mcc"`
-}
-
 type MethodTypeMap map[PredictableMethodName]string
 
 // Interface used for the predictor to support multiple predictor implementations like the mock.
