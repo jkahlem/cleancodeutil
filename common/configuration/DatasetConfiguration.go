@@ -20,11 +20,12 @@ type Dataset struct {
 	Subsets        []Dataset      `json:"subsets"`
 }
 
-type SpecialOptions struct{}
-
-type ModelOptions struct {
+type SpecialOptions struct {
 	Convert2And4ToWords bool `json:"convert2And4ToWords"`
 	MinMethodNameLength int  `json:"minMethodNameLength"`
+}
+
+type ModelOptions struct {
 }
 
 func (c DatasetConfiguration) DecodeValue(value interface{}) (interface{}, error) {
