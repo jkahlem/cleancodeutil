@@ -47,6 +47,8 @@ type configFile struct {
 	Statistics StatisticsConfiguration `json:"statistics"`
 	// The excel set configurations.
 	ExcelSets ExcelSetConfiguration `json:"excelSets"`
+	// Evaluation configurations
+	Evaluation EvaluationConfiguration `json:"evaluation"`
 	// If true, then the program is in language server mode (command line only)
 	IsLangServMode bool
 }
