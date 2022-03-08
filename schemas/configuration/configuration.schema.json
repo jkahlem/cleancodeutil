@@ -83,6 +83,11 @@
                 "$ref": "../datasets/excel-set-configuration.schema.json",
                 "type": "object"
             }
+        },
+        "evaluation": {
+            "description": "Configurations for evaluations",
+            "type": "object",
+            "$ref": "evaluation-configuration.schema.json"
         }
     },
     "required": ["mainOutputDir"]

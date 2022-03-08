@@ -1,0 +1,33 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "evaluation-configuration.schema.json",
+    "title": "Evaluation Configuration",
+    "description": "Contains configurations regarding evaluation",
+    "type": "object",
+    "properties": {
+        "ratingTypes": {
+            "description": "Defines, how the rating per row should be done, like equality checks or different tools etc.",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": ["tool", "simple"]
+            }
+        },
+        "scoreTypes": {
+            "description": "Defines, how the rating per method should be used to calculate an overall score (per subset)",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": ["f1score", "mcc"]
+            }
+        },
+        "subsets": {
+            "description": "Subsets of the evaluation set for which scores should be also calculated (e.g. filter out setter/getter for evaluation and so on)",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "../datasets/evaluation-set.schema.json"
+            }
+        }
+    }
+}

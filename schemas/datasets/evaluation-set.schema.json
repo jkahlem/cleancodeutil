@@ -1,0 +1,26 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "evaluation-set.schema.json",
+    "title": "Evaluation set",
+    "description": "Defines an evaluation set.",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "The name of the set.",
+            "type": "string"
+        },
+        "filter": {
+            "description": "A filter which is used on each method before doing anything else with it. If the method does not fulfill this filter, then it is not accepted.",
+            "type": "object",
+            "$ref": "filter.schema.json"
+        },
+        "subsets": {
+            "description": "A list of subsets which are saved in a sub directory under this dataset's name. As they are subsets, only methods passing the filter of this set will be passed to the subsets.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "$ref": "#"
+            }
+        }
+    }
+}

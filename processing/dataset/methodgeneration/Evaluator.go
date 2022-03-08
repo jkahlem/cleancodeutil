@@ -81,7 +81,7 @@ func (e *Evaluator) getAvailableRater() []Rater {
 
 type EvaluationSet struct {
 	Subsets []EvaluationSet
-	// String -> rating type, float64 -> actual overall-rating
+	// String -> rating type, ScoreCalculator -> holds score information for that specific rating type
 	OverallScore map[string][]ScoreCalculator
 }
 
