@@ -152,9 +152,8 @@ func createDefaultConfig() {
 			Skip:               false,
 			OutputDir:          "",
 		},
-		MainOutputDir:      filepath.Join(GoProjectDir(), "results"),
-		DefaultLibraries:   []string{filepath.Join(GoProjectDir(), "resources", "data", "javalang.csv")},
-		DefaultTypeClasses: filepath.Join(GoProjectDir(), "resources", "data", "typeClasses.json"),
+		MainOutputDir:    filepath.Join(GoProjectDir(), "results"),
+		DefaultLibraries: []string{filepath.Join(GoProjectDir(), "resources", "data", "javalang.csv")},
 		Crawler: CrawlerConfiguration{
 			ExecutablePath:     filepath.Join(GoProjectDir(), "resources", "crawler", "returntypes-crawler.jar"),
 			DefaultJavaVersion: 0,

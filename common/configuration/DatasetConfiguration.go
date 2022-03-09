@@ -22,11 +22,10 @@ type Dataset struct {
 }
 
 type SpecialOptions struct {
-	Convert2And4ToWords bool `json:"convert2And4ToWords"`
-	MinMethodNameLength int  `json:"minMethodNameLength"`
-	FilterDuplicates    bool `json:"filterDuplicates"`
-	// TODO: Actually load and validate typeclasses for this one?
-	TypeClasses string `json:"typeClasses"`
+	Convert2And4ToWords bool                    `json:"convert2And4ToWords"`
+	MinMethodNameLength int                     `json:"minMethodNameLength"`
+	FilterDuplicates    bool                    `json:"filterDuplicates"`
+	TypeClasses         TypeClassConfigurations `json:"typeClasses"`
 	// The size of the splitted datasets as a proportion
 	DatasetSize DatasetProportion `json:"datasetSize"`
 }

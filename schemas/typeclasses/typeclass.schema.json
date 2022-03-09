@@ -1,0 +1,36 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "typeclass.schema.json",
+    "title": "Type class",
+    "description": "A type class definition",
+    "type": "object",
+    "properties": {
+		"label": {
+            "description": "The name of this type class which is also used to replace the acutal types to.",
+            "type": "string"
+        },
+		"elements": {
+            "description": "A list of canonical names for types which belong to this type class. This includes also all types extending these types.",
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+        },
+		"isArrayType": {
+            "description": "If true, then this type class should also contain array types. Can only be defined on a maximum of one type class.",
+            "type": "boolean"
+        },
+		"color": {
+            "description": "A hex string defining the color used for color representations of this type class in statistics etc.",
+            "type": "string",
+            "pattern": "^#[0-9a-fA-F]{6}"
+        },
+        "isChainMethodType": {
+            "description": "If true, then this type class should also contain chain methods. Can only be defined on a maximum of one type class.",
+            "type": "boolean"
+        }
+    },
+    "required": ["label", "elements"]
+}

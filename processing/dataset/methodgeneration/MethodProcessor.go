@@ -32,7 +32,7 @@ func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *
 		Options:   options,
 		methods:   make(utils.StringSet),
 	}
-	if options.TypeClasses != "" {
+	if options.TypeClasses != nil {
 		// TODO: Use typeclasses of the dataset for typeclass mapper ...
 		processor.typeClassMapper = typeclasses.New(tree)
 	}
@@ -48,7 +48,7 @@ func (p *Processor) Process(method *csv.Method) (isFiltered bool, err errors.Err
 			p.methods.Put(identifier)
 		}
 	}
-	if p.Options.TypeClasses != "" && p.typeClassMapper != nil {
+	if p.Options.TypeClasses != nil && p.typeClassMapper != nil {
 		if err := p.mapTypeToTypeClasses(method); err != nil {
 			return false, err
 		}

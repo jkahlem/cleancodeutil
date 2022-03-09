@@ -57,7 +57,7 @@ func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *
 		Options:    options,
 		methodsSet: make(map[string]ReturnTypes),
 	}
-	if options.TypeClasses != "" {
+	if options.TypeClasses != nil {
 		// TODO: Use typeclasses of the dataset for typeclass mapper ...
 		processor.typeClassMapper = typeclasses.New(tree)
 		processor.typeLabelMapper = &base.TypeLabelMapper{}
@@ -67,7 +67,7 @@ func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *
 
 func (p *Processor) Process(method *csv.Method) (isFiltered bool, err errors.Error) {
 	identifier := p.getIdentifier(method)
-	if p.Options.TypeClasses != "" && p.typeClassMapper != nil {
+	if p.Options.TypeClasses != nil && p.typeClassMapper != nil {
 		if err := p.mapTypeToTypeClasses(method); err != nil {
 			return false, err
 		}

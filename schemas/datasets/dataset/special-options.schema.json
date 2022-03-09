@@ -18,8 +18,12 @@
             "type": "boolean"
         },
         "typeClasses": {
-            "description": "Path to a file containing type class definitions used for this dataset (and it's subsets). If empty, no type classes will be used.",
-            "type": "string"
+            "description": "Configurations for type classes. Can also be a string pointing to a json file containing type class definitions.",
+            "type": ["string", "array"],
+            "items": {
+                "$ref": "../../typeclasses/typeclass.schema.json",
+                "type": "object"
+            }
         },
         "datasetSize": {
             "description": "The size of the splitted datasets as a proportion. This property can be redefined by each subset.",
