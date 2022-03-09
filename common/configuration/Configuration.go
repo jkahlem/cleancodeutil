@@ -32,6 +32,13 @@ func Datasets() []Dataset {
 	return loadedConfig.Datasets
 }
 
+func UsedModelType() ModelType {
+	if loadedConfig == nil {
+		return ""
+	}
+	return loadedConfig.ModelType
+}
+
 func EvaluationScoreTypes() []string {
 	if loadedConfig == nil {
 		return nil

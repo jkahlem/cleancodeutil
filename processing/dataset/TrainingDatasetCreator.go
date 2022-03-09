@@ -11,27 +11,20 @@ import (
 	"returntypes-langserver/processing/dataset/returntypesvalidation"
 )
 
-type ModelType string
-
-const (
-	MethodGenerator      ModelType = "MethodGenerator"
-	ReturnTypesValidator ModelType = "ReturnTypesValidator"
-)
-
 // Creates a training and an evaluation set.
 func CreateTrainingAndEvaluationSet(methodsWithReturnTypesPath, classHierarchyPath string) errors.Error {
 	if methods, classes, err := loadMethodsAndClasses(methodsWithReturnTypesPath, classHierarchyPath); err != nil {
 		return err
 		// TODO: Load dataset type by configuration
-	} else if creator, err := getCreatorByModelType(MethodGenerator, methods, classes); err != nil {
+	} else if creator, err := getCreatorByModelType(configuration.UsedModelType(), methods, classes); err != nil {
 		return err
 	} else {
 		return creator.Create()
 	}
 }
 
-func getCreatorByModelType(modelType ModelType, methods []csv.Method, classes []csv.Class) (base.Creator, errors.Error) {
-	if modelType == ReturnTypesValidator {
+func getCreatorByModelType(modelType configuration.ModelType, methods []csv.Method, classes []csv.Class) (base.Creator, errors.Error) {
+	if modelType == configuration.ReturnTypesValidator {
 		return returntypesvalidation.New(methods, createPackageTree(classes)), nil
 	} else {
 		if len(modelType) == 0 {
@@ -49,7 +42,7 @@ func CreateTrainingAndEvaluationSetByProcessor(methodsWithReturnTypesPath, class
 		processors := make(DatasetProcessors, len(configuration.Datasets()))
 		tree := createPackageTree(classes)
 		for i, dataset := range configuration.Datasets() {
-			processors[i] = NewProcessor(dataset, ReturnTypesValidator, configuration.DatasetOutputDir(), tree)
+			processors[i] = NewProcessor(dataset, configuration.ReturnTypesValidator, configuration.DatasetOutputDir(), tree)
 		}
 
 		for _, method := range methods {
@@ -90,7 +83,7 @@ func createPackageTree(classes []csv.Class) *packagetree.Tree {
 	return &tree
 }
 
-func Train(modelType ModelType) errors.Error {
+func Train(modelType configuration.ModelType) errors.Error {
 	if trainer, err := getTrainerByModelType(modelType); err != nil {
 		return err
 	} else {
@@ -98,12 +91,13 @@ func Train(modelType ModelType) errors.Error {
 	}
 }
 
-func getTrainerByModelType(modelType ModelType) (base.Trainer, errors.Error) {
-	if modelType == MethodGenerator {
+func getTrainerByModelType(modelType configuration.ModelType) (base.Trainer, errors.Error) {
+	switch modelType {
+	case configuration.MethodGenerator:
 		return methodgeneration.NewTrainer(), nil
-	} else if modelType == ReturnTypesValidator {
+	case configuration.ReturnTypesValidator:
 		return returntypesvalidation.NewTrainer(), nil
-	} else {
+	default:
 		if len(modelType) == 0 {
 			return nil, errors.New("Dataset Creation Error", "Could not create dataset: No dataset type specified.")
 		}
@@ -112,19 +106,20 @@ func getTrainerByModelType(modelType ModelType) (base.Trainer, errors.Error) {
 }
 
 func Evaluate() errors.Error {
-	if evaluator, err := getEvaluatorByModelType(ReturnTypesValidator); err != nil {
+	if evaluator, err := getEvaluatorByModelType(configuration.ReturnTypesValidator); err != nil {
 		return err
 	} else {
 		return evaluator.Evaluate()
 	}
 }
 
-func getEvaluatorByModelType(modelType ModelType) (base.Evaluator, errors.Error) {
-	if modelType == MethodGenerator {
+func getEvaluatorByModelType(modelType configuration.ModelType) (base.Evaluator, errors.Error) {
+	switch modelType {
+	case configuration.MethodGenerator:
 		return methodgeneration.NewEvaluator(), nil
-	} else if modelType == ReturnTypesValidator {
+	case configuration.ReturnTypesValidator:
 		return returntypesvalidation.NewEvaluator(), nil
-	} else {
+	default:
 		if len(modelType) == 0 {
 			return nil, errors.New("Dataset Creation Error", "Could not create dataset: No dataset type specified.")
 		}

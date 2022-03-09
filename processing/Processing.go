@@ -225,11 +225,11 @@ func (p *Processor) train() errors.Error {
 }
 
 func (p *Processor) trainReturnTypes() errors.Error {
-	return dataset.Train(dataset.ReturnTypesValidator)
+	return dataset.Train(configuration.ReturnTypesValidator)
 }
 
 func (p *Processor) trainMethods() errors.Error {
-	return dataset.Train(dataset.MethodGenerator)
+	return dataset.Train(configuration.MethodGenerator)
 }
 
 // Creates statistics for the dataset creation

@@ -44,7 +44,7 @@ func (p *DatasetProcessors) Close() errors.Error {
 	return nil
 }
 
-func NewProcessor(set configuration.Dataset, modelType ModelType, path string, tree *packagetree.Tree) DatasetProcessor {
+func NewProcessor(set configuration.Dataset, modelType configuration.ModelType, path string, tree *packagetree.Tree) DatasetProcessor {
 	processor := DatasetProcessor{
 		TargetSet:     set,
 		SubProcessors: make([]DatasetProcessor, len(set.Subsets)),
@@ -57,9 +57,9 @@ func NewProcessor(set configuration.Dataset, modelType ModelType, path string, t
 	return processor
 }
 
-func (p *DatasetProcessor) initializeModelProcessor(modelType ModelType, tree *packagetree.Tree) {
+func (p *DatasetProcessor) initializeModelProcessor(modelType configuration.ModelType, tree *packagetree.Tree) {
 	switch modelType {
-	case MethodGenerator:
+	case configuration.MethodGenerator:
 		p.ModelProcessor = methodgeneration.NewProcessor("", p.TargetSet.SpecialOptions, tree)
 	}
 	// initialize output streams/folders and so on?

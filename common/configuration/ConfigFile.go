@@ -30,6 +30,8 @@ type configFile struct {
 	Crawler CrawlerConfiguration `json:"crawler"`
 	// If true, will always recollect the data from the crawled xml files
 	ForceExtraction bool `json:"forceExtraction"`
+	// Defines for which model type the dataset should be generated / which model type should be trained
+	ModelType ModelType `json:"modelType"`
 	// The size of the splitted datasets as a proportion
 	DatasetSize DatasetProportion `json:"datasetSize"`
 	// Method filtering options for dataset creation
@@ -173,6 +175,7 @@ func createDefaultConfig() {
 			DefaultJavaVersion: 0,
 		},
 		ForceExtraction: false,
+		ModelType:       MethodGenerator,
 		DatasetSize: DatasetProportion{
 			Training:   7,
 			Evaluation: 3,

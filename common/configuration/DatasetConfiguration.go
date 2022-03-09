@@ -31,6 +31,13 @@ type SpecialOptions struct {
 type ModelOptions struct {
 }
 
+type ModelType string
+
+const (
+	MethodGenerator      ModelType = "MethodGenerator"
+	ReturnTypesValidator ModelType = "ReturnTypesValidator"
+)
+
 func (c DatasetConfiguration) DecodeValue(value interface{}) (interface{}, error) {
 	var err error
 	if filePath, ok := value.(string); ok {

@@ -96,6 +96,11 @@
                 "$ref": "../datasets/dataset/configuration.schema.json",
                 "type": "object"
             }
+        },
+        "modelType": {
+            "description": "Defines for which model type the dataset should be generated / which model type should be trained",
+            "type": "string",
+            "enum": ["MethodGenerator", "ReturnTypesValidator"]
         }
     },
     "required": ["mainOutputDir"]
