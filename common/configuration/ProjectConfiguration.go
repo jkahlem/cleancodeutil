@@ -44,6 +44,9 @@ func (c ProjectConfiguration) DecodeValue(value interface{}) (interface{}, error
 }
 
 func (c *ProjectConfiguration) fromFilePath(filePath string) error {
+	if filePath == "" {
+		return nil
+	}
 	contents, err := ioutil.ReadFile(AbsolutePathFromGoProjectDir(filePath))
 	if err != nil {
 		return err

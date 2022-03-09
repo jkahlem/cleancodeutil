@@ -38,6 +38,9 @@ func (c ExcelSetConfiguration) DecodeValue(value interface{}) (interface{}, erro
 }
 
 func (c *ExcelSetConfiguration) fromFilePath(filePath string) error {
+	if filePath == "" {
+		return nil
+	}
 	contents, err := os.ReadFile(AbsolutePathFromGoProjectDir(filePath))
 	if err != nil {
 		return err

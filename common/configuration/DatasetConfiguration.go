@@ -52,6 +52,9 @@ func (c DatasetConfiguration) DecodeValue(value interface{}) (interface{}, error
 }
 
 func (c *DatasetConfiguration) fromFilePath(filePath string) error {
+	if filePath == "" {
+		return nil
+	}
 	contents, err := os.ReadFile(AbsolutePathFromGoProjectDir(filePath))
 	if err != nil {
 		return err
