@@ -32,8 +32,6 @@ type configFile struct {
 	ForceExtraction bool `json:"forceExtraction"`
 	// Defines for which model type the dataset should be generated / which model type should be trained
 	ModelType ModelType `json:"modelType"`
-	// Method filtering options for dataset creation
-	MethodFilter DatasetMethodFilter `json:"datasetMethodFilter"`
 	// Configurations for the predictor
 	Predictor PredictorConfiguration `json:"predictor"`
 	// Activates strict mode.
@@ -92,17 +90,6 @@ type PredictorConfiguration struct {
 	SkipTraining bool `json:"skipTraining"`
 	// If true, uses the mocked predictor implementation
 	UseMock bool `json:"useMock"`
-}
-
-type DatasetMethodFilter struct {
-	// If true, getters will be filtered
-	Getter bool `json:"getter"`
-	// If true, setters will be filtered
-	Setter bool `json:"setter"`
-	// If true, methods with override annotation will be filtered
-	Override bool `json:"override"`
-	// If true, methods in test code will be filtered
-	TestCode bool `json:"testCode"`
 }
 
 type LoggerConfiguration struct {
@@ -174,16 +161,6 @@ func createDefaultConfig() {
 		},
 		ForceExtraction: false,
 		ModelType:       MethodGenerator,
-		/*DatasetSize: DatasetProportion{
-			Training:   7,
-			Evaluation: 3,
-		},*/
-		MethodFilter: DatasetMethodFilter{
-			Getter:   true,
-			Setter:   true,
-			Override: true,
-			TestCode: true,
-		},
 		Predictor: PredictorConfiguration{
 			Port:         10000,
 			Host:         "localhost",

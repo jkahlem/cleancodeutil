@@ -126,41 +126,6 @@ func ForceExtraction() bool {
 	return loadedConfig.ForceExtraction
 }
 
-func MethodFilter() DatasetMethodFilter {
-	if loadedConfig == nil {
-		return DatasetMethodFilter{}
-	}
-	return loadedConfig.MethodFilter
-}
-
-func MethodFilterGetter() bool {
-	if loadedConfig == nil {
-		return false
-	}
-	return loadedConfig.MethodFilter.Getter
-}
-
-func MethodFilterSetter() bool {
-	if loadedConfig == nil {
-		return false
-	}
-	return loadedConfig.MethodFilter.Setter
-}
-
-func MethodFilterOverride() bool {
-	if loadedConfig == nil {
-		return false
-	}
-	return loadedConfig.MethodFilter.Override
-}
-
-func MethodFilterTestCode() bool {
-	if loadedConfig == nil {
-		return false
-	}
-	return loadedConfig.MethodFilter.TestCode
-}
-
 func PredictorScriptPath() string {
 	if loadedConfig == nil {
 		return ""

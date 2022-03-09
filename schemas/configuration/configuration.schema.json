@@ -42,11 +42,6 @@
             "description": "If true, will always recollect the data from the crawled xml files",
             "type": "boolean"
         },
-        "datasetMethodFilter": {
-            "description": "Method filtering options for dataset creation. Will probably be replaced with new dataset configuration files.",
-            "type": "object",
-            "deprecated": true
-        },
         "predictor": {
             "description": "Configurations for the predictor connection.",
             "type": "object",
