@@ -1,7 +1,7 @@
 package methodgeneration
 
 import (
-	"returntypes-langserver/common/configuration"
+	"path/filepath"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
@@ -15,8 +15,8 @@ func NewTrainer() base.Trainer {
 	return &Trainer{}
 }
 
-func (t *Trainer) Train() errors.Error {
-	trainingSet, err := csv.ReadRecords(configuration.MethodsTrainingSetOutputPath())
+func (t *Trainer) Train(path string) errors.Error {
+	trainingSet, err := csv.ReadRecords(filepath.Join(path, TrainingSetFileName))
 	if err != nil {
 		return err
 	}

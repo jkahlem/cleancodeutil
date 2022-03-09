@@ -6,11 +6,11 @@ import (
 )
 
 type Evaluator interface {
-	Evaluate() errors.Error
+	Evaluate(path string) errors.Error
 }
 
 type Trainer interface {
-	Train() errors.Error
+	Train(path string) errors.Error
 }
 
 // Does more specific processings like filters

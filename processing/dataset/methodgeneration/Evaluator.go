@@ -25,7 +25,7 @@ func NewEvaluator() base.Evaluator {
 	return &Evaluator{}
 }
 
-func (e *Evaluator) Evaluate() errors.Error {
+func (e *Evaluator) Evaluate(path string) errors.Error {
 	set, err := e.loadEvaluationSet()
 	if err != nil {
 		return err

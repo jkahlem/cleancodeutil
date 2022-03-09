@@ -3,6 +3,7 @@ package returntypesvalidation
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
@@ -22,8 +23,8 @@ func NewTrainer() base.Trainer {
 	return &Trainer{}
 }
 
-func (t *Trainer) Train() errors.Error {
-	if err := t.loadData(); err != nil {
+func (t *Trainer) Train(path string) errors.Error {
+	if err := t.loadData(path); err != nil {
 		return err
 	}
 
@@ -36,11 +37,11 @@ func (t *Trainer) Train() errors.Error {
 	}
 }
 
-func (t *Trainer) loadData() errors.Error {
+func (t *Trainer) loadData(path string) errors.Error {
 	// Load csv data
-	t.labels = t.loadRecords(configuration.DatasetLabelsOutputPath())
-	t.trainingSet = t.loadRecords(configuration.TrainingSetOutputPath())
-	t.evaluationSet = t.loadRecords(configuration.EvaluationSetOutputPath())
+	t.labels = t.loadRecords(filepath.Join(path, LabelSetFileName))
+	t.trainingSet = t.loadRecords(filepath.Join(path, TrainingSetFileName))
+	t.evaluationSet = t.loadRecords(filepath.Join(path, EvaluationSetFileName))
 	err := t.err
 	t.err = nil
 	return err

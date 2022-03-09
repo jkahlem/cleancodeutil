@@ -1,6 +1,7 @@
 package dataset
 
 import (
+	"path/filepath"
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/configuration"
@@ -61,11 +62,24 @@ func createPackageTree(classes []csv.Class) *packagetree.Tree {
 }
 
 func Train(modelType configuration.ModelType) errors.Error {
-	if trainer, err := getTrainerByModelType(modelType); err != nil {
-		return err
-	} else {
-		return trainer.Train()
+	return trainDatasets(modelType, configuration.DatasetOutputDir(), configuration.Datasets())
+}
+
+func trainDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset) errors.Error {
+	for _, dataset := range datasets {
+		trainer, err := getTrainerByModelType(modelType)
+		if err != nil {
+			return err
+		}
+		path := filepath.Join(path, dataset.Name)
+		if err := trainer.Train(path); err != nil {
+			return err
+		}
+		if err := trainDatasets(modelType, path, dataset.Subsets); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func getTrainerByModelType(modelType configuration.ModelType) (base.Trainer, errors.Error) {
@@ -82,12 +96,25 @@ func getTrainerByModelType(modelType configuration.ModelType) (base.Trainer, err
 	}
 }
 
-func Evaluate() errors.Error {
-	if evaluator, err := getEvaluatorByModelType(configuration.ReturnTypesValidator); err != nil {
-		return err
-	} else {
-		return evaluator.Evaluate()
+func Evaluate(modelType configuration.ModelType) errors.Error {
+	return evaluateDatasets(modelType, configuration.DatasetOutputDir(), configuration.Datasets())
+}
+
+func evaluateDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset) errors.Error {
+	for _, dataset := range datasets {
+		evaluator, err := getEvaluatorByModelType(modelType)
+		if err != nil {
+			return err
+		}
+		path := filepath.Join(path, dataset.Name)
+		if err := evaluator.Evaluate(path); err != nil {
+			return err
+		}
+		if err := evaluateDatasets(modelType, path, dataset.Subsets); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func getEvaluatorByModelType(modelType configuration.ModelType) (base.Evaluator, errors.Error) {
