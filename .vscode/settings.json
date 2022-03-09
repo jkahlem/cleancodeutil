@@ -34,5 +34,10 @@
             "datasets.json"
         ],
         "url": "./schemas/datasets/dataset/config-file.schema.json"
+    },{
+        "fileMatch": [
+            "typeClasses.json"
+        ],
+        "url": "./schemas/typeclasses/typeclass-config-file.schema.json"
     }]
 }
