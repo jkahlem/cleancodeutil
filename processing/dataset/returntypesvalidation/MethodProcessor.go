@@ -1,6 +1,7 @@
 package returntypesvalidation
 
 import (
+	"fmt"
 	"path/filepath"
 	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/configuration"
@@ -46,7 +47,11 @@ func (r ReturnTypes) MostUsedType() string {
 	return maxType
 }
 
-func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) base.MethodProcessor {
+func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) (base.MethodProcessor, errors.Error) {
+	if options.DatasetSize.Training == 0 && options.DatasetSize.Evaluation == 0 {
+		return nil, errors.New("Dataset error", fmt.Sprintf("invalid/unset dataset size values for set under '%s'", outputDir))
+	}
+
 	processor := &Processor{
 		OutputDir:  outputDir,
 		Options:    options,
@@ -57,7 +62,7 @@ func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *
 		processor.typeClassMapper = typeclasses.New(tree)
 		processor.typeLabelMapper = &base.TypeLabelMapper{}
 	}
-	return processor
+	return processor, nil
 }
 
 func (p *Processor) Process(method *csv.Method) (isFiltered bool, err errors.Error) {

@@ -40,26 +40,35 @@ func (p *DatasetProcessors) Close() errors.Error {
 	return nil
 }
 
-func NewProcessor(set configuration.Dataset, modelType configuration.ModelType, path string, tree *packagetree.Tree) DatasetProcessor {
+func NewProcessor(set configuration.Dataset, modelType configuration.ModelType, path string, tree *packagetree.Tree) (DatasetProcessor, errors.Error) {
 	processor := DatasetProcessor{
 		TargetSet:     set,
 		SubProcessors: make([]DatasetProcessor, len(set.Subsets)),
 	}
-	processor.initializeModelProcessor(modelType, path, tree)
+	if err := processor.initializeModelProcessor(modelType, path, tree); err != nil {
+		return processor, err
+	}
 
 	for i, subset := range set.Subsets {
-		processor.SubProcessors[i] = NewProcessor(inheritOptions(set, subset), modelType, filepath.Join(path, set.Name), tree)
+		if subprocessor, err := NewProcessor(inheritOptions(set, subset), modelType, filepath.Join(path, set.Name), tree); err != nil {
+			return processor, err
+		} else {
+			processor.SubProcessors[i] = subprocessor
+		}
 	}
-	return processor
+	return processor, nil
 }
 
-func (p *DatasetProcessor) initializeModelProcessor(modelType configuration.ModelType, path string, tree *packagetree.Tree) {
+func (p *DatasetProcessor) initializeModelProcessor(modelType configuration.ModelType, path string, tree *packagetree.Tree) errors.Error {
 	switch modelType {
 	case configuration.ReturnTypesValidator:
-		p.ModelProcessor = returntypesvalidation.NewProcessor(path, p.TargetSet.SpecialOptions, tree)
+		processor, err := returntypesvalidation.NewProcessor(path, p.TargetSet.SpecialOptions, tree)
+		p.ModelProcessor = processor
+		return err
 	case configuration.MethodGenerator:
 		p.ModelProcessor = methodgeneration.NewProcessor(path, p.TargetSet.SpecialOptions, tree)
 	}
+	return nil
 }
 
 func (p *DatasetProcessor) Process(method csv.Method) errors.Error {

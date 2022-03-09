@@ -20,7 +20,11 @@ func CreateTrainingAndEvaluationSet(methodsWithReturnTypesPath, classHierarchyPa
 		processors := make(DatasetProcessors, len(configuration.Datasets()))
 		tree := createPackageTree(classes)
 		for i, dataset := range configuration.Datasets() {
-			processors[i] = NewProcessor(dataset, configuration.ReturnTypesValidator, configuration.DatasetOutputDir(), tree)
+			if processor, err := NewProcessor(dataset, configuration.ReturnTypesValidator, configuration.DatasetOutputDir(), tree); err != nil {
+				return err
+			} else {
+				processors[i] = processor
+			}
 		}
 
 		for _, method := range methods {
