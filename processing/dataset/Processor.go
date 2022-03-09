@@ -48,7 +48,7 @@ func NewProcessor(set configuration.Dataset, modelType configuration.ModelType, 
 	processor.initializeModelProcessor(modelType, path, tree)
 
 	for i, subset := range set.Subsets {
-		processor.SubProcessors[i] = NewProcessor(subset, modelType, filepath.Join(path, set.Name), tree)
+		processor.SubProcessors[i] = NewProcessor(inheritOptions(set, subset), modelType, filepath.Join(path, set.Name), tree)
 	}
 	return processor
 }
@@ -60,15 +60,6 @@ func (p *DatasetProcessor) initializeModelProcessor(modelType configuration.Mode
 	case configuration.MethodGenerator:
 		p.ModelProcessor = methodgeneration.NewProcessor(path, p.TargetSet.SpecialOptions, tree)
 	}
-	// initialize output streams/folders and so on?
-	//
-	// Folder structure:
-	// {datasetOutputDir}/{datasetName}
-	//   /subsets/...
-	//   /{modelType}
-	//     /evaluation.csv
-	//     /dataset.csv
-	//     (and other data like labels.csv? at least this is the output location for the one model...)
 }
 
 func (p *DatasetProcessor) Process(method csv.Method) errors.Error {
@@ -113,4 +104,12 @@ func (p *DatasetProcessor) isIncluded(method csv.Method) bool {
 		return false
 	}
 	return true
+}
+
+// Copies options from parent to child which should be inherited by the child
+func inheritOptions(parent, child configuration.Dataset) configuration.Dataset {
+	if child.SpecialOptions.DatasetSize.Training == 0 && child.SpecialOptions.DatasetSize.Evaluation == 0 {
+		child.SpecialOptions.DatasetSize = parent.SpecialOptions.DatasetSize
+	}
+	return child
 }
