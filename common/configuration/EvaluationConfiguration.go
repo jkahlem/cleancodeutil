@@ -25,6 +25,9 @@ func (c EvaluationConfiguration) DecodeValue(value interface{}) (interface{}, er
 }
 
 func (c *EvaluationConfiguration) fromFilePath(filePath string) error {
+	if filePath == "" {
+		return nil
+	}
 	contents, err := ioutil.ReadFile(AbsolutePathFromGoProjectDir(filePath))
 	if err != nil {
 		return err
