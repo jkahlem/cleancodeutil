@@ -7,6 +7,7 @@ import (
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/processing/dataset/methodgeneration"
+	"returntypes-langserver/processing/dataset/returntypesvalidation"
 )
 
 // Does more specific processings like filters
@@ -59,6 +60,8 @@ func NewProcessor(set configuration.Dataset, modelType configuration.ModelType, 
 
 func (p *DatasetProcessor) initializeModelProcessor(modelType configuration.ModelType, tree *packagetree.Tree) {
 	switch modelType {
+	case configuration.ReturnTypesValidator:
+		p.ModelProcessor = returntypesvalidation.NewProcessor("", p.TargetSet.SpecialOptions, tree)
 	case configuration.MethodGenerator:
 		p.ModelProcessor = methodgeneration.NewProcessor("", p.TargetSet.SpecialOptions, tree)
 	}
