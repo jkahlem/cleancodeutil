@@ -31,6 +31,14 @@ func UnmarshalMethod(records [][]string) []Method {
 	return result
 }
 
+func MarshalMethod(records []Method) [][]string {
+	result := make([][]string, len(records))
+	for i := range records {
+		result[i] = records[i].ToRecord()
+	}
+	return result
+}
+
 func (t Class) ToRecord() []string {
 	if record, err := marshal(reflect.ValueOf(t)); err != nil {
 		log.Error(err)
@@ -51,6 +59,14 @@ func UnmarshalClass(records [][]string) []Class {
 		} else if c, ok := (unmarshalled.Interface()).(Class); ok {
 			result = append(result, c)
 		}
+	}
+	return result
+}
+
+func MarshalClass(records []Class) [][]string {
+	result := make([][]string, len(records))
+	for i := range records {
+		result[i] = records[i].ToRecord()
 	}
 	return result
 }
@@ -79,6 +95,14 @@ func UnmarshalTypeConversion(records [][]string) []TypeConversion {
 	return result
 }
 
+func MarshalTypeConversion(records []TypeConversion) [][]string {
+	result := make([][]string, len(records))
+	for i := range records {
+		result[i] = records[i].ToRecord()
+	}
+	return result
+}
+
 func (t ReturnTypesDatasetRow) ToRecord() []string {
 	if record, err := marshal(reflect.ValueOf(t)); err != nil {
 		log.Error(err)
@@ -99,6 +123,14 @@ func UnmarshalReturnTypesDatasetRow(records [][]string) []ReturnTypesDatasetRow 
 		} else if c, ok := (unmarshalled.Interface()).(ReturnTypesDatasetRow); ok {
 			result = append(result, c)
 		}
+	}
+	return result
+}
+
+func MarshalReturnTypesDatasetRow(records []ReturnTypesDatasetRow) [][]string {
+	result := make([][]string, len(records))
+	for i := range records {
+		result[i] = records[i].ToRecord()
 	}
 	return result
 }
@@ -127,6 +159,14 @@ func UnmarshalMethodGenerationDatasetRow(records [][]string) []MethodGenerationD
 	return result
 }
 
+func MarshalMethodGenerationDatasetRow(records []MethodGenerationDatasetRow) [][]string {
+	result := make([][]string, len(records))
+	for i := range records {
+		result[i] = records[i].ToRecord()
+	}
+	return result
+}
+
 func (t TypeLabel) ToRecord() []string {
 	if record, err := marshal(reflect.ValueOf(t)); err != nil {
 		log.Error(err)
@@ -147,6 +187,14 @@ func UnmarshalTypeLabel(records [][]string) []TypeLabel {
 		} else if c, ok := (unmarshalled.Interface()).(TypeLabel); ok {
 			result = append(result, c)
 		}
+	}
+	return result
+}
+
+func MarshalTypeLabel(records []TypeLabel) [][]string {
+	result := make([][]string, len(records))
+	for i := range records {
+		result[i] = records[i].ToRecord()
 	}
 	return result
 }

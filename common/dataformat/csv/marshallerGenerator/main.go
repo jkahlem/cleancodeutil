@@ -66,4 +66,12 @@ func Unmarshal{{.TypeName}}(records [][]string) []{{.TypeName}} {
 	}
 	return result
 }
+
+func Marshal{{.TypeName}}(records []{{.TypeName}}) [][]string {
+	result := make([][]string, len(records))
+	for i := range records {
+		result[i] = records[i].ToRecord()
+	}
+	return result
+}
 `

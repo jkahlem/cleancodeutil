@@ -1,14 +1,17 @@
 package dataset
 
 import (
+	"path/filepath"
+	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/processing/dataset/methodgeneration"
 )
 
 // Does more specific processings like filters
 type MethodProcessor interface {
-	Process(csv.Method) errors.Error
+	Process(*csv.Method) (bool, errors.Error)
 	Close() errors.Error
 }
 
@@ -17,27 +20,48 @@ type DatasetProcessor struct {
 	ModelProcessor MethodProcessor
 	TargetSet      configuration.Dataset
 	SubProcessors  []DatasetProcessor
+	tree           *packagetree.Tree
 }
 
-func NewProcessor(set configuration.Dataset) DatasetProcessor {
-	processor := DatasetProcessor{
-		SubProcessors:  make([]DatasetProcessor, len(set.Subsets)),
-		ModelProcessor: getModelProcessorForModelType(ReturnTypesValidator),
-	}
+// Helper type which passes the calls to all slice elements
+type DatasetProcessors []DatasetProcessor
 
-	// {Perform any initialization here}
+func (p *DatasetProcessors) Process(method csv.Method) errors.Error {
+	for i := range *p {
+		if err := (*p)[i].Process(method); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (p *DatasetProcessors) Close() errors.Error {
+	for i := range *p {
+		if err := (*p)[i].Close(); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func NewProcessor(set configuration.Dataset, modelType ModelType, path string, tree *packagetree.Tree) DatasetProcessor {
+	processor := DatasetProcessor{
+		TargetSet:     set,
+		SubProcessors: make([]DatasetProcessor, len(set.Subsets)),
+	}
+	processor.initializeModelProcessor(modelType, tree)
+
 	for i, subset := range set.Subsets {
-		processor.SubProcessors[i] = NewProcessor(subset)
+		processor.SubProcessors[i] = NewProcessor(subset, modelType, filepath.Join(path, set.Name), tree)
 	}
 	return processor
 }
 
-func getModelProcessorForModelType(modelType ModelType) MethodProcessor {
-	// TODO
-	return nil
-}
-
-func (p *DatasetProcessor) initialize() {
+func (p *DatasetProcessor) initializeModelProcessor(modelType ModelType, tree *packagetree.Tree) {
+	switch modelType {
+	case MethodGenerator:
+		p.ModelProcessor = methodgeneration.NewProcessor("", p.TargetSet.SpecialOptions, tree)
+	}
 	// initialize output streams/folders and so on?
 	//
 	// Folder structure:
@@ -55,8 +79,10 @@ func (p *DatasetProcessor) Process(method csv.Method) errors.Error {
 	}
 
 	if p.ModelProcessor != nil {
-		if err := p.ModelProcessor.Process(method); err != nil {
+		if isFiltered, err := p.ModelProcessor.Process(&method); err != nil {
 			return err
+		} else if isFiltered {
+			return nil
 		}
 	}
 

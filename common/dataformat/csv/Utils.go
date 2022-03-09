@@ -86,7 +86,7 @@ func WriteRecordsToTarget(target io.Writer, records [][]string) errors.Error {
 
 // Returns true if a list value of a csv record is empty
 func IsEmptyList(list []string) bool {
-	return len(list) == 0 || len(list) == 1 && len(list[0]) == 0
+	return len(list) == 0 || len(list) == 1 && list[0] == ""
 }
 
 // Unmarshals a record using the given type. The order of the struct's fields is used for the value assignment.

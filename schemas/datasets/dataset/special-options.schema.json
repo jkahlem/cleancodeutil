@@ -12,6 +12,14 @@
         "minMethodNameLength": {
             "description": "Sets the minimum length of a method to pass the filter. As only methods with this length pass the filter (and therefore are passed to subsets), subsets can only narrow this setting further.",
             "type": "number"
+        },
+        "filterDuplicates": {
+            "description": "",
+            "type": "boolean"
+        },
+        "typeClasses": {
+            "description": "Path to a file containing type class definitions used for this dataset (and it's subsets). If empty, no type classes will be used.",
+            "type": "string"
         }
     }
 }

@@ -31,15 +31,33 @@ func CreateTrainingAndEvaluationSet(methodsWithReturnTypesPath, classHierarchyPa
 }
 
 func getCreatorByModelType(modelType ModelType, methods []csv.Method, classes []csv.Class) (base.Creator, errors.Error) {
-	if modelType == MethodGenerator {
-		return methodgeneration.New(methods, createPackageTree(classes)), nil
-	} else if modelType == ReturnTypesValidator {
+	if modelType == ReturnTypesValidator {
 		return returntypesvalidation.New(methods, createPackageTree(classes)), nil
 	} else {
 		if len(modelType) == 0 {
 			return nil, errors.New("Dataset Creation Error", "Could not create dataset: No dataset type specified.")
 		}
 		return nil, errors.New("Dataset Creation Error", "Could not create dataset: Unsupported dataset type ("+string(modelType)+")")
+	}
+}
+
+// Creates a training and an evaluation set.
+func CreateTrainingAndEvaluationSetByProcessor(methodsWithReturnTypesPath, classHierarchyPath string) errors.Error {
+	if methods, classes, err := loadMethodsAndClasses(methodsWithReturnTypesPath, classHierarchyPath); err != nil {
+		return err
+	} else {
+		processors := make(DatasetProcessors, len(configuration.Datasets()))
+		tree := createPackageTree(classes)
+		for i, dataset := range configuration.Datasets() {
+			processors[i] = NewProcessor(dataset, ReturnTypesValidator, configuration.DatasetOutputDir(), tree)
+		}
+
+		for _, method := range methods {
+			if err := processors.Process(method); err != nil {
+				return err
+			}
+		}
+		return processors.Close()
 	}
 }
 
