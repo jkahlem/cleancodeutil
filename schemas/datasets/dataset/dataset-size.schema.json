@@ -1,0 +1,33 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "dataset-size.schema.json",
+    "title": "Dataset size",
+    "description": "Properties to define size proportions of a dataset when splitting into multiple sets.",
+    "type": "object",
+    "properties": {
+        "training": {
+            "description": "The size of the training set compared with the evaluation set.",
+            "type": "number",
+            "minimum": 0
+        },
+        "evaluation": {
+            "description": "The size of the evaluation set compared with the training set.",
+            "type": "number",
+            "minimum": 0
+        }
+    },
+    "required": ["training", "evaluation"],
+    "anyOf": [{
+        "properties": {
+            "training": {
+                "minimum": 1
+            }
+        }
+    },{
+        "properties": {
+            "evaluation": {
+                "minimum": 1
+            }
+        }
+    }]
+}

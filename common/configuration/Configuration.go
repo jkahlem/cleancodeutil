@@ -126,30 +126,6 @@ func ForceExtraction() bool {
 	return loadedConfig.ForceExtraction
 }
 
-func DatasetSize() DatasetProportion {
-	if loadedConfig == nil {
-		return DatasetProportion{
-			Training:   0,
-			Evaluation: 0,
-		}
-	}
-	return loadedConfig.DatasetSize
-}
-
-func TrainingSetSize() float64 {
-	if loadedConfig == nil {
-		return 0
-	}
-	return loadedConfig.DatasetSize.Training
-}
-
-func EvaluationSetSize() float64 {
-	if loadedConfig == nil {
-		return 0
-	}
-	return loadedConfig.DatasetSize.Evaluation
-}
-
 func MethodFilter() DatasetMethodFilter {
 	if loadedConfig == nil {
 		return DatasetMethodFilter{}

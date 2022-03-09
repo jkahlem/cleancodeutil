@@ -10,7 +10,8 @@
             "type": "string"
         },
         "description": {
-            "description": "A description of the dataset, e.g. which data/options are used and why for documentation purposes."
+            "description": "A description of the dataset, e.g. which data/options are used and why for documentation purposes.",
+            "type": "string"
         },
         "filter": {
             "description": "A filter which is used on each method before doing anything else with it. If the method does not fulfill this filter, then it is not accepted.",

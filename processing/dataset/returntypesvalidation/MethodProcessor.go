@@ -94,7 +94,7 @@ func (p *Processor) Close() errors.Error {
 		i++
 	}
 
-	trainingSet, evaluationSet := SplitToTrainingAndEvaluationSet(rows, configuration.DatasetSize())
+	trainingSet, evaluationSet := SplitToTrainingAndEvaluationSet(rows, p.Options.DatasetSize)
 	if err := csv.WriteCsvRecords(filepath.Join(p.OutputDir, "trainingSet.csv"), csv.MarshalReturnTypesDatasetRow(trainingSet)); err != nil {
 		return err
 	} else if err := csv.WriteCsvRecords(filepath.Join(p.OutputDir, "evaluationSet.csv"), csv.MarshalReturnTypesDatasetRow(evaluationSet)); err != nil {

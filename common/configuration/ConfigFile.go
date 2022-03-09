@@ -32,8 +32,6 @@ type configFile struct {
 	ForceExtraction bool `json:"forceExtraction"`
 	// Defines for which model type the dataset should be generated / which model type should be trained
 	ModelType ModelType `json:"modelType"`
-	// The size of the splitted datasets as a proportion
-	DatasetSize DatasetProportion `json:"datasetSize"`
 	// Method filtering options for dataset creation
 	MethodFilter DatasetMethodFilter `json:"datasetMethodFilter"`
 	// Configurations for the predictor
@@ -176,10 +174,10 @@ func createDefaultConfig() {
 		},
 		ForceExtraction: false,
 		ModelType:       MethodGenerator,
-		DatasetSize: DatasetProportion{
+		/*DatasetSize: DatasetProportion{
 			Training:   7,
 			Evaluation: 3,
-		},
+		},*/
 		MethodFilter: DatasetMethodFilter{
 			Getter:   true,
 			Setter:   true,

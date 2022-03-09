@@ -15,6 +15,7 @@ type Dataset struct {
 	Name           string         `json:"name"`
 	Filter         Filter         `json:"filter"`
 	IsGroupOnly    bool           `json:"isGroupOnly"`
+	Description    string         `json:"description"`
 	SpecialOptions SpecialOptions `json:"specialOptions"`
 	ModelOptions   ModelOptions   `json:"modelOptions"`
 	Subsets        []Dataset      `json:"subsets"`
@@ -26,6 +27,8 @@ type SpecialOptions struct {
 	FilterDuplicates    bool `json:"filterDuplicates"`
 	// TODO: Actually load and validate typeclasses for this one?
 	TypeClasses string `json:"typeClasses"`
+	// The size of the splitted datasets as a proportion
+	DatasetSize DatasetProportion `json:"datasetSize"`
 }
 
 type ModelOptions struct {

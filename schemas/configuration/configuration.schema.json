@@ -42,11 +42,6 @@
             "description": "If true, will always recollect the data from the crawled xml files",
             "type": "boolean"
         },
-        "datasetSize": {
-            "description": "The size of the splitted datasets as a proportion. Will probably be replaced with new dataset configuration files.",
-            "type": "object",
-            "deprecated": true
-        },
         "datasetMethodFilter": {
             "description": "Method filtering options for dataset creation. Will probably be replaced with new dataset configuration files.",
             "type": "object",

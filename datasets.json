@@ -12,7 +12,11 @@
             "isGroupOnly": true,
             "specialOptions": {
                 "convert2And4ToWords": true,
-                "minMethodNameLength": 2
+                "minMethodNameLength": 2,
+                "datasetSize": {
+                    "training": 7,
+                    "evaluation": 3
+                }
             },
             "modelOptions": {},
             "subsets": [{

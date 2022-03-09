@@ -20,6 +20,11 @@
         "typeClasses": {
             "description": "Path to a file containing type class definitions used for this dataset (and it's subsets). If empty, no type classes will be used.",
             "type": "string"
+        },
+        "datasetSize": {
+            "description": "The size of the splitted datasets as a proportion. This property can be redefined by each subset.",
+            "type": "object",
+            "$ref": "dataset-size.schema.json"
         }
     }
 }
