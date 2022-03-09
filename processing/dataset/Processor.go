@@ -6,19 +6,14 @@ import (
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/processing/dataset/methodgeneration"
 	"returntypes-langserver/processing/dataset/returntypesvalidation"
 )
 
-// Does more specific processings like filters
-type MethodProcessor interface {
-	Process(*csv.Method) (bool, errors.Error)
-	Close() errors.Error
-}
-
 // Common dataset processor which "preprocesses" the data (like applying common filters and so on)
 type DatasetProcessor struct {
-	ModelProcessor MethodProcessor
+	ModelProcessor base.MethodProcessor
 	TargetSet      configuration.Dataset
 	SubProcessors  []DatasetProcessor
 	tree           *packagetree.Tree

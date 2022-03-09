@@ -1,10 +1,9 @@
 package base
 
-import "returntypes-langserver/common/debug/errors"
-
-type Creator interface {
-	Create() errors.Error
-}
+import (
+	"returntypes-langserver/common/dataformat/csv"
+	"returntypes-langserver/common/debug/errors"
+)
 
 type Evaluator interface {
 	Evaluate() errors.Error
@@ -14,6 +13,8 @@ type Trainer interface {
 	Train() errors.Error
 }
 
-type Dataset struct {
-	Path string
+// Does more specific processings like filters
+type MethodProcessor interface {
+	Process(*csv.Method) (bool, errors.Error)
+	Close() errors.Error
 }

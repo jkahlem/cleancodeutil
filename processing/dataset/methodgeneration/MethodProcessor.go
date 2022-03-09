@@ -7,6 +7,7 @@ import (
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/utils"
+	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/processing/typeclasses"
 	"returntypes-langserver/services/predictor"
 	"strings"
@@ -20,7 +21,7 @@ type Processor struct {
 	typeClassMapper typeclasses.Mapper
 }
 
-func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) *Processor {
+func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) base.MethodProcessor {
 	processor := &Processor{
 		OutputDir: outputDir,
 		Options:   options,

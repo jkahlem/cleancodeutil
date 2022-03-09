@@ -40,7 +40,7 @@ func (r ReturnTypes) MostUsedType() string {
 	return maxType
 }
 
-func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) *Processor {
+func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) base.MethodProcessor {
 	processor := &Processor{
 		OutputDir:  outputDir,
 		Options:    options,
