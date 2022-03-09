@@ -67,17 +67,23 @@ func Train(modelType configuration.ModelType) errors.Error {
 
 func trainDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset) errors.Error {
 	for _, dataset := range datasets {
-		trainer, err := getTrainerByModelType(modelType)
-		if err != nil {
-			return err
-		}
 		path := filepath.Join(path, dataset.Name)
-		if err := trainer.Train(path); err != nil {
+		if err := train(modelType, path); err != nil {
 			return err
 		}
 		if err := trainDatasets(modelType, path, dataset.Subsets); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func train(modelType configuration.ModelType, path string) errors.Error {
+	// Leaving this function frees the memory occupied by the trainer, therefore put into a seperate function
+	if trainer, err := getTrainerByModelType(modelType); err != nil {
+		return err
+	} else if err := trainer.Train(path); err != nil {
+		return err
 	}
 	return nil
 }
@@ -102,17 +108,22 @@ func Evaluate(modelType configuration.ModelType) errors.Error {
 
 func evaluateDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset) errors.Error {
 	for _, dataset := range datasets {
-		evaluator, err := getEvaluatorByModelType(modelType)
-		if err != nil {
-			return err
-		}
 		path := filepath.Join(path, dataset.Name)
-		if err := evaluator.Evaluate(path); err != nil {
+		if err := evaluate(modelType, path); err != nil {
 			return err
 		}
 		if err := evaluateDatasets(modelType, path, dataset.Subsets); err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func evaluate(modelType configuration.ModelType, path string) errors.Error {
+	if evaluator, err := getEvaluatorByModelType(modelType); err != nil {
+		return err
+	} else if err := evaluator.Evaluate(path); err != nil {
+		return err
 	}
 	return nil
 }
