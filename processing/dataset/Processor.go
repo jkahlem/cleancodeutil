@@ -45,7 +45,7 @@ func NewProcessor(set configuration.Dataset, modelType configuration.ModelType, 
 		TargetSet:     set,
 		SubProcessors: make([]DatasetProcessor, len(set.Subsets)),
 	}
-	processor.initializeModelProcessor(modelType, tree)
+	processor.initializeModelProcessor(modelType, path, tree)
 
 	for i, subset := range set.Subsets {
 		processor.SubProcessors[i] = NewProcessor(subset, modelType, filepath.Join(path, set.Name), tree)
@@ -53,12 +53,12 @@ func NewProcessor(set configuration.Dataset, modelType configuration.ModelType, 
 	return processor
 }
 
-func (p *DatasetProcessor) initializeModelProcessor(modelType configuration.ModelType, tree *packagetree.Tree) {
+func (p *DatasetProcessor) initializeModelProcessor(modelType configuration.ModelType, path string, tree *packagetree.Tree) {
 	switch modelType {
 	case configuration.ReturnTypesValidator:
-		p.ModelProcessor = returntypesvalidation.NewProcessor("", p.TargetSet.SpecialOptions, tree)
+		p.ModelProcessor = returntypesvalidation.NewProcessor(path, p.TargetSet.SpecialOptions, tree)
 	case configuration.MethodGenerator:
-		p.ModelProcessor = methodgeneration.NewProcessor("", p.TargetSet.SpecialOptions, tree)
+		p.ModelProcessor = methodgeneration.NewProcessor(path, p.TargetSet.SpecialOptions, tree)
 	}
 	// initialize output streams/folders and so on?
 	//

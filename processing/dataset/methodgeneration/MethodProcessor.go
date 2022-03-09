@@ -13,6 +13,11 @@ import (
 	"strings"
 )
 
+const (
+	TrainingSetFileName   = "trainingSet_returntypesvalidation.csv"
+	EvaluationSetFileName = "evaluationSet_returntypesvalidation.csv"
+)
+
 type Processor struct {
 	OutputDir       string
 	rows            []csv.MethodGenerationDatasetRow
@@ -103,6 +108,6 @@ func (p *Processor) getIdentifier(method *csv.Method) string {
 
 func (p *Processor) Close() errors.Error {
 	// TODO: Split evaluation set?
-	csv.WriteCsvRecords(filepath.Join(p.OutputDir, "dataset.csv"), csv.MarshalMethodGenerationDatasetRow(p.rows))
+	csv.WriteCsvRecords(filepath.Join(p.OutputDir, TrainingSetFileName), csv.MarshalMethodGenerationDatasetRow(p.rows))
 	return nil
 }

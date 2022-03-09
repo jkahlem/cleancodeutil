@@ -11,6 +11,12 @@ import (
 	"returntypes-langserver/services/predictor"
 )
 
+const (
+	TrainingSetFileName   = "trainingSet_returntypesvalidation.csv"
+	EvaluationSetFileName = "evaluationSet_returntypesvalidation.csv"
+	LabelSetFileName      = "labelSet_returntypesvalidation.csv"
+)
+
 type Processor struct {
 	OutputDir       string
 	methodsSet      map[string]ReturnTypes
@@ -95,9 +101,11 @@ func (p *Processor) Close() errors.Error {
 	}
 
 	trainingSet, evaluationSet := SplitToTrainingAndEvaluationSet(rows, p.Options.DatasetSize)
-	if err := csv.WriteCsvRecords(filepath.Join(p.OutputDir, "trainingSet.csv"), csv.MarshalReturnTypesDatasetRow(trainingSet)); err != nil {
+	if err := csv.WriteCsvRecords(filepath.Join(p.OutputDir, TrainingSetFileName), csv.MarshalReturnTypesDatasetRow(trainingSet)); err != nil {
 		return err
-	} else if err := csv.WriteCsvRecords(filepath.Join(p.OutputDir, "evaluationSet.csv"), csv.MarshalReturnTypesDatasetRow(evaluationSet)); err != nil {
+	} else if err := csv.WriteCsvRecords(filepath.Join(p.OutputDir, EvaluationSetFileName), csv.MarshalReturnTypesDatasetRow(evaluationSet)); err != nil {
+		return err
+	} else if err := csv.WriteCsvRecords(filepath.Join(p.OutputDir, LabelSetFileName), csv.MarshalTypeLabel(p.typeLabelMapper.GetMappings())); err != nil {
 		return err
 	}
 	return nil
