@@ -28,14 +28,11 @@ type typeClassMapper struct {
 	config   TypeClassConfiguration
 }
 
-// Creates and prepares a new type class mapper
-func New(tree *packagetree.Tree) Mapper {
-	mapper := typeClassMapper{tree: tree}
-	mapper.loadTypeClasses(GetTypeClasses())
-	return &mapper
+func GetTypeClasses() TypeClassConfiguration {
+	return TypeClassConfiguration{}
 }
 
-func New2(tree *packagetree.Tree, typeclasses configuration.TypeClassConfigurations) (Mapper, errors.Error) {
+func New(tree *packagetree.Tree, typeclasses configuration.TypeClassConfigurations) (Mapper, errors.Error) {
 	if config, err := buildTypeClassConfiguration(typeclasses); err != nil {
 		return nil, err
 	} else {

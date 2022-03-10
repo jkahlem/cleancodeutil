@@ -33,7 +33,7 @@ func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *
 		methods:   make(utils.StringSet),
 	}
 	if options.TypeClasses != nil {
-		if typeClassMapper, err := typeclasses.New2(tree, options.TypeClasses); err != nil {
+		if typeClassMapper, err := typeclasses.New(tree, options.TypeClasses); err != nil {
 			return nil, err
 		} else {
 			processor.typeClassMapper = typeClassMapper

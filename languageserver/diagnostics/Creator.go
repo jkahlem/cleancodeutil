@@ -81,7 +81,8 @@ func (d *Creator) getTypeClassForMethodReturnType(method *java.Method) (string, 
 
 func (d *Creator) getTypeClassMapper() typeclasses.Mapper {
 	if d.typeClassMapper == nil {
-		d.typeClassMapper = typeclasses.New(d.tree)
+		// TODO: Load/Use type classes which are used for the language server
+		d.typeClassMapper, _ = typeclasses.New(d.tree, nil)
 	} else {
 		d.typeClassMapper.SetPackageTree(d.tree)
 	}
