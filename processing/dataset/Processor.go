@@ -59,16 +59,16 @@ func NewProcessor(set configuration.Dataset, modelType configuration.ModelType, 
 	return processor, nil
 }
 
-func (p *DatasetProcessor) initializeModelProcessor(modelType configuration.ModelType, path string, tree *packagetree.Tree) errors.Error {
+func (p *DatasetProcessor) initializeModelProcessor(modelType configuration.ModelType, path string, tree *packagetree.Tree) (err errors.Error) {
+	var processor base.MethodProcessor
 	switch modelType {
 	case configuration.ReturnTypesValidator:
-		processor, err := returntypesvalidation.NewProcessor(path, p.TargetSet.SpecialOptions, tree)
-		p.ModelProcessor = processor
-		return err
+		processor, err = returntypesvalidation.NewProcessor(path, p.TargetSet.SpecialOptions, tree)
 	case configuration.MethodGenerator:
-		p.ModelProcessor = methodgeneration.NewProcessor(path, p.TargetSet.SpecialOptions, tree)
+		processor, err = methodgeneration.NewProcessor(path, p.TargetSet.SpecialOptions, tree)
 	}
-	return nil
+	p.ModelProcessor = processor
+	return err
 }
 
 func (p *DatasetProcessor) Process(method csv.Method) errors.Error {

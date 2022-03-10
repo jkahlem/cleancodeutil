@@ -83,3 +83,41 @@ func loadTypeClassesFromJsonFile(path string) (*TypeClassConfiguration, errors.E
 	}
 	return &typeClasses, nil
 }
+
+// Builds a type class configuration from type classes
+func buildTypeClassConfiguration(typeClasses []configuration.TypeClass) (TypeClassConfiguration, errors.Error) {
+	config := TypeClassConfiguration{
+		Classes: typeClasses,
+	}
+	if typeClasses == nil {
+		return config, errors.New(TypeClassMapperErrorTitle, "Invalid type class configuration")
+	}
+	loadedTypes := make(utils.StringSet)
+	for i, typeClass := range config.Classes {
+		if typeClass.IsArrayType {
+			if config.ArrayType != nil {
+				return config, errors.New(TypeClassMapperErrorTitle, "An array type configuration is only for a maximum of one type class allowed.")
+			}
+			config.ArrayType = &config.Classes[i]
+		}
+		if typeClass.IsChainMethodType {
+			if config.ChainMethodType != nil {
+				return config, errors.New(TypeClassMapperErrorTitle, "A chain method type configuration is only for a maximum of one type class allowed.")
+			}
+			config.ChainMethodType = &config.Classes[i]
+		}
+		for _, typeName := range typeClass.Elements {
+			if typeName == DefaultType {
+				config.DefaultType = &config.Classes[i]
+			}
+			if loadedTypes.Has(typeName) {
+				return config, errors.New(TypeClassMapperErrorTitle, fmt.Sprintf("The type %s is contained in different type classes. (Types must be unique in the type classes)", typeName))
+			}
+			loadedTypes.Put(typeName)
+		}
+	}
+	if config.DefaultType == nil {
+		return config, errors.New(TypeClassMapperErrorTitle, fmt.Sprintf("At least one type class needs to include the default type %s.", DefaultType))
+	}
+	return config, nil
+}

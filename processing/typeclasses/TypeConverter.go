@@ -3,6 +3,7 @@ package typeclasses
 import (
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
+	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
 )
 
@@ -30,8 +31,18 @@ type typeClassMapper struct {
 // Creates and prepares a new type class mapper
 func New(tree *packagetree.Tree) Mapper {
 	mapper := typeClassMapper{tree: tree}
-	mapper.setup()
+	mapper.loadTypeClasses(GetTypeClasses())
 	return &mapper
+}
+
+func New2(tree *packagetree.Tree, typeclasses configuration.TypeClassConfigurations) (Mapper, errors.Error) {
+	if config, err := buildTypeClassConfiguration(typeclasses); err != nil {
+		return nil, err
+	} else {
+		mapper := typeClassMapper{tree: tree}
+		mapper.loadTypeClasses(config)
+		return &mapper, nil
+	}
 }
 
 func (m *typeClassMapper) MapParameterTypeToTypeClass(typeName string, methodLabels []string) (string, errors.Error) {
@@ -68,17 +79,8 @@ func (m *typeClassMapper) SetPackageTree(tree *packagetree.Tree) {
 	m.tree = tree
 }
 
-func (m *typeClassMapper) setup() {
-	m.loadTypeClasses()
-}
-
-// Loads the default type classes
-func (m *typeClassMapper) loadTypeClasses() {
-	m.mapTypeClasses(GetTypeClasses())
-}
-
 // Loads the type classes into a map with type names -> type class
-func (m *typeClassMapper) mapTypeClasses(typeClasses TypeClassConfiguration) {
+func (m *typeClassMapper) loadTypeClasses(typeClasses TypeClassConfiguration) {
 	if m.mappings == nil {
 		m.mappings = make(map[string]string)
 	}

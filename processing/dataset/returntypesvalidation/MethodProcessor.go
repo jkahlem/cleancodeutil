@@ -58,9 +58,12 @@ func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *
 		methodsSet: make(map[string]ReturnTypes),
 	}
 	if options.TypeClasses != nil {
-		// TODO: Use typeclasses of the dataset for typeclass mapper ...
-		processor.typeClassMapper = typeclasses.New(tree)
-		processor.typeLabelMapper = &base.TypeLabelMapper{}
+		if typeClassMapper, err := typeclasses.New2(tree, options.TypeClasses); err != nil {
+			return nil, err
+		} else {
+			processor.typeClassMapper = typeClassMapper
+			processor.typeLabelMapper = &base.TypeLabelMapper{}
+		}
 	}
 	return processor, nil
 }

@@ -512,7 +512,7 @@
                 "name": "defaulter",
                 "filter": {
                     "include": {
-                        "method": [{"type": "regexp", "pattern":"\\bor\\bdefault.*"}]
+                        "method": [{"type": "regexp", "pattern":"\\bor default\\b.*"}]
                     }
                 }
             },
@@ -540,6 +540,14 @@
                             "type": "regexp",
                             "pattern": "\\bor\\b"
                         }]
+                    }
+                }
+            },
+            {
+                "name": "and-Setter",
+                "filter": {
+                    "include": {
+                        "method": ["set * and *"]
                     }
                 }
             }

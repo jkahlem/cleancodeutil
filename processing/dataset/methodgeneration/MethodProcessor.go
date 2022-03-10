@@ -26,17 +26,20 @@ type Processor struct {
 	typeClassMapper typeclasses.Mapper
 }
 
-func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) base.MethodProcessor {
+func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) (base.MethodProcessor, errors.Error) {
 	processor := &Processor{
 		OutputDir: outputDir,
 		Options:   options,
 		methods:   make(utils.StringSet),
 	}
 	if options.TypeClasses != nil {
-		// TODO: Use typeclasses of the dataset for typeclass mapper ...
-		processor.typeClassMapper = typeclasses.New(tree)
+		if typeClassMapper, err := typeclasses.New2(tree, options.TypeClasses); err != nil {
+			return nil, err
+		} else {
+			processor.typeClassMapper = typeClassMapper
+		}
 	}
-	return processor
+	return processor, nil
 }
 
 func (p *Processor) Process(method *csv.Method) (isFiltered bool, err errors.Error) {
