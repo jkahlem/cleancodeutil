@@ -51,6 +51,10 @@ type Proxy struct {
 	Predict func(predictionData []string, targetModel SupportedModels) ([]string, errors.Error) `rpcmethod:"predict" rpcparams:"predictionData,targetModel"`
 	// Trains the predictor and returns the evaluation result if finished.
 	Train func(trainingSet, evaluationSet, additional string, targetModel SupportedModels) (Evaluation, errors.Error) `rpcmethod:"train" rpcparams:"trainingSet,evaluationSet,additional,targetModel"`
+
+	PredictNew func(predictionData []MethodContext, options Options) ([]MethodValues, errors.Error) `rpcmethod:"predict" rpcparams:"predictionData,options"`
+	TrainNew   func(trainData []MethodContext, options Options) errors.Error                        `rpcmethod:"train" rpcparams:"trainData,options"`
+	Evaluate   func(evaluationData []Method, options Options) (Evaluation, errors.Error)            `rpcmethod:"evaluate" rpcparams:"evaluationData,options"`
 }
 
 // Adds a handler for the RecoverFailed event.

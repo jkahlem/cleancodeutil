@@ -512,7 +512,7 @@
                 "name": "defaulter",
                 "filter": {
                     "include": {
-                        "method": [{"type": "regexp", "pattern":"\\bor default\\b.*"}]
+                        "method": [{"type": "regexp", "pattern":"\\bor .*default\\b.*"}]
                     }
                 }
             },

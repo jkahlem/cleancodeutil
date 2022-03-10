@@ -8,12 +8,27 @@ type Evaluation struct {
 }
 
 type MethodContext struct {
-	MethodName string
-	ClassName  string
-	IsStatic   bool
+	MethodName string   `json:"methodName"`
+	ClassName  string   `json:"className"`
+	IsStatic   bool     `json:"isStatic"`
+	Types      []string `json:"types"`
 }
 
 type MethodValues struct {
-	ReturnType string
-	Parameters string
+	ReturnType string   `json:"returnType"`
+	Parameters []string `json:"parameters"`
+}
+
+type Method struct {
+	Context MethodContext `json:"context"`
+	Values  MethodValues  `json:"values"`
+}
+
+type Options struct {
+	Identifier   string          `json:"identifier"`
+	Type         SupportedModels `json:"type"`
+	ModelOptions ModelOptions    `json:"model"`
+}
+
+type ModelOptions struct {
 }
