@@ -72,7 +72,7 @@ func Train(modelType configuration.ModelType) errors.Error {
 func trainDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset) errors.Error {
 	for _, dataset := range datasets {
 		path := filepath.Join(path, dataset.Name)
-		if err := train(modelType, path); err != nil {
+		if err := train(modelType, path, dataset); err != nil {
 			return err
 		}
 		if err := trainDatasets(modelType, path, dataset.Subsets); err != nil {
@@ -82,9 +82,9 @@ func trainDatasets(modelType configuration.ModelType, path string, datasets []co
 	return nil
 }
 
-func train(modelType configuration.ModelType, path string) errors.Error {
+func train(modelType configuration.ModelType, path string, dataset configuration.Dataset) errors.Error {
 	// Leaving this function frees the memory occupied by the trainer, therefore put into a seperate function
-	if trainer, err := getTrainerByModelType(modelType); err != nil {
+	if trainer, err := getTrainerByModelType(modelType, dataset); err != nil {
 		return err
 	} else if err := trainer.Train(path); err != nil {
 		return err
@@ -92,12 +92,12 @@ func train(modelType configuration.ModelType, path string) errors.Error {
 	return nil
 }
 
-func getTrainerByModelType(modelType configuration.ModelType) (base.Trainer, errors.Error) {
+func getTrainerByModelType(modelType configuration.ModelType, dataset configuration.Dataset) (base.Trainer, errors.Error) {
 	switch modelType {
 	case configuration.MethodGenerator:
-		return methodgeneration.NewTrainer(), nil
+		return methodgeneration.NewTrainer(dataset), nil
 	case configuration.ReturnTypesValidator:
-		return returntypesvalidation.NewTrainer(), nil
+		return returntypesvalidation.NewTrainer(dataset), nil
 	default:
 		if len(modelType) == 0 {
 			return nil, errors.New("Dataset Creation Error", "Could not create dataset: No dataset type specified.")
