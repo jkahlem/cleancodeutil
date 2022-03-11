@@ -205,6 +205,7 @@ func loadJsonConfig(content []byte) errors.Error {
 	if err := jsonschema.UnmarshalJSONStrict(content, &loadedConfig, ProjectConfigurationFileSchema); err != nil {
 		return errors.Wrap(err, ConfigurationErrorTitle, "Could not load json configuration")
 	}
+	connectDatasetPaths(loadedConfig.Datasets, "")
 	return nil
 }
 

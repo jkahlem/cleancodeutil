@@ -77,7 +77,8 @@ func (p *predictorNew) GenerateMethods(contexts []MethodContext) ([]MethodValues
 
 func (p *predictorNew) getOptions(modelType SupportedModels) Options {
 	return Options{
-		Type: modelType,
+		Identifier: p.config.QualifiedIdentifier(),
+		Type:       modelType,
 	}
 }
 
