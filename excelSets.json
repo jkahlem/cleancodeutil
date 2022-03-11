@@ -550,6 +550,14 @@
                         "method": ["set * and *"]
                     }
                 }
+            },
+            {
+                "name": "all",
+                "filter": {
+                    "include": {
+                        "method": ["* all", "all"]
+                    }
+                }
             }
         ],
         "complementFilename": "otherMethods"
