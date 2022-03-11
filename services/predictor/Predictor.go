@@ -39,29 +39,29 @@ type Predictor interface {
 	TrainMethods(trainingSet []Method) errors.Error
 }
 
-type predictorNew struct {
+type predictor struct {
 	config configuration.Dataset
 }
 
 func OnDataset(dataset configuration.Dataset) Predictor {
-	return &predictorNew{
+	return &predictor{
 		config: dataset,
 	}
 }
 
-func (p *predictorNew) TrainReturnTypes(methods []Method, labels [][]string) errors.Error {
+func (p *predictor) TrainReturnTypes(methods []Method, labels [][]string) errors.Error {
 	options := p.getOptions(ReturnTypesPrediction)
 	options.LabelsCsv = p.asCsvString(labels)
 	return remote().TrainNew(methods, options)
 }
 
-func (p *predictorNew) EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error) {
+func (p *predictor) EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error) {
 	options := p.getOptions(ReturnTypesPrediction)
 	options.LabelsCsv = p.asCsvString(labels)
 	return remote().Evaluate(evaluationSet, options)
 }
 
-func (p *predictorNew) PredictReturnTypes(methodNames []PredictableMethodName) ([]MethodValues, errors.Error) {
+func (p *predictor) PredictReturnTypes(methodNames []PredictableMethodName) ([]MethodValues, errors.Error) {
 	options := p.getOptions(ReturnTypesPrediction)
 	contexts := make([]MethodContext, len(methodNames))
 	for i, name := range methodNames {
@@ -71,7 +71,7 @@ func (p *predictorNew) PredictReturnTypes(methodNames []PredictableMethodName) (
 }
 
 // Makes predictions for the methods in the map and sets the types as their value.
-func (p *predictorNew) PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error {
+func (p *predictor) PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error {
 	names := p.getMethodNamesInsideOfMap(mapping)
 	predictedTypes, err := p.PredictReturnTypes(names)
 	if err != nil {
@@ -88,7 +88,7 @@ func (p *predictorNew) PredictReturnTypesToMap(mapping MethodTypeMap) errors.Err
 	return nil
 }
 
-func (p *predictorNew) getMethodNamesInsideOfMap(mapping MethodTypeMap) []PredictableMethodName {
+func (p *predictor) getMethodNamesInsideOfMap(mapping MethodTypeMap) []PredictableMethodName {
 	names := make([]PredictableMethodName, len(mapping))
 	i := 0
 	for methodName := range mapping {
@@ -98,22 +98,22 @@ func (p *predictorNew) getMethodNamesInsideOfMap(mapping MethodTypeMap) []Predic
 	return names[:i]
 }
 
-func (p *predictorNew) TrainMethods(trainingSet []Method) errors.Error {
+func (p *predictor) TrainMethods(trainingSet []Method) errors.Error {
 	return remote().TrainNew(trainingSet, p.getOptions(MethodGenerator))
 }
 
-func (p *predictorNew) GenerateMethods(contexts []MethodContext) ([]MethodValues, errors.Error) {
+func (p *predictor) GenerateMethods(contexts []MethodContext) ([]MethodValues, errors.Error) {
 	return remote().PredictNew(contexts, p.getOptions(MethodGenerator))
 }
 
-func (p *predictorNew) getOptions(modelType SupportedModels) Options {
+func (p *predictor) getOptions(modelType SupportedModels) Options {
 	return Options{
 		Identifier: p.config.QualifiedIdentifier(),
 		Type:       modelType,
 	}
 }
 
-func (p *predictorNew) asCsvString(records [][]string) string {
+func (p *predictor) asCsvString(records [][]string) string {
 	builder := strings.Builder{}
 	csv.WriteRecordsToTarget(&builder, records)
 	return builder.String()
