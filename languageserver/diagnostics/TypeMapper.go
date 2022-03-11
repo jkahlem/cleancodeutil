@@ -2,6 +2,7 @@ package diagnostics
 
 import (
 	"returntypes-langserver/common/code/java"
+	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/services/predictor"
 )
@@ -30,5 +31,5 @@ func (mapper *TypeMapper) createEmptyEntries(methods []*java.Method) {
 }
 
 func (mapper *TypeMapper) predictTypeMappings() errors.Error {
-	return predictor.PredictReturnTypesToMap(mapper.mappings)
+	return predictor.OnDataset(configuration.Dataset{ /*TODO*/ }).PredictReturnTypesToMap(mapper.mappings)
 }

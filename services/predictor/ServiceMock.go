@@ -9,12 +9,37 @@ import (
 //
 // The mock will not call the remote service and has no other dependencies.
 // The mock will always predict the type specified in MockReturnTypePrediction for any method to predict.
-type mock struct{} // @ServiceGenerator:ServiceMockDefinition
+type mock struct{}
 
 const MockReturnTypePrediction = "void"
-const MockGeneratedMethod = ": <object> parameter"
 
-// Maps everything to the specified type.
+var MockParameter Parameter = Parameter{
+	Name: "mockParameter",
+	Type: "Object",
+}
+
+func (p *mock) TrainReturnTypes(methods []Method, labels [][]string) errors.Error {
+	return nil
+}
+
+func (p *mock) EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error) {
+	return Evaluation{
+		AccScore: 1,
+		EvalLoss: 1,
+		MCC:      1,
+		F1Score:  1,
+	}, nil
+}
+
+func (p *mock) PredictReturnTypes(methodNames []PredictableMethodName) ([]MethodValues, errors.Error) {
+	returnTypes := make([]MethodValues, len(methodNames))
+	for i := range returnTypes {
+		returnTypes[i].ReturnType = MockReturnTypePrediction
+	}
+	return returnTypes, nil
+}
+
+// Makes predictions for the methods in the map and sets the types as their value.
 func (p *mock) PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error {
 	for key := range mapping {
 		mapping[key] = MockReturnTypePrediction
@@ -22,40 +47,24 @@ func (p *mock) PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error {
 	return nil
 }
 
-// Predicts for each method name the specified type.
-func (p *mock) PredictReturnTypes(methodNames []PredictableMethodName) ([]string, errors.Error) {
-	returnTypes := make([]string, len(methodNames))
-	for i := range returnTypes {
-		returnTypes[i] = MockReturnTypePrediction
+func (p *mock) getMethodNamesInsideOfMap(mapping MethodTypeMap) []PredictableMethodName {
+	names := make([]PredictableMethodName, len(mapping))
+	i := 0
+	for methodName := range mapping {
+		names[i] = methodName
+		i++
 	}
-	return returnTypes, nil
+	return names[:i]
 }
 
-// GEnerates a method
-func (p *mock) GenerateMethods(methodNames []PredictableMethodName) ([]string, errors.Error) {
-	returnTypes := make([]string, len(methodNames))
-	for i := range returnTypes {
-		returnTypes[i] = string(methodNames[i]) + MockGeneratedMethod
+func (p *mock) TrainMethods(trainingSet []Method) errors.Error {
+	return nil
+}
+
+func (p *mock) GenerateMethods(contexts []MethodContext) ([]MethodValues, errors.Error) {
+	methods := make([]MethodValues, len(contexts))
+	for i := range methods {
+		methods[i].Parameters = append(methods[i].Parameters, MockParameter)
 	}
-	return returnTypes, nil
-}
-
-// Always returns a successful evaluation result.
-func (p *mock) TrainReturnTypes(labels, trainingSet, evaluationSet [][]string) (Evaluation, errors.Error) {
-	return Evaluation{
-		AccScore: 1,
-		EvalLoss: 1,
-		MCC:      1,
-		F1Score:  1,
-	}, nil
-}
-
-// Always returns a successful evaluation result.
-func (p *mock) TrainMethods(trainingSet, evaluationSet [][]string) (Evaluation, errors.Error) {
-	return Evaluation{
-		AccScore: 1,
-		EvalLoss: 1,
-		MCC:      1,
-		F1Score:  1,
-	}, nil
+	return methods, nil
 }

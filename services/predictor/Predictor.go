@@ -5,10 +5,10 @@ package predictor
 
 import (
 	"fmt"
-	"strings"
-
+	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"strings"
 )
 
 const PredictorErrorTitle = "Predictor Error"
@@ -28,19 +28,50 @@ type Predictor interface {
 	PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error
 	// Predicts the expected return type for the given method names. Returns a list of expected return types in the exact order
 	// the method names were passed.
-	PredictReturnTypes(methodNames []PredictableMethodName) ([]string, errors.Error)
+	PredictReturnTypes(methodNames []PredictableMethodName) ([]MethodValues, errors.Error)
+	// Evaluates the passed methods and returns the scores for it
+	EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error)
 	// Generates the remained part of a method by it's method name
-	GenerateMethods(methodNames []PredictableMethodName) ([]string, errors.Error)
-	// Starts the training and evaluation process. Returns the evaluation result if finished.
-	TrainReturnTypes(labels, trainingSet, evaluationSet [][]string) (Evaluation, errors.Error)
-	// Starts the training and evaluation process. Returns the evaluation result if finished.
-	TrainMethods(trainingSet, evaluationSet [][]string) (Evaluation, errors.Error)
-} // @ServiceGenerator:ServiceInterfaceDefinition
+	GenerateMethods(contexts []MethodContext) ([]MethodValues, errors.Error)
+	// Starts the training and evaluation process.
+	TrainReturnTypes(methods []Method, labels [][]string) errors.Error
+	// Starts the training and evaluation process.
+	TrainMethods(trainingSet []Method) errors.Error
+}
 
-type predictor struct{} // @ServiceGenerator:ServiceDefinition
+type predictorNew struct {
+	config configuration.Dataset
+}
+
+func OnDataset(dataset configuration.Dataset) Predictor {
+	return &predictorNew{
+		config: dataset,
+	}
+}
+
+func (p *predictorNew) TrainReturnTypes(methods []Method, labels [][]string) errors.Error {
+	options := p.getOptions(ReturnTypesPrediction)
+	options.LabelsCsv = p.asCsvString(labels)
+	return remote().TrainNew(methods, options)
+}
+
+func (p *predictorNew) EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error) {
+	options := p.getOptions(ReturnTypesPrediction)
+	options.LabelsCsv = p.asCsvString(labels)
+	return remote().Evaluate(evaluationSet, options)
+}
+
+func (p *predictorNew) PredictReturnTypes(methodNames []PredictableMethodName) ([]MethodValues, errors.Error) {
+	options := p.getOptions(ReturnTypesPrediction)
+	contexts := make([]MethodContext, len(methodNames))
+	for i, name := range methodNames {
+		contexts[i].MethodName = name
+	}
+	return remote().PredictNew(contexts, options)
+}
 
 // Makes predictions for the methods in the map and sets the types as their value.
-func (p *predictor) PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error {
+func (p *predictorNew) PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error {
 	names := p.getMethodNamesInsideOfMap(mapping)
 	predictedTypes, err := p.PredictReturnTypes(names)
 	if err != nil {
@@ -52,12 +83,12 @@ func (p *predictor) PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error 
 	}
 
 	for index, name := range names {
-		mapping[name] = predictedTypes[index]
+		mapping[name] = predictedTypes[index].ReturnType
 	}
 	return nil
 }
 
-func (p *predictor) getMethodNamesInsideOfMap(mapping MethodTypeMap) []PredictableMethodName {
+func (p *predictorNew) getMethodNamesInsideOfMap(mapping MethodTypeMap) []PredictableMethodName {
 	names := make([]PredictableMethodName, len(mapping))
 	i := 0
 	for methodName := range mapping {
@@ -67,37 +98,22 @@ func (p *predictor) getMethodNamesInsideOfMap(mapping MethodTypeMap) []Predictab
 	return names[:i]
 }
 
-// Predicts the expected return type for the given method names. Returns a list of expected return types in the exact order
-// the method names were passed.
-func (p *predictor) PredictReturnTypes(methodNames []PredictableMethodName) ([]string, errors.Error) {
-	strSlice := make([]string, len(methodNames))
-	for i, name := range methodNames {
-		strSlice[i] = string(name)
+func (p *predictorNew) TrainMethods(trainingSet []Method) errors.Error {
+	return remote().TrainNew(trainingSet, p.getOptions(MethodGenerator))
+}
+
+func (p *predictorNew) GenerateMethods(contexts []MethodContext) ([]MethodValues, errors.Error) {
+	return remote().PredictNew(contexts, p.getOptions(MethodGenerator))
+}
+
+func (p *predictorNew) getOptions(modelType SupportedModels) Options {
+	return Options{
+		Identifier: p.config.QualifiedIdentifier(),
+		Type:       modelType,
 	}
-	return remote().Predict(strSlice, ReturnTypesPrediction)
 }
 
-// Predicts the expected return type for the given method names. Returns a list of expected return types in the exact order
-// the method names were passed.
-func (p *predictor) GenerateMethods(methodNames []PredictableMethodName) ([]string, errors.Error) {
-	strSlice := make([]string, len(methodNames))
-	for i, name := range methodNames {
-		strSlice[i] = string(name)
-	}
-	return remote().Predict(strSlice, MethodGenerator)
-}
-
-// Starts the training and evaluation process. Returns the evaluation result if finished.
-func (p *predictor) TrainReturnTypes(labels, trainingSet, evaluationSet [][]string) (Evaluation, errors.Error) {
-	return remote().Train(p.asCsvString(trainingSet), p.asCsvString(evaluationSet), p.asCsvString(labels), ReturnTypesPrediction)
-}
-
-// Starts training + evaluation process for method generation
-func (p *predictor) TrainMethods(trainingSet, evaluationSet [][]string) (Evaluation, errors.Error) {
-	return remote().Train(p.asCsvString(trainingSet), p.asCsvString(evaluationSet), "", MethodGenerator)
-}
-
-func (p *predictor) asCsvString(records [][]string) string {
+func (p *predictorNew) asCsvString(records [][]string) string {
 	builder := strings.Builder{}
 	csv.WriteRecordsToTarget(&builder, records)
 	return builder.String()

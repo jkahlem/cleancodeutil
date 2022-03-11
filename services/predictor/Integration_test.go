@@ -20,11 +20,12 @@ func TestPredictReturnTypes(t *testing.T) {
 	methods := make([]PredictableMethodName, 2)
 	methods[0] = GetPredictableMethodName("getName")
 	methods[1] = GetPredictableMethodName("findItem")
+	predictor := OnDataset(dataset())
 
 	// when
-	PredictReturnTypes(methods)
-	PredictReturnTypes(methods)
-	elements, err := PredictReturnTypes(methods)
+	predictor.PredictReturnTypes(methods)
+	predictor.PredictReturnTypes(methods)
+	elements, err := predictor.PredictReturnTypes(methods)
 
 	// then
 	assert.NoError(t, err)
@@ -35,18 +36,21 @@ func TestPredictReturnTypes(t *testing.T) {
 func TestTrainMethods(t *testing.T) {
 	// given
 	configuration.LoadConfigFromJsonString(buildPredictorConfig())
+	trainingSet := []Method{{Context: MethodContext{
+		MethodName: "training",
+		ClassName:  "testclass",
+	}, Values: MethodValues{Parameters: []Parameter{
+		{Name: "test", Type: "int"},
+	}}}}
 
 	// when
-	evaluation, err := TrainMethods(createDataset("training"), createDataset("evaluation"))
+	err := OnDataset(dataset()).TrainMethods(trainingSet)
 
 	// then
 	assert.NoError(t, err)
-	assert.Equal(t, 0.1, evaluation.AccScore)
-	assert.Equal(t, 0.2, evaluation.EvalLoss)
-	assert.Equal(t, 0.3, evaluation.F1Score)
-	assert.Equal(t, 0.4, evaluation.MCC)
 }
 
+/*
 func TestGenerateMethods(t *testing.T) {
 	// given
 	configuration.LoadConfigFromJsonString(buildPredictorConfig())
@@ -104,7 +108,7 @@ func TestGenerateMethods(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, elements)
 	assert.Len(t, elements, 2)
-}
+}*/
 
 func createTypeAssignmentTest(methodName, parameterName, context string) PredictableMethodName {
 	//return PredictableMethodName(fmt.Sprintf("name: %s context: %s", parameterName, context))
@@ -114,9 +118,22 @@ func createTypeAssignmentTest(methodName, parameterName, context string) Predict
 func TestTrainReturnTypes(t *testing.T) {
 	// given
 	configuration.LoadConfigFromJsonString(buildPredictorConfig())
+	trainingSet := []Method{{Context: MethodContext{MethodName: "training"}, Values: MethodValues{ReturnType: "test"}}}
 
 	// when
-	evaluation, err := TrainReturnTypes(createDataset("labels"), createDataset("training"), createDataset("evaluation"))
+	err := OnDataset(dataset()).TrainReturnTypes(trainingSet, createDataset("labels"))
+
+	// then
+	assert.NoError(t, err)
+}
+
+func TestEvaluateReturnTypes(t *testing.T) {
+	// given
+	configuration.LoadConfigFromJsonString(buildPredictorConfig())
+	evaluationSet := []Method{{Context: MethodContext{MethodName: "evaluation"}, Values: MethodValues{ReturnType: "test"}}}
+
+	// when
+	evaluation, err := OnDataset(dataset()).EvaluateReturnTypes(evaluationSet, createDataset("labels"))
 
 	// then
 	assert.NoError(t, err)
@@ -135,11 +152,12 @@ func TestPredictUnstable(t *testing.T) {
 	methods := make([]PredictableMethodName, 2)
 	methods[0] = GetPredictableMethodName("getName")
 	methods[1] = GetPredictableMethodName("findItem")
+	predictor := OnDataset(dataset())
 
 	// when
-	PredictReturnTypes(methods)
-	PredictReturnTypes(methods)
-	elements, err := PredictReturnTypes(methods)
+	predictor.PredictReturnTypes(methods)
+	predictor.PredictReturnTypes(methods)
+	elements, err := predictor.PredictReturnTypes(methods)
 
 	// then
 	assert.NoError(t, err)
@@ -148,6 +166,12 @@ func TestPredictUnstable(t *testing.T) {
 }
 
 // Test helper functions
+
+func dataset() configuration.Dataset {
+	return configuration.Dataset{
+		Name: "test",
+	}
+}
 
 func createDataset(text string) [][]string {
 	set := make([][]string, 1)

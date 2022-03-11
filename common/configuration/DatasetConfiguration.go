@@ -19,7 +19,7 @@ type Dataset struct {
 	SpecialOptions SpecialOptions `json:"specialOptions"`
 	ModelOptions   ModelOptions   `json:"modelOptions"`
 	Subsets        []Dataset      `json:"subsets"`
-	path           string
+	parentPath     string
 }
 
 type SpecialOptions struct {
@@ -73,16 +73,15 @@ func (c *DatasetConfiguration) fromJson(contents []byte) error {
 
 // Returns the qualified identifier of the dataset
 func (c *Dataset) QualifiedIdentifier() string {
-	return c.path
+	if c.parentPath != "" {
+		return c.parentPath + "/" + c.Name
+	}
+	return c.Name
 }
 
 func connectDatasetPaths(datasets []Dataset, parentPath string) {
 	for i := range datasets {
-		path := datasets[i].Name
-		if parentPath != "" {
-			path = parentPath + "/" + path
-		}
-		datasets[i].path = path
-		connectDatasetPaths(datasets[i].Subsets, path)
+		datasets[i].parentPath = parentPath
+		connectDatasetPaths(datasets[i].Subsets, datasets[i].QualifiedIdentifier())
 	}
 }

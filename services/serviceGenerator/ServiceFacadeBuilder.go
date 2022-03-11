@@ -18,7 +18,7 @@ func buildServiceFacade(parsedData ParsedData) string {
 	outputCode := strings.Builder{}
 	serviceStruct, exists := findServiceStruct(parsedData.Structs)
 	if !exists {
-		log.Fatal(fmt.Errorf("No service found"))
+		fmt.Println("No service found")
 		return ""
 	}
 	serviceAttributes := ServiceFacadeTemplateAttributes{

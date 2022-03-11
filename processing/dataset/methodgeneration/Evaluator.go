@@ -1,7 +1,10 @@
 package methodgeneration
 
 import (
+	"fmt"
+	"path/filepath"
 	"returntypes-langserver/common/configuration"
+	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/services/predictor"
@@ -26,7 +29,7 @@ func NewEvaluator() base.Evaluator {
 }
 
 func (e *Evaluator) Evaluate(path string) errors.Error {
-	set, err := e.loadEvaluationSet()
+	set, err := e.loadEvaluationSet(path)
 	if err != nil {
 		return err
 	}
@@ -44,25 +47,40 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 	return nil
 }
 
-func (e *Evaluator) loadEvaluationSet() ([][]string, errors.Error) {
-	return nil, nil
+func (e *Evaluator) loadEvaluationSet(path string) ([]predictor.Method, errors.Error) {
+	evaluationSet, err := csv.ReadRecords(filepath.Join(path, TrainingSetFileName))
+	if err != nil {
+		return nil, err
+	}
+	methods, err := mapToMethods(csv.UnmarshalMethodGenerationDatasetRow(evaluationSet))
+	if err != nil {
+		return nil, err
+	}
+	return methods, nil
 }
 
-func (e *Evaluator) generateMethodDefinitions(evaluationSet [][]string) ([]Method, errors.Error) {
-	methodNames := make([]predictor.PredictableMethodName, len(evaluationSet))
-	for i := range evaluationSet {
-		methodNames[i] = predictor.PredictableMethodName(evaluationSet[i][0])
+func (e *Evaluator) generateMethodDefinitions(methods []predictor.Method) ([]Method, errors.Error) {
+	contexts := make([]predictor.MethodContext, len(methods))
+	for i, method := range methods {
+		contexts[i] = method.Context
 	}
-	predicted, err := predictor.GenerateMethods(methodNames)
+
+	predicted, err := predictor.OnDataset(configuration.Dataset{}).GenerateMethods(contexts)
+	if len(predicted) != len(methods) {
+		return nil, errors.New("Predictor error", fmt.Sprintf("Expected %d methods to be generated but got %d.", len(methods), len(predicted)))
+	}
 
 	outputMethods := make([]Method, len(predicted))
 	for i := range predicted {
-		outputMethods[i] = e.parseOutputToMethod(predicted[i])
+		outputMethods[i] = e.parseOutputToMethod(predictor.Method{
+			Context: contexts[i],
+			Values:  predicted[i],
+		}, methods[i].Values)
 	}
 	return nil, err
 }
 
-func (e *Evaluator) parseOutputToMethod(output string) Method {
+func (e *Evaluator) parseOutputToMethod(method predictor.Method, expectedValues predictor.MethodValues) Method {
 	return Method{}
 }
 

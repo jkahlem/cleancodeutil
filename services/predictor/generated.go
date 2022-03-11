@@ -9,7 +9,6 @@ import (
 	"sync"
 
 	"returntypes-langserver/common/debug/errors"
-	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/transfer/rpc"
 )
 
@@ -61,55 +60,6 @@ func (p *ProxyFacade) validate(fn interface{}) errors.Error {
 		return errors.New("RPC Error", "Interface function does not exist")
 	}
 	return nil
-}
-
-var singleton Predictor
-var singletonMutex sync.Mutex
-
-func getSingleton() Predictor {
-	singletonMutex.Lock()
-	defer singletonMutex.Unlock()
-
-	if singleton == nil {
-		singleton = createSingleton()
-	}
-	return singleton
-}
-
-func createSingleton() Predictor {
-
-	if serviceConfiguration().UseMock {
-		log.Info("Setup Predictor service using mock...\n")
-		return &mock{}
-	}
-
-	return &predictor{}
-}
-
-// Makes predictions for the methods in the map and sets the types as their value.
-func PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error {
-	return getSingleton().PredictReturnTypesToMap(mapping)
-}
-
-// Predicts the expected return type for the given method names. Returns a list of expected return types in the exact order
-// the method names were passed.
-func PredictReturnTypes(methodNames []PredictableMethodName) ([]string, errors.Error) {
-	return getSingleton().PredictReturnTypes(methodNames)
-}
-
-// Generates the remained part of a method by it's method name
-func GenerateMethods(methodNames []PredictableMethodName) ([]string, errors.Error) {
-	return getSingleton().GenerateMethods(methodNames)
-}
-
-// Starts the training and evaluation process. Returns the evaluation result if finished.
-func TrainReturnTypes(labels [][]string, trainingSet [][]string, evaluationSet [][]string) (Evaluation, errors.Error) {
-	return getSingleton().TrainReturnTypes(labels, trainingSet, evaluationSet)
-}
-
-// Starts the training and evaluation process. Returns the evaluation result if finished.
-func TrainMethods(trainingSet [][]string, evaluationSet [][]string) (Evaluation, errors.Error) {
-	return getSingleton().TrainMethods(trainingSet, evaluationSet)
 }
 
 var interfaceSingleton rpc.Interface
