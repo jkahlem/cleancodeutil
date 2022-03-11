@@ -32,6 +32,7 @@ func TestExcelFileGeneration(t *testing.T) {
 	collector.Write(records[0], &style)
 	collector.Write(records[1], &style)
 	collector.Write(records[2], &style)
+	collector.Close()
 	actualRows, _ := file.GetRows(DefaultSheetName)
 
 	// then

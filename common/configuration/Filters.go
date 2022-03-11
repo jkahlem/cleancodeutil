@@ -89,14 +89,14 @@ func (p Pattern) DecodeValue(value interface{}) (interface{}, error) {
 	if pattern, ok := value.(string); ok {
 		p.Pattern = pattern
 		p.Type = Wildcard
-		return p, nil
+		return p, p.buildMatcher()
 	} else if jsonObj, ok := value.(map[string]interface{}); ok {
 		if err := p.unmarshalPattern(jsonObj); err != nil {
 			return value, err
 		} else if err := p.unmarshalType(jsonObj); err != nil {
 			return value, err
 		}
-		return p, nil
+		return p, p.buildMatcher()
 	}
 	return value, nil
 }
@@ -122,7 +122,9 @@ func (p *Pattern) unmarshalType(jsonObj map[string]interface{}) error {
 // Returns true if str fulfills this pattern.
 func (p *Pattern) Match(str string) bool {
 	if p.matcher == nil {
-		return false
+		if err := p.buildMatcher(); err != nil || p.matcher == nil {
+			return false
+		}
 	}
 	return p.matcher.Match([]byte(str))
 }

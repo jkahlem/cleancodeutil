@@ -81,7 +81,7 @@ func (p *DatasetProcessor) process(method csv.Method) {
 			acceptedBySubsetProcessor = true
 		}
 	}
-	if !acceptedBySubsetProcessor && len(p.targetSet.ComplementFilename) > 0 {
+	if !acceptedBySubsetProcessor && p.targetSet.ComplementFilename != "" {
 		p.complementChannel.Output <- method.ToRecord()
 	}
 }
