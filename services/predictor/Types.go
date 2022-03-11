@@ -8,15 +8,20 @@ type Evaluation struct {
 }
 
 type MethodContext struct {
-	MethodName string   `json:"methodName"`
-	ClassName  string   `json:"className"`
-	IsStatic   bool     `json:"isStatic"`
-	Types      []string `json:"types"`
+	MethodName PredictableMethodName `json:"methodName"`
+	ClassName  string                `json:"className"`
+	IsStatic   bool                  `json:"isStatic"`
+	Types      []string              `json:"types"`
 }
 
 type MethodValues struct {
-	ReturnType string   `json:"returnType"`
-	Parameters []string `json:"parameters"`
+	ReturnType string      `json:"returnType"`
+	Parameters []Parameter `json:"parameters"`
+}
+
+type Parameter struct {
+	Name string `json:"name"`
+	Type string `json:"type"`
 }
 
 type Method struct {
@@ -26,6 +31,7 @@ type Method struct {
 
 type Options struct {
 	Identifier   string          `json:"identifier"`
+	LabelsCsv    string          `json:"labels"`
 	Type         SupportedModels `json:"type"`
 	ModelOptions ModelOptions    `json:"model"`
 }

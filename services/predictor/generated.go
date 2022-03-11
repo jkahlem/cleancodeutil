@@ -34,6 +34,27 @@ func (p *ProxyFacade) Train(trainingSet string, evaluationSet string, additional
 	return p.Proxy.Train(trainingSet, evaluationSet, additional, targetModel)
 }
 
+func (p *ProxyFacade) PredictNew(predictionData []MethodContext, options Options) ([]MethodValues, errors.Error) {
+	if err := p.validate(p.Proxy.PredictNew); err != nil {
+		return nil, err
+	}
+	return p.Proxy.PredictNew(predictionData, options)
+}
+
+func (p *ProxyFacade) TrainNew(trainData []Method, options Options) errors.Error {
+	if err := p.validate(p.Proxy.TrainNew); err != nil {
+		return err
+	}
+	return p.Proxy.TrainNew(trainData, options)
+}
+
+func (p *ProxyFacade) Evaluate(evaluationData []Method, options Options) (Evaluation, errors.Error) {
+	if err := p.validate(p.Proxy.Evaluate); err != nil {
+		return Evaluation{}, err
+	}
+	return p.Proxy.Evaluate(evaluationData, options)
+}
+
 func (p *ProxyFacade) validate(fn interface{}) errors.Error {
 	fnVal := reflect.ValueOf(fn)
 	if !fnVal.IsValid() || fnVal.IsZero() {

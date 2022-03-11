@@ -4,7 +4,6 @@ import (
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/languageserver"
-	"returntypes-langserver/processing/typeclasses"
 )
 
 func main() {
@@ -15,20 +14,12 @@ func main() {
 		log.FatalError(err)
 	}
 
-	LoadTypeClasses()
 	StartLanguageServer()
 }
 
 func SetupLogger() {
 	log.SetupFileLogging()
 	log.SetupRemoteLogging(configuration.LoggerRemotePort())
-}
-
-func LoadTypeClasses() {
-	log.Info("Load type classes...\n")
-	if err := typeclasses.LoadTypeClasses(); err != nil {
-		log.FatalError(err)
-	}
 }
 
 func StartLanguageServer() {

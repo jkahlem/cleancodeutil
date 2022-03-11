@@ -53,7 +53,7 @@ type Proxy struct {
 	Train func(trainingSet, evaluationSet, additional string, targetModel SupportedModels) (Evaluation, errors.Error) `rpcmethod:"train" rpcparams:"trainingSet,evaluationSet,additional,targetModel"`
 
 	PredictNew func(predictionData []MethodContext, options Options) ([]MethodValues, errors.Error) `rpcmethod:"predict" rpcparams:"predictionData,options"`
-	TrainNew   func(trainData []MethodContext, options Options) errors.Error                        `rpcmethod:"train" rpcparams:"trainData,options"`
+	TrainNew   func(trainData []Method, options Options) errors.Error                               `rpcmethod:"train" rpcparams:"trainData,options"`
 	Evaluate   func(evaluationData []Method, options Options) (Evaluation, errors.Error)            `rpcmethod:"evaluate" rpcparams:"evaluationData,options"`
 }
 
