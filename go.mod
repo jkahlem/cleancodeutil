@@ -31,6 +31,7 @@ require (
 	github.com/richardlehane/msoleps v1.0.1 // indirect
 	github.com/santhosh-tekuri/jsonschema/v5 v5.0.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
+	github.com/waygo/bleu v0.0.0-20161103041646-721a93463b5c // indirect
 	github.com/xanzy/ssh-agent v0.3.0 // indirect
 	github.com/xuri/efp v0.0.0-20210322160811-ab561f5b45e3 // indirect
 	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97 // indirect
