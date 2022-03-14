@@ -1,8 +1,6 @@
 package returntypesvalidation
 
 import (
-	"encoding/json"
-	"os"
 	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
@@ -50,17 +48,4 @@ func (t *Trainer) loadRecords(path string) [][]string {
 	result, err := csv.ReadRecords(path)
 	t.err = err
 	return result
-}
-
-func (t *Trainer) saveEvaluationResult(msg predictor.Evaluation) errors.Error {
-	// Write the evaluation result in a json file
-	if file, err := os.Create(configuration.EvaluationResultOutputPath()); err != nil {
-		return errors.Wrap(err, "Error", "Could not save evaluation result")
-	} else {
-		defer file.Close()
-		if err := json.NewEncoder(file).Encode(msg); err != nil {
-			return errors.Wrap(err, "Error", "Could not save evaluation result")
-		}
-	}
-	return nil
 }

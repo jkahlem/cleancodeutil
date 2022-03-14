@@ -1,23 +1,63 @@
 package returntypesvalidation
 
 import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"returntypes-langserver/common/configuration"
+	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/processing/dataset/base"
+	"returntypes-langserver/services/predictor"
 )
 
-type Evaluator struct{}
+type Evaluator struct {
+	labels        [][]string
+	evaluationSet []csv.ReturnTypesDatasetRow
+	Dataset       configuration.Dataset
+}
 
 func NewEvaluator() base.Evaluator {
 	return &Evaluator{}
 }
 
 func (e *Evaluator) Evaluate(path string) errors.Error {
+	if err := e.loadData(path); err != nil {
+		return err
+	}
+	if result, err := predictor.OnDataset(e.Dataset).EvaluateReturnTypes(mapToMethod(e.evaluationSet), e.labels); err != nil {
+		return err
+	} else {
+		log.Info("Evaluation result:\n- Accuracy Score: %g\n- Eval loss: %g\n- F1 Score: %g\n- MCC: %g\n", result.AccScore, result.EvalLoss, result.F1Score, result.MCC)
+		return e.saveEvaluationResult(result)
+	}
+}
+
+func (e *Evaluator) loadData(path string) errors.Error {
+	// Load csv data
+	if labels, err := csv.ReadRecords(filepath.Join(path, LabelSetFileName)); err != nil {
+		return err
+	} else {
+		e.labels = labels
+	}
+	if evaluationSet, err := csv.ReadRecords(filepath.Join(path, EvaluationSetFileName)); err != nil {
+		return err
+	} else {
+		e.evaluationSet = csv.UnmarshalReturnTypesDatasetRow(evaluationSet)
+	}
 	return nil
 }
 
-/*
- else {
-		log.Info("Evaluation result:\n- Accuracy Score: %g\n- Eval loss: %g\n- F1 Score: %g\n- MCC: %g\n", msg.AccScore, msg.EvalLoss, msg.F1Score, msg.MCC)
-		return t.saveEvaluationResult(msg)
+func (e *Evaluator) saveEvaluationResult(msg predictor.Evaluation) errors.Error {
+	// Write the evaluation result in a json file
+	if file, err := os.Create(configuration.EvaluationResultOutputPath()); err != nil {
+		return errors.Wrap(err, "Error", "Could not save evaluation result")
+	} else {
+		defer file.Close()
+		if err := json.NewEncoder(file).Encode(msg); err != nil {
+			return errors.Wrap(err, "Error", "Could not save evaluation result")
+		}
 	}
-*/
+	return nil
+}
