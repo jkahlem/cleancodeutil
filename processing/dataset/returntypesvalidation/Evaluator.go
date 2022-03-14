@@ -18,8 +18,8 @@ type Evaluator struct {
 	Dataset       configuration.Dataset
 }
 
-func NewEvaluator() base.Evaluator {
-	return &Evaluator{}
+func NewEvaluator(dataset configuration.Dataset) base.Evaluator {
+	return &Evaluator{Dataset: dataset}
 }
 
 func (e *Evaluator) Evaluate(path string) errors.Error {

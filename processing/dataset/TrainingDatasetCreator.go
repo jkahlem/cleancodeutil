@@ -113,7 +113,7 @@ func Evaluate(modelType configuration.ModelType) errors.Error {
 func evaluateDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset) errors.Error {
 	for _, dataset := range datasets {
 		path := filepath.Join(path, dataset.Name)
-		if err := evaluate(modelType, path); err != nil {
+		if err := evaluate(modelType, path, dataset); err != nil {
 			return err
 		}
 		if err := evaluateDatasets(modelType, path, dataset.Subsets); err != nil {
@@ -123,8 +123,8 @@ func evaluateDatasets(modelType configuration.ModelType, path string, datasets [
 	return nil
 }
 
-func evaluate(modelType configuration.ModelType, path string) errors.Error {
-	if evaluator, err := getEvaluatorByModelType(modelType); err != nil {
+func evaluate(modelType configuration.ModelType, path string, dataset configuration.Dataset) errors.Error {
+	if evaluator, err := getEvaluatorByModelType(modelType, dataset); err != nil {
 		return err
 	} else if err := evaluator.Evaluate(path); err != nil {
 		return err
@@ -132,12 +132,12 @@ func evaluate(modelType configuration.ModelType, path string) errors.Error {
 	return nil
 }
 
-func getEvaluatorByModelType(modelType configuration.ModelType) (base.Evaluator, errors.Error) {
+func getEvaluatorByModelType(modelType configuration.ModelType, dataset configuration.Dataset) (base.Evaluator, errors.Error) {
 	switch modelType {
 	case configuration.MethodGenerator:
 		return methodgeneration.NewEvaluator(), nil
 	case configuration.ReturnTypesValidator:
-		return returntypesvalidation.NewEvaluator(), nil
+		return returntypesvalidation.NewEvaluator(dataset), nil
 	default:
 		if len(modelType) == 0 {
 			return nil, errors.New("Dataset Creation Error", "Could not create dataset: No dataset type specified.")
