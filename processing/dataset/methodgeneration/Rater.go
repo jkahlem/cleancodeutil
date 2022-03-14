@@ -1,6 +1,7 @@
 package methodgeneration
 
 import (
+	"returntypes-langserver/common/metrics/rouge"
 	"strings"
 
 	"github.com/waygo/bleu"
@@ -33,5 +34,21 @@ func (r *BleuRater) sentence(str string) bleu.Sentence {
 }
 
 func (r *BleuRater) Name() string {
+	// TODO: Include options/weights?
 	return "Bleu"
+}
+
+type RougeRater struct{}
+
+func (r *RougeRater) Rate(m Method) float64 {
+	return rouge.ComputeL(r.sentence(m.ExpectedDefinition), [][]string{r.sentence(m.GeneratedDefinition)})
+}
+
+func (r *RougeRater) sentence(str string) []string {
+	return strings.Split(str, " ")
+}
+
+func (r *RougeRater) Name() string {
+	// TODO: Include options/weights?
+	return "Rouge"
 }
