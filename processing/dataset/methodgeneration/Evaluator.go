@@ -97,14 +97,9 @@ func (e *Evaluator) buildEvaluationSet(setConfiguration configuration.Evaluation
 	return set
 }
 
-func (e *Evaluator) getAvailableRater() []Rater {
-	// TODO: Use configuration.EvaluationRatingTypes() to determine which rater to add
-	return []Rater{&AllZeroRater{}}
-}
-
 type EvaluationSet struct {
 	Subsets []EvaluationSet
-	Rater   []Rater
+	Rater   []Metric
 	Filter  configuration.Filter
 }
 
@@ -122,18 +117,25 @@ func (e *EvaluationSet) AddMethod(m Method) {
 	}
 }
 
-func (e *EvaluationSet) initRater(metrics []string) {
-	e.Rater = make([]Rater, 0, len(metrics))
+func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
+	e.Rater = make([]Metric, 0, len(metrics))
 	for _, metric := range metrics {
-		switch metric {
-		case "rouge-l":
-			e.Rater = append(e.Rater, &RougeRater{Type: RougeL})
-		case "rouge-s":
-			e.Rater = append(e.Rater, &RougeRater{Type: RougeS})
-		case "rouge-n":
-			e.Rater = append(e.Rater, &RougeRater{Type: RougeN})
-		case "bleu":
-			e.Rater = append(e.Rater, &BleuRater{})
+		switch metric.Type() {
+		case configuration.RougeL:
+			e.Rater = append(e.Rater, NewRougeLRater(metric))
+		case configuration.RougeS:
+			e.Rater = append(e.Rater, NewRougeSRater(metric))
+		case configuration.RougeN:
+			e.Rater = append(e.Rater, NewRougeNRater(metric))
+		case configuration.Bleu:
+			config, err := metric.AsBleu()
+			if err != nil {
+				// TODO: remove panic
+				panic(err)
+			}
+			e.Rater = append(e.Rater, &BleuRater{
+				config: config,
+			})
 		default:
 			// TODO: remove panic
 			panic(fmt.Errorf("Unknown metric: %s", metric))

@@ -42,8 +42,8 @@ func (c *EvaluationConfiguration) fromFilePath(filePath string) error {
 type EvaluationSet struct {
 	Subsets []EvaluationSet `json:"subsets"`
 	// Defines, how the rating per row should be done, like equality checks or different tools etc.
-	Metrics []string `json:"metrics"`
-	Filter  Filter   `json:"filter"`
+	Metrics []MetricConfiguration `json:"metrics"`
+	Filter  Filter                `json:"filter"`
 }
 
 const (
@@ -114,6 +114,15 @@ func (c MetricConfiguration) as(expectedType string, destination interface{}) er
 	return utils.DecodeMapToStructStrict(c, &destination)
 }
 
+func (c MetricConfiguration) Type() string {
+	if value, ok := c["type"]; ok {
+		if strValue, ok := value.(string); ok {
+			return strValue
+		}
+	}
+	return ""
+}
+
 type RougeLConfiguration struct {
 	Type     string    `json:"type"`
 	Measures []Measure `json:"measure"`
@@ -172,4 +181,13 @@ func (c Measure) as(expectedType string, destination interface{}) errors.Error {
 		return errors.New("Type Error", fmt.Sprintf("Cannot interpret metric type '%s' as %s", val, expectedType))
 	}
 	return utils.DecodeMapToStructStrict(c, &destination)
+}
+
+func (c Measure) Type() string {
+	if value, ok := c["type"]; ok {
+		if strValue, ok := value.(string); ok {
+			return strValue
+		}
+	}
+	return ""
 }
