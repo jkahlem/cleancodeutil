@@ -71,7 +71,7 @@ func Train(modelType configuration.ModelType) errors.Error {
 
 func trainDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset) errors.Error {
 	for _, dataset := range datasets {
-		path := filepath.Join(path, dataset.Name)
+		path := filepath.Join(path, dataset.Name())
 		if err := train(modelType, path, dataset); err != nil {
 			return err
 		}
@@ -112,7 +112,7 @@ func Evaluate(modelType configuration.ModelType) errors.Error {
 
 func evaluateDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset) errors.Error {
 	for _, dataset := range datasets {
-		path := filepath.Join(path, dataset.Name)
+		path := filepath.Join(path, dataset.Name())
 		if err := evaluate(modelType, path, dataset); err != nil {
 			return err
 		}

@@ -169,7 +169,7 @@ func TestPredictUnstable(t *testing.T) {
 
 func dataset() configuration.Dataset {
 	return configuration.Dataset{
-		Name: "test",
+		NameRaw: "test",
 	}
 }
 

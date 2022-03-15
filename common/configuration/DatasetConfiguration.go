@@ -12,7 +12,7 @@ type DatasetFileConfiguration struct {
 }
 
 type Dataset struct {
-	Name           string         `json:"name"`
+	NameRaw        string         `json:"name"`
 	Filter         Filter         `json:"filter"`
 	IsGroupOnly    bool           `json:"isGroupOnly"`
 	Description    string         `json:"description"`
@@ -74,9 +74,13 @@ func (c *DatasetConfiguration) fromJson(contents []byte) error {
 // Returns the qualified identifier of the dataset
 func (c *Dataset) QualifiedIdentifier() string {
 	if c.parentPath != "" {
-		return c.parentPath + "/" + c.Name
+		return c.parentPath + "/" + c.Name()
 	}
-	return c.Name
+	return c.Name()
+}
+
+func (c *Dataset) Name() string {
+	return DatasetPrefix() + c.NameRaw
 }
 
 func connectDatasetPaths(datasets []Dataset, parentPath string) {

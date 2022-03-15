@@ -50,7 +50,7 @@ func NewProcessor(set configuration.Dataset, modelType configuration.ModelType, 
 	}
 
 	for i, subset := range set.Subsets {
-		if subprocessor, err := NewProcessor(inheritOptions(set, subset), modelType, filepath.Join(path, set.Name), tree); err != nil {
+		if subprocessor, err := NewProcessor(inheritOptions(set, subset), modelType, filepath.Join(path, set.Name()), tree); err != nil {
 			return processor, err
 		} else {
 			processor.SubProcessors[i] = subprocessor

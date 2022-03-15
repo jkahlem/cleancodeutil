@@ -39,6 +39,13 @@ func UsedModelType() ModelType {
 	return loadedConfig.ModelType
 }
 
+func DatasetPrefix() string {
+	if loadedConfig == nil {
+		return ""
+	}
+	return loadedConfig.DatasetPrefix
+}
+
 func ClonerOutputDir() string {
 	if loadedConfig == nil {
 		return ""

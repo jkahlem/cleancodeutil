@@ -49,6 +49,8 @@ type configFile struct {
 	Evaluation EvaluationConfiguration `json:"evaluation"`
 	// Dataset configurations
 	Datasets DatasetConfiguration `json:"datasets"`
+	// Additional prefix which is added to datasets for experimental uses etc.
+	DatasetPrefix string
 	// If true, then the program is in language server mode (command line only)
 	IsLangServMode bool
 }
