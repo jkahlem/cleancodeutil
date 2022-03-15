@@ -63,17 +63,14 @@ const (
 
 type RougeRater struct {
 	rater     func(m Method) (precision, recall float64)
+	measure   configuration.Measure
 	precision float64
 	recall    float64
 	count     float64
 }
 
-func RateL(m Method) (precision, recall float64) {
-	return 0, 0
-}
-
 func NewRougeLRater(config configuration.MetricConfiguration) *RougeRater {
-	_, err := config.AsRougeL()
+	c, err := config.AsRougeL()
 	if err != nil {
 		// TODO: remove panic
 		panic(err)
@@ -82,6 +79,7 @@ func NewRougeLRater(config configuration.MetricConfiguration) *RougeRater {
 		rater: func(m Method) (precision, recall float64) {
 			return metrics.RougeL(m.ExpectedDefinition, []string{m.GeneratedDefinition})
 		},
+		measure: c.Measure,
 	}
 }
 
@@ -95,6 +93,7 @@ func NewRougeNRater(config configuration.MetricConfiguration) *RougeRater {
 		rater: func(m Method) (precision, recall float64) {
 			return metrics.RougeN(m.ExpectedDefinition, []string{m.GeneratedDefinition}, c.N)
 		},
+		measure: c.Measure,
 	}
 }
 
@@ -108,6 +107,7 @@ func NewRougeSRater(config configuration.MetricConfiguration) *RougeRater {
 		rater: func(m Method) (precision, recall float64) {
 			return metrics.RougeS(m.ExpectedDefinition, []string{m.GeneratedDefinition}, c.SkipN)
 		},
+		measure: c.Measure,
 	}
 }
 
@@ -128,5 +128,15 @@ func (r *RougeRater) Name() string {
 }
 
 func (r *RougeRater) Score() float64 {
-	return metrics.FScore(r.precision, r.recall, 1)
+	switch r.measure.Type() {
+	case configuration.FScore:
+		if fscore, err := r.measure.AsFScore(); err != nil {
+			// TODO: remove panic
+			panic(err)
+		} else {
+			return metrics.FScore(r.precision, r.recall, fscore.Beta)
+		}
+	default:
+		return metrics.FScore(r.precision, r.recall, 1)
+	}
 }

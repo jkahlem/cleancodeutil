@@ -124,20 +124,20 @@ func (c MetricConfiguration) Type() string {
 }
 
 type RougeLConfiguration struct {
-	Type     string    `json:"type"`
-	Measures []Measure `json:"measure"`
+	Type    string  `json:"type"`
+	Measure Measure `json:"measure"`
 }
 
 type RougeSConfiguration struct {
-	Type     string    `json:"type"`
-	SkipN    int       `json:"skipN"`
-	Measures []Measure `json:"measure"`
+	Type    string  `json:"type"`
+	SkipN   int     `json:"skipN"`
+	Measure Measure `json:"measure"`
 }
 
 type RougeNConfiguration struct {
-	Type     string    `json:"type"`
-	N        int       `json:"n"`
-	Measures []Measure `json:"measure"`
+	Type    string  `json:"type"`
+	N       int     `json:"n"`
+	Measure Measure `json:"measure"`
 }
 
 type BleuConfiguration struct {
