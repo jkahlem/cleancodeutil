@@ -14,12 +14,12 @@
             "type": "object",
             "$ref": "filter.schema.json"
         },
-        "ratingTypes": {
-            "description": "Defines, how the rating per row should be done, like equality checks or different tools etc.",
+        "metrics": {
+            "description": "Defines which metrics should be used to calculate a score for this set.",
             "type": "array",
             "items": {
-                "type": "string",
-                "enum": ["tool", "rouge-n", "rouge-l", "rouge-s", "bleu"]
+                "type": ["object", "string"],
+                "$ref": "../metrics/metrics.schema.json"
             }
         },
         "subsets": {

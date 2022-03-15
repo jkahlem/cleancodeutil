@@ -89,7 +89,7 @@ func (e *Evaluator) buildEvaluationSet(setConfiguration configuration.Evaluation
 		Subsets: make([]EvaluationSet, 0),
 		Filter:  setConfiguration.Filter,
 	}
-	set.initRater(setConfiguration.RatingTypes)
+	set.initRater(setConfiguration.Metrics)
 
 	for _, subset := range setConfiguration.Subsets {
 		set.Subsets = append(set.Subsets, e.buildEvaluationSet(subset))
@@ -122,10 +122,10 @@ func (e *EvaluationSet) AddMethod(m Method) {
 	}
 }
 
-func (e *EvaluationSet) initRater(ratingTypes []string) {
-	e.Rater = make([]Rater, 0, len(ratingTypes))
-	for _, ratingType := range ratingTypes {
-		switch ratingType {
+func (e *EvaluationSet) initRater(metrics []string) {
+	e.Rater = make([]Rater, 0, len(metrics))
+	for _, metric := range metrics {
+		switch metric {
 		case "rouge-l":
 			e.Rater = append(e.Rater, &RougeRater{Type: RougeL})
 		case "rouge-s":
@@ -136,7 +136,7 @@ func (e *EvaluationSet) initRater(ratingTypes []string) {
 			e.Rater = append(e.Rater, &BleuRater{})
 		default:
 			// TODO: remove panic
-			panic(fmt.Errorf("Unknown rating type: %s", ratingType))
+			panic(fmt.Errorf("Unknown metric: %s", metric))
 		}
 	}
 }

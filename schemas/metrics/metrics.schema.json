@@ -1,0 +1,15 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "metrics.schema.json",
+    "title": "Metrics",
+    "description": "Type for all possible metric types.",
+    "type": ["string", "object"],
+    "enum": ["rouge-l", "rouge-s", "rouge-2", "bleu"],
+    "anyOf": [
+        {"type": "string"},
+        {"type": "object", "$ref": "rouge-l.schema.json"},
+        {"type": "object", "$ref": "rouge-s.schema.json"},
+        {"type": "object", "$ref": "rouge-n.schema.json"},
+        {"type": "object", "$ref": "bleu.schema.json"}
+    ]
+}

@@ -1,0 +1,18 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "rouge-l.schema.json",
+    "title": "Rouge-L",
+    "description": "Rouge-L metric definition",
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": ["rouge-l"]
+        },
+        "measure": {
+            "type": ["object", "string"],
+            "$ref": "measures.schema.json"
+        }
+    },
+    "required": ["type"]
+}

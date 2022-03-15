@@ -1,0 +1,24 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "bleu.schema.json",
+    "title": "Bleu",
+    "description": "Bleu score metric definition",
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": ["bleu"]
+        },
+        "weights": {
+            "type": "array",
+            "items": [{
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+            }],
+            "default": [0.25, 0.25, 0.25, 0.25],
+            "description": "The weights which apply to each n-gram precision. The length of this array defines, which n-grams should be used. The sum of the weights should be exactly 1."
+        }
+    },
+    "required": ["type"]
+}

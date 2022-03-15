@@ -1,0 +1,23 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "rouge-s.schema.json",
+    "title": "Rouge-S",
+    "description": "Rouge-S metric definition",
+    "type": "object",
+    "properties": {
+        "type": {
+            "type": "string",
+            "enum": ["rouge-s"]
+        },
+        "skipN": {
+            "type": "number",
+            "default": 1,
+            "minimum": 1
+        },
+        "measure": {
+            "type": ["object", "string"],
+            "$ref": "measures.schema.json"
+        }
+    },
+    "required": ["type"]
+}
