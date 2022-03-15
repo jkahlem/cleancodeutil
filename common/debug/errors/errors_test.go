@@ -138,7 +138,7 @@ func assertError(t *testing.T, expectedTitle, expectedMessage string, err error)
 	if customErr, ok := err.(Error); ok {
 		assert.Equal(t, expectedTitle, customErr.Title())
 		assert.Equal(t, expectedMessage, customErr.Message())
-		assert.NotEqual(t, "", customErr.Stacktrace())
+		assert.NotEqual(t, "", customErr.ErrorWithStacktrace())
 		assert.NotNil(t, customErr.Unwrap())
 	} else {
 		assert.Fail(t, "Error is not the custom error type")

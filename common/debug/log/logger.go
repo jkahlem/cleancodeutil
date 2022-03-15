@@ -188,7 +188,7 @@ func FatalError(err errors.Error) {
 
 // Logs an error.
 func Error(err errors.Error) errors.Error {
-	return Print(Critical, "%s\n%s", err.Error(), err.Stacktrace())
+	return Print(Critical, "%s", err.ErrorWithStacktrace())
 }
 
 // Logs a simple message informing the user.

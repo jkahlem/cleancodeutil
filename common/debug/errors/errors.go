@@ -30,7 +30,7 @@ type Error interface {
 	// The plain error message
 	Message() string
 	// The stacktrace of the error
-	Stacktrace() string
+	ErrorWithStacktrace() string
 	// the wrapped error object
 	Unwrap() error
 }
@@ -39,6 +39,10 @@ type customError struct {
 	wrappedErr error
 	title      string
 	message    string
+}
+
+func (e *customError) ErrorWithStacktrace() string {
+	return fmt.Sprintf("%s\n%s", e.Error(), e.Stacktrace())
 }
 
 // Prints the error message containing a title, the message and the wrapped errors
@@ -106,7 +110,7 @@ func (e *customError) Unwrap() error {
 	return e.wrappedErr
 }
 
-// Wraps the given error in the new error type.
+// Wraps the given error in the new error type. Does nothing if err is nil.
 func Wrap(err error, title, message string) Error {
 	if err == nil {
 		return nil
