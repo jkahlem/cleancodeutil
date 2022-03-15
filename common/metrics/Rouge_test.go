@@ -1,4 +1,4 @@
-package rouge
+package metrics
 
 import (
 	"fmt"
@@ -9,8 +9,8 @@ import (
 )
 
 func TestRouge(t *testing.T) {
-	score := ComputeN(sentence("the cat was found under the bed"), [][]string{sentence("the cat was under the bed")}, 1)
-	fmt.Println(score)
+	p, r := RougeN("the cat was found under the bed", []string{"the cat was under the bed"}, 1)
+	fmt.Println(FScore(p, r, 1))
 }
 
 func TestLcs(t *testing.T) {

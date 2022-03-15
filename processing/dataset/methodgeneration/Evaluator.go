@@ -16,12 +16,6 @@ type Method struct {
 	Name                string
 	ExpectedDefinition  string
 	GeneratedDefinition string
-	Ratings             []Rating
-}
-
-type Rating struct {
-	Type   string
-	Rating float64
 }
 
 func NewEvaluator() base.Evaluator {
@@ -40,7 +34,6 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 	evalset := e.getEvaluationSetConfig()
 
 	for _, m := range methods {
-		e.rateMethod(&m)
 		evalset.AddMethod(m)
 	}
 
@@ -95,22 +88,12 @@ func (e *Evaluator) buildEvaluationSet(setConfiguration configuration.Evaluation
 	set := EvaluationSet{
 		Subsets: make([]EvaluationSet, 0),
 	}
+	set.initRater(setConfiguration.RatingTypes)
 
 	for _, subset := range setConfiguration.Subsets {
 		set.Subsets = append(set.Subsets, e.buildEvaluationSet(subset))
 	}
 	return set
-}
-
-func (e *Evaluator) rateMethod(m *Method) {
-	rater := e.getAvailableRater()
-	for _, r := range rater {
-		rate := r.Rate(*m)
-		m.Ratings = append(m.Ratings, Rating{
-			Type:   r.Name(),
-			Rating: rate,
-		})
-	}
 }
 
 func (e *Evaluator) getAvailableRater() []Rater {
@@ -120,8 +103,7 @@ func (e *Evaluator) getAvailableRater() []Rater {
 
 type EvaluationSet struct {
 	Subsets []EvaluationSet
-	// String -> rating type, ScoreCalculator -> holds score information for that specific rating type
-	OverallScore map[string][]ScoreCalculator
+	Rater   []Rater
 }
 
 func (e *EvaluationSet) AddMethod(m Method) {
@@ -130,30 +112,31 @@ func (e *EvaluationSet) AddMethod(m Method) {
 	}
 	// TOOD:
 	// - Add to output?
-	e.addRatingsToScore(m.Ratings)
+	for i := range e.Rater {
+		e.Rater[i].Rate(m)
+	}
 	for i := range e.Subsets {
 		e.Subsets[i].AddMethod(m)
 	}
 }
 
-func (e *EvaluationSet) addRatingsToScore(ratings []Rating) {
-	if e.OverallScore == nil {
-		e.OverallScore = make(map[string][]ScoreCalculator)
-	}
-	for _, r := range ratings {
-		if _, ok := e.OverallScore[r.Type]; !ok {
-			e.initScoreCalculator(r.Type)
+func (e *EvaluationSet) initRater(ratingTypes []string) {
+	e.Rater = make([]Rater, 0, len(ratingTypes))
+	for _, ratingType := range ratingTypes {
+		switch ratingType {
+		case "rouge-l":
+			e.Rater = append(e.Rater, &RougeRater{Type: RougeL})
+		case "rouge-s":
+			e.Rater = append(e.Rater, &RougeRater{Type: RougeS})
+		case "rouge-n":
+			e.Rater = append(e.Rater, &RougeRater{Type: RougeN})
+		case "bleu":
+			e.Rater = append(e.Rater, &BleuRater{})
+		default:
+			// TODO: remove panic
+			panic(fmt.Errorf("Unknown rating type: %s", ratingType))
 		}
-		for _, calculator := range e.OverallScore[r.Type] {
-			calculator.AddRating(r.Rating)
-		}
 	}
-}
-
-func (e *EvaluationSet) initScoreCalculator(ratingType string) {
-	// TODO: Use configuration.EvaluationRatingTypes() to determine which score calculator to add
-	e.OverallScore[ratingType] = make([]ScoreCalculator, 0, 5)
-	e.OverallScore[ratingType] = append(e.OverallScore[ratingType], &F1ScoreCalculator{})
 }
 
 func (e *EvaluationSet) IsMethodAccepted(m Method) bool {

@@ -39,20 +39,6 @@ func UsedModelType() ModelType {
 	return loadedConfig.ModelType
 }
 
-func EvaluationScoreTypes() []string {
-	if loadedConfig == nil {
-		return nil
-	}
-	return loadedConfig.Evaluation.ScoreTypes
-}
-
-func EvaluationRatingTypes() []string {
-	if loadedConfig == nil {
-		return nil
-	}
-	return loadedConfig.Evaluation.RatingTypes
-}
-
 func ClonerOutputDir() string {
 	if loadedConfig == nil {
 		return ""

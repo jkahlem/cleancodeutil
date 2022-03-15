@@ -14,6 +14,14 @@
             "type": "object",
             "$ref": "filter.schema.json"
         },
+        "ratingTypes": {
+            "description": "Defines, how the rating per row should be done, like equality checks or different tools etc.",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": ["tool", "rouge-n", "rouge-l", "rouge-s", "bleu"]
+            }
+        },
         "subsets": {
             "description": "A list of subsets which are saved in a sub directory under this dataset's name. As they are subsets, only methods passing the filter of this set will be passed to the subsets.",
             "type": "array",
