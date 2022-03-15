@@ -87,6 +87,7 @@ func (e *Evaluator) getEvaluationSetConfig() *EvaluationSet {
 func (e *Evaluator) buildEvaluationSet(setConfiguration configuration.EvaluationSet) EvaluationSet {
 	set := EvaluationSet{
 		Subsets: make([]EvaluationSet, 0),
+		Filter:  setConfiguration.Filter,
 	}
 	set.initRater(setConfiguration.RatingTypes)
 
@@ -104,6 +105,7 @@ func (e *Evaluator) getAvailableRater() []Rater {
 type EvaluationSet struct {
 	Subsets []EvaluationSet
 	Rater   []Rater
+	Filter  configuration.Filter
 }
 
 func (e *EvaluationSet) AddMethod(m Method) {
@@ -140,6 +142,5 @@ func (e *EvaluationSet) initRater(ratingTypes []string) {
 }
 
 func (e *EvaluationSet) IsMethodAccepted(m Method) bool {
-	// TODO
-	return true
+	return csv.IsMethodIncluded(csv.Method{MethodName: m.Name}, e.Filter)
 }

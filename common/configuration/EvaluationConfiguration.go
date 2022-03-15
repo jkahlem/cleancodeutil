@@ -40,4 +40,5 @@ type EvaluationSet struct {
 	Subsets []EvaluationSet `json:"subsets"`
 	// Defines, how the rating per row should be done, like equality checks or different tools etc.
 	RatingTypes []string `json:"ratingTypes"`
+	Filter      Filter   `json:"filter"`
 }
