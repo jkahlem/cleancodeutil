@@ -6,6 +6,7 @@ import (
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/processing/typeclasses"
@@ -61,10 +62,14 @@ func (p *Processor) Process(method *csv.Method) (isFiltered bool, err errors.Err
 }
 
 func (p *Processor) mapMethodToDatasetRow(method *csv.Method) csv.MethodGenerationDatasetRow {
+	parameters := method.Parameters
+	if csv.IsEmptyList(parameters) {
+		parameters = []string{"void"}
+	}
 	datasetRow := csv.MethodGenerationDatasetRow{
 		ClassName:  method.ClassName,
 		MethodName: string(predictor.GetPredictableMethodName(method.MethodName)),
-		Parameters: method.Parameters,
+		Parameters: parameters,
 	}
 	return datasetRow
 }
@@ -111,6 +116,7 @@ func (p *Processor) getIdentifier(method *csv.Method) string {
 
 func (p *Processor) Close() errors.Error {
 	// TODO: Split evaluation set?
+	log.Info("Close dataset file at %s\n", filepath.Join(p.OutputDir, TrainingSetFileName))
 	csv.WriteCsvRecords(filepath.Join(p.OutputDir, TrainingSetFileName), csv.MarshalMethodGenerationDatasetRow(p.rows))
 	return nil
 }

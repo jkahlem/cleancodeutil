@@ -7,21 +7,29 @@
     "properties": {
         "include": {
             "description": "If set, only methods which fulfill the filter configuration are accepted.",
-            "type": ["object", "array"],
-            "items": {
+            "anyOf": [{
                 "type": "object",
                 "$ref": "filter-configuration.schema.json"
-            },
-            "$ref": "filter-configuration.schema.json"
+            }, {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "$ref": "filter-configuration.schema.json"
+                }
+            }]
         },
         "exclude": {
             "description": "If set, all methods fulfilling the filter configuration are not accepted. This is also true for methods which fulfill the filters under the include property.",
-            "type": ["object", "array"],
-            "items": {
+            "anyOf": [{
                 "type": "object",
                 "$ref": "filter-configuration.schema.json"
-            },
-            "$ref": "filter-configuration.schema.json"
+            }, {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "$ref": "filter-configuration.schema.json"
+                }
+            }]
         }
     }
 }

@@ -64,7 +64,7 @@ func (c *DatasetConfiguration) fromFilePath(filePath string) error {
 
 func (c *DatasetConfiguration) fromJson(contents []byte) error {
 	var config DatasetFileConfiguration
-	if err := jsonschema.UnmarshalJSONStrict(contents, &config, ExcelSetConfigurationFileSchema); err != nil {
+	if err := jsonschema.UnmarshalJSONStrict(contents, &config, DatasetConfigurationFileSchema); err != nil {
 		return err
 	}
 	*c = config.Datasets

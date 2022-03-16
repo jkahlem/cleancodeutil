@@ -11,11 +11,11 @@
         },
         "weights": {
             "type": "array",
-            "items": [{
+            "items": {
                 "type": "number",
                 "minimum": 0,
                 "maximum": 1
-            }],
+            },
             "default": [0.25, 0.25, 0.25, 0.25],
             "description": "The weights which apply to each n-gram precision. The length of this array defines, which n-grams should be used. The sum of the weights should be exactly 1."
         }

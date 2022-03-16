@@ -13,14 +13,14 @@ import (
 )
 
 // Creates a training and an evaluation set.
-func CreateTrainingAndEvaluationSet(methodsWithReturnTypesPath, classHierarchyPath string) errors.Error {
+func CreateTrainingAndEvaluationSet(modelType configuration.ModelType, methodsWithReturnTypesPath, classHierarchyPath string) errors.Error {
 	if methods, classes, err := loadMethodsAndClasses(methodsWithReturnTypesPath, classHierarchyPath); err != nil {
 		return err
 	} else {
 		processors := make(DatasetProcessors, len(configuration.Datasets()))
 		tree := createPackageTree(classes)
 		for i, dataset := range configuration.Datasets() {
-			if processor, err := NewProcessor(dataset, configuration.ReturnTypesValidator, configuration.DatasetOutputDir(), tree); err != nil {
+			if processor, err := NewProcessor(dataset, modelType, configuration.DatasetOutputDir(), tree); err != nil {
 				return err
 			} else {
 				processors[i] = processor

@@ -1,12 +1,12 @@
 {
     "datasets": [
         {
-            "name": "defaultSet",
+            "name": "experimental-set",
             "filter": {
                 "exclude": [{
                     "modifier": ["native"]
                 },{
-                    "labels": ["testCode", "override"]
+                    "label": ["testCode", "override"]
                 }]
             },
             "isGroupOnly": true,
@@ -19,24 +19,7 @@
                 }
             },
             "modelOptions": {},
-            "subsets": [{
-                "name": "withoutPrivates",
-                "filter":{
-                    "exclude": {
-                        "modifier":["private"]
-                    }
-                }
-            }, {
-                "name": "withoutNumbers",
-                "filter":{
-                    "exclude": {
-                        "method": [{
-                            "pattern": "[0-9_]",
-                            "type": "regexp"
-                        }]
-                    }
-                }
-            }]
+            "subsets": []
         }
     ]
 }

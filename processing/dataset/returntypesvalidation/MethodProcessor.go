@@ -101,9 +101,13 @@ func (p *Processor) Close() errors.Error {
 	// leads to different results
 	rows, i := make([]csv.ReturnTypesDatasetRow, len(p.methodsSet)), 0
 	for methodName, returnTypes := range p.methodsSet {
+		typeLabel := 0
+		if p.typeLabelMapper != nil {
+			typeLabel = p.typeLabelMapper.GetLabel(returnTypes.MostUsedType())
+		}
 		rows[i] = csv.ReturnTypesDatasetRow{
 			MethodName: methodName,
-			TypeLabel:  p.typeLabelMapper.GetLabel(returnTypes.MostUsedType()),
+			TypeLabel:  typeLabel,
 		}
 		i++
 	}
