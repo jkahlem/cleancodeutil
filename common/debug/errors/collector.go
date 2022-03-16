@@ -14,12 +14,20 @@ type ErrorCollector struct {
 	message   string
 }
 
-// Adds an error to the collector. Does nothing if err is nil.
+// Adds an error to the collector. If err is an error collector with the same message/title, it appends it's content. Does nothing if err is nil.
 func (e *ErrorCollector) Add(err Error) {
 	if err == nil {
 		return
 	}
-	e.contained = append(e.contained, err)
+	if otherCollector, ok := err.(*ErrorCollector); ok && e.isSameAs(otherCollector) {
+		e.contained = append(e.contained, otherCollector.contained...)
+	} else {
+		e.contained = append(e.contained, err)
+	}
+}
+
+func (e *ErrorCollector) isSameAs(other *ErrorCollector) bool {
+	return e.message == other.message && e.title == other.title
 }
 
 // Returns nil if no error is collected
