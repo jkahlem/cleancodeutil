@@ -46,7 +46,7 @@ func (p *Process) Stderr() (io.ReadCloser, errors.Error) {
 	return pipe, nil
 }
 
-// Starts the crawler similar to command.Start without waiting for the process to end.
+// Starts the process similar to command.Start without waiting for the process to end.
 func (p *Process) Start() errors.Error {
 	if err := p.cmd.Start(); err != nil {
 		return errors.Wrap(err, ProcessErrorTitle, "An error occured while running the process")
@@ -54,7 +54,7 @@ func (p *Process) Start() errors.Error {
 	return nil
 }
 
-// Wait for the crawler in the current thread.
+// Wait for the process in the current thread.
 func (p *Process) Wait() errors.Error {
 	if err := p.cmd.Wait(); err != nil {
 		return errors.Wrap(err, ProcessErrorTitle, "An error occured while running the process")
@@ -62,7 +62,7 @@ func (p *Process) Wait() errors.Error {
 	return nil
 }
 
-// Closes the crawler process.
+// Closes the process.
 func (p *Process) Close() errors.Error {
 	if p.cmd != nil && p.cmd.Process != nil && !p.cmd.ProcessState.Exited() {
 		if err := p.cmd.Process.Kill(); err != nil {
@@ -72,7 +72,7 @@ func (p *Process) Close() errors.Error {
 	return nil
 }
 
-// Returns true if the crawler process is still running.
+// Returns true if the process is still running.
 func (p *Process) IsRunning() bool {
 	return p.cmd != nil && (p.cmd.ProcessState == nil || !p.cmd.ProcessState.Exited())
 }

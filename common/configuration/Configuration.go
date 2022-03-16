@@ -231,6 +231,14 @@ func ExcelSets() []ExcelSet {
 	return loadedConfig.ExcelSets
 }
 
+func IdealBinaryDir() string {
+	// TODO
+	if loadedConfig == nil {
+		return ""
+	}
+	return ""
+}
+
 func IsLangServMode() bool {
 	if loadedConfig == nil {
 		return false

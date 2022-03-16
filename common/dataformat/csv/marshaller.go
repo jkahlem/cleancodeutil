@@ -198,3 +198,35 @@ func MarshalTypeLabel(records []TypeLabel) [][]string {
 	}
 	return result
 }
+
+func (t IdealResult) ToRecord() []string {
+	if record, err := marshal(reflect.ValueOf(t)); err != nil {
+		log.Error(err)
+		log.ReportProblem("An error occured while marshalling data")
+		return nil
+	} else {
+		return record
+	}
+}
+
+func UnmarshalIdealResult(records [][]string) []IdealResult {
+	typ := reflect.TypeOf(IdealResult{})
+	result := make([]IdealResult, 0, len(records))
+	for _, record := range records {
+		if unmarshalled, err := unmarshal(record,  typ); err != nil {
+			log.Error(err)
+			log.ReportProblem("An error occured while unmarshalling data")
+		} else if c, ok := (unmarshalled.Interface()).(IdealResult); ok {
+			result = append(result, c)
+		}
+	}
+	return result
+}
+
+func MarshalIdealResult(records []IdealResult) [][]string {
+	result := make([][]string, len(records))
+	for i := range records {
+		result[i] = records[i].ToRecord()
+	}
+	return result
+}

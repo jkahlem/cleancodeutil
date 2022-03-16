@@ -1,5 +1,7 @@
 package csv
 
+import "time"
+
 // Generate Marshal / Unmarshal methods (-> Marshaller.go)
 //go:generate go run ./marshallerGenerator
 
@@ -40,4 +42,18 @@ type MethodGenerationDatasetRow struct {
 type TypeLabel struct {
 	Name  string
 	Label int
+}
+
+type IdealResult struct {
+	FilePath              string
+	FileType              string
+	Identifier            string
+	IdentifierType        string
+	LineNumber            int
+	ColumnNumber          int
+	IssueID               string
+	IssueAdditionalDetail string
+	IssueCategory         string
+	IssueDetail           string
+	AnalysisDateTime      time.Time
 }
