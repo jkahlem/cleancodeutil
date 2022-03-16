@@ -135,7 +135,7 @@ func evaluate(modelType configuration.ModelType, path string, dataset configurat
 func getEvaluatorByModelType(modelType configuration.ModelType, dataset configuration.Dataset) (base.Evaluator, errors.Error) {
 	switch modelType {
 	case configuration.MethodGenerator:
-		return methodgeneration.NewEvaluator(), nil
+		return methodgeneration.NewEvaluator(dataset), nil
 	case configuration.ReturnTypesValidator:
 		return returntypesvalidation.NewEvaluator(dataset), nil
 	default:

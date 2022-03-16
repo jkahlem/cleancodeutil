@@ -10,7 +10,9 @@ import (
 	"returntypes-langserver/services/predictor"
 )
 
-type Evaluator struct{}
+type Evaluator struct {
+	Dataset configuration.Dataset
+}
 
 type Method struct {
 	Name                string
@@ -18,8 +20,10 @@ type Method struct {
 	GeneratedDefinition string
 }
 
-func NewEvaluator() base.Evaluator {
-	return &Evaluator{}
+func NewEvaluator(dataset configuration.Dataset) base.Evaluator {
+	return &Evaluator{
+		Dataset: dataset,
+	}
 }
 
 func (e *Evaluator) Evaluate(path string) errors.Error {
@@ -58,7 +62,7 @@ func (e *Evaluator) generateMethodDefinitions(methods []predictor.Method) ([]Met
 		contexts[i] = method.Context
 	}
 
-	predicted, err := predictor.OnDataset(configuration.Dataset{}).GenerateMethods(contexts)
+	predicted, err := predictor.OnDataset(e.Dataset).GenerateMethods(contexts)
 	if len(predicted) != len(methods) {
 		return nil, errors.New("Predictor error", fmt.Sprintf("Expected %d methods to be generated but got %d.", len(methods), len(predicted)))
 	}
