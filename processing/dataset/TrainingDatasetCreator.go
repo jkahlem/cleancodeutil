@@ -17,14 +17,17 @@ func CreateTrainingAndEvaluationSet(modelType configuration.ModelType, methodsWi
 	if methods, classes, err := loadMethodsAndClasses(methodsWithReturnTypesPath, classHierarchyPath); err != nil {
 		return err
 	} else {
-		processors := make(DatasetProcessors, len(configuration.Datasets()))
+		processors := make(DatasetProcessors, 0, len(configuration.Datasets()))
 		tree := createPackageTree(classes)
-		for i, dataset := range configuration.Datasets() {
+		for _, dataset := range configuration.Datasets() {
 			if processor, err := NewProcessor(dataset, modelType, configuration.DatasetOutputDir(), tree); err != nil {
 				return err
-			} else {
-				processors[i] = processor
+			} else if !processor.CanBeSkipped() {
+				processors = append(processors, processor)
 			}
+		}
+		if len(processors) == 0 {
+			return nil
 		}
 
 		for _, method := range methods {

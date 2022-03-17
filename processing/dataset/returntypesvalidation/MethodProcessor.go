@@ -7,6 +7,7 @@ import (
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/utils"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/processing/typeclasses"
 	"returntypes-langserver/services/predictor"
@@ -24,6 +25,7 @@ type Processor struct {
 	Options         configuration.SpecialOptions
 	typeClassMapper typeclasses.Mapper
 	typeLabelMapper *base.TypeLabelMapper
+	skip            bool
 }
 
 type ReturnTypes map[string]int
@@ -57,6 +59,9 @@ func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *
 		Options:    options,
 		methodsSet: make(map[string]ReturnTypes),
 	}
+	if utils.FileExists(processor.trainingFilePath()) {
+		processor.skip = true
+	}
 	if options.TypeClasses != nil {
 		if typeClassMapper, err := typeclasses.New(tree, options.TypeClasses); err != nil {
 			return nil, err
@@ -66,6 +71,10 @@ func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *
 		}
 	}
 	return processor, nil
+}
+
+func (p *Processor) CanBeSkipped() bool {
+	return p.skip
 }
 
 func (p *Processor) Process(method *csv.Method) (isFiltered bool, err errors.Error) {
@@ -113,12 +122,24 @@ func (p *Processor) Close() errors.Error {
 	}
 
 	trainingSet, evaluationSet := SplitToTrainingAndEvaluationSet(rows, p.Options.DatasetSize)
-	if err := csv.WriteCsvRecords(filepath.Join(p.OutputDir, TrainingSetFileName), csv.MarshalReturnTypesDatasetRow(trainingSet)); err != nil {
+	if err := csv.WriteCsvRecords(p.trainingFilePath(), csv.MarshalReturnTypesDatasetRow(trainingSet)); err != nil {
 		return err
-	} else if err := csv.WriteCsvRecords(filepath.Join(p.OutputDir, EvaluationSetFileName), csv.MarshalReturnTypesDatasetRow(evaluationSet)); err != nil {
+	} else if err := csv.WriteCsvRecords(p.evaluationFilePath(), csv.MarshalReturnTypesDatasetRow(evaluationSet)); err != nil {
 		return err
-	} else if err := csv.WriteCsvRecords(filepath.Join(p.OutputDir, LabelSetFileName), csv.MarshalTypeLabel(p.typeLabelMapper.GetMappings())); err != nil {
+	} else if err := csv.WriteCsvRecords(p.labelFilePath(), csv.MarshalTypeLabel(p.typeLabelMapper.GetMappings())); err != nil {
 		return err
 	}
 	return nil
+}
+
+func (p *Processor) trainingFilePath() string {
+	return filepath.Join(p.OutputDir, TrainingSetFileName)
+}
+
+func (p *Processor) evaluationFilePath() string {
+	return filepath.Join(p.OutputDir, EvaluationSetFileName)
+}
+
+func (p *Processor) labelFilePath() string {
+	return filepath.Join(p.OutputDir, LabelSetFileName)
 }

@@ -44,20 +44,35 @@ func NewProcessor(set configuration.Dataset, modelType configuration.ModelType, 
 	path = filepath.Join(path, set.Name())
 	processor := DatasetProcessor{
 		TargetSet:     set,
-		SubProcessors: make([]DatasetProcessor, len(set.Subsets)),
+		SubProcessors: make([]DatasetProcessor, 0, len(set.Subsets)),
 	}
 	if err := processor.initializeModelProcessor(modelType, path, tree); err != nil {
 		return processor, err
 	}
 
-	for i, subset := range set.Subsets {
+	for _, subset := range set.Subsets {
 		if subprocessor, err := NewProcessor(inheritOptions(set, subset), modelType, path, tree); err != nil {
 			return processor, err
-		} else {
-			processor.SubProcessors[i] = subprocessor
+		} else if !subprocessor.CanBeSkipped() {
+			processor.SubProcessors = append(processor.SubProcessors, subprocessor)
 		}
 	}
 	return processor, nil
+}
+
+func (p *DatasetProcessor) CanBeSkipped() bool {
+	if !configuration.SkipIfOutputExists() {
+		return false
+	}
+	if p.ModelProcessor != nil && !p.ModelProcessor.CanBeSkipped() {
+		return false
+	}
+	for i := range p.SubProcessors {
+		if !p.SubProcessors[i].CanBeSkipped() {
+			return false
+		}
+	}
+	return true
 }
 
 func (p *DatasetProcessor) initializeModelProcessor(modelType configuration.ModelType, path string, tree *packagetree.Tree) (err errors.Error) {

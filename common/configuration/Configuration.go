@@ -239,6 +239,13 @@ func IdealBinaryDir() string {
 	return ""
 }
 
+func SkipIfOutputExists() bool {
+	if loadedConfig == nil {
+		return false
+	}
+	return loadedConfig.SkipIfOutputExists
+}
+
 func IsLangServMode() bool {
 	if loadedConfig == nil {
 		return false

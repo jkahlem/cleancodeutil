@@ -16,5 +16,6 @@ type Trainer interface {
 // Does more specific processings like filters
 type MethodProcessor interface {
 	Process(*csv.Method) (bool, errors.Error)
+	CanBeSkipped() bool
 	Close() errors.Error
 }

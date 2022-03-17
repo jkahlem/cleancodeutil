@@ -25,6 +25,7 @@ type Processor struct {
 	methods         utils.StringSet
 	Options         configuration.SpecialOptions
 	typeClassMapper typeclasses.Mapper
+	skip            bool
 }
 
 func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) (base.MethodProcessor, errors.Error) {
@@ -32,6 +33,9 @@ func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *
 		OutputDir: outputDir,
 		Options:   options,
 		methods:   make(utils.StringSet),
+	}
+	if utils.FileExists(processor.trainingFilePath()) {
+		processor.skip = true
 	}
 	if options.TypeClasses != nil {
 		if typeClassMapper, err := typeclasses.New(tree, options.TypeClasses); err != nil {
@@ -41,6 +45,10 @@ func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *
 		}
 	}
 	return processor, nil
+}
+
+func (p *Processor) CanBeSkipped() bool {
+	return p.skip
 }
 
 func (p *Processor) Process(method *csv.Method) (isFiltered bool, err errors.Error) {
@@ -116,7 +124,11 @@ func (p *Processor) getIdentifier(method *csv.Method) string {
 
 func (p *Processor) Close() errors.Error {
 	// TODO: Split evaluation set?
-	log.Info("Close dataset file at %s\n", filepath.Join(p.OutputDir, TrainingSetFileName))
-	csv.WriteCsvRecords(filepath.Join(p.OutputDir, TrainingSetFileName), csv.MarshalMethodGenerationDatasetRow(p.rows))
+	log.Info("Close dataset file at %s\n", p.trainingFilePath())
+	csv.WriteCsvRecords(p.trainingFilePath(), csv.MarshalMethodGenerationDatasetRow(p.rows))
 	return nil
+}
+
+func (p *Processor) trainingFilePath() string {
+	return filepath.Join(p.OutputDir, TrainingSetFileName)
 }
