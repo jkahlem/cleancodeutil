@@ -50,6 +50,28 @@ func TestTrainMethods(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestGenerateMethods(t *testing.T) {
+	configuration.LoadConfigFromJsonString(buildPredictorConfig())
+
+	values, err := OnDataset(configuration.Dataset{
+		NameRaw: "experimental-set",
+	}).GenerateMethods([]MethodContext{
+		{
+			MethodName: "compare strings",
+			ClassName:  "StringUtil",
+			IsStatic:   false,
+		},
+		{
+			MethodName: "set name",
+			ClassName:  "SomeClass",
+			IsStatic:   false,
+		},
+	})
+
+	fmt.Println(values[0], values[1])
+	assert.NoError(t, err)
+}
+
 /*
 func TestGenerateMethods(t *testing.T) {
 	// given

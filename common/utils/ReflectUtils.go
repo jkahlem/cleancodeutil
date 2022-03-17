@@ -7,6 +7,8 @@ import (
 	"returntypes-langserver/common/debug/errors"
 )
 
+var InvalidValues = errors.ErrorId("Error", "Invalid values")
+
 // Returns true if the type is implementing the error interface.
 func IsErrorType(t reflect.Type) bool {
 	errorType := reflect.TypeOf((*error)(nil)).Elem()
@@ -74,10 +76,10 @@ func CastValueToTypeIfPossible(value reflect.Value, expectedType reflect.Type) (
 		return v, nil
 	} else if v.Type().ConvertibleTo(expectedType) {
 		return v.Convert(expectedType), nil
-	} else if mapped, err := MapToStruct(v, expectedType); err == nil {
-		return mapped, nil
-	} else if slice, err := CopyToSliceType(v, expectedType); err == nil {
-		return slice, nil
+	} else if mapped, err := MapToStruct(v, expectedType); err == nil || !errors.Is(err, InvalidValues) {
+		return mapped, err
+	} else if slice, err := CopyToSliceType(v, expectedType); err == nil || !errors.Is(err, InvalidValues) {
+		return slice, err
 	} else if expectedType.Kind() == reflect.Ptr {
 		if casted, err := CastValueToTypeIfPossible(v, expectedType.Elem()); err != nil {
 			return casted, err
@@ -96,7 +98,7 @@ func CastValueToTypeIfPossible(value reflect.Value, expectedType reflect.Type) (
 // so usages in if-clauses are possible (without a check before).
 func CopyToSliceType(sourceSlice reflect.Value, targetType reflect.Type) (reflect.Value, errors.Error) {
 	if !sourceSlice.IsValid() || sourceSlice.Kind() != reflect.Slice || targetType.Kind() != reflect.Slice {
-		return reflect.Zero(targetType), errors.New("Error", "Invalid values")
+		return reflect.Zero(targetType), errors.NewById(InvalidValues)
 	}
 	destination := reflect.MakeSlice(targetType, sourceSlice.Len(), sourceSlice.Cap())
 	targetElemType := targetType.Elem()
@@ -114,7 +116,7 @@ func CopyToSliceType(sourceSlice reflect.Value, targetType reflect.Type) (reflec
 // so simple usages in if-clauses are possible (just need to check for the error).
 func MapToStruct(source reflect.Value, targetType reflect.Type) (reflect.Value, errors.Error) {
 	if !source.IsValid() || source.Kind() != reflect.Map || targetType.Kind() != reflect.Struct {
-		return reflect.Zero(targetType), errors.New("Error", "Invalid values")
+		return reflect.Zero(targetType), errors.NewById(InvalidValues)
 	}
 	destination := reflect.New(targetType)
 	if err := DecodeMapToStruct(source.Interface(), destination.Interface()); err != nil {

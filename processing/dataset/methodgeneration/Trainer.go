@@ -30,5 +30,5 @@ func (t *Trainer) Train(path string) errors.Error {
 	}
 
 	// Train the predictor
-	return predictor.OnDataset(t.Dataset).TrainMethods(methods)
+	return predictor.OnDataset(t.Dataset).TrainMethods(methods[:4000])
 }

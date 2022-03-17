@@ -193,6 +193,7 @@ func createDefaultConfig() {
 }
 
 func loadConfigFromFile() errors.Error {
+	initializeSchemas()
 	file, err := os.Open(filepath.Join(GoProjectDir(), "config.json"))
 	if err != nil {
 		// No configuration specified.
@@ -206,7 +207,6 @@ func loadConfigFromFile() errors.Error {
 }
 
 func loadJsonConfig(content []byte) errors.Error {
-	initializeSchemas()
 	if err := jsonschema.UnmarshalJSONStrict(content, &loadedConfig, ProjectConfigurationFileSchema); err != nil {
 		return errors.Wrap(err, ConfigurationErrorTitle, "Could not load json configuration")
 	}

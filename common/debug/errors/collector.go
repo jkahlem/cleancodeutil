@@ -85,6 +85,10 @@ func (e *ErrorCollector) Unwrap() error {
 	return e.contained[0]
 }
 
+func (e *ErrorCollector) Is(error) bool {
+	return false
+}
+
 func indent(text string, indent string) string {
 	lines := strings.Split(text, "\n")
 	for i := range lines[1:] {

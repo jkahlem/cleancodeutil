@@ -181,8 +181,10 @@ func processRequest(rpcMethodName string, arguments interface{}, _interface *_in
 	}
 }
 
-// Maps the results of a request (by-name, so request is a json object) to a slice of reflect.Values
+// Maps the results of a request to a slice of reflect.Values.
 // The slice may contain an error if defined.
+// Note: Results must not be formatted by-name or by-position. The result value can be any kind of value, which is then the return value.
+//       The only other case is, if the response contains an error (and therefore no result property). There is no by-name or by-position specified for result.
 func mapResultsToSlice(results interface{}, err errors.Error, methodDef MethodDefinition) []reflect.Value {
 	expectedReturnType := methodDef.Type.Out(0)
 	returnValues := createZeroValueReturnValues(methodDef.Type)
@@ -190,8 +192,8 @@ func mapResultsToSlice(results interface{}, err errors.Error, methodDef MethodDe
 
 	resultsValue := reflect.ValueOf(results)
 	if resultsValue.IsValid() {
-		if v, err := utils.CastValueToTypeIfPossible(resultsValue, expectedReturnType); err != nil {
-			err = errors.Wrap(err, "RPC Error", fmt.Sprintf("Error at return parameter for method %s", methodDef.Name))
+		if v, err2 := utils.CastValueToTypeIfPossible(resultsValue, expectedReturnType); err2 != nil {
+			err = errors.Wrap(err2, "RPC Error", fmt.Sprintf("Error at return parameter for method %s", methodDef.Name))
 		} else {
 			returnValue = v
 		}
@@ -202,7 +204,9 @@ func mapResultsToSlice(results interface{}, err errors.Error, methodDef MethodDe
 			returnValues[0] = reflect.ValueOf(err)
 		}
 	} else {
-		returnValues[0] = returnValue
+		if returnValue.IsValid() {
+			returnValues[0] = returnValue
+		}
 		if err != nil && methodDef.Type.NumOut() > 1 {
 			returnValues[1] = reflect.ValueOf(err)
 		}

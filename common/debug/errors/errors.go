@@ -33,6 +33,8 @@ type Error interface {
 	ErrorWithStacktrace() string
 	// the wrapped error object
 	Unwrap() error
+	// For checks
+	Is(error) bool
 }
 
 type customError struct {
@@ -110,6 +112,40 @@ func (e *customError) Unwrap() error {
 	return e.wrappedErr
 }
 
+func (e *customError) Is(err error) bool {
+	if x, ok := err.(interface {
+		Title() string
+		Message() string
+	}); ok {
+		return x.Title() == e.title && x.Message() == e.message
+	}
+	return false
+}
+
+type ErrorIdentifier struct {
+	title   string
+	message string
+}
+
+func (e ErrorIdentifier) Title() string {
+	return e.title
+}
+
+func (e ErrorIdentifier) Message() string {
+	return e.message
+}
+
+func (e ErrorIdentifier) Error() string {
+	return e.title + ": " + e.message
+}
+
+func ErrorId(title, message string) ErrorIdentifier {
+	return ErrorIdentifier{
+		title:   title,
+		message: message,
+	}
+}
+
 // Wraps the given error in the new error type. Does nothing if err is nil.
 func Wrap(err error, title, message string) Error {
 	if err == nil {
@@ -122,6 +158,10 @@ func Wrap(err error, title, message string) Error {
 	}
 }
 
+func WrapWithId(err error, id ErrorIdentifier) Error {
+	return Wrap(err, id.title, id.message)
+}
+
 // Creates a new error.
 func New(title, message string) Error {
 	return &customError{
@@ -129,6 +169,10 @@ func New(title, message string) Error {
 		title:      title,
 		message:    message,
 	}
+}
+
+func NewById(id ErrorIdentifier) Error {
+	return New(id.title, id.message)
 }
 
 // For getting an error of a type. Mirrors golang's errors.As but without panicking.
