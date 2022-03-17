@@ -191,20 +191,17 @@ func mapResultsToSlice(results interface{}, err errors.Error, methodDef MethodDe
 	returnValue := reflect.Zero(expectedReturnType)
 
 	resultsValue := reflect.ValueOf(results)
-	if resultsValue.IsValid() {
-		if v, err2 := utils.CastValueToTypeIfPossible(resultsValue, expectedReturnType); err2 != nil {
-			err = errors.Wrap(err2, "RPC Error", fmt.Sprintf("Error at return parameter for method %s", methodDef.Name))
-		} else {
-			returnValue = v
-		}
-	}
-
-	if utils.IsErrorType(methodDef.Type.Out(0)) {
+	if methodDef.Type.NumOut() == 1 && utils.IsErrorType(methodDef.Type.Out(0)) {
 		if err != nil {
 			returnValues[0] = reflect.ValueOf(err)
 		}
 	} else {
-		if returnValue.IsValid() {
+		if resultsValue.IsValid() {
+			if v, err2 := utils.CastValueToTypeIfPossible(resultsValue, expectedReturnType); err2 != nil {
+				err = errors.Wrap(err2, "RPC Error", fmt.Sprintf("Error at return parameter for method %s", methodDef.Name))
+			} else {
+				returnValue = v
+			}
 			returnValues[0] = returnValue
 		}
 		if err != nil && methodDef.Type.NumOut() > 1 {
