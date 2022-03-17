@@ -44,6 +44,7 @@ type EvaluationSet struct {
 	// Defines, how the rating per row should be done, like equality checks or different tools etc.
 	Metrics []MetricConfiguration `json:"metrics"`
 	Filter  Filter                `json:"filter"`
+	Name    string                `json:"name"`
 }
 
 const (

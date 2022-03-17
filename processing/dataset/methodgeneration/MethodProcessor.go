@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	TrainingSetFileName   = "trainingSet_returntypesvalidation.csv"
-	EvaluationSetFileName = "evaluationSet_returntypesvalidation.csv"
+	TrainingSetFileName   = "methodgeneration_trainingSet.csv"
+	EvaluationSetFileName = "methodgeneration_evaluationSet.csv"
 )
 
 type Processor struct {

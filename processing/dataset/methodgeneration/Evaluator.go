@@ -2,6 +2,7 @@ package methodgeneration
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
@@ -9,6 +10,8 @@ import (
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/services/predictor"
 )
+
+const GeneratedMethodsFile = "methodgeneration_generatedMethods.csv"
 
 type Evaluator struct {
 	Dataset configuration.Dataset
@@ -37,9 +40,19 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 	}
 	evalset := e.getEvaluationSetConfig()
 
+	outputfile, err2 := os.OpenFile(filepath.Join(path, "evaluation_results.csv"), os.O_TRUNC|os.O_CREATE, os.ModePerm)
+	if err2 != nil {
+		return err
+	}
+	defer outputfile.Close()
+
 	for _, m := range methods {
 		evalset.AddMethod(m)
+		fmt.Fprintf(outputfile, "%s;%s;%s\n", m.Name, m.ExpectedDefinition, m.GeneratedDefinition)
 	}
+
+	fmt.Println("Print evaluations for: ", path)
+	evalset.PrintScore()
 
 	return nil
 }
@@ -74,11 +87,26 @@ func (e *Evaluator) generateMethodDefinitions(methods []predictor.Method) ([]Met
 			Values:  predicted[i],
 		}, methods[i].Values)
 	}
-	return nil, err
+	return outputMethods, err
 }
 
 func (e *Evaluator) parseOutputToMethod(method predictor.Method, expectedValues predictor.MethodValues) Method {
-	return Method{}
+	return Method{
+		Name:                string(method.Context.MethodName),
+		ExpectedDefinition:  e.joinParameters(expectedValues.Parameters),
+		GeneratedDefinition: e.joinParameters(method.Values.Parameters),
+	}
+}
+
+func (e *Evaluator) joinParameters(parameters []predictor.Parameter) string {
+	if len(parameters) == 0 {
+		return "void."
+	}
+	joined := ""
+	for i := range parameters {
+		joined += fmt.Sprintf("%s %s", parameters[i].Type, parameters[i].Name)
+	}
+	return joined
 }
 
 func (e *Evaluator) getEvaluationSetConfig() *EvaluationSet {
@@ -92,6 +120,7 @@ func (e *Evaluator) buildEvaluationSet(setConfiguration configuration.Evaluation
 	set := EvaluationSet{
 		Subsets: make([]EvaluationSet, 0),
 		Filter:  setConfiguration.Filter,
+		Name:    setConfiguration.Name,
 	}
 	set.initRater(setConfiguration.Metrics)
 
@@ -105,9 +134,11 @@ type EvaluationSet struct {
 	Subsets []EvaluationSet
 	Rater   []Metric
 	Filter  configuration.Filter
+	Name    string
 }
 
 func (e *EvaluationSet) AddMethod(m Method) {
+	//fmt.Println("Set ", e.Name, " add method: ", m.Name, " (Raters: ", len(e.Rater))
 	if !e.IsMethodAccepted(m) {
 		return
 	}
@@ -144,6 +175,16 @@ func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
 			// TODO: remove panic
 			panic(fmt.Errorf("Unknown metric: %s", metric))
 		}
+	}
+}
+
+func (e *EvaluationSet) PrintScore() {
+	fmt.Println("Set: ", e.Name)
+	for i := range e.Rater {
+		fmt.Println("Metric: ", e.Rater[i].Name(), ". Score: ", e.Rater[i].Score())
+	}
+	for i := range e.Subsets {
+		e.Subsets[i].PrintScore()
 	}
 }
 

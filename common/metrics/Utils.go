@@ -17,6 +17,8 @@ func getNgrams(target []string, n int) ngram {
 		panic("invalid n-gram value")
 	} else if n == 1 {
 		return target
+	} else if n >= len(target) {
+		return []string{strings.Join(target, " ")}
 	}
 	result := make([]string, len(target)-n)
 	for i := 0; i < len(target)-n; i++ {
