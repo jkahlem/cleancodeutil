@@ -5,9 +5,15 @@
     "description": "Defines different options which are used for the model.",
     "type": "object",
     "properties": {
-        "placeholder": {
-            "comment": "Currently there are no options...",
-            "type": "string"
+        "batchSize": {
+            "comment": "Defines the size of a batch in the training/evaluation process",
+            "type": "int",
+            "minimum": 1
+        },
+        "numOfEpochs": {
+            "comment": "Defines the number of training epochs.",
+            "type": "int",
+            "minimum": 1
         }
     }
 }

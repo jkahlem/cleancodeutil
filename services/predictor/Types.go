@@ -33,8 +33,10 @@ type Options struct {
 	Identifier   string          `json:"identifier"`
 	LabelsCsv    string          `json:"labels"`
 	Type         SupportedModels `json:"type"`
-	ModelOptions ModelOptions    `json:"model"`
+	ModelOptions ModelOptions    `json:"modelOptions"`
 }
 
 type ModelOptions struct {
+	BatchSize   int `json:"batchSize"`
+	NumOfEpochs int `json:"numOfEpochs"`
 }
