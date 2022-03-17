@@ -82,11 +82,11 @@ const UnmarshalTemplate = `
 func Unmarshal{{.TypeName}}(records [][]string) []{{.TypeName}} {
 	result := make([]{{.TypeName}}, len(records))
 	for i, record := range records {
-	{{- range .Fields}}
+	{{- range $i, $e := .Fields}}
 		{{- if eq .TypeName "[]string"}}
-		result[i].{{.Name}} = SplitList(record[i])
+		result[i].{{.Name}} = SplitList(record[{{$i}}])
 		{{- else if isIntegerType .TypeName}}
-		if val, err := strconv.Atoi(record[i]); err != nil {
+		if val, err := strconv.Atoi(record[{{$i}}]); err != nil {
 			log.Error(errors.Wrap(err, "Csv Error", "Could not convert int value"))
 			log.ReportProblem("An error occured while unmarshalling data")
 		} else {
@@ -97,7 +97,7 @@ func Unmarshal{{.TypeName}}(records [][]string) []{{.TypeName}} {
 			{{- end}}
 		}
 		{{- else if eq .TypeName "string"}}
-		result[i].{{.Name}} = record[i]
+		result[i].{{.Name}} = record[{{$i}}]
 		{{- else}}
 			{{typeError .TypeName}}
 		{{- end}}
