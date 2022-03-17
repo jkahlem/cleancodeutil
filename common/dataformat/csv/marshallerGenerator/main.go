@@ -2,16 +2,14 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"path"
 	"returntypes-langserver/common/code/generator"
+	"strings"
 	"text/template"
 )
-
-type TemplateAttributes struct {
-	TypeName string
-}
 
 func main() {
 	ctx, err := generator.ParseFile(generator.CurrentFile())
@@ -26,45 +24,102 @@ func main() {
 		fmt.Fprint(outputFile, generator.HeaderNote)
 		fmt.Fprintf(outputFile, "package %s\n", ctx.Package())
 		fmt.Fprint(outputFile, Imports)
+
 		for _, structType := range structs {
-			if tmpl, err := template.New("boilerplate").Parse(marshallerTemplate); err != nil {
-				log.Fatal(err)
-			} else if err := tmpl.Execute(outputFile, TemplateAttributes{TypeName: structType.Name}); err != nil {
-				log.Fatal(err)
-			}
+			buildUnmarshallerCode(structType, outputFile)
 		}
 	}
 }
 
-const Imports = `
-import (
-	"reflect"
-	"returntypes-langserver/common/debug/log"
-)`
+type UnmarshallerAttributes struct {
+	TypeName string
+	Fields   []FieldAttributes
+}
 
-var marshallerTemplate = `
-func (t {{.TypeName}}) ToRecord() []string {
-	if record, err := marshal(reflect.ValueOf(t)); err != nil {
-		log.Error(err)
-		log.ReportProblem("An error occured while marshalling data")
-		return nil
-	} else {
-		return record
+type FieldAttributes struct {
+	TypeName string
+	Name     string
+}
+
+func buildUnmarshallerCode(s generator.Struct, outputFile io.Writer) {
+	attr := UnmarshallerAttributes{
+		TypeName: s.Name,
+		Fields:   make([]FieldAttributes, len(s.Fields)),
+	}
+	for i, field := range s.Fields {
+		attr.Fields[i] = FieldAttributes{
+			Name:     field.Name,
+			TypeName: field.Type.Code(),
+		}
+		if strings.HasPrefix(attr.Fields[i].TypeName, "[]") && attr.Fields[i].TypeName != "[]string" {
+			log.Fatalf("Unsupported type: %s", attr.Fields[i].TypeName)
+		}
+	}
+	funcs := template.FuncMap{
+		"isIntegerType": isIntegerType,
+		"typeError":     typeError,
+	}
+	if tmpl, err := template.New("boilerplate").Funcs(funcs).Parse(UnmarshalTemplate); err != nil {
+		log.Fatal(err)
+	} else if err := tmpl.Execute(outputFile, attr); err != nil {
+		log.Fatal(err)
 	}
 }
 
+func isIntegerType(str string) bool {
+	switch str {
+	case "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64":
+		return true
+	}
+	return false
+}
+
+func typeError(typeName string) (string, error) {
+	return "", fmt.Errorf("Unsupported type: %s", typeName)
+}
+
+const UnmarshalTemplate = `
 func Unmarshal{{.TypeName}}(records [][]string) []{{.TypeName}} {
-	typ := reflect.TypeOf({{.TypeName}}{})
-	result := make([]{{.TypeName}}, 0, len(records))
-	for _, record := range records {
-		if unmarshalled, err := unmarshal(record,  typ); err != nil {
-			log.Error(err)
+	result := make([]{{.TypeName}}, len(records))
+	for i, record := range records {
+	{{- range .Fields}}
+		{{- if eq .TypeName "[]string"}}
+		result[i].{{.Name}} = SplitList(record[i])
+		{{- else if isIntegerType .TypeName}}
+		if val, err := strconv.Atoi(record[i]); err != nil {
+			log.Error(errors.Wrap(err, "Csv Error", "Could not convert int value"))
 			log.ReportProblem("An error occured while unmarshalling data")
-		} else if c, ok := (unmarshalled.Interface()).({{.TypeName}}); ok {
-			result = append(result, c)
+		} else {
+			{{- if eq .TypeName "int"}}
+			result[i].{{.Name}} = val
+			{{- else}}
+			result[i].{{.Name}} = {{.TypeName}}(val)
+			{{- end}}
 		}
+		{{- else if eq .TypeName "string"}}
+		result[i].{{.Name}} = record[i]
+		{{- else}}
+			{{typeError .TypeName}}
+		{{- end}}
+	{{- end}}
 	}
 	return result
+}
+
+func (s {{.TypeName}}) ToRecord() []string {
+	record := make([]string, {{len .Fields}})
+	{{- range $i, $e := .Fields}}
+	{{- if eq .TypeName "[]string"}}
+	record[{{$i}}] = MakeList(s.{{.Name}})
+	{{- else if isIntegerType .TypeName}}
+	record[{{$i}}] = fmt.Sprintf("%d", s.{{.Name}})
+	{{- else if eq .TypeName "string"}}
+	record[{{$i}}] = s.{{.Name}}
+	{{- else}}
+		{{typeError .TypeName}}
+	{{- end}}
+	{{- end}}
+	return record
 }
 
 func Marshal{{.TypeName}}(records []{{.TypeName}}) [][]string {
@@ -73,5 +128,12 @@ func Marshal{{.TypeName}}(records []{{.TypeName}}) [][]string {
 		result[i] = records[i].ToRecord()
 	}
 	return result
-}
-`
+}`
+
+const Imports = `
+import (
+	"fmt"
+	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
+	"strconv"
+)`

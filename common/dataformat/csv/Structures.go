@@ -1,7 +1,5 @@
 package csv
 
-import "time"
-
 // Generate Marshal / Unmarshal methods (-> Marshaller.go)
 //go:generate go run ./marshallerGenerator
 
@@ -54,5 +52,5 @@ type IdealResult struct {
 	IssueAdditionalDetail string
 	IssueCategory         string
 	IssueDetail           string
-	AnalysisDateTime      time.Time
+	AnalysisDateTime      string
 }
