@@ -179,9 +179,11 @@ func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
 }
 
 func (e *EvaluationSet) PrintScore() {
-	fmt.Println("Set: ", e.Name)
-	for i := range e.Rater {
-		fmt.Println("Metric: ", e.Rater[i].Name(), ". Score: ", e.Rater[i].Score())
+	if len(e.Rater) > 0 {
+		fmt.Println("Set: ", e.Name)
+		for i := range e.Rater {
+			fmt.Println("Metric: ", e.Rater[i].Name(), ". Score: ", e.Rater[i].Score())
+		}
 	}
 	for i := range e.Subsets {
 		e.Subsets[i].PrintScore()
