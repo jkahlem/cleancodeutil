@@ -23,6 +23,12 @@ func NewTrainer(dataset configuration.Dataset) base.Trainer {
 }
 
 func (t *Trainer) Train(path string) errors.Error {
+	if exists, err := predictor.OnDataset(t.Dataset).ModelExists(predictor.ReturnTypesPrediction); err != nil {
+		return err
+	} else if exists {
+		// Skip because the model is already trained
+		return nil
+	}
 	if err := t.loadData(path); err != nil {
 		return err
 	}

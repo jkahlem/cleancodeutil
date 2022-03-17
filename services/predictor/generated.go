@@ -16,35 +16,18 @@ type ProxyFacade struct {
 	Proxy Proxy `rpcproxy:"true"`
 }
 
-// Predicts the return types of the given methods (which are in a "predictable" format, so in the sentence format)
-// The return types are in the same order the method names were sent.
-func (p *ProxyFacade) Predict(predictionData []string, targetModel SupportedModels) ([]string, errors.Error) {
+func (p *ProxyFacade) Predict(predictionData []MethodContext, options Options) ([]MethodValues, errors.Error) {
 	if err := p.validate(p.Proxy.Predict); err != nil {
 		return nil, err
 	}
-	return p.Proxy.Predict(predictionData, targetModel)
+	return p.Proxy.Predict(predictionData, options)
 }
 
-// Trains the predictor and returns the evaluation result if finished.
-func (p *ProxyFacade) Train(trainingSet string, evaluationSet string, additional string, targetModel SupportedModels) (Evaluation, errors.Error) {
+func (p *ProxyFacade) Train(trainData []Method, options Options) errors.Error {
 	if err := p.validate(p.Proxy.Train); err != nil {
-		return Evaluation{}, err
-	}
-	return p.Proxy.Train(trainingSet, evaluationSet, additional, targetModel)
-}
-
-func (p *ProxyFacade) PredictNew(predictionData []MethodContext, options Options) ([]MethodValues, errors.Error) {
-	if err := p.validate(p.Proxy.PredictNew); err != nil {
-		return nil, err
-	}
-	return p.Proxy.PredictNew(predictionData, options)
-}
-
-func (p *ProxyFacade) TrainNew(trainData []Method, options Options) errors.Error {
-	if err := p.validate(p.Proxy.TrainNew); err != nil {
 		return err
 	}
-	return p.Proxy.TrainNew(trainData, options)
+	return p.Proxy.Train(trainData, options)
 }
 
 func (p *ProxyFacade) Evaluate(evaluationData []Method, options Options) (Evaluation, errors.Error) {
@@ -52,6 +35,13 @@ func (p *ProxyFacade) Evaluate(evaluationData []Method, options Options) (Evalua
 		return Evaluation{}, err
 	}
 	return p.Proxy.Evaluate(evaluationData, options)
+}
+
+func (p *ProxyFacade) Exists(options Options) (bool, errors.Error) {
+	if err := p.validate(p.Proxy.Exists); err != nil {
+		return false, err
+	}
+	return p.Proxy.Exists(options)
 }
 
 func (p *ProxyFacade) validate(fn interface{}) errors.Error {

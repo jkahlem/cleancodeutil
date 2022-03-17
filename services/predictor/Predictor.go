@@ -37,6 +37,8 @@ type Predictor interface {
 	TrainReturnTypes(methods []Method, labels [][]string) errors.Error
 	// Starts the training and evaluation process.
 	TrainMethods(trainingSet []Method) errors.Error
+	// Returns true if the model exists and is already trained
+	ModelExists(modelType SupportedModels) (bool, errors.Error)
 }
 
 type predictor struct {
@@ -49,10 +51,15 @@ func OnDataset(dataset configuration.Dataset) Predictor {
 	}
 }
 
+func (p *predictor) ModelExists(modelType SupportedModels) (bool, errors.Error) {
+	options := p.getOptions(modelType)
+	return remote().Exists(options)
+}
+
 func (p *predictor) TrainReturnTypes(methods []Method, labels [][]string) errors.Error {
 	options := p.getOptions(ReturnTypesPrediction)
 	options.LabelsCsv = p.asCsvString(labels)
-	return remote().TrainNew(methods, options)
+	return remote().Train(methods, options)
 }
 
 func (p *predictor) EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error) {
@@ -67,7 +74,7 @@ func (p *predictor) PredictReturnTypes(methodNames []PredictableMethodName) ([]M
 	for i, name := range methodNames {
 		contexts[i].MethodName = name
 	}
-	return remote().PredictNew(contexts, options)
+	return remote().Predict(contexts, options)
 }
 
 // Makes predictions for the methods in the map and sets the types as their value.
@@ -99,11 +106,11 @@ func (p *predictor) getMethodNamesInsideOfMap(mapping MethodTypeMap) []Predictab
 }
 
 func (p *predictor) TrainMethods(trainingSet []Method) errors.Error {
-	return remote().TrainNew(trainingSet, p.getOptions(MethodGenerator))
+	return remote().Train(trainingSet, p.getOptions(MethodGenerator))
 }
 
 func (p *predictor) GenerateMethods(contexts []MethodContext) ([]MethodValues, errors.Error) {
-	return remote().PredictNew(contexts, p.getOptions(MethodGenerator))
+	return remote().Predict(contexts, p.getOptions(MethodGenerator))
 }
 
 func (p *predictor) getOptions(modelType SupportedModels) Options {

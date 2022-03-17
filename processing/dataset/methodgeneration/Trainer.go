@@ -20,6 +20,12 @@ func NewTrainer(dataset configuration.Dataset) base.Trainer {
 }
 
 func (t *Trainer) Train(path string) errors.Error {
+	if exists, err := predictor.OnDataset(t.Dataset).ModelExists(predictor.MethodGenerator); err != nil {
+		return err
+	} else if exists {
+		// Skip because the model is already trained
+		return nil
+	}
 	trainingSet, err := csv.ReadRecords(filepath.Join(path, TrainingSetFileName))
 	if err != nil {
 		return err
