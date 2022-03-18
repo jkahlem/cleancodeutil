@@ -1,5 +1,7 @@
 package predictor
 
+import "fmt"
+
 type Evaluation struct {
 	AccScore float64 `json:"accScore"`
 	EvalLoss float64 `json:"evalLoss"`
@@ -14,14 +16,49 @@ type MethodContext struct {
 	Types      []string              `json:"types"`
 }
 
+func (m MethodContext) String() string {
+	str := ""
+	if m.IsStatic {
+		str += "static "
+	}
+	if m.ClassName != "" {
+		str += m.ClassName + "."
+	}
+	return str + string(m.MethodName)
+}
+
 type MethodValues struct {
 	ReturnType string      `json:"returnType"`
 	Parameters []Parameter `json:"parameters"`
 }
 
+func (m MethodValues) String() string {
+	str := ""
+	if len(m.Parameters) > 0 {
+		str += "expects: "
+		for i, p := range m.Parameters {
+			if i > 0 {
+				str += ", "
+			}
+			str += p.String()
+		}
+	}
+	if m.ReturnType != "" {
+		if str != "" {
+			str += ". "
+		}
+		str += "returns: " + m.ReturnType
+	}
+	return str
+}
+
 type Parameter struct {
 	Name string `json:"name"`
 	Type string `json:"type"`
+}
+
+func (p Parameter) String() string {
+	return fmt.Sprintf("%s %s", p.Type, p.Name)
 }
 
 type Method struct {

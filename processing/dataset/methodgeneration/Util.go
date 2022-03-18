@@ -2,6 +2,7 @@ package methodgeneration
 
 import (
 	"fmt"
+	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/services/predictor"
@@ -45,4 +46,20 @@ func mapToParameters(parameters []string) ([]predictor.Parameter, errors.Error) 
 		output[i].Name = typeAndNamePair[1]
 	}
 	return output, nil
+}
+
+func mapExamplesToMethod(examples []configuration.MethodExample) []predictor.MethodContext {
+	output := make([]predictor.MethodContext, len(examples))
+	for i := range examples {
+		output[i] = mapExampleToMethod(examples[i])
+	}
+	return output
+}
+
+func mapExampleToMethod(example configuration.MethodExample) predictor.MethodContext {
+	return predictor.MethodContext{
+		MethodName: predictor.PredictableMethodName(predictor.SplitMethodNameToSentence(example.MethodName)),
+		ClassName:  example.ClassName,
+		IsStatic:   example.Static,
+	}
 }

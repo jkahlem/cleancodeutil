@@ -28,6 +28,7 @@ const (
 	// Evaluation schemas
 	EvaluationConfigurationSchemaPath = "configuration/evaluation-configuration.schema.json"
 	EvaluationSetSchemaPath           = "datasets/evaluation-set.schema.json"
+	MethodContextSchemaPath           = "datasets/method-context.schema.json"
 
 	// Dataset schemas
 	DatasetConfigurationFileSchemaPath = "datasets/dataset/config-file.schema.json"
@@ -64,7 +65,7 @@ func initializeSchemas() {
 
 	EvaluationConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
 		WithTopLevel(EvaluationConfigurationSchemaPath).
-		WithResources(EvaluationSetSchemaPath, ModelListSchemaPath).
+		WithResources(EvaluationSetSchemaPath, MethodContextSchemaPath, ModelListSchemaPath).
 		MustCompile()
 
 	DatasetConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
@@ -97,6 +98,7 @@ func initializeSchemas() {
 			ProjectConfigurationSchemaPath,
 			EvaluationConfigurationSchemaPath,
 			EvaluationSetSchemaPath,
+			MethodContextSchemaPath,
 			DatasetConfigurationSchemaPath,
 			DatasetModelOptionsSchemaPath,
 			DatasetSpecialOptionsSchemaPath,

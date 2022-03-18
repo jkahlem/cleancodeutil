@@ -2,7 +2,6 @@ package methodgeneration
 
 import (
 	"fmt"
-	"io"
 	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
@@ -14,6 +13,7 @@ import (
 
 const GeneratedMethodsFile = "methodgeneration_generatedMethods.csv"
 const ScoreOutputFile = "methodgeneration_scores.txt"
+const ExampleOutputFile = "methodgeneration_examples.txt"
 
 type Evaluator struct {
 	Dataset configuration.Dataset
@@ -41,6 +41,9 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 		return err
 	}
 	if err := e.writeScoreOutput(path, evalset); err != nil {
+		return err
+	}
+	if err := e.writeExampleOutput(path, evalset); err != nil {
 		return err
 	}
 	return nil
@@ -111,9 +114,10 @@ func (e *Evaluator) getEvaluationSetConfig() *EvaluationSet {
 
 func (e *Evaluator) buildEvaluationSet(setConfiguration configuration.EvaluationSet) EvaluationSet {
 	set := EvaluationSet{
-		Subsets: make([]EvaluationSet, 0),
-		Filter:  setConfiguration.Filter,
-		Name:    setConfiguration.Name,
+		Subsets:  make([]EvaluationSet, 0),
+		Filter:   setConfiguration.Filter,
+		Name:     setConfiguration.Name,
+		Examples: setConfiguration.Examples,
 	}
 	set.initRater(setConfiguration.Metrics)
 
@@ -170,66 +174,25 @@ func (e *Evaluator) writeScoreOutput(path string, evalset *EvaluationSet) errors
 	return nil
 }
 
-type EvaluationSet struct {
-	Subsets []EvaluationSet
-	Rater   []Metric
-	Filter  configuration.Filter
-	Name    string
-}
+func (e *Evaluator) writeExampleOutput(path string, evalset *EvaluationSet) errors.Error {
+	examples := evalset.GetExampleMethods()
+	if len(examples) == 0 {
+		return nil
+	}
+	generated, err := predictor.OnDataset(e.Dataset).GenerateMethods(examples)
+	if err != nil {
+		return err
+	}
 
-func (e *EvaluationSet) AddMethod(m Method) {
-	//fmt.Println("Set ", e.Name, " add method: ", m.Name, " (Raters: ", len(e.Rater))
-	if !e.IsMethodAccepted(m) {
-		return
+	file, err := utils.CreateFile(filepath.Join(path, ExampleOutputFile))
+	if err != nil {
+		return err
 	}
-	// TOOD:
-	// - Add to output?
-	for i := range e.Rater {
-		e.Rater[i].Rate(m)
-	}
-	for i := range e.Subsets {
-		e.Subsets[i].AddMethod(m)
-	}
-}
+	defer file.Close()
 
-func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
-	e.Rater = make([]Metric, 0, len(metrics))
-	for _, metric := range metrics {
-		switch metric.Type() {
-		case configuration.RougeL:
-			e.Rater = append(e.Rater, NewRougeLRater(metric))
-		case configuration.RougeS:
-			e.Rater = append(e.Rater, NewRougeSRater(metric))
-		case configuration.RougeN:
-			e.Rater = append(e.Rater, NewRougeNRater(metric))
-		case configuration.Bleu:
-			config, err := metric.AsBleu()
-			if err != nil {
-				// TODO: remove panic
-				panic(err)
-			}
-			e.Rater = append(e.Rater, &BleuRater{
-				config: config,
-			})
-		default:
-			// TODO: remove panic
-			panic(fmt.Errorf("Unknown metric: %s", metric))
-		}
+	for i, methodValue := range generated {
+		fmt.Fprintf(file, "%s -> %s\n", examples[i], methodValue)
 	}
-}
 
-func (e *EvaluationSet) PrintScore(writer io.Writer) {
-	if len(e.Rater) > 0 {
-		fmt.Fprintf(writer, "Set: %s\n", e.Name)
-		for i := range e.Rater {
-			fmt.Fprintf(writer, "Metric: %s. Score: %v\n", e.Rater[i].Name(), e.Rater[i].Score())
-		}
-	}
-	for i := range e.Subsets {
-		e.Subsets[i].PrintScore(writer)
-	}
-}
-
-func (e *EvaluationSet) IsMethodAccepted(m Method) bool {
-	return csv.IsMethodIncluded(csv.Method{MethodName: m.Name}, e.Filter)
+	return nil
 }

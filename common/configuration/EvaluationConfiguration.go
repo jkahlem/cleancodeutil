@@ -3,9 +3,11 @@ package configuration
 import (
 	"fmt"
 	"io/ioutil"
+	"regexp"
 	"returntypes-langserver/common/dataformat/jsonschema"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/utils"
+	"strings"
 )
 
 type EvaluationConfiguration struct {
@@ -46,6 +48,33 @@ type EvaluationSet struct {
 	Metrics      []MetricConfiguration `json:"metrics"`
 	Filter       Filter                `json:"filter"`
 	TargetModels []string              `json:"targetModels"`
+	Examples     []MethodExample       `json:"examples"`
+}
+
+type MethodExample struct {
+	MethodName string `json:"methodName"`
+	Static     bool   `json:"static"`
+	ClassName  string `json:"className"`
+}
+
+var MethodExampleMatcher = regexp.MustCompile("^(static )?([a-zA-Z][a-zA-Z0-9_]*\\.)?[a-zA-Z][a-zA-Z0-9_]*$")
+
+func (e MethodExample) DecodeValue(value interface{}) (interface{}, error) {
+	if pattern, ok := value.(string); ok {
+		match := MethodExampleMatcher.FindStringSubmatch(pattern)
+		if len(match) != 4 {
+			return nil, fmt.Errorf("could not parse method example pattern: '%s'", pattern)
+		}
+		if match[1] != "" {
+			e.Static = true
+		}
+		if match[2] != "" {
+			e.ClassName = strings.TrimRight(match[2], ".")
+		}
+		e.MethodName = match[3]
+		return e, nil
+	}
+	return value, nil
 }
 
 const (

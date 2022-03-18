@@ -26,6 +26,14 @@
             "type": "array",
             "$ref": "model-list.schema.json"
         },
+        "exampleInput": {
+            "description": "A list of method inputs which will also be predicted and saved with their output seperately to a file.",
+            "type": "array",
+            "items": {
+                "type": ["object", "string"],
+                "$ref": "method-context.schema.json"
+            }
+        },
         "subsets": {
             "description": "A list of subsets which are saved in a sub directory under this dataset's name. As they are subsets, only methods passing the filter of this set will be passed to the subsets.",
             "type": "array",
