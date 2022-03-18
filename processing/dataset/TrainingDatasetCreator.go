@@ -7,6 +7,7 @@ import (
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/utils"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/processing/dataset/methodgeneration"
 	"returntypes-langserver/processing/dataset/returntypesvalidation"
@@ -74,6 +75,12 @@ func Train(modelType configuration.ModelType) errors.Error {
 
 func trainDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset) errors.Error {
 	for _, dataset := range datasets {
+		if len(dataset.TargetModels) > 0 {
+			if !utils.ContainsString(dataset.TargetModels, string(modelType)) {
+				continue
+			}
+		}
+
 		path := filepath.Join(path, dataset.Name())
 		if err := train(modelType, path, dataset); err != nil {
 			return err
@@ -115,6 +122,12 @@ func Evaluate(modelType configuration.ModelType) errors.Error {
 
 func evaluateDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset) errors.Error {
 	for _, dataset := range datasets {
+		if len(dataset.TargetModels) > 0 {
+			if !utils.ContainsString(dataset.TargetModels, string(modelType)) {
+				continue
+			}
+		}
+
 		path := filepath.Join(path, dataset.Name())
 		if err := evaluate(modelType, path, dataset); err != nil {
 			return err

@@ -39,7 +39,11 @@
                 "type": "object",
                 "$ref": "#"
             }
-        }        
+        },
+        "targetModels": {
+            "type": "array",
+            "$ref": "../model-list.schema.json"
+        }
     },
     "required": ["name"]
 }

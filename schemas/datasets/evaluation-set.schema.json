@@ -22,6 +22,10 @@
                 "$ref": "../metrics/metrics.schema.json"
             }
         },
+        "targetModels": {
+            "type": "array",
+            "$ref": "model-list.schema.json"
+        },
         "subsets": {
             "description": "A list of subsets which are saved in a sub directory under this dataset's name. As they are subsets, only methods passing the filter of this set will be passed to the subsets.",
             "type": "array",

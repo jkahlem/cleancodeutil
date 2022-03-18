@@ -1,0 +1,11 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "model-list.schema.json",
+    "title": "Model list",
+    "description": "A list of model types for which this evaluation set (including it's subsets) should be used. If empty, the set is used for all models.",
+    "type": "array",
+    "items": {
+        "type": "string",
+        "enum": ["ReturnTypesValidator", "MethodGenerator"]
+    }
+}

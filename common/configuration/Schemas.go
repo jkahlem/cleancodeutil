@@ -39,6 +39,9 @@ const (
 	// Type class schemas
 	TypeClassConfigurationFileSchemaPath = "typeclasses/typeclass-config-file.schema.json"
 	TypeClassSchemaPath                  = "typeclasses/typeclass.schema.json"
+
+	// Model list schema
+	ModelListSchemaPath = "datasets/model-list.schema.json"
 )
 
 var ExcelSetConfigurationFileSchema,
@@ -61,7 +64,7 @@ func initializeSchemas() {
 
 	EvaluationConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
 		WithTopLevel(EvaluationConfigurationSchemaPath).
-		WithResources(EvaluationSetSchemaPath).
+		WithResources(EvaluationSetSchemaPath, ModelListSchemaPath).
 		MustCompile()
 
 	DatasetConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
@@ -70,7 +73,8 @@ func initializeSchemas() {
 			DatasetModelOptionsSchemaPath,
 			DatasetSpecialOptionsSchemaPath,
 			DatasetSizeSchemaPath,
-			TypeClassSchemaPath).
+			TypeClassSchemaPath,
+			ModelListSchemaPath).
 		MustCompile()
 
 	TypeClassConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
@@ -97,6 +101,7 @@ func initializeSchemas() {
 			DatasetModelOptionsSchemaPath,
 			DatasetSpecialOptionsSchemaPath,
 			DatasetSizeSchemaPath,
-			TypeClassSchemaPath).
+			TypeClassSchemaPath,
+			ModelListSchemaPath).
 		MustCompile()
 }

@@ -19,6 +19,7 @@ type Dataset struct {
 	SpecialOptions SpecialOptions `json:"specialOptions"`
 	ModelOptions   ModelOptions   `json:"modelOptions"`
 	Subsets        []Dataset      `json:"subsets"`
+	TargetModels   []string       `json:"targetModels"`
 	parentPath     string
 }
 
