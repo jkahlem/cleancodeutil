@@ -16,7 +16,9 @@
                 "datasetSize": {
                     "training": 7,
                     "evaluation": 3
-                }
+                },
+                "maxTrainingRows": 4000,
+                "maxEvaluationRows": 3000
             },
             "modelOptions": {},
             "subsets": []
