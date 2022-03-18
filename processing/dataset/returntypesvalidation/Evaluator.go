@@ -8,6 +8,7 @@ import (
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/common/utils"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/services/predictor"
 )
@@ -23,6 +24,9 @@ func NewEvaluator(dataset configuration.Dataset) base.Evaluator {
 }
 
 func (e *Evaluator) Evaluate(path string) errors.Error {
+	if e.isEvaluationResultPresent() {
+		return nil
+	}
 	if err := e.loadData(path); err != nil {
 		return err
 	}
@@ -64,4 +68,8 @@ func (e *Evaluator) saveEvaluationResult(msg predictor.Evaluation) errors.Error 
 		}
 	}
 	return nil
+}
+
+func (e *Evaluator) isEvaluationResultPresent() bool {
+	return utils.FileExists(configuration.EvaluationResultOutputPath())
 }

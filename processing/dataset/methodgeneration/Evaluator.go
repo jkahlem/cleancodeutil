@@ -2,16 +2,18 @@ package methodgeneration
 
 import (
 	"fmt"
-	"os"
+	"io"
 	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/utils"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/services/predictor"
 )
 
 const GeneratedMethodsFile = "methodgeneration_generatedMethods.csv"
+const ScoreOutputFile = "methodgeneration_scores.txt"
 
 type Evaluator struct {
 	Dataset configuration.Dataset
@@ -30,30 +32,17 @@ func NewEvaluator(dataset configuration.Dataset) base.Evaluator {
 }
 
 func (e *Evaluator) Evaluate(path string) errors.Error {
-	set, err := e.loadEvaluationSet(path)
-	if err != nil {
-		return err
-	}
-	methods, err := e.generateMethodDefinitions(set)
-	if err != nil {
-		return err
+	if e.isEvaluationResultPresent(path) {
+		return nil
 	}
 	evalset := e.getEvaluationSetConfig()
 
-	outputfile, err2 := os.OpenFile(filepath.Join(path, "evaluation_results.csv"), os.O_TRUNC|os.O_CREATE, os.ModePerm)
-	if err2 != nil {
+	if err := e.evaluateMethods(path, evalset); err != nil {
 		return err
 	}
-	defer outputfile.Close()
-
-	for _, m := range methods {
-		evalset.AddMethod(m)
-		fmt.Fprintf(outputfile, "%s;%s;%s\n", m.Name, m.ExpectedDefinition, m.GeneratedDefinition)
+	if err := e.writeScoreOutput(path, evalset); err != nil {
+		return err
 	}
-
-	fmt.Println("Print evaluations for: ", path)
-	evalset.PrintScore()
-
 	return nil
 }
 
@@ -134,6 +123,53 @@ func (e *Evaluator) buildEvaluationSet(setConfiguration configuration.Evaluation
 	return set
 }
 
+func (e *Evaluator) isEvaluationResultPresent(path string) bool {
+	return utils.FileExists(filepath.Join(path, GeneratedMethodsFile))
+}
+
+func (e *Evaluator) evaluateMethods(path string, evalset *EvaluationSet) errors.Error {
+	methods, err := e.getGeneratedMethodsForEvaluationSet(path)
+	if err != nil {
+		return err
+	}
+
+	generatedMethodsFile, err := utils.CreateFile(filepath.Join(path, GeneratedMethodsFile))
+	if err != nil {
+		return err
+	}
+	defer generatedMethodsFile.Close()
+
+	for _, m := range methods {
+		evalset.AddMethod(m)
+		fmt.Fprintf(generatedMethodsFile, "%s;%s;%s\n", m.Name, m.ExpectedDefinition, m.GeneratedDefinition)
+	}
+	return nil
+}
+
+func (e *Evaluator) getGeneratedMethodsForEvaluationSet(path string) ([]Method, errors.Error) {
+	set, err := e.loadEvaluationSet(path)
+	if err != nil {
+		return nil, err
+	}
+
+	methods, err := e.generateMethodDefinitions(set)
+	if err != nil {
+		return nil, err
+	}
+	return methods, nil
+}
+
+func (e *Evaluator) writeScoreOutput(path string, evalset *EvaluationSet) errors.Error {
+	scoreFile, err := utils.CreateFile(filepath.Join(path, ScoreOutputFile))
+	if err != nil {
+		return err
+	}
+	defer scoreFile.Close()
+	fmt.Fprintln(scoreFile, "Print evaluations for: ", path)
+	evalset.PrintScore(scoreFile)
+	return nil
+}
+
 type EvaluationSet struct {
 	Subsets []EvaluationSet
 	Rater   []Metric
@@ -182,15 +218,15 @@ func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
 	}
 }
 
-func (e *EvaluationSet) PrintScore() {
+func (e *EvaluationSet) PrintScore(writer io.Writer) {
 	if len(e.Rater) > 0 {
-		fmt.Println("Set: ", e.Name)
+		fmt.Fprintf(writer, "Set: %s\n", e.Name)
 		for i := range e.Rater {
-			fmt.Println("Metric: ", e.Rater[i].Name(), ". Score: ", e.Rater[i].Score())
+			fmt.Fprintf(writer, "Metric: %s. Score: %v\n", e.Rater[i].Name(), e.Rater[i].Score())
 		}
 	}
 	for i := range e.Subsets {
-		e.Subsets[i].PrintScore()
+		e.Subsets[i].PrintScore(writer)
 	}
 }
 

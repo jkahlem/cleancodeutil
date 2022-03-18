@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -63,4 +64,20 @@ func URIToFilePath(uri string) (string, errors.Error) {
 
 	path := fileUrl.Path[1:]
 	return filepath.FromSlash(path), nil
+}
+
+// Utility writer which writes output to stdout and to the passed writer
+type StdoutPrintWriter struct {
+	Writer io.Writer
+}
+
+func NewPrintWriter(writer io.Writer) io.Writer {
+	return &StdoutPrintWriter{
+		Writer: writer,
+	}
+}
+
+func (w *StdoutPrintWriter) Write(bytes []byte) (n int, err error) {
+	fmt.Print(string(bytes))
+	return w.Writer.Write(bytes)
 }
