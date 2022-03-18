@@ -62,7 +62,11 @@ func (e *Evaluator) loadEvaluationSet(path string) ([]predictor.Method, errors.E
 	if err != nil {
 		return nil, err
 	}
-	methods, err := mapToMethods(csv.UnmarshalMethodGenerationDatasetRow(evaluationSet))
+	limit := e.Dataset.SpecialOptions.MaxEvaluationRows
+	if limit <= 0 || limit > len(evaluationSet) {
+		limit = len(evaluationSet)
+	}
+	methods, err := mapToMethods(csv.UnmarshalMethodGenerationDatasetRow(evaluationSet[:limit]))
 	if err != nil {
 		return nil, err
 	}

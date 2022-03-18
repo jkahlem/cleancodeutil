@@ -27,6 +27,8 @@ type SpecialOptions struct {
 	MinMethodNameLength int                     `json:"minMethodNameLength"`
 	FilterDuplicates    bool                    `json:"filterDuplicates"`
 	TypeClasses         TypeClassConfigurations `json:"typeClasses"`
+	MaxTrainingRows     int                     `json:"maxTrainingRows"`
+	MaxEvaluationRows   int                     `json:"maxEvaluationRows"`
 	// The size of the splitted datasets as a proportion
 	DatasetSize DatasetProportion `json:"datasetSize"`
 }

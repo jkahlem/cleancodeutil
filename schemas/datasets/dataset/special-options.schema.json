@@ -29,6 +29,16 @@
             "description": "The size of the splitted datasets as a proportion. This property can be redefined by each subset.",
             "type": "object",
             "$ref": "dataset-size.schema.json"
+        },
+        "maxTrainingRows": {
+            "description": "The maximum number of rows used for training the dataset. If this value is 0 or unset or exceeds the number of rows, then all rows are used.",
+            "type": "int",
+            "minimum": 0
+        },
+        "maxEvaluationRows": {
+            "description": "The maximum number of rows used for evaluating the dataset. If this value is 0 or unset or exceeds the number of rows, then all rows are used.",
+            "type": "int",
+            "minimum": 0
         }
     }
 }

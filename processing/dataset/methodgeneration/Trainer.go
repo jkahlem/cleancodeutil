@@ -30,7 +30,11 @@ func (t *Trainer) Train(path string) errors.Error {
 	if err != nil {
 		return err
 	}
-	methods, err := mapToMethods(csv.UnmarshalMethodGenerationDatasetRow(trainingSet))
+	limit := t.Dataset.SpecialOptions.MaxTrainingRows
+	if limit <= 0 || limit > len(trainingSet) {
+		limit = len(trainingSet)
+	}
+	methods, err := mapToMethods(csv.UnmarshalMethodGenerationDatasetRow(trainingSet[:limit]))
 	if err != nil {
 		return err
 	}

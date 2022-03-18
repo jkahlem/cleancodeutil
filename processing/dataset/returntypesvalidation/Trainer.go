@@ -13,7 +13,6 @@ type Trainer struct {
 	labels      [][]string
 	trainingSet []csv.ReturnTypesDatasetRow
 	Dataset     configuration.Dataset
-	err         errors.Error
 }
 
 func NewTrainer(dataset configuration.Dataset) base.Trainer {
@@ -39,19 +38,20 @@ func (t *Trainer) Train(path string) errors.Error {
 
 func (t *Trainer) loadData(path string) errors.Error {
 	// Load csv data
-	t.labels = t.loadRecords(filepath.Join(path, LabelSetFileName))
-	t.trainingSet = csv.UnmarshalReturnTypesDatasetRow(t.loadRecords(filepath.Join(path, TrainingSetFileName)))
-	err := t.err
-	t.err = nil
-	return err
-}
-
-func (t *Trainer) loadRecords(path string) [][]string {
-	if t.err != nil {
-		return nil
+	if labels, err := csv.ReadRecords(filepath.Join(path, LabelSetFileName)); err != nil {
+		return err
+	} else {
+		t.labels = labels
 	}
 
-	result, err := csv.ReadRecords(path)
-	t.err = err
-	return result
+	if trainingSet, err := csv.ReadRecords(filepath.Join(path, TrainingSetFileName)); err != nil {
+		return err
+	} else {
+		limit := t.Dataset.SpecialOptions.MaxTrainingRows
+		if limit <= 0 || limit > len(trainingSet) {
+			limit = len(trainingSet)
+		}
+		t.trainingSet = csv.UnmarshalReturnTypesDatasetRow(trainingSet[:limit])
+	}
+	return nil
 }
