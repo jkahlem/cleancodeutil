@@ -105,3 +105,8 @@ func comparePositions(pos1, pos2 Position) ComparisonResult {
 		}
 	}
 }
+
+// Returns true if the range is empty (so it is a range with range.start = range.end, length 0)
+func (r *Range) IsEmpty() bool {
+	return r.Start.IsSame(r.End)
+}

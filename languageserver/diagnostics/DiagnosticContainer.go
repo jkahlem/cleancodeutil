@@ -76,7 +76,7 @@ func applyRangePositionChange(diagnosticRange *lsp.Range, event lsp.TextDocument
 		if !eventRange.Start.IsSame(eventRange.End) {
 			applyRemoval(diagnosticRange, eventRange)
 		}
-		if len(event.Text) > 0 {
+		if event.Text != "" {
 			applyInsertion(diagnosticRange, eventRange.Start, event.Text)
 		}
 		return !startBeforeChanges.IsSame(diagnosticRange.Start) || !endBeforeChanges.IsSame(diagnosticRange.End)

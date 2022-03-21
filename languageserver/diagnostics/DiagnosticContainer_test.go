@@ -17,7 +17,7 @@ func TestUpdateTextOnLineInsertion(t *testing.T) {
 	container.SetDiagnostics([]ExpectedReturnTypeDiagnostic{diagnostic1, diagnostic2})
 
 	// when
-	container.UpdateText(CreateInsertionEvent("a new line\n", At(15, 1)))
+	container.UpdatePositions(CreateInsertionEvent("a new line\n", At(15, 1)))
 	updatedDiagnostics := container.Diagnostics()
 
 	// then
@@ -36,7 +36,7 @@ func TestUpdateTextOnInsertionInSameLineBetweenDiagnostic(t *testing.T) {
 	textToInsert := "inserted text inline"
 
 	// when
-	container.UpdateText(CreateInsertionEvent(textToInsert, At(10, 27)))
+	container.UpdatePositions(CreateInsertionEvent(textToInsert, At(10, 27)))
 	updatedDiagnostics := container.Diagnostics()
 
 	// then
@@ -53,7 +53,7 @@ func TestUpdateTextOnInsertionCollidingWithDiagnosticWithWrappingWhitespace(t *t
 	textToInsert := " inserted text wrapped in whitespace "
 
 	// when
-	container.UpdateText(CreateInsertionEvent(textToInsert, At(10, 27)))
+	container.UpdatePositions(CreateInsertionEvent(textToInsert, At(10, 27)))
 	updatedDiagnostics := container.Diagnostics()
 
 	// then
@@ -70,7 +70,7 @@ func TestUpdateTextOnInsertionOverlappingDiagnostic(t *testing.T) {
 	textToInsert := "insertedInsideReturnType"
 
 	// when
-	container.UpdateText(CreateInsertionEvent(textToInsert, At(10, 20)))
+	container.UpdatePositions(CreateInsertionEvent(textToInsert, At(10, 20)))
 	updatedDiagnostics := container.Diagnostics()
 
 	// then
@@ -85,7 +85,7 @@ func TestUpdateTextOnSimpleRemoval(t *testing.T) {
 	container.SetDiagnostics([]ExpectedReturnTypeDiagnostic{diagnostic1, diagnostic2})
 
 	// when
-	container.UpdateText(CreateRemovalEvent(RangeFrom(15, 1).To(16, 1)))
+	container.UpdatePositions(CreateRemovalEvent(RangeFrom(15, 1).To(16, 1)))
 	updatedDiagnostics := container.Diagnostics()
 
 	// then
@@ -103,7 +103,7 @@ func TestUpdateTextOnRemovalInSameLineBetweenDiagnostic(t *testing.T) {
 	container.SetDiagnostics([]ExpectedReturnTypeDiagnostic{diagnostic1})
 
 	// when
-	container.UpdateText(CreateRemovalEvent(RangeFrom(10, 27).To(10, 28)))
+	container.UpdatePositions(CreateRemovalEvent(RangeFrom(10, 27).To(10, 28)))
 	updatedDiagnostics := container.Diagnostics()
 
 	// then
@@ -119,7 +119,7 @@ func TestUpdateTextOnRemovalCollidingWithDiagnostic(t *testing.T) {
 	container.SetDiagnostics([]ExpectedReturnTypeDiagnostic{diagnostic1})
 
 	// when
-	container.UpdateText(CreateRemovalEvent(RangeFrom(10, 26).To(10, 27)))
+	container.UpdatePositions(CreateRemovalEvent(RangeFrom(10, 26).To(10, 27)))
 	updatedDiagnostics := container.Diagnostics()
 
 	// then
@@ -133,7 +133,7 @@ func TestUpdateTextOnRemovalOverlappingWithDiagnostic(t *testing.T) {
 	container.SetDiagnostics([]ExpectedReturnTypeDiagnostic{diagnostic1})
 
 	// when
-	container.UpdateText(CreateRemovalEvent(RangeFrom(10, 20).To(10, 21)))
+	container.UpdatePositions(CreateRemovalEvent(RangeFrom(10, 20).To(10, 21)))
 	updatedDiagnostics := container.Diagnostics()
 
 	// then
@@ -148,7 +148,7 @@ func TestUpdateTextOnTextReplacement(t *testing.T) {
 	container.SetDiagnostics([]ExpectedReturnTypeDiagnostic{diagnostic1, diagnostic2})
 
 	// when
-	container.UpdateText(CreateReplacementEvent(RangeFrom(15, 1).To(16, 1), "New text with \n two new lines instead \n of the one line previously there."))
+	container.UpdatePositions(CreateReplacementEvent(RangeFrom(15, 1).To(16, 1), "New text with \n two new lines instead \n of the one line previously there."))
 	updatedDiagnostics := container.Diagnostics()
 
 	// then
@@ -168,7 +168,7 @@ func TestUpdateTextOnTextReplacementInSameLineBetweenDiagnostic(t *testing.T) {
 	lengthToReplace := 1
 
 	// when
-	container.UpdateText(CreateReplacementEvent(RangeFrom(10, 27).To(10, 27+lengthToReplace), textToInsert))
+	container.UpdatePositions(CreateReplacementEvent(RangeFrom(10, 27).To(10, 27+lengthToReplace), textToInsert))
 	updatedDiagnostics := container.Diagnostics()
 
 	// then
@@ -186,7 +186,7 @@ func TestUpdateTextOnTextReplacementCollidingWithDiagnostics(t *testing.T) {
 	lengthToReplace := 1
 
 	// when
-	container.UpdateText(CreateReplacementEvent(RangeFrom(10, 26).To(10, 26+lengthToReplace), textToInsert))
+	container.UpdatePositions(CreateReplacementEvent(RangeFrom(10, 26).To(10, 26+lengthToReplace), textToInsert))
 	updatedDiagnostics := container.Diagnostics()
 
 	// then
@@ -202,7 +202,7 @@ func TestUpdateTextOnTextReplacementOverlappingWithDiagnostics(t *testing.T) {
 	container.SetDiagnostics([]ExpectedReturnTypeDiagnostic{diagnostic1})
 
 	// when
-	container.UpdateText(CreateReplacementEvent(RangeFrom(10, 20).To(10, 21), "insideReturnType"))
+	container.UpdatePositions(CreateReplacementEvent(RangeFrom(10, 20).To(10, 21), "insideReturnType"))
 	updatedDiagnostics := container.Diagnostics()
 
 	// then

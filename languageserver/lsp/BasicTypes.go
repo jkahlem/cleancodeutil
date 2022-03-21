@@ -43,9 +43,8 @@ type VersionedTextDocumentIdentifier struct {
 }
 
 type TextDocumentContentChangeEvent struct {
-	Text        string `json:"text"`
-	Range       *Range `json:"range,omitempty"`
-	RangeLength int    `json:"rangeLength,omitempty"`
+	Text  string `json:"text"`
+	Range *Range `json:"range,omitempty"`
 }
 
 type FileCreate struct {
