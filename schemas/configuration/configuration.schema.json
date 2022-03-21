@@ -95,6 +95,11 @@
         "skipIfOutputExists": {
             "description": "If true, skips all processes (like dataset creation, excel set creation etc.) if the output files exists",
             "type": "boolean"
+        },
+        "languageServer": {
+            "description": "Configurations for the language server",
+            "type": "object",
+            "$ref": "language-server-configuration.schema.json"
         }
     },
     "required": ["mainOutputDir"]

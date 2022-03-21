@@ -53,6 +53,8 @@ type configFile struct {
 	SkipIfOutputExists bool `json:"skipIfOutputExists"`
 	// Additional prefix which is added to datasets for experimental uses etc.
 	DatasetPrefix string
+	// Configurations which are specific for the language server
+	LanguageServer LanguageServerConfiguration `json:"languageServer"`
 	// If true, then the program is in language server mode (command line only)
 	IsLangServMode bool
 }
@@ -126,6 +128,17 @@ type StatisticsConfiguration struct {
 	// All projects which's value is below this value will be grouped as a "other projects" value.
 	// This does only affect the "Origins of methods used in the final dataset" pie chart.
 	ProjectGroupingThreshold float64 `json:"projectGroupingThreshold"`
+}
+
+type LanguageServerConfiguration struct {
+	// Identifier for the dataset configuration which should be used for the language server. Can be a list splitted with slashes '/' to
+	// reference subsets.
+	Models LanguageServerModelConfiguration `json:"models"`
+}
+
+type LanguageServerModelConfiguration struct {
+	ReturnTypesValidator string `json:"returntypesValidator"`
+	MethodGenerator      string `json:"methodGenerator"`
 }
 
 var loadedConfig *configFile

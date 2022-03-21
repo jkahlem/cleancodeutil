@@ -1,0 +1,23 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "language-server-configuration.schema.json",
+    "title": "Language Server Configuration",
+    "description": "Contains configurations for the language server",
+    "type": "object",
+    "properties": {
+        "models": {
+            "description": "Defines which dataset should be used for each model. If for a model type no dataset is defined, then some functionalities which rely on them will not work.",
+            "type": "object",
+            "properties": {
+                "returntypesValidator": {
+                    "description": "Identifier for the dataset configuration which should be used for returntypes validation. Can be a list splitted with slashes '/' to reference subsets.",
+                    "type": "string"
+                },
+                "methodGenerator": {
+                    "description": "Identifier for the dataset configuration which should be used for generation of method declarations. Can be a list splitted with slashes '/' to reference subsets.",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

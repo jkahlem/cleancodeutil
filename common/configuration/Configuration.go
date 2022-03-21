@@ -246,6 +246,20 @@ func SkipIfOutputExists() bool {
 	return loadedConfig.SkipIfOutputExists
 }
 
+func LanguageServerReturntypesDataset() string {
+	if loadedConfig == nil {
+		return ""
+	}
+	return loadedConfig.LanguageServer.Models.ReturnTypesValidator
+}
+
+func LanguageServerMethodGenerationDataset() string {
+	if loadedConfig == nil {
+		return ""
+	}
+	return loadedConfig.LanguageServer.Models.MethodGenerator
+}
+
 func IsLangServMode() bool {
 	if loadedConfig == nil {
 		return false

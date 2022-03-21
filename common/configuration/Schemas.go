@@ -6,13 +6,14 @@ var SchemaRoot = GoProjectDir() + "/schemas"
 
 const (
 	// Global configuration schemas
-	ConfigurationSchemaPath            = "configuration/configuration.schema.json"
-	ClonerConfigurationSchemaPath      = "configuration/cloner-configuration.schema.json"
-	CrawlerConfigurationSchemaPath     = "configuration/crawler-configuration.schema.json"
-	ConnectionsConfigurationSchemaPath = "configuration/connections-configuration.schema.json"
-	LoggerConfigurationSchemaPath      = "configuration/logger-configuration.schema.json"
-	PredictorConfigurationSchemaPath   = "configuration/predictor-configuration.schema.json"
-	StatisticsConfigurationSchemaPath  = "configuration/statistics-configuration.schema.json"
+	ConfigurationSchemaPath               = "configuration/configuration.schema.json"
+	ClonerConfigurationSchemaPath         = "configuration/cloner-configuration.schema.json"
+	CrawlerConfigurationSchemaPath        = "configuration/crawler-configuration.schema.json"
+	ConnectionsConfigurationSchemaPath    = "configuration/connections-configuration.schema.json"
+	LoggerConfigurationSchemaPath         = "configuration/logger-configuration.schema.json"
+	PredictorConfigurationSchemaPath      = "configuration/predictor-configuration.schema.json"
+	StatisticsConfigurationSchemaPath     = "configuration/statistics-configuration.schema.json"
+	LanguageServerConfigurationSchemaPath = "configuration/language-server-configuration.schema.json"
 
 	// Excel set schemas
 	FilterSchemaPath                    = "datasets/filter.schema.json"
@@ -91,6 +92,7 @@ func initializeSchemas() {
 			LoggerConfigurationSchemaPath,
 			PredictorConfigurationSchemaPath,
 			StatisticsConfigurationSchemaPath,
+			LanguageServerConfigurationSchemaPath,
 			ExcelSetConfigurationSchemaPath,
 			FilterSchemaPath,
 			FilterConfigurationSchemaPath,
