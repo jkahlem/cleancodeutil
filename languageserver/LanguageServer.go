@@ -119,12 +119,15 @@ func (ls *languageServer) DeleteFile(path string) {
 
 // Updates the diagnostics of the given file in all workspaces containing it.
 func (ls *languageServer) UpdateDiagnostics(path string, changes []lsp.TextDocumentContentChangeEvent) {
+	if !ls.IsReturntypeValidationActive() {
+		return
+	}
 	for _, ws := range ls.workspaces.List() {
 		if ws.IsFileBelongingToWorkspace(path) {
 			file := ws.FileSystem.GetFile(path)
 			updated := false
 			for _, change := range changes {
-				if file.Diagnostics().UpdateText(change) {
+				if file.Diagnostics().UpdatePositions(change) {
 					updated = true
 				}
 			}

@@ -29,8 +29,8 @@ func (c *DiagnosticContainer) SetDiagnostics(diagnostics []ExpectedReturnTypeDia
 	c.version++
 }
 
-// Updates the text according to the event. Returns true if the update effects the diagnostics positioning, otherwise returns false.
-func (c *DiagnosticContainer) UpdateText(event lsp.TextDocumentContentChangeEvent) bool {
+// Updates the text according to the event. Returns true if the update effects the diagnostics positions, otherwise returns false.
+func (c *DiagnosticContainer) UpdatePositions(event lsp.TextDocumentContentChangeEvent) bool {
 	remainingDiagnostics := make([]ExpectedReturnTypeDiagnostic, 0, len(c.diagnostics))
 	updated := false
 	for _, diagnostic := range c.diagnostics {
