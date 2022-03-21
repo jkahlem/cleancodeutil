@@ -3,6 +3,7 @@ package returntypesvalidation
 import (
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
+	"returntypes-langserver/common/utils"
 	"sort"
 )
 
@@ -56,7 +57,7 @@ func isValidProportion(proportion configuration.DatasetProportion) bool {
 
 // Helper function that splits a part of the dataset (with same type) to the given relation.
 func splitRowsToTrainingAndEvaluationSet(dataset []csv.ReturnTypesDatasetRow, proportion configuration.DatasetProportion) (trainingSet, evaluationSet []csv.ReturnTypesDatasetRow) {
-	trainingSetSize, evaluationSetSize := calculateDatasetSizes(len(dataset), proportion)
+	trainingSetSize, evaluationSetSize := utils.FitProportions(proportion.Training, proportion.Evaluation, len(dataset))
 	trainingSet = make([]csv.ReturnTypesDatasetRow, trainingSetSize)
 	evaluationSet = make([]csv.ReturnTypesDatasetRow, evaluationSetSize)
 	for i := 0; i < len(dataset); i++ {
@@ -66,14 +67,5 @@ func splitRowsToTrainingAndEvaluationSet(dataset []csv.ReturnTypesDatasetRow, pr
 			evaluationSet[i-trainingSetSize] = dataset[i]
 		}
 	}
-	return
-}
-
-// Calculates the size of the training set and the evaluation set using the given proportion settings for the given amount of rows
-func calculateDatasetSizes(rowsCount int, proportion configuration.DatasetProportion) (trainingSetSize, evaluationSetSize int) {
-	proportionSum := proportion.Training + proportion.Evaluation
-	relativeTrainingSetSize := proportion.Training / proportionSum
-	trainingSetSize = int(float64(rowsCount) * relativeTrainingSetSize)
-	evaluationSetSize = rowsCount - trainingSetSize
 	return
 }

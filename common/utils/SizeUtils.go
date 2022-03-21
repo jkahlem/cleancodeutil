@@ -24,3 +24,12 @@ func (s DataSize) ToIEC() string {
 	}
 	return fmt.Sprintf("%.1f %ciB", float64(s)/float64(div), "KMGTPE"[exp])
 }
+
+// Given some proportions (each > 0), fits the given integer value to these proportions
+func FitProportions(proportionA, proportionB float64, value int) (valueA, valueB int) {
+	proportionSum := proportionA + proportionB
+	relativeSizeA := proportionA / proportionSum
+	valueA = int(float64(value) * relativeSizeA)
+	valueB = value - valueA
+	return
+}

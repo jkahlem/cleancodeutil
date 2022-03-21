@@ -50,7 +50,7 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 }
 
 func (e *Evaluator) loadEvaluationSet(path string) ([]predictor.Method, errors.Error) {
-	evaluationSet, err := csv.ReadRecords(filepath.Join(path, TrainingSetFileName))
+	evaluationSet, err := csv.ReadRecords(filepath.Join(path, EvaluationSetFileName))
 	if err != nil {
 		return nil, err
 	}
