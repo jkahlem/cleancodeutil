@@ -8,6 +8,7 @@ package configuration
 
 import (
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -30,6 +31,23 @@ func Datasets() []Dataset {
 		return nil
 	}
 	return loadedConfig.Datasets
+}
+
+func FindDatasetByReference(reference string) (Dataset, bool) {
+	return findDatasetByReference(strings.Split(reference, "/"), Datasets())
+}
+
+func findDatasetByReference(reference []string, sets []Dataset) (Dataset, bool) {
+	for _, set := range sets {
+		if set.NameRaw == reference[0] {
+			if len(reference) > 1 {
+				return findDatasetByReference(reference[1:], set.Subsets)
+			} else {
+				return set, true
+			}
+		}
+	}
+	return Dataset{}, false
 }
 
 func UsedModelType() ModelType {

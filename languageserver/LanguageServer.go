@@ -164,7 +164,9 @@ func (ls *languageServer) RefreshDiagnosticsForFile(path string) {
 
 // Refreshes the diagnostics for a file in a virtual workspace.
 func (ls *languageServer) refreshDiagnosticsForFile(ws *workspace.Workspace, file *workspace.FileWrapper) errors.Error {
-	if file == nil {
+	if !ls.IsReturntypeValidationActive() {
+		return nil
+	} else if file == nil {
 		return errors.New("Error", "No file given to refresh")
 	}
 
@@ -287,4 +289,8 @@ func (ls *languageServer) RegisterCapability(registrations ...lsp.Registration) 
 // @ServiceGenerator:IgnoreMethod
 func (ls *languageServer) log(format string, args ...interface{}) {
 	log.Print(log.LanguageServer, fmt.Sprintf("[LANGUAGE SERVER] %s\n", format), args...)
+}
+
+func (ls *languageServer) IsReturntypeValidationActive() bool {
+	return configuration.LanguageServerReturntypesDataset() != ""
 }
