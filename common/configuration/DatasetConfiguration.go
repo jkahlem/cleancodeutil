@@ -35,6 +35,8 @@ type SpecialOptions struct {
 }
 
 type ModelOptions struct {
+	NumOfEpochs int `json:"numOfEpochs"`
+	BatchSize   int `json:"batchSize"`
 }
 
 type ModelType string

@@ -32,12 +32,12 @@
         },
         "maxTrainingRows": {
             "description": "The maximum number of rows used for training the dataset. If this value is 0 or unset or exceeds the number of rows, then all rows are used.",
-            "type": "int",
+            "type": "integer",
             "minimum": 0
         },
         "maxEvaluationRows": {
             "description": "The maximum number of rows used for evaluating the dataset. If this value is 0 or unset or exceeds the number of rows, then all rows are used.",
-            "type": "int",
+            "type": "integer",
             "minimum": 0
         }
     }

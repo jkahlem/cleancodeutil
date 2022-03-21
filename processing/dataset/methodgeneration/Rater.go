@@ -134,9 +134,9 @@ func (r *RougeRater) Score() float64 {
 			// TODO: remove panic
 			panic(err)
 		} else {
-			return metrics.FScore(r.precision, r.recall, fscore.Beta)
+			return metrics.FScore(r.precision/r.count, r.recall/r.count, fscore.Beta)
 		}
 	default:
-		return metrics.FScore(r.precision, r.recall, 1)
+		return metrics.FScore(r.precision/r.count, r.recall/r.count, 1)
 	}
 }

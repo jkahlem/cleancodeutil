@@ -57,7 +57,7 @@ type MethodExample struct {
 	ClassName  string `json:"className"`
 }
 
-var MethodExampleMatcher = regexp.MustCompile("^(static )?([a-zA-Z][a-zA-Z0-9_]*\\.)?[a-zA-Z][a-zA-Z0-9_]*$")
+var MethodExampleMatcher = regexp.MustCompile("^(static )?([a-zA-Z][a-zA-Z0-9_]*\\.)?([a-zA-Z][a-zA-Z0-9_]*)$")
 
 func (e MethodExample) DecodeValue(value interface{}) (interface{}, error) {
 	if pattern, ok := value.(string); ok {

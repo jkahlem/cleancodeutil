@@ -6,13 +6,13 @@
     "type": "object",
     "properties": {
         "batchSize": {
-            "comment": "Defines the size of a batch in the training/evaluation process",
-            "type": "int",
+            "description": "Defines the size of a batch in the training/evaluation process",
+            "type": "integer",
             "minimum": 1
         },
         "numOfEpochs": {
-            "comment": "Defines the number of training epochs.",
-            "type": "int",
+            "description": "Defines the number of training epochs.",
+            "type": "integer",
             "minimum": 1
         }
     }

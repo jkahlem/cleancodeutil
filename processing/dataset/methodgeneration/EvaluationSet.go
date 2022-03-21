@@ -17,12 +17,9 @@ type EvaluationSet struct {
 }
 
 func (e *EvaluationSet) AddMethod(m Method) {
-	//fmt.Println("Set ", e.Name, " add method: ", m.Name, " (Raters: ", len(e.Rater))
 	if !e.IsMethodAccepted(m) {
 		return
 	}
-	// TOOD:
-	// - Add to output?
 	for i := range e.Rater {
 		e.Rater[i].Rate(m)
 	}
@@ -59,7 +56,7 @@ func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
 
 func (e *EvaluationSet) PrintScore(writer io.Writer) {
 	if len(e.Rater) > 0 {
-		fmt.Fprintf(writer, "Set: %s\n", e.Name)
+		fmt.Fprintf(writer, "Evaluation Type: %s\n", e.Name)
 		for i := range e.Rater {
 			fmt.Fprintf(writer, "Metric: %s. Score: %v\n", e.Rater[i].Name(), e.Rater[i].Score())
 		}

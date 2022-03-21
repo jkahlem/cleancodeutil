@@ -1,7 +1,7 @@
 {
     "datasets": [
         {
-            "name": "experimental-set",
+            "name": "experimental-set2",
             "filter": {
                 "exclude": [{
                     "modifier": ["native"]
@@ -20,8 +20,35 @@
                 "maxTrainingRows": 4000,
                 "maxEvaluationRows": 3000
             },
-            "modelOptions": {},
-            "subsets": []
+            "modelOptions": {
+                "numOfEpochs": 1
+            },
+            "subsets": [{
+                "name": "withoutPrivates",
+                "filter":{
+                    "exclude": {
+                        "modifier":["private"]
+                    }
+                },
+                "specialOptions": {
+                    "maxTrainingRows": 4000,
+                    "maxEvaluationRows": 3000
+                }
+            }, {
+                "name": "withoutNumbers",
+                "filter":{
+                    "exclude": {
+                        "method": [{
+                            "pattern": "[0-9_]",
+                            "type": "regexp"
+                        }]
+                    }
+                },
+                "specialOptions": {
+                    "maxTrainingRows": 4000,
+                    "maxEvaluationRows": 3000
+                }
+            }]
         }
     ]
 }
