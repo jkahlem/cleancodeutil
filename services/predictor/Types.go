@@ -35,7 +35,7 @@ type MethodValues struct {
 func (m MethodValues) String() string {
 	str := ""
 	if len(m.Parameters) > 0 {
-		str += "expects: "
+		str += "parameters: "
 		for i, p := range m.Parameters {
 			if i > 0 {
 				str += ", "

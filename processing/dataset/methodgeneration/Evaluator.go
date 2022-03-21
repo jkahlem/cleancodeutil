@@ -100,6 +100,9 @@ func (e *Evaluator) joinParameters(parameters []predictor.Parameter) string {
 	}
 	joined := ""
 	for i := range parameters {
+		if i > 0 {
+			joined += ", "
+		}
 		joined += fmt.Sprintf("%s %s", parameters[i].Type, parameters[i].Name)
 	}
 	return joined
