@@ -1,8 +1,10 @@
 package diagnostics
 
 import (
+	"fmt"
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
+	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/languageserver/lsp"
 	"returntypes-langserver/processing/typeclasses"
@@ -72,19 +74,26 @@ func (d *Creator) getActualAndExpectedMethodTypes(method *java.Method, mappings 
 // Maps the return type of the method to it's type class.
 func (d *Creator) getTypeClassForMethodReturnType(method *java.Method) (string, errors.Error) {
 	resolvedType, _ := java.Resolve(&method.ReturnType, d.tree)
-	typeClass, err := d.getTypeClassMapper().MapReturnTypeToTypeClass(resolvedType, java.GetMethodLabels(method))
+	mapper, err := d.getTypeClassMapper()
+	if err != nil {
+		return "", err
+	}
+	typeClass, err := mapper.MapReturnTypeToTypeClass(resolvedType, java.GetMethodLabels(method))
 	if err != nil {
 		return "", err
 	}
 	return typeClass, nil
 }
 
-func (d *Creator) getTypeClassMapper() typeclasses.Mapper {
+func (d *Creator) getTypeClassMapper() (typeclasses.Mapper, errors.Error) {
 	if d.typeClassMapper == nil {
-		// TODO: Load/Use type classes which are used for the language server
-		d.typeClassMapper, _ = typeclasses.New(d.tree, nil)
+		set, ok := configuration.FindDatasetByReference(configuration.LanguageServerReturntypesDataset())
+		if !ok {
+			return nil, errors.New(DiagnosticsErrorTitle, fmt.Sprintf("Returntypes validation dataset not found: %s", configuration.LanguageServerReturntypesDataset()))
+		}
+		return typeclasses.New(d.tree, set.SpecialOptions.TypeClasses)
 	} else {
 		d.typeClassMapper.SetPackageTree(d.tree)
+		return d.typeClassMapper, nil
 	}
-	return d.typeClassMapper
 }
