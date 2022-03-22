@@ -17,7 +17,7 @@ type ProxyFacade struct {
 	Proxy Proxy `rpcproxy:"true"`
 }
 
-// Gets the content of a code file as a XML object
+// Gets the content of a code file as an XML object
 func (p *ProxyFacade) GetFileContent(path string, options Options) (string, errors.Error) {
 	if err := p.validate(p.Proxy.GetFileContent); err != nil {
 		return "", err
@@ -31,6 +31,14 @@ func (p *ProxyFacade) GetDirectoryContents(path string, options Options) (string
 		return "", err
 	}
 	return p.Proxy.GetDirectoryContents(path, options)
+}
+
+// Gets the content of the given source code as one xml object. (The file object will have no path value)
+func (p *ProxyFacade) ParseSourceCode(code string, options Options) (string, errors.Error) {
+	if err := p.validate(p.Proxy.ParseSourceCode); err != nil {
+		return "", err
+	}
+	return p.Proxy.ParseSourceCode(code, options)
 }
 
 func (p *ProxyFacade) validate(fn interface{}) errors.Error {
@@ -72,6 +80,10 @@ func GetCodeElementsOfDirectory(path string, options Options) (java.FileContaine
 // Gets the content of all java files in the specified directory.
 func GetRawCodeElementsOfDirectory(path string, options Options) (string, errors.Error) {
 	return getSingleton().GetRawCodeElementsOfDirectory(path, options)
+}
+
+func ParseSourceCode(code string, options Options) (java.FileContainer, errors.Error) {
+	return getSingleton().ParseSourceCode(code, options)
 }
 
 func decodeXmlContent(xml string) (java.FileContainer, errors.Error) {

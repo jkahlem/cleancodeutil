@@ -39,6 +39,14 @@ func (c *crawler) GetRawCodeElementsOfDirectory(path string, options Options) (s
 	return xml, nil
 }
 
+func (c *crawler) ParseSourceCode(code string, options Options) (java.FileContainer, errors.Error) {
+	xml, err := remote().ParseSourceCode(code, options)
+	if err != nil {
+		return nil, err
+	}
+	return c.decodeXmlContent(xml)
+}
+
 func (c *crawler) decodeXmlContent(xml string) (java.FileContainer, errors.Error) {
 	return java.UnmarshalXMLToFileContainer([]byte(xml))
 }
