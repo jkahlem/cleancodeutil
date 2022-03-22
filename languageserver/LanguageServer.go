@@ -74,7 +74,7 @@ func (ls *languageServer) createVirtualWorkspace(workspace lsp.WorkspaceFolder) 
 }
 
 // Adds a file on the given path into the virtual workspace if it does not exist there already.
-func (ls *languageServer) AddFileIfNotExists(path string) {
+func (ls *languageServer) AddFileIfNotExists(path, text string) {
 	for _, ws := range ls.workspaces.List() {
 		if ws.IsFileBelongingToWorkspace(path) && ws.FileSystem.GetFile(path) == nil {
 			if err := ws.AddFile(path); err != nil {
@@ -84,6 +84,9 @@ func (ls *languageServer) AddFileIfNotExists(path string) {
 				log.Error(err)
 				return
 			}
+		}
+		if file := ws.FileSystem.GetFile(path); file != nil {
+			file.Document().SetText(text)
 		}
 	}
 }
@@ -134,6 +137,19 @@ func (ls *languageServer) UpdateDiagnostics(path string, changes []lsp.TextDocum
 			if updated {
 				ls.PublishDiagnostics(path, diagnostics.MapExpectedReturnTypeDiagnostics(file.Diagnostics().Diagnostics()), file.Diagnostics().Version())
 			}
+		}
+	}
+}
+
+// Updates the diagnostics of the given file in all workspaces containing it.
+func (ls *languageServer) UpdateDocuments(path string, changes []lsp.TextDocumentContentChangeEvent) {
+	if !ls.IsMethodGenerationActive() {
+		return
+	}
+	for _, ws := range ls.workspaces.List() {
+		if ws.IsFileBelongingToWorkspace(path) {
+			file := ws.FileSystem.GetFile(path)
+			file.Document().ApplyChanges(changes)
 		}
 	}
 }
@@ -296,4 +312,8 @@ func (ls *languageServer) log(format string, args ...interface{}) {
 
 func (ls *languageServer) IsReturntypeValidationActive() bool {
 	return configuration.LanguageServerReturntypesDataset() != ""
+}
+
+func (ls *languageServer) IsMethodGenerationActive() bool {
+	return configuration.LanguageServerMethodGenerationDataset() != ""
 }

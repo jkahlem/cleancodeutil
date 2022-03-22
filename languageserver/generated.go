@@ -111,8 +111,8 @@ func createVirtualWorkspace(workspace lsp.WorkspaceFolder) errors.Error {
 }
 
 // Adds a file on the given path into the virtual workspace if it does not exist there already.
-func AddFileIfNotExists(path string) {
-	getSingleton().AddFileIfNotExists(path)
+func AddFileIfNotExists(path, text string) {
+	getSingleton().AddFileIfNotExists(path, text)
 }
 
 // Reloads the file on the given path in all virtual workspaces containing it.

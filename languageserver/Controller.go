@@ -109,7 +109,7 @@ func (c *Controller) TextDocumentDidOpen(textDocument lsp.TextDocumentItem) {
 	if path, err := lsp.DocumentURIToFilePath(textDocument.URI); err != nil {
 		log.Error(err)
 	} else {
-		AddFileIfNotExists(path)
+		AddFileIfNotExists(path, textDocument.Text)
 	}
 }
 
@@ -145,7 +145,7 @@ func (c *Controller) WorkspaceDidCreate(files []lsp.FileCreate) {
 		if path, err := lsp.DocumentURIToFilePath(lsp.DocumentURI(file.Uri)); err != nil {
 			log.Error(err)
 		} else {
-			AddFileIfNotExists(path)
+			AddFileIfNotExists(path, "")
 		}
 	}
 }

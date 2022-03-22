@@ -9,6 +9,7 @@ import (
 type FileWrapper struct {
 	file        *java.CodeFile
 	diagnostics diagnostics.DiagnosticContainer
+	document    Document
 }
 
 func (wrapper *FileWrapper) Path() string {
@@ -28,4 +29,8 @@ func (wrapper *FileWrapper) File() *java.CodeFile {
 
 func (wrapper *FileWrapper) Diagnostics() *diagnostics.DiagnosticContainer {
 	return &wrapper.diagnostics
+}
+
+func (wrapper *FileWrapper) Document() *Document {
+	return &wrapper.document
 }
