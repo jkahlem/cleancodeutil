@@ -118,6 +118,7 @@ func (c *Controller) TextDocumentDidOpen(textDocument lsp.TextDocumentItem) {
 func (c *Controller) TextDocumentDidChange(textDocument lsp.VersionedTextDocumentIdentifier, contentChanges []lsp.TextDocumentContentChangeEvent) {
 	path, _ := lsp.DocumentURIToFilePath(textDocument.URI)
 	UpdateDiagnostics(path, contentChanges)
+	UpdateDocuments(path, contentChanges)
 }
 
 // Callable RPC method.

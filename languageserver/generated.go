@@ -111,7 +111,7 @@ func createVirtualWorkspace(workspace lsp.WorkspaceFolder) errors.Error {
 }
 
 // Adds a file on the given path into the virtual workspace if it does not exist there already.
-func AddFileIfNotExists(path, text string) {
+func AddFileIfNotExists(path string, text string) {
 	getSingleton().AddFileIfNotExists(path, text)
 }
 
@@ -133,6 +133,11 @@ func DeleteFile(path string) {
 // Updates the diagnostics of the given file in all workspaces containing it.
 func UpdateDiagnostics(path string, changes []lsp.TextDocumentContentChangeEvent) {
 	getSingleton().UpdateDiagnostics(path, changes)
+}
+
+// Updates the diagnostics of the given file in all workspaces containing it.
+func UpdateDocuments(path string, changes []lsp.TextDocumentContentChangeEvent) {
+	getSingleton().UpdateDocuments(path, changes)
 }
 
 // Refreshes the diagnostics for all files.
@@ -214,6 +219,14 @@ func RegisterDidChangeWorkspaceCapability() chan errors.Error {
 // Registers a capability.
 func RegisterCapability(registrations ...lsp.Registration) chan errors.Error {
 	return getSingleton().RegisterCapability(registrations...)
+}
+
+func IsReturntypeValidationActive() bool {
+	return getSingleton().IsReturntypeValidationActive()
+}
+
+func IsMethodGenerationActive() bool {
+	return getSingleton().IsMethodGenerationActive()
 }
 
 var interfaceSingleton rpc.Interface
