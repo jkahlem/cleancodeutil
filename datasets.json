@@ -11,7 +11,7 @@
             },
             "isGroupOnly": true,
             "specialOptions": {
-                "convert2And4ToWords": true,
+                "convert2ToWords": true,
                 "minMethodNameLength": 2,
                 "datasetSize": {
                     "training": 7,

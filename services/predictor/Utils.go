@@ -46,8 +46,6 @@ WordLoop:
 			}
 			if thisDigit == "2" && isFollowedByWord {
 				thisDigit = "to"
-			} else if thisDigit == "4" && isFollowedByWord {
-				thisDigit = "for"
 			}
 			sentence[pos] = thisDigit
 		} else {
