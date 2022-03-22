@@ -12,11 +12,11 @@ package com.example;
 
 public class Example {
 	public String name;
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -47,11 +47,11 @@ package com.example;
 
 public class Example {
 	public String name;
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -61,6 +61,50 @@ public class Example {
 	}
 }`
 	assert.Equal(t, expected, doc.Text())
+}
+
+func TestDocumentTextInsertionInline(t *testing.T) {
+	// given
+	doc := NewDocument(ExampleCode)
+	insertion := Insert(`final `, lsp.Position{ //	public *String name;
+		Line:      4,
+		Character: 8,
+	})
+
+	// when
+	doc.ApplyChange(insertion)
+
+	// then
+	expected := `
+package com.example;
+
+public class Example {
+	public final String name;
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+}`
+	assert.Equal(t, expected, doc.Text())
+}
+
+func TestTextInsertionIntoEmptyDocument(t *testing.T) {
+	// given
+	doc := NewDocument("")
+	insertion := Insert(ExampleCode, lsp.Position{
+		Line:      0,
+		Character: 0,
+	})
+
+	// when
+	doc.ApplyChange(insertion)
+
+	// then
+	assert.Equal(t, ExampleCode, doc.Text())
 }
 
 func TestDocumentTextRemoval(t *testing.T) {
@@ -89,12 +133,74 @@ package com.example;
 
 public class Example {
 	public String name;
-	
+
 	public String getName() {
 		return name;
 	}
 }`
 	assert.Equal(t, expected, doc.Text())
+}
+
+func TestDocumentTextRemovalInline(t *testing.T) {
+	// given
+	doc := NewDocument(ExampleCode)
+	removalRange := &lsp.Range{ // removal of "Name" in "getName" method
+		Start: lsp.Position{ // public get*Name() {
+			Line:      6,
+			Character: 18,
+		},
+		End: lsp.Position{ // public getName*() {
+			Line:      6,
+			Character: 22,
+		},
+	}
+
+	// when
+	doc.ApplyChange(lsp.TextDocumentContentChangeEvent{
+		Text:  "",
+		Range: removalRange,
+	})
+
+	// then
+	expected := `
+package com.example;
+
+public class Example {
+	public String name;
+
+	public String get() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+}`
+	assert.Equal(t, expected, doc.Text())
+}
+
+func TestDocumentTextFullRemoval(t *testing.T) {
+	// given
+	doc := NewDocument(ExampleCode)
+	removalRange := &lsp.Range{
+		Start: lsp.Position{
+			Line:      0,
+			Character: 0,
+		},
+		End: lsp.Position{
+			Line:      100, // bounds to last line/character as limits are exceeded
+			Character: 100,
+		},
+	}
+
+	// when
+	doc.ApplyChange(lsp.TextDocumentContentChangeEvent{
+		Text:  "",
+		Range: removalRange,
+	})
+
+	// then
+	assert.Equal(t, "", doc.Text())
 }
 
 func TestDocumentTextReplacement(t *testing.T) {
@@ -128,7 +234,7 @@ package com.example;
 
 public class Example {
 	public String name;
-	
+
 	public String getName() {
 		return name;
 	}
@@ -175,17 +281,18 @@ package com.example;
 
 public class Example {
 	public String name;
-	
+	public String description;
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public void setName(String name) {
 		this.name = name;
 	}
 
-	public void printName() {
-		System.out.println(this.name);
+	public String getDescription() {
+		return description;
 	}
 }`
 	assert.Equal(t, expected, doc.Text())

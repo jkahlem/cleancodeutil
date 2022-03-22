@@ -33,3 +33,23 @@ func FitProportions(proportionA, proportionB float64, value int) (valueA, valueB
 	valueB = value - valueA
 	return
 }
+
+// Bounds the given value inside the given interval, therefore returns min if value < min and max if value > max.
+func BoundInside(value, min, max int) int {
+	if value < min {
+		return min
+	} else if value > max {
+		return max
+	}
+	return value
+}
+
+// Bounds an index inside a given length (e.g. for slices/strings etc.)
+func BoundIndex(value, length int) int {
+	if value < 0 || length == 0 {
+		return 0
+	} else if value >= length {
+		return length - 1
+	}
+	return value
+}
