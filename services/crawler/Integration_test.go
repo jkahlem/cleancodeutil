@@ -50,7 +50,9 @@ public class Example {
 		return name;
 	}
 
-	public void printName(
+	public class Test {
+		public void printName(
+	}
 
 	public void setName(String name) {
 		this.name = name;
@@ -58,16 +60,16 @@ public class Example {
 }`
 
 	// when
-	elements, err := ParseSourceCode(code, NewOptions().Build())
+	elements, err := ParseSourceCode(code, NewOptions().WithParseIncomplete(true).Build())
 
 	// then
 	assert.NoError(t, err)
 	assert.Len(t, elements.CodeFiles()[0].Classes[0].Methods, 3)
 
 	methods := elements.CodeFiles()[0].Classes[0].Methods
-	assert.Equal(t, "getName", methods[0])
-	assert.Equal(t, "printName", methods[1])
-	assert.Equal(t, "setName", methods[2])
+	assert.Equal(t, "getName", methods[0].MethodName)
+	assert.Equal(t, "printName", methods[1].MethodName)
+	assert.Equal(t, "setName", methods[2].MethodName)
 }
 
 // Test helper functions

@@ -4,6 +4,7 @@
 package crawler
 
 import (
+	"fmt"
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/debug/errors"
 )
@@ -44,6 +45,7 @@ func (c *crawler) ParseSourceCode(code string, options Options) (java.FileContai
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(xml)
 	return c.decodeXmlContent(xml)
 }
 

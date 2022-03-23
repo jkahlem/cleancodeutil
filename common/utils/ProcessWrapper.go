@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"io"
 	"os/exec"
 	"returntypes-langserver/common/debug/errors"
@@ -17,8 +16,6 @@ type Process struct {
 func NewProcess(name string, args ...string) *Process {
 	g := &Process{}
 	g.cmd = exec.Command(name, args...)
-	str := g.cmd.String()
-	fmt.Println(str)
 	return g
 }
 

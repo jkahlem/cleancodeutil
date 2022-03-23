@@ -1,7 +1,6 @@
 package crawler
 
 import (
-	"fmt"
 	"io"
 
 	"returntypes-langserver/common/configuration"
@@ -28,7 +27,6 @@ func (conn *connection) Connect() errors.Error {
 
 func (conn *connection) connect() errors.Error {
 	conn.process = utils.NewProcess("java", "-jar", configuration.CrawlerExecutablePath())
-	fmt.Println("crawler: ", configuration.CrawlerExecutablePath())
 	stdin, err := conn.process.Stdin()
 	if err != nil {
 		return err

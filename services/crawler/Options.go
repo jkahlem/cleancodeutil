@@ -12,6 +12,8 @@ type Options struct {
 	Silent bool `json:"silent"`
 	// Sets the java version which should be considered when parsing the code files.
 	JavaVersion int `json:"javaVersion"`
+	// If true, the crawler will try to parse incomplete code files (which have parser errors etc.) as good as possible.
+	ParseIncomplete bool `json:"parseIncomplete"`
 }
 
 type OptionsBuilder struct {
@@ -44,6 +46,11 @@ func (o *OptionsBuilder) Silent(state bool) *OptionsBuilder {
 
 func (o *OptionsBuilder) WithJavaVersion(version int) *OptionsBuilder {
 	o.options.JavaVersion = version
+	return o
+}
+
+func (o *OptionsBuilder) WithParseIncomplete(state bool) *OptionsBuilder {
+	o.options.ParseIncomplete = state
 	return o
 }
 
