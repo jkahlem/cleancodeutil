@@ -161,6 +161,13 @@ func LoadConfigFromJsonString(jsonStr string) errors.Error {
 	return loadJsonConfig([]byte(jsonStr))
 }
 
+// Loads configurations from a json string and panics on any errors. This is especially for tests which rely on configurations and must compile.
+func MustLoadConfigFromJsonString(jsonStr string) {
+	if err := LoadConfigFromJsonString(jsonStr); err != nil {
+		panic(err)
+	}
+}
+
 func createDefaultConfig() {
 	loadedConfig = &configFile{
 		Cloner: ClonerConfiguration{

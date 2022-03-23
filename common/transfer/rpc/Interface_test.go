@@ -384,7 +384,7 @@ func TestRequestToControllerWithMixedParams(t *testing.T) {
 
 func TestRequestOnUnstableConnection(t *testing.T) {
 	// given
-	configuration.LoadConfigFromJsonString(`{"connection":{"timeout":5,"reconnectionAttempts":5}}`)
+	configuration.MustLoadConfigFromJsonString(`{"connection":{"timeout":5,"reconnectionAttempts":5}}`)
 	connection, _ := CreateUnstableTestInterface(t, 3)
 	requestMessage := CreateRequest(1, FnDoNothing, "")
 
@@ -405,7 +405,7 @@ func TestRequestOnUnstableConnection(t *testing.T) {
 
 func TestRequestOnUnrecoverableConnection(t *testing.T) {
 	// given
-	configuration.LoadConfigFromJsonString(`{"connection":{"timeout":5,"reconnectionAttempts":5}}`)
+	configuration.MustLoadConfigFromJsonString(`{"connection":{"timeout":5,"reconnectionAttempts":5}}`)
 
 	called := make(chan bool, 1)
 	onRecoverFailed := func(Recoverer) {
@@ -424,7 +424,7 @@ func TestRequestOnUnrecoverableConnection(t *testing.T) {
 
 func TestTryRecoverAfterUnrecoverable(t *testing.T) {
 	// given
-	configuration.LoadConfigFromJsonString(`{"connection":{"timeout":5,"reconnectionAttempts":5}}`)
+	configuration.MustLoadConfigFromJsonString(`{"connection":{"timeout":5,"reconnectionAttempts":5}}`)
 
 	onRecoverFailed := func(recoverer Recoverer) {
 		recoverer.Recover()

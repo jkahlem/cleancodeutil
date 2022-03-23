@@ -16,7 +16,7 @@ const PredictorHost = "192.168.178.42"
 
 func TestPredictReturnTypes(t *testing.T) {
 	// given
-	configuration.LoadConfigFromJsonString(buildPredictorConfig())
+	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
 	methods := make([]PredictableMethodName, 2)
 	methods[0] = GetPredictableMethodName("getName")
 	methods[1] = GetPredictableMethodName("findItem")
@@ -35,7 +35,7 @@ func TestPredictReturnTypes(t *testing.T) {
 
 func TestTrainMethods(t *testing.T) {
 	// given
-	configuration.LoadConfigFromJsonString(buildPredictorConfig())
+	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
 	trainingSet := []Method{{Context: MethodContext{
 		MethodName: "training",
 		ClassName:  "testclass",
@@ -51,7 +51,7 @@ func TestTrainMethods(t *testing.T) {
 }
 
 func TestGenerateMethods(t *testing.T) {
-	configuration.LoadConfigFromJsonString(buildPredictorConfig())
+	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
 
 	values, err := OnDataset(configuration.Dataset{
 		NameRaw: "experimental-set",
@@ -75,7 +75,7 @@ func TestGenerateMethods(t *testing.T) {
 /*
 func TestGenerateMethods(t *testing.T) {
 	// given
-	configuration.LoadConfigFromJsonString(buildPredictorConfig())
+	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
 	methods := make([]PredictableMethodName, 8)
 	//methods[0] = PredictableMethodName(string(GetPredictableMethodName("findByNameOrAge")))
 	//methods[1] = PredictableMethodName(string(GetPredictableMethodName("compare")))
@@ -139,7 +139,7 @@ func createTypeAssignmentTest(methodName, parameterName, context string) Predict
 
 func TestTrainReturnTypes(t *testing.T) {
 	// given
-	configuration.LoadConfigFromJsonString(buildPredictorConfig())
+	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
 	trainingSet := []Method{{Context: MethodContext{MethodName: "training"}, Values: MethodValues{ReturnType: "test"}}}
 
 	// when
@@ -151,7 +151,7 @@ func TestTrainReturnTypes(t *testing.T) {
 
 func TestEvaluateReturnTypes(t *testing.T) {
 	// given
-	configuration.LoadConfigFromJsonString(buildPredictorConfig())
+	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
 	evaluationSet := []Method{{Context: MethodContext{MethodName: "evaluation"}, Values: MethodValues{ReturnType: "test"}}}
 
 	// when
@@ -170,7 +170,7 @@ func TestPredictUnstable(t *testing.T) {
 	// It was more of a utility while debugging a connection bug.
 
 	// given
-	configuration.LoadConfigFromJsonString(buildPredictorConfigForUnstableConnection())
+	configuration.MustLoadConfigFromJsonString(buildPredictorConfigForUnstableConnection())
 	methods := make([]PredictableMethodName, 2)
 	methods[0] = GetPredictableMethodName("getName")
 	methods[1] = GetPredictableMethodName("findItem")

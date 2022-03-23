@@ -218,6 +218,14 @@ func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentif
 	//
 	// Short things short, here is still a lot to do. By the way, the '¥n' in the textEdit text is not working as line breaks,
 	// don't know how it is for additionalTextEdits. Maybe multiple-line edits needs multiple additionalTextEdits ...
+
+	// 1. Get file contents
+	// 2. Parse file contents to xml <- does this even work for unfinished files?
+	// 3. Check if cursor position is actually method beginning
+	// 4. Get method name
+	// 5. Generate parameter list + return type (-> call predictor)
+	// 6. Convert predictor output to completion item & return it
+
 	log.Info("Got textDocument.completion request with char '%s' and kind %v", context.TriggerCharacter, context.TriggerKind)
 	testStr := "completionTest" // completionTest(*)
 	// Cursor position ---------------------------^

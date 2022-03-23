@@ -148,17 +148,18 @@ func (s *communicator) Listen() errors.Error {
 	s.mutex.Unlock()
 	defer func() {
 		s.isListening = false
+		s.responseQueue.Close()
 		s.log("Stop listening.")
 	}()
 
 	for {
 		msg, err := s.awaitMessage()
-		// wait until recovered...
 		if err != nil {
 			log.Error(err)
 			return err
+		} else if msg != nil {
+			go s.handleMessage(msg)
 		}
-		go s.handleMessage(msg)
 	}
 }
 
@@ -184,7 +185,7 @@ func (s *communicator) handleMessage(msg interface{}) {
 }
 
 // Sends a response message to the remote service
-func (s *communicator) respond(id, result interface{}, err *jsonrpc.ResponseError) {
+func (s *communicator) respond(id, result interface{}, err *jsonrpc.ResponseError) errors.Error {
 	response := jsonrpc.NewResponse(id)
 	response.Error = err
 	response.Result = result
@@ -193,7 +194,7 @@ func (s *communicator) respond(id, result interface{}, err *jsonrpc.ResponseErro
 	} else if err != nil {
 		s.log("Repond with error %d -> %s", err.Code, err.Message)
 	}
-	s.writeJsonMessageToMessager(response)
+	return s.writeJsonMessageToMessager(response)
 }
 
 // Waits for a response with the given id.
@@ -218,9 +219,10 @@ func (s *communicator) awaitMessage() (interface{}, errors.Error) {
 	}
 	rpcMsg, err := jsonrpc.Unmarshal(msg)
 	if err != nil {
-		return nil, err
+		responseError := jsonrpc.NewResponseError(jsonrpc.InvalidRequest, "Unmarshalling json object to request failed.")
+		return nil, s.respond(JsonNULL{}, nil, &responseError)
 	}
-	return rpcMsg, err
+	return rpcMsg, nil
 }
 
 // Invokes the given methods using the given params

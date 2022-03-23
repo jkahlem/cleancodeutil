@@ -1,6 +1,7 @@
 package crawler
 
 import (
+	"fmt"
 	"io"
 
 	"returntypes-langserver/common/configuration"
@@ -17,7 +18,7 @@ type connection struct {
 
 // "Connects" to the crawler by spawning a new crawler process.
 func (conn *connection) Connect() errors.Error {
-	if conn.process != nil {
+	if conn.process != nil && conn.process.IsRunning() {
 		return errors.New(CrawlerErrorTitle, "A connection does already exist")
 	} else if err := conn.connect(); err != nil {
 		return err
@@ -27,6 +28,7 @@ func (conn *connection) Connect() errors.Error {
 
 func (conn *connection) connect() errors.Error {
 	conn.process = utils.NewProcess("java", "-jar", configuration.CrawlerExecutablePath())
+	fmt.Println("crawler: ", configuration.CrawlerExecutablePath())
 	stdin, err := conn.process.Stdin()
 	if err != nil {
 		return err
@@ -66,7 +68,7 @@ func (conn *connection) Read(bytes []byte) (int, error) {
 
 // Writes bytes to the standard output stream of the crawler process.
 func (conn *connection) Write(bytes []byte) (int, error) {
-	if conn.stdout == nil {
+	if conn.stdin == nil {
 		return 0, errors.Wrap(io.ErrClosedPipe, CrawlerErrorTitle, "Stream does not exist")
 	}
 	return conn.stdin.Write(bytes)
@@ -90,6 +92,7 @@ func (conn *connection) Close() errors.Error {
 		if err := conn.process.Close(); err != nil {
 			return err
 		}
+		conn.process = nil
 	}
 	return nil
 }
