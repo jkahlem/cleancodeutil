@@ -83,3 +83,35 @@ func (substr ContainingMatcher) Match(target []byte) bool {
 func (substr EqualityMatcher) Match(target []byte) bool {
 	return string(target) == string(substr)
 }
+
+type StringStack struct {
+	stack []string
+}
+
+func NewStringStack() *StringStack {
+	return &StringStack{}
+}
+
+func (s *StringStack) Push(str string) {
+	s.stack = append(s.stack, str)
+}
+
+func (s *StringStack) Pop() (string, bool) {
+	if s.IsEmpty() {
+		return "", false
+	}
+	elm := s.stack[len(s.stack)-1]
+	s.stack = s.stack[:len(s.stack)-1]
+	return elm, true
+}
+
+func (s *StringStack) Peek() (string, bool) {
+	if s.IsEmpty() {
+		return "", false
+	}
+	return s.stack[len(s.stack)-1], true
+}
+
+func (s *StringStack) IsEmpty() bool {
+	return len(s.stack) == 0
+}
