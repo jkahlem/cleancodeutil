@@ -2,13 +2,17 @@ package languageserver
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
+	"returntypes-langserver/common/code/java/parser"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/transfer/rpc"
 	"returntypes-langserver/common/transfer/rpc/jsonrpc"
 	"returntypes-langserver/languageserver/lsp"
+	"returntypes-langserver/languageserver/workspace"
+	"returntypes-langserver/services/predictor"
 )
 
 const LanguageServerName string = "returntypes"
@@ -227,9 +231,80 @@ func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentif
 	// 6. Convert predictor output to completion item & return it
 
 	log.Info("Got textDocument.completion request with char '%s' and kind %v", context.TriggerCharacter, context.TriggerKind)
+	list := lsp.CompletionList{
+		IsIncomplete: false,
+		Items:        []lsp.CompletionItem{},
+	}
+	if path, err := lsp.DocumentURIToFilePath(textDocument.URI); err != nil {
+		return nil, err
+	} else if file := GetFile(path); file != nil {
+		doc := file.Document()
+		if method, found := findMethodAtCursorPosition(doc, position); found {
+			// Generate parameter list
+			if set, ok := configuration.FindDatasetByReference(configuration.LanguageServerMethodGenerationDataset()); ok {
+				value, err := predictor.OnDataset(set).GenerateMethods([]predictor.MethodContext{{
+					MethodName: predictor.GetPredictableMethodName(method.Name.Content),
+					ClassName:  "Example",
+					IsStatic:   false,
+				}})
+				if err != nil {
+					return nil, err
+				}
+
+				// convert output to completion item & return it
+				insertionRange := lsp.Range{
+					Start: doc.ToPosition(method.RoundBraces.Range.Start + 1),
+					End:   doc.ToPosition(method.RoundBraces.Range.End),
+				}
+				item := createCompletionItem(createTextEdit(joinParameterList(value[0].Parameters), insertionRange))
+				list.Items = append(list.Items, item)
+			}
+		}
+	}
+	return &list, nil
+}
+
+func joinParameterList(value []predictor.Parameter) string {
+	output := ""
+	for i, par := range value {
+		if i > 0 {
+			output += fmt.Sprintf(", %s %s", par.Type, par.Name)
+		} else {
+			output += fmt.Sprintf("%s %s", par.Type, par.Name)
+		}
+	}
+	return output
+}
+
+func createCompletionItem(textEdits ...lsp.TextEdit) lsp.CompletionItem {
+	item := lsp.CompletionItem{
+		Label:            "TestAsd",
+		Kind:             lsp.Text,
+		Preselect:        true,
+		InsertTextFormat: lsp.ITF_PlainText,
+		InsertTextMode:   lsp.AsIs,
+		SortText:         "TestAsd",
+		FilterText:       "(TestAsd",
+	}
+	if len(textEdits) >= 1 {
+		item.TextEdit = &textEdits[0]
+		item.AdditionalTextEdits = textEdits[1:]
+	}
+
+	return item
+}
+
+func createTextEdit(text string, r lsp.Range) lsp.TextEdit {
+	return lsp.TextEdit{
+		NewText: text,
+		Range:   r,
+	}
+}
+
+func createCompletionItemOld(position lsp.Position) lsp.CompletionItem {
 	testStr := "completionTest" // completionTest(*)
 	// Cursor position ---------------------------^
-	item := lsp.CompletionItem{
+	return lsp.CompletionItem{
 		Label:            "TestAsd",
 		Kind:             lsp.Text,
 		Preselect:        true,
@@ -253,7 +328,7 @@ func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentif
 				Range: lsp.Range{
 					Start: lsp.Position{
 						Line:      position.Line,
-						Character: position.Character - 1 - len(testStr), // in real work, get the length by analyzing the line ...
+						Character: position.Character - 1 - len(testStr),
 					}, End: lsp.Position{
 						Line:      position.Line,
 						Character: position.Character - 1 - len(testStr),
@@ -262,9 +337,17 @@ func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentif
 			},
 		},
 	}
-	list := lsp.CompletionList{
-		IsIncomplete: false,
-		Items:        []lsp.CompletionItem{item},
+}
+
+func findMethodAtCursorPosition(doc *workspace.Document, cursorPosition lsp.Position) (parser.Method, bool) {
+	methods := parser.ParseMethods(doc.Text())
+	cursorOffset := doc.ToOffset(cursorPosition)
+	for _, m := range methods {
+		// the range where the cursor might be to track the auto completion
+		start, end := m.Name.Range.End, m.RoundBraces.Range.Start+1
+		if cursorOffset >= start && cursorOffset <= end {
+			return m, true
+		}
 	}
-	return &list, nil
+	return parser.Method{}, false
 }

@@ -111,3 +111,33 @@ func (doc *Document) SetText(text string) {
 func (doc *Document) Text() string {
 	return strings.Join(doc.content, "\n")
 }
+
+// Converts a position (line:col) to the string offset on the full document string
+func (doc *Document) ToOffset(pos lsp.Position) int {
+	offset := 0
+	for i, line := range doc.content {
+		if i < pos.Line {
+			offset += len(line) + 1 // add one character for the line break
+		} else {
+			offset += pos.Character
+			break
+		}
+	}
+	return offset
+}
+
+// Converts a string/byte offset of the code to a position (line:col)
+func (doc *Document) ToPosition(offset int) lsp.Position {
+	pos := lsp.Position{}
+	for i, line := range doc.content {
+		lineLength := len(line) + 1
+		if lineLength < offset {
+			offset -= lineLength
+		} else {
+			pos.Line = i
+			pos.Character = offset
+			break
+		}
+	}
+	return pos
+}

@@ -120,6 +120,16 @@ func (ls *languageServer) DeleteFile(path string) {
 	}
 }
 
+// Returns the file for the given path if it exists
+func (ls *languageServer) GetFile(path string) *workspace.FileWrapper {
+	for _, ws := range ls.workspaces.List() {
+		if ws.IsFileBelongingToWorkspace(path) {
+			return ws.FileSystem.GetFile(path)
+		}
+	}
+	return nil
+}
+
 // Updates the diagnostics of the given file in all workspaces containing it.
 func (ls *languageServer) UpdateDiagnostics(path string, changes []lsp.TextDocumentContentChangeEvent) {
 	if !ls.IsReturntypeValidationActive() {

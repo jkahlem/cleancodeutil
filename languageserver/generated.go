@@ -130,6 +130,11 @@ func DeleteFile(path string) {
 	getSingleton().DeleteFile(path)
 }
 
+// Returns the file for the given path if it exists
+func GetFile(path string) *workspace.FileWrapper {
+	return getSingleton().GetFile(path)
+}
+
 // Updates the diagnostics of the given file in all workspaces containing it.
 func UpdateDiagnostics(path string, changes []lsp.TextDocumentContentChangeEvent) {
 	getSingleton().UpdateDiagnostics(path, changes)
