@@ -84,24 +84,23 @@ func (substr EqualityMatcher) Match(target []byte) bool {
 	return string(target) == string(substr)
 }
 
-type StringStack struct {
-	stack []string
-}
+type StringStack []string
 
 func NewStringStack() *StringStack {
-	return &StringStack{}
+	s := make(StringStack, 0)
+	return &s
 }
 
 func (s *StringStack) Push(str string) {
-	s.stack = append(s.stack, str)
+	*s = append(*s, str)
 }
 
 func (s *StringStack) Pop() (string, bool) {
 	if s.IsEmpty() {
 		return "", false
 	}
-	elm := s.stack[len(s.stack)-1]
-	s.stack = s.stack[:len(s.stack)-1]
+	elm := (*s)[len(*s)-1]
+	*s = (*s)[:len(*s)-1]
 	return elm, true
 }
 
@@ -109,9 +108,9 @@ func (s *StringStack) Peek() (string, bool) {
 	if s.IsEmpty() {
 		return "", false
 	}
-	return s.stack[len(s.stack)-1], true
+	return (*s)[len(*s)-1], true
 }
 
 func (s *StringStack) IsEmpty() bool {
-	return len(s.stack) == 0
+	return len(*s) == 0
 }

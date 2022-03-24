@@ -39,10 +39,13 @@ line*/,public,class,SomeClass,{,// valid line comment(),private,String,name,;,pu
 
 func TestGetMethodInfo(t *testing.T) {
 	// when
-	methods := ParseMethods(ValidExampleCode)
+	class := Parse(ValidExampleCode)
+	methods := class.Methods
 
 	// then
 	assert.Len(t, methods, 2)
+	assert.Equal(t, "SomeClass", class.Name.Content)
+	assert.Equal(t, ClassContext, class.ClassType)
 	assert.Equal(t, "getName", methods[0].Name.Content)
 	assert.Equal(t, "()", methods[0].RoundBraces.Content)
 	assert.Equal(t, "@Override", methods[0].Annotations[0].Content)

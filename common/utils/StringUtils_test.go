@@ -19,3 +19,25 @@ func TestStringSet(t *testing.T) {
 	assert.True(t, s.Has("test2"))
 	assert.False(t, s.Has("unknown"))
 }
+
+func TestStringStack(t *testing.T) {
+	// given
+	s := NewStringStack()
+
+	// when
+	s.Push("string1")
+	s.Push("string2")
+
+	// then
+	val, ok := s.Peek()
+	assert.True(t, ok)
+	assert.Equal(t, "string2", val)
+	val, ok = s.Pop()
+	assert.True(t, ok)
+	assert.Equal(t, "string2", val)
+	val, ok = s.Pop()
+	assert.True(t, ok)
+	assert.Equal(t, "string1", val)
+	val, ok = s.Pop()
+	assert.False(t, ok)
+}

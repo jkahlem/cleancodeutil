@@ -4,15 +4,18 @@
 // performing as required.
 package parser
 
-import (
-	"returntypes-langserver/common/utils"
-)
-
 type Method struct {
 	Name        Token
 	Type        Token
 	RoundBraces Token
 	Annotations []Token
+}
+
+type Class struct {
+	ClassType string
+	Name      Token
+	Methods   []Method
+	Classes   []Class
 }
 
 const (
@@ -22,11 +25,11 @@ const (
 )
 
 // Returns an array of method definitions
-func ParseMethods(code string) []Method {
+func Parse(code string) *Class {
 	tokenizer := NewTokenizer(code)
 	statement := make([]Token, 0, 10)
-	context := utils.NewStringStack()
-	methods := make([]Method, 0, 8)
+	context := NewClassStack()
+	var topLevelClass *Class
 	afterAnnotation := false
 	for tokenizer.HasNext() {
 		token := tokenizer.Token()
@@ -46,40 +49,31 @@ func ParseMethods(code string) []Method {
 		afterAnnotation = false
 
 		if token.Content == ";" {
-			if top, ok := context.Peek(); ok && top == InterfaceContext {
+			if top, ok := context.Peek(); ok && top.ClassType == InterfaceContext {
 				// statement is method definition
-				methods = append(methods, getMethodFromStatement(statement))
+				top.Methods = append(top.Methods, getMethodFromStatement(statement, code))
 			}
 			statement = statement[:0]
 		} else if token.Content == "{" {
-			contextChanged := false
-			for _, t := range statement {
-				switch t.Content {
-				case "class":
-					context.Push(ClassContext)
-					contextChanged = true
-				case "interface":
-					context.Push(InterfaceContext)
-					contextChanged = true
-				case "enum":
-					context.Push(EnumContext)
-					contextChanged = true
+			if class := getClassFromStatement(statement); class != nil {
+				if topLevelClass == nil {
+					topLevelClass = class
 				}
-				if contextChanged {
-					break
-				}
-			}
-			if !contextChanged {
+				context.Push(class)
 			}
 			statement = statement[:0]
 		} else if token.Content == "}" {
-			context.Pop()
+			if poppedClass, ok := context.Pop(); ok {
+				if top, ok := context.Peek(); ok {
+					top.Classes = append(top.Classes, *poppedClass)
+				}
+			}
 			statement = statement[:0]
 		} else if token.Content == ")" {
-			if top, ok := context.Peek(); ok && top == ClassContext {
+			if top, ok := context.Peek(); ok && top.ClassType == ClassContext {
 				statement = append(statement, token)
 				// statement is method definition
-				methods = append(methods, getMethodFromStatement(statement))
+				top.Methods = append(top.Methods, getMethodFromStatement(statement, code))
 				statement = statement[:0]
 
 				// skip until leaving method
@@ -94,14 +88,31 @@ func ParseMethods(code string) []Method {
 		}
 	}
 
-	for i := range methods {
-		r := methods[i].RoundBraces.Range
-		methods[i].RoundBraces.Content = code[r.Start:r.End]
-	}
-	return methods
+	return topLevelClass
 }
 
-func getMethodFromStatement(statement []Token) Method {
+func getClassFromStatement(statement []Token) *Class {
+	class := Class{}
+	for i, t := range statement {
+		switch t.Content {
+		case "class":
+			class.ClassType = ClassContext
+		case "interface":
+			class.ClassType = InterfaceContext
+		case "enum":
+			class.ClassType = EnumContext
+		default:
+			continue
+		}
+		if i+1 == len(statement) {
+			return nil
+		}
+		class.Name = statement[i+1]
+	}
+	return &class
+}
+
+func getMethodFromStatement(statement []Token, code string) Method {
 	method := Method{}
 	parseParameterList := false
 	for i, t := range statement {
@@ -122,6 +133,8 @@ func getMethodFromStatement(statement []Token) Method {
 		// set the end to the last part of the statement
 		method.RoundBraces.Range.End = statement[len(statement)-1].Range.End
 	}
+	r := method.RoundBraces.Range
+	method.RoundBraces.Content = code[r.Start:r.End]
 	return method
 }
 

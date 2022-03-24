@@ -47,3 +47,14 @@ func getBaseValuesFromTypeSpec(typeSpec *ast.TypeSpec) Base {
 	}
 	return base
 }
+
+func GetZeroValue(value string) string {
+	switch value {
+	case "int", "int8", "int16", "int32", "int64", "uint", "uint8", "uint16", "uint32", "uint64":
+		return "0"
+	case "string":
+		return `""`
+	default:
+		return "nil"
+	}
+}

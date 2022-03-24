@@ -249,7 +249,7 @@ func (c *Controller) canCompleteMethodDefinition(method parser.Method) bool {
 }
 
 func (c *Controller) findMethodAtCursorPosition(doc *workspace.Document, cursorPosition lsp.Position) (parser.Method, bool) {
-	methods := parser.ParseMethods(doc.Text())
+	methods := c.getMethods(parser.Parse(doc.Text()))
 	cursorOffset := doc.ToOffset(cursorPosition)
 	for _, m := range methods {
 		// the range where the cursor might be to track the auto completion
@@ -259,4 +259,16 @@ func (c *Controller) findMethodAtCursorPosition(doc *workspace.Document, cursorP
 		}
 	}
 	return parser.Method{}, false
+}
+
+func (c *Controller) getMethods(class *parser.Class) []parser.Method {
+	if class == nil {
+		return nil
+	}
+	methods := make([]parser.Method, len(class.Methods))
+	copy(methods, class.Methods)
+	for _, subClass := range class.Classes {
+		methods = append(methods, c.getMethods(&subClass)...)
+	}
+	return methods
 }
