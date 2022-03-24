@@ -14,6 +14,7 @@ line*/
 public class SomeClass { // valid line comment()
 	private String name;
 
+	@Override
 	public String getName() {
 		return name;
 	}
@@ -44,6 +45,7 @@ func TestGetMethodInfo(t *testing.T) {
 	assert.Len(t, methods, 2)
 	assert.Equal(t, "getName", methods[0].Name.Content)
 	assert.Equal(t, "()", methods[0].RoundBraces.Content)
+	assert.Equal(t, "@Override", methods[0].Annotations[0].Content)
 	assert.Equal(t, "doSomething", methods[1].Name.Content)
 	assert.Equal(t, "(String str, int value)", methods[1].RoundBraces.Content)
 }
