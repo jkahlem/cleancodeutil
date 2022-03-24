@@ -239,7 +239,7 @@ func (c *Controller) createMethodDefinitionCompletion(doc *workspace.Document, p
 	return nil, nil
 }
 
-func (c *Controller) canCompleteMethodDefinition(method parser.Method) bool {
+func (c *Controller) canCompleteMethodDefinition(method Method) bool {
 	for _, annotation := range method.Annotations {
 		if annotation.Content == "@Override" {
 			return false
@@ -248,7 +248,7 @@ func (c *Controller) canCompleteMethodDefinition(method parser.Method) bool {
 	return true
 }
 
-func (c *Controller) findMethodAtCursorPosition(doc *workspace.Document, cursorPosition lsp.Position) (parser.Method, bool) {
+func (c *Controller) findMethodAtCursorPosition(doc *workspace.Document, cursorPosition lsp.Position) (Method, bool) {
 	methods := c.getMethods(parser.Parse(doc.Text()))
 	cursorOffset := doc.ToOffset(cursorPosition)
 	for _, m := range methods {
@@ -258,17 +258,28 @@ func (c *Controller) findMethodAtCursorPosition(doc *workspace.Document, cursorP
 			return m, true
 		}
 	}
-	return parser.Method{}, false
+	return Method{}, false
 }
 
-func (c *Controller) getMethods(class *parser.Class) []parser.Method {
+func (c *Controller) getMethods(class *parser.Class) []Method {
 	if class == nil {
 		return nil
 	}
-	methods := make([]parser.Method, len(class.Methods))
-	copy(methods, class.Methods)
+	methods := make([]Method, len(class.Methods))
+	for i, method := range class.Methods {
+		methods[i] = Method{
+			Method:    method,
+			ClassName: class.Name.Content,
+		}
+	}
 	for _, subClass := range class.Classes {
 		methods = append(methods, c.getMethods(&subClass)...)
 	}
 	return methods
+}
+
+// Extend method with class name for method name generation
+type Method struct {
+	parser.Method
+	ClassName string
 }

@@ -8,7 +8,6 @@ import (
 	"reflect"
 	"sync"
 
-	"returntypes-langserver/common/code/java/parser"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/transfer/rpc"
 	"returntypes-langserver/languageserver/diagnostics"
@@ -229,7 +228,7 @@ func RegisterCapability(registrations ...lsp.Registration) chan errors.Error {
 }
 
 // Creates a completion item
-func CompleteMethodDefinition(method parser.Method, doc *workspace.Document) (*lsp.CompletionItem, errors.Error) {
+func CompleteMethodDefinition(method Method, doc *workspace.Document) (*lsp.CompletionItem, errors.Error) {
 	return getSingleton().CompleteMethodDefinition(method, doc)
 }
 

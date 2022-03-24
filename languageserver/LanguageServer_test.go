@@ -14,18 +14,20 @@ func TestGenerateMethods(t *testing.T) {
 	setupTest()
 	ls := languageServer{}
 	doc := workspace.NewDocument("doSomething(contentToRemove)")
-	method := parser.Method{
-		Name: parser.Token{
-			Content: "doSomething",
-		},
-		RoundBraces: parser.Token{
-			Content: "(contentToRemove)",
-			Range: parser.Range{
-				Start: 12,
-				End:   27,
+	method := Method{
+		Method: parser.Method{
+			Name: parser.Token{
+				Content: "doSomething",
 			},
+			RoundBraces: parser.Token{
+				Content: "(contentToRemove)",
+				Range: parser.Range{
+					Start: 12,
+					End:   27,
+				},
+			},
+			Type: parser.Token{},
 		},
-		Type: parser.Token{},
 	}
 
 	// when
@@ -36,7 +38,7 @@ func TestGenerateMethods(t *testing.T) {
 	if assert.NotNil(t, item) && assert.NotNil(t, item.TextEdit) {
 		assert.Equal(t, "Object mockParameter", item.TextEdit.NewText)
 		assert.Equal(t, 13, item.TextEdit.Range.Start.Character)
-		assert.Equal(t, 27, item.TextEdit.Range.End.Character)
+		assert.Equal(t, 26, item.TextEdit.Range.End.Character)
 	}
 }
 

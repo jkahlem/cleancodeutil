@@ -3,7 +3,6 @@ package languageserver
 import (
 	"encoding/json"
 	"fmt"
-	"returntypes-langserver/common/code/java/parser"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
@@ -316,13 +315,13 @@ func (ls *languageServer) RegisterCapability(registrations ...lsp.Registration) 
 }
 
 // Creates a completion item
-func (ls *languageServer) CompleteMethodDefinition(method parser.Method, doc *workspace.Document) (*lsp.CompletionItem, errors.Error) {
+func (ls *languageServer) CompleteMethodDefinition(method Method, doc *workspace.Document) (*lsp.CompletionItem, errors.Error) {
 	// Generate parameter list
 	if set, ok := configuration.FindDatasetByReference(configuration.LanguageServerMethodGenerationDataset()); ok && doc != nil {
 		value, err := predictor.OnDataset(set).GenerateMethods([]predictor.MethodContext{{
 			MethodName: predictor.GetPredictableMethodName(method.Name.Content),
-			ClassName:  "Example",
-			IsStatic:   false,
+			ClassName:  method.ClassName,
+			IsStatic:   method.IsStatic,
 		}})
 		if err != nil {
 			return nil, err
