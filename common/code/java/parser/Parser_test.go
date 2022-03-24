@@ -37,7 +37,7 @@ func TestTokenizerWithValidCode(t *testing.T) {
 line*/,public,class,SomeClass,{,// valid line comment(),private,String,name,;,public,String,getName,(,),{,return,name,;,},public,void,doSomething,(,String,str,int,value,),{,if,(,name,"some /* \\" name()",),{,System,out,println,(,"This is valid code.",),;,},},}`, strings.Join(tokenized, ","))
 }
 
-func TestGetMethodInfo(t *testing.T) {
+func TestParseClass(t *testing.T) {
 	// when
 	class := Parse(ValidExampleCode)
 	methods := class.Methods
@@ -51,6 +51,22 @@ func TestGetMethodInfo(t *testing.T) {
 	assert.Equal(t, "@Override", methods[0].Annotations[0].Content)
 	assert.Equal(t, "doSomething", methods[1].Name.Content)
 	assert.Equal(t, "(String str, int value)", methods[1].RoundBraces.Content)
+}
+
+func TestParseInterface(t *testing.T) {
+	// when
+	class := Parse(`
+public interface ExampleInterface {
+	public void doSomething(String str);
+}`)
+	methods := class.Methods
+
+	// then
+	assert.Len(t, methods, 1)
+	assert.Equal(t, "ExampleInterface", class.Name.Content)
+	assert.Equal(t, InterfaceContext, class.ClassType)
+	assert.Equal(t, "doSomething", methods[0].Name.Content)
+	assert.Equal(t, "(String str)", methods[0].RoundBraces.Content)
 }
 
 func getTokens(code string) []string {

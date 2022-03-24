@@ -70,8 +70,8 @@ func Parse(code string) *Class {
 			}
 			statement = statement[:0]
 		} else if token.Content == ")" {
+			statement = append(statement, token)
 			if top, ok := context.Peek(); ok && top.ClassType == ClassContext {
-				statement = append(statement, token)
 				// statement is method definition
 				top.Methods = append(top.Methods, getMethodFromStatement(statement, code))
 				statement = statement[:0]
