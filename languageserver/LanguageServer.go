@@ -3,6 +3,7 @@ package languageserver
 import (
 	"encoding/json"
 	"fmt"
+	"returntypes-langserver/common/code/java/parser"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
@@ -312,6 +313,66 @@ func (ls *languageServer) RegisterCapability(registrations ...lsp.Registration) 
 		promise <- remote().RegisterCapability(registrations)
 	}()
 	return promise
+}
+
+// Creates a completion item
+func (ls *languageServer) CompleteMethodDefinition(method parser.Method, doc *workspace.Document) (*lsp.CompletionItem, errors.Error) {
+	// Generate parameter list
+	if set, ok := configuration.FindDatasetByReference(configuration.LanguageServerMethodGenerationDataset()); ok && doc != nil {
+		value, err := predictor.OnDataset(set).GenerateMethods([]predictor.MethodContext{{
+			MethodName: predictor.GetPredictableMethodName(method.Name.Content),
+			ClassName:  "Example",
+			IsStatic:   false,
+		}})
+		if err != nil {
+			return nil, err
+		}
+
+		// convert output to completion item & return it
+		insertionRange := lsp.Range{
+			Start: doc.ToPosition(method.RoundBraces.Range.Start + 1),
+			End:   doc.ToPosition(method.RoundBraces.Range.End),
+		}
+		return ls.createCompletionItem(ls.createTextEdit(ls.joinParameterList(value[0].Parameters), insertionRange)), nil
+	}
+	return nil, nil
+}
+
+func (ls *languageServer) createCompletionItem(textEdits ...lsp.TextEdit) *lsp.CompletionItem {
+	item := lsp.CompletionItem{
+		Label:            "TestAsd",
+		Kind:             lsp.Text,
+		Preselect:        true,
+		InsertTextFormat: lsp.ITF_PlainText,
+		InsertTextMode:   lsp.AsIs,
+		SortText:         "TestAsd",
+		FilterText:       "(TestAsd",
+	}
+	if len(textEdits) >= 1 {
+		item.TextEdit = &textEdits[0]
+		item.AdditionalTextEdits = textEdits[1:]
+	}
+
+	return &item
+}
+
+func (ls *languageServer) createTextEdit(text string, r lsp.Range) lsp.TextEdit {
+	return lsp.TextEdit{
+		NewText: text,
+		Range:   r,
+	}
+}
+
+func (ls *languageServer) joinParameterList(value []predictor.Parameter) string {
+	output := ""
+	for i, par := range value {
+		if i > 0 {
+			output += fmt.Sprintf(", %s %s", par.Type, par.Name)
+		} else {
+			output += fmt.Sprintf("%s %s", par.Type, par.Name)
+		}
+	}
+	return output
 }
 
 // Logs a message to the default log output.

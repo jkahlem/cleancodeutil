@@ -32,8 +32,8 @@ func TestTokenizerWithValidCode(t *testing.T) {
 	tokenized := getTokens(ValidExampleCode)
 
 	// then
-	assert.Equal(t, `package,com,example,/**/,/* "multi
-line*/,public,class,SomeClass,{,// valid line comment(),private,String,name,public,String,getName,(,),{,return,name,},public,void,doSomething,(,),{,if,(,name,"some /* \\" name()",),{,System,out,println,(,"This is valid code.",),},},}`, strings.Join(tokenized, ","))
+	assert.Equal(t, `package,com,example,;,/**/,/* "multi
+line*/,public,class,SomeClass,{,// valid line comment(),private,String,name,;,public,String,getName,(,),{,return,name,;,},public,void,doSomething,(,String,str,int,value,),{,if,(,name,"some /* \\" name()",),{,System,out,println,(,"This is valid code.",),;,},},}`, strings.Join(tokenized, ","))
 }
 
 func TestGetMethodInfo(t *testing.T) {

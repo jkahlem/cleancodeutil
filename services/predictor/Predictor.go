@@ -46,6 +46,9 @@ type predictor struct {
 }
 
 func OnDataset(dataset configuration.Dataset) Predictor {
+	if configuration.PredictorUseMock() {
+		return &mock{}
+	}
 	return &predictor{
 		config: dataset,
 	}

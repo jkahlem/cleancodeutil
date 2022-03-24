@@ -68,3 +68,7 @@ func (p *mock) GenerateMethods(contexts []MethodContext) ([]MethodValues, errors
 	}
 	return methods, nil
 }
+
+func (p *mock) ModelExists(modelType SupportedModels) (bool, errors.Error) {
+	return true, nil
+}

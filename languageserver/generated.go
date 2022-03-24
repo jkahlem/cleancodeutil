@@ -8,11 +8,13 @@ import (
 	"reflect"
 	"sync"
 
+	"returntypes-langserver/common/code/java/parser"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/transfer/rpc"
 	"returntypes-langserver/languageserver/diagnostics"
 	"returntypes-langserver/languageserver/lsp"
 	"returntypes-langserver/languageserver/workspace"
+	"returntypes-langserver/services/predictor"
 )
 
 type ProxyFacade struct {
@@ -224,6 +226,23 @@ func RegisterDidChangeWorkspaceCapability() chan errors.Error {
 // Registers a capability.
 func RegisterCapability(registrations ...lsp.Registration) chan errors.Error {
 	return getSingleton().RegisterCapability(registrations...)
+}
+
+// Creates a completion item
+func CompleteMethodDefinition(method parser.Method, doc *workspace.Document) (*lsp.CompletionItem, errors.Error) {
+	return getSingleton().CompleteMethodDefinition(method, doc)
+}
+
+func createCompletionItem(textEdits ...lsp.TextEdit) *lsp.CompletionItem {
+	return getSingleton().createCompletionItem(textEdits...)
+}
+
+func createTextEdit(text string, r lsp.Range) lsp.TextEdit {
+	return getSingleton().createTextEdit(text, r)
+}
+
+func joinParameterList(value []predictor.Parameter) string {
+	return getSingleton().joinParameterList(value)
 }
 
 func IsReturntypeValidationActive() bool {

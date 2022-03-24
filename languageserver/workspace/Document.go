@@ -119,6 +119,15 @@ func (doc *Document) ToOffset(pos lsp.Position) int {
 		if i < pos.Line {
 			offset += len(line) + 1 // add one character for the line break
 		} else {
+			if pos.Character > len(line) {
+				if len(line) == 0 && i+1 >= len(doc.content) {
+					// If this is the last line (so no linebreak is following) and
+					// the line is empty, then the current position is already at the end.
+					pos.Character = 0
+				} else {
+					pos.Character = len(line)
+				}
+			}
 			offset += pos.Character
 			break
 		}

@@ -37,7 +37,7 @@ func ParseMethods(code string) []Method {
 			afterAnnotation = true
 			continue
 		} else if afterAnnotation && token.Content == "(" {
-			skipBlock(tokenizer, "(", ")")
+			skipBlock(tokenizer, "(", ")", 1)
 			afterAnnotation = false
 			continue
 		}
@@ -68,18 +68,25 @@ func ParseMethods(code string) []Method {
 				}
 			}
 			if !contextChanged {
-				if top, ok := context.Peek(); ok && top == ClassContext {
-					// statement is method definition
-					methods = append(methods, getMethodFromStatement(statement))
-
-					// skip until leaving method (without current skip until implementation ...)
-					skipBlock(tokenizer, "{", "}")
-				}
 			}
 			statement = statement[:0]
 		} else if token.Content == "}" {
 			context.Pop()
 			statement = statement[:0]
+		} else if token.Content == ")" {
+			if top, ok := context.Peek(); ok && top == ClassContext {
+				statement = append(statement, token)
+				// statement is method definition
+				methods = append(methods, getMethodFromStatement(statement))
+				statement = statement[:0]
+
+				// skip until leaving method
+				// If the method has no curly braces (as it might be still written; this is a parser error but we need at least the above information) then
+				// a method/class which follows this method definition will also be skipped.
+				// This is more complicated to fix (as method definitions might also be followed by the throws declarations etc.),
+				// but as (probably) only the written method is needed, it is atm not worth the effort.
+				skipBlock(tokenizer, "{", "}", 0)
+			}
 		} else {
 			statement = append(statement, token)
 		}
@@ -134,16 +141,16 @@ func joinTokens(tokens []Token) string {
 }
 
 // Skips the block beginning with the pattern in and ending on the pattern out, which is nestable (like function blocks in curly braces and so on)
-// The tokenizer is expected to be actually on the first level of the block (one occurence of in is already read)
-func skipBlock(tokenizer *Tokenizer, in, out string) {
-	level := 1
+// The level parameter sets on which nesting level of the block the tokenizer starts. The skipping continues until this level gets 0.
+// If level = 0 is passed, then everything is skipped until the block begins and ends.
+func skipBlock(tokenizer *Tokenizer, in, out string, level int) {
 	for tokenizer.HasNext() {
 		str := tokenizer.Token().Content
 		if str == in {
 			level++
 		} else if str == out {
 			level--
-			if level == 0 {
+			if level <= 0 {
 				return
 			}
 		}

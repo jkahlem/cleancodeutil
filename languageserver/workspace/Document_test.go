@@ -298,6 +298,34 @@ public class Example {
 	assert.Equal(t, expected, doc.Text())
 }
 
+func TestToOffset(t *testing.T) {
+	// given
+	doc := NewDocument(ExampleCode)
+
+	// when
+	offset := doc.ToOffset(lsp.Position{
+		Line:      4,
+		Character: 1, // 	*public String name;
+	})
+
+	// then
+	assert.Equal(t, 47, offset)
+	assert.Equal(t, "p", string(ExampleCode[offset]))
+}
+
+func TestToPosition(t *testing.T) {
+	// given
+	doc := NewDocument(ExampleCode)
+
+	// when
+	position := doc.ToPosition(47) // 	*public String name;
+
+	// then
+	assert.Equal(t, 4, position.Line)
+	assert.Equal(t, 1, position.Character)
+	assert.Equal(t, "p", string(doc.content[position.Line][position.Character]))
+}
+
 // Helpers
 func Insert(text string, position lsp.Position) lsp.TextDocumentContentChangeEvent {
 	return lsp.TextDocumentContentChangeEvent{

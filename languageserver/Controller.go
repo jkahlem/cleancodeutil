@@ -2,7 +2,6 @@ package languageserver
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"returntypes-langserver/common/code/java/parser"
 	"returntypes-langserver/common/configuration"
@@ -12,7 +11,6 @@ import (
 	"returntypes-langserver/common/transfer/rpc/jsonrpc"
 	"returntypes-langserver/languageserver/lsp"
 	"returntypes-langserver/languageserver/workspace"
-	"returntypes-langserver/services/predictor"
 )
 
 const LanguageServerName string = "returntypes"
@@ -212,134 +210,36 @@ func (c *Controller) WorkspaceDidChangeConfiguration(settings interface{}) error
 // Callable RPC method.
 // Will be called by the language client if a completion request is triggered (by typing a special character etc..)
 func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentifier, position lsp.Position, context lsp.CompletionContext) (*lsp.CompletionList, error) {
-	// TODO: Handle completion request...
-	// The below implementation is just an example-wise implementation.
-	// The example case: user types "completionTest" as method name and then types a opening bracket '('
-	// The IDE will autocomplete it as two brackets '()' and will send a request to the language server.
-	// The language server will therefore compute something for auto completion, which happens here.
-	// the normal "textedit" property will give the main-text edit (which needs to be on the same line !!), while the additionalTextEdits are for
-	// edits on other places.
-	//
-	// Short things short, here is still a lot to do. By the way, the '¥n' in the textEdit text is not working as line breaks,
-	// don't know how it is for additionalTextEdits. Maybe multiple-line edits needs multiple additionalTextEdits ...
-
-	// 1. Get file contents
-	// 2. Parse file contents to xml <- does this even work for unfinished files?
-	// 3. Check if cursor position is actually method beginning
-	// 4. Get method name
-	// 5. Generate parameter list + return type (-> call predictor)
-	// 6. Convert predictor output to completion item & return it
-
 	log.Info("Got textDocument.completion request with char '%s' and kind %v", context.TriggerCharacter, context.TriggerKind)
 	list := lsp.CompletionList{
 		IsIncomplete: false,
 		Items:        []lsp.CompletionItem{},
 	}
-	if path, err := lsp.DocumentURIToFilePath(textDocument.URI); err != nil {
-		return nil, err
-	} else if file := GetFile(path); file != nil {
-		doc := file.Document()
-		if method, found := findMethodAtCursorPosition(doc, position); found {
-			// Generate parameter list
-			if set, ok := configuration.FindDatasetByReference(configuration.LanguageServerMethodGenerationDataset()); ok {
-				value, err := predictor.OnDataset(set).GenerateMethods([]predictor.MethodContext{{
-					MethodName: predictor.GetPredictableMethodName(method.Name.Content),
-					ClassName:  "Example",
-					IsStatic:   false,
-				}})
-				if err != nil {
-					return nil, err
-				}
 
-				// convert output to completion item & return it
-				insertionRange := lsp.Range{
-					Start: doc.ToPosition(method.RoundBraces.Range.Start + 1),
-					End:   doc.ToPosition(method.RoundBraces.Range.End),
-				}
-				item := createCompletionItem(createTextEdit(joinParameterList(value[0].Parameters), insertionRange))
-				list.Items = append(list.Items, item)
+	if context.TriggerCharacter == "(" {
+		if path, err := lsp.DocumentURIToFilePath(textDocument.URI); err != nil {
+			return nil, err
+		} else if file := GetFile(path); file != nil {
+			doc := file.Document()
+			if item, err := c.createMethodDefinitionCompletion(doc, position); err != nil {
+				return nil, err
+			} else if item != nil {
+				list.Items = append(list.Items, *item)
 			}
 		}
 	}
+
 	return &list, nil
 }
 
-func joinParameterList(value []predictor.Parameter) string {
-	output := ""
-	for i, par := range value {
-		if i > 0 {
-			output += fmt.Sprintf(", %s %s", par.Type, par.Name)
-		} else {
-			output += fmt.Sprintf("%s %s", par.Type, par.Name)
-		}
+func (c *Controller) createMethodDefinitionCompletion(doc *workspace.Document, position lsp.Position) (*lsp.CompletionItem, errors.Error) {
+	if method, found := c.findMethodAtCursorPosition(doc, position); found {
+		return CompleteMethodDefinition(method, doc)
 	}
-	return output
+	return nil, nil
 }
 
-func createCompletionItem(textEdits ...lsp.TextEdit) lsp.CompletionItem {
-	item := lsp.CompletionItem{
-		Label:            "TestAsd",
-		Kind:             lsp.Text,
-		Preselect:        true,
-		InsertTextFormat: lsp.ITF_PlainText,
-		InsertTextMode:   lsp.AsIs,
-		SortText:         "TestAsd",
-		FilterText:       "(TestAsd",
-	}
-	if len(textEdits) >= 1 {
-		item.TextEdit = &textEdits[0]
-		item.AdditionalTextEdits = textEdits[1:]
-	}
-
-	return item
-}
-
-func createTextEdit(text string, r lsp.Range) lsp.TextEdit {
-	return lsp.TextEdit{
-		NewText: text,
-		Range:   r,
-	}
-}
-
-func createCompletionItemOld(position lsp.Position) lsp.CompletionItem {
-	testStr := "completionTest" // completionTest(*)
-	// Cursor position ---------------------------^
-	return lsp.CompletionItem{
-		Label:            "TestAsd",
-		Kind:             lsp.Text,
-		Preselect:        true,
-		InsertTextFormat: lsp.ITF_PlainText,
-		InsertTextMode:   lsp.AsIs,
-		SortText:         "TestAsd",
-		FilterText:       "(TestAsd",
-		TextEdit: &lsp.TextEdit{
-			NewText: "(int someNumber) {¥n¥treturn 0;¥n}",
-			Range: lsp.Range{Start: lsp.Position{
-				Line:      position.Line,
-				Character: position.Character - 1,
-			}, End: lsp.Position{
-				Line:      position.Line,
-				Character: position.Character + 1,
-			}},
-		},
-		AdditionalTextEdits: []lsp.TextEdit{
-			{
-				NewText: "public void ",
-				Range: lsp.Range{
-					Start: lsp.Position{
-						Line:      position.Line,
-						Character: position.Character - 1 - len(testStr),
-					}, End: lsp.Position{
-						Line:      position.Line,
-						Character: position.Character - 1 - len(testStr),
-					},
-				},
-			},
-		},
-	}
-}
-
-func findMethodAtCursorPosition(doc *workspace.Document, cursorPosition lsp.Position) (parser.Method, bool) {
+func (c *Controller) findMethodAtCursorPosition(doc *workspace.Document, cursorPosition lsp.Position) (parser.Method, bool) {
 	methods := parser.ParseMethods(doc.Text())
 	cursorOffset := doc.ToOffset(cursorPosition)
 	for _, m := range methods {
