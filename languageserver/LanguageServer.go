@@ -331,7 +331,7 @@ func (ls *languageServer) CompleteMethodDefinition(method parser.Method, doc *wo
 		// convert output to completion item & return it
 		insertionRange := lsp.Range{
 			Start: doc.ToPosition(method.RoundBraces.Range.Start + 1),
-			End:   doc.ToPosition(method.RoundBraces.Range.End),
+			End:   doc.ToPosition(method.RoundBraces.Range.End - 1),
 		}
 		return ls.createCompletionItem(ls.createTextEdit(ls.joinParameterList(value[0].Parameters), insertionRange)), nil
 	}

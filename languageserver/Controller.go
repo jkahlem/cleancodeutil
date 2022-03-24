@@ -118,9 +118,10 @@ func (c *Controller) TextDocumentDidOpen(textDocument lsp.TextDocumentItem) {
 // Callable RPC method.
 // Will be called by the language client if the user make changes in a (java) file.
 func (c *Controller) TextDocumentDidChange(textDocument lsp.VersionedTextDocumentIdentifier, contentChanges []lsp.TextDocumentContentChangeEvent) {
-	path, _ := lsp.DocumentURIToFilePath(textDocument.URI)
-	UpdateDiagnostics(path, contentChanges)
-	UpdateDocuments(path, contentChanges)
+	if path, err := lsp.DocumentURIToFilePath(textDocument.URI); err == nil {
+		UpdateDiagnostics(path, contentChanges)
+		UpdateDocuments(path, contentChanges)
+	}
 }
 
 // Callable RPC method.
@@ -210,13 +211,12 @@ func (c *Controller) WorkspaceDidChangeConfiguration(settings interface{}) error
 // Callable RPC method.
 // Will be called by the language client if a completion request is triggered (by typing a special character etc..)
 func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentifier, position lsp.Position, context lsp.CompletionContext) (*lsp.CompletionList, error) {
-	log.Info("Got textDocument.completion request with char '%s' and kind %v", context.TriggerCharacter, context.TriggerKind)
 	list := lsp.CompletionList{
 		IsIncomplete: false,
 		Items:        []lsp.CompletionItem{},
 	}
 
-	if context.TriggerCharacter == "(" {
+	if context.TriggerCharacter == "(" && IsMethodGenerationActive() {
 		if path, err := lsp.DocumentURIToFilePath(textDocument.URI); err != nil {
 			return nil, err
 		} else if file := GetFile(path); file != nil {

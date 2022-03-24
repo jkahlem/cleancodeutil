@@ -38,7 +38,7 @@ type TextDocumentIdentifier struct {
 }
 
 type VersionedTextDocumentIdentifier struct {
-	TextDocumentIdentifier `mapstructure:",squash"`
+	TextDocumentIdentifier `json:",squash"`
 	Version                int `json:"version"`
 }
 
