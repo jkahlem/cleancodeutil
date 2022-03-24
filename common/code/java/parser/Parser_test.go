@@ -19,7 +19,7 @@ public class SomeClass { // valid line comment()
 		return name;
 	}
 
-	public void doSomething
+	public static void doSomething
 		(String str, int value) {
 		if (name == "some /* \\" name()") {
 			System.out.println("This is valid code.");
@@ -34,7 +34,7 @@ func TestTokenizerWithValidCode(t *testing.T) {
 
 	// then
 	assert.Equal(t, `package,com,example,;,/**/,/* "multi
-line*/,public,class,SomeClass,{,// valid line comment(),private,String,name,;,public,String,getName,(,),{,return,name,;,},public,void,doSomething,(,String,str,int,value,),{,if,(,name,"some /* \\" name()",),{,System,out,println,(,"This is valid code.",),;,},},}`, strings.Join(tokenized, ","))
+line*/,public,class,SomeClass,{,// valid line comment(),private,String,name,;,public,String,getName,(,),{,return,name,;,},public,static,void,doSomething,(,String,str,int,value,),{,if,(,name,"some /* \\" name()",),{,System,out,println,(,"This is valid code.",),;,},},}`, strings.Join(tokenized, ","))
 }
 
 func TestParseClass(t *testing.T) {
@@ -51,6 +51,7 @@ func TestParseClass(t *testing.T) {
 	assert.Equal(t, "@Override", methods[0].Annotations[0].Content)
 	assert.Equal(t, "doSomething", methods[1].Name.Content)
 	assert.Equal(t, "(String str, int value)", methods[1].RoundBraces.Content)
+	assert.True(t, methods[1].IsStatic)
 }
 
 func TestParseInterface(t *testing.T) {

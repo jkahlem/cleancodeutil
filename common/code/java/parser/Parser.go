@@ -9,6 +9,7 @@ type Method struct {
 	Type        Token
 	RoundBraces Token
 	Annotations []Token
+	IsStatic    bool
 }
 
 type Class struct {
@@ -125,8 +126,12 @@ func getMethodFromStatement(statement []Token, code string) Method {
 			method.RoundBraces.Range.Start = t.Range.Start
 		} else if t.Content == ")" {
 			method.RoundBraces.Range.End = t.Range.End
-		} else if !parseParameterList && t.IsAnnotation() {
-			method.Annotations = append(method.Annotations, t)
+		} else if !parseParameterList {
+			if t.IsAnnotation() {
+				method.Annotations = append(method.Annotations, t)
+			} else if t.Content == "static" {
+				method.IsStatic = true
+			}
 		}
 	}
 	if method.RoundBraces.Range.End < method.RoundBraces.Range.Start {
