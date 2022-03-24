@@ -233,10 +233,19 @@ func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentif
 }
 
 func (c *Controller) createMethodDefinitionCompletion(doc *workspace.Document, position lsp.Position) (*lsp.CompletionItem, errors.Error) {
-	if method, found := c.findMethodAtCursorPosition(doc, position); found {
+	if method, found := c.findMethodAtCursorPosition(doc, position); found && c.canCompleteMethodDefinition(method) {
 		return CompleteMethodDefinition(method, doc)
 	}
 	return nil, nil
+}
+
+func (c *Controller) canCompleteMethodDefinition(method parser.Method) bool {
+	for _, annotation := range method.Annotations {
+		if annotation.Content == "@Override" {
+			return false
+		}
+	}
+	return true
 }
 
 func (c *Controller) findMethodAtCursorPosition(doc *workspace.Document, cursorPosition lsp.Position) (parser.Method, bool) {
