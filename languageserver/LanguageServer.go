@@ -332,7 +332,7 @@ func (ls *languageServer) CompleteMethodDefinition(method Method, doc *workspace
 			Start: doc.ToPosition(method.RoundBraces.Range.Start + 1),
 			End:   doc.ToPosition(method.RoundBraces.Range.End - 1),
 		})
-		if !method.Type.IsValid() {
+		if !method.Type.IsValid() && value[0].ReturnType != "" {
 			// No return type provided: Insert return type before method name
 			returnType := ls.createTextEdit(value[0].ReturnType+" ", lsp.Range{
 				Start: doc.ToPosition(method.Name.Range.Start),
