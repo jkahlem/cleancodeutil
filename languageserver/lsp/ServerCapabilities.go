@@ -80,7 +80,7 @@ type ExecuteCommandOptions struct {
 }
 
 type CompletionOptions struct {
-	WorkDoneProgress    bool     `json:"workDoneProgress"` // TODO: make this extendable ?
+	WorkDoneProgress    bool     `json:"workDoneProgress"`
 	TriggerCharacters   []string `json:"triggerCharacters,omitempty"`
 	AllCommitCharacters []string `json:"allCommitCharacters,omitempty"`
 	ResolveProvider     bool     `json:"resolveProvider"`

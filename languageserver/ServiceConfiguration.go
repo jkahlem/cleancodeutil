@@ -36,4 +36,5 @@ type Proxy struct {
 	LogMessage         func(msgType lsp.MessageType, message string)                     `rpcmethod:"window/logMessage" rpcparams:"type,message"`
 	GetConfiguration   func(items []lsp.ConfigurationItem) ([]interface{}, errors.Error) `rpcmethod:"workspace/configuration" rpcparams:"items"`
 	RegisterCapability func(registrations []lsp.Registration) errors.Error               `rpcmethod:"client/registerCapability" rpcparams:"registrations"`
+	Progress           func(token, value interface{})                                    `rpcmethod:"$/progress" rpcparams:"token,value"`
 }

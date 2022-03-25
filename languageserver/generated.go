@@ -62,6 +62,13 @@ func (p *ProxyFacade) RegisterCapability(registrations []lsp.Registration) error
 	return p.Proxy.RegisterCapability(registrations)
 }
 
+func (p *ProxyFacade) Progress(token interface{}, value interface{}) {
+	if err := p.validate(p.Proxy.Progress); err != nil {
+		return
+	}
+	p.Proxy.Progress(token, value)
+}
+
 func (p *ProxyFacade) validate(fn interface{}) errors.Error {
 	fnVal := reflect.ValueOf(fn)
 	if !fnVal.IsValid() || fnVal.IsZero() {
