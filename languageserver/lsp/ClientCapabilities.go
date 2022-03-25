@@ -9,6 +9,7 @@ type ClientInfo struct {
 type ClientCapabilities struct {
 	TextDocument *TextDocumentClientCapabilities `json:"textDocument,omitempty"`
 	Workspace    *WorkspaceClientCapabilities    `json:"workspace,omitempty"`
+	Window       *WindowClientCapabilities       `json:"window,omitempty"`
 }
 
 type TextDocumentClientCapabilities struct {
@@ -61,4 +62,8 @@ type CompletionItemClientCapabilities struct {
 
 type CompletionItemKindClientCapabilities struct {
 	ValueSet []CompletionItemKind `json:"valueSet,omitempty"`
+}
+
+type WindowClientCapabilities struct {
+	WorkDoneProgress bool `json:"workDoneProgress,omitempty"`
 }

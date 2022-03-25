@@ -69,6 +69,13 @@ func (p *ProxyFacade) Progress(token interface{}, value interface{}) {
 	p.Proxy.Progress(token, value)
 }
 
+func (p *ProxyFacade) CreateProgress(token interface{}) errors.Error {
+	if err := p.validate(p.Proxy.CreateProgress); err != nil {
+		return err
+	}
+	return p.Proxy.CreateProgress(token)
+}
+
 func (p *ProxyFacade) validate(fn interface{}) errors.Error {
 	fnVal := reflect.ValueOf(fn)
 	if !fnVal.IsValid() || fnVal.IsZero() {
@@ -257,6 +264,10 @@ func IsReturntypeValidationActive() bool {
 
 func IsMethodGenerationActive() bool {
 	return getSingleton().IsMethodGenerationActive()
+}
+
+func CreateProgress(token string) errors.Error {
+	return getSingleton().CreateProgress(token)
 }
 
 var interfaceSingleton rpc.Interface

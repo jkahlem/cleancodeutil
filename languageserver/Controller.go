@@ -40,7 +40,7 @@ func (c *Controller) RegisterMethods(register rpc.MethodRegister) {
 	register.RegisterMethod(lsp.MethodTextDocument_DidChange, "textDocument,contentChanges", c.TextDocumentDidChange)
 	register.RegisterMethod(lsp.MethodTextDocument_DidClose, "textDocument", c.TextDocumentDidClose)
 	register.RegisterMethod(lsp.MethodTextDocument_DidSave, "textDocument,text", c.TextDocumentDidSave)
-	register.RegisterMethod(lsp.MethodTextDocument_Completion, "textDocument,position,context", c.TextDocumentCompletion)
+	register.RegisterMethod(lsp.MethodTextDocument_Completion, "textDocument,position,context,workDoneToken", c.TextDocumentCompletion)
 }
 
 // Callable RPC method.
@@ -210,13 +210,16 @@ func (c *Controller) WorkspaceDidChangeConfiguration(settings interface{}) error
 
 // Callable RPC method.
 // Will be called by the language client if a completion request is triggered (by typing a special character etc..)
-func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentifier, position lsp.Position, context lsp.CompletionContext) (*lsp.CompletionList, error) {
+func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentifier, position lsp.Position, context lsp.CompletionContext, workDoneToken interface{}) (*lsp.CompletionList, error) {
 	list := lsp.CompletionList{
 		IsIncomplete: false,
 		Items:        []lsp.CompletionItem{},
 	}
 
 	if context.TriggerCharacter == "(" && IsMethodGenerationActive() {
+		progress := StartProgress("Method autocompletion", "Generate method declaration", workDoneToken)
+		defer progress.Close()
+
 		if path, err := lsp.DocumentURIToFilePath(textDocument.URI); err != nil {
 			return nil, err
 		} else if file := GetFile(path); file != nil {

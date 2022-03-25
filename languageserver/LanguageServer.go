@@ -396,3 +396,11 @@ func (ls *languageServer) IsReturntypeValidationActive() bool {
 func (ls *languageServer) IsMethodGenerationActive() bool {
 	return configuration.LanguageServerMethodGenerationDataset() != ""
 }
+
+// Creates a progress with token
+func (ls *languageServer) CreateProgress(token string) errors.Error {
+	if !ls.configuration.IsProgressCreationSupported() {
+		return errors.New("Error", "Client does not support progress creation")
+	}
+	return remote().CreateProgress(token)
+}

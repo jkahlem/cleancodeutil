@@ -1,11 +1,16 @@
 package languageserver
 
-import "returntypes-langserver/languageserver/lsp"
+import (
+	"returntypes-langserver/languageserver/lsp"
+
+	"github.com/google/uuid"
+)
 
 const (
 	ProgressInitialized = 0
 	ProgressStarted     = 1
 	ProgressEnded       = 2
+	ProgressNotCreated  = 3
 )
 
 type Progress struct {
@@ -17,15 +22,17 @@ type Progress struct {
 	token       interface{}
 }
 
-func StartProgress(title, message string, token interface{}) Progress {
+// Starts progress reporting to the client. Token is the workDoneProgress token for the operation. If token is nil, the server will
+// try to initiate progress reporting (if the client supports this).
+func StartProgress(title, message string, token interface{}) *Progress {
 	p := Progress{
 		state:   ProgressInitialized,
 		message: message,
-		values:  make(chan interface{}),
+		values:  make(chan interface{}, 10),
 		token:   token,
 	}
 	p.Start(title)
-	return p
+	return &p
 }
 
 func (p *Progress) Start(title string) {
@@ -72,7 +79,7 @@ func (p *Progress) SetPercentage(percentage int) {
 	p.Report(p.message, percentage)
 }
 
-func (p *Progress) Finish() {
+func (p *Progress) Close() {
 	if p.state != ProgressStarted {
 		return
 	}
@@ -85,6 +92,15 @@ func (p *Progress) Finish() {
 }
 
 func (p *Progress) routine() {
+	if p.token == nil {
+		// Create a new progress if no token specified
+		token := uuid.New().String()
+		if err := CreateProgress(token); err != nil {
+			p.state = ProgressNotCreated
+			return
+		}
+		p.token = token
+	}
 	for {
 		value, ok := <-p.values
 		if !ok {

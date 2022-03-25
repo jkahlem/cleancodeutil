@@ -45,7 +45,7 @@ func (config *ServerConfiguration) ServerCapabilities() lsp.ServerCapabilities {
 			Commands: []string{CommandRefreshDiagnostics, CommandReconnectToPredictor},
 		},
 		CompletionProvider: &lsp.CompletionOptions{
-			WorkDoneProgress: false,
+			WorkDoneProgress: true,
 			// Trigger completion on open bracket (so when typing the method name has ended)
 			TriggerCharacters:   []string{"("},
 			AllCommitCharacters: nil,
@@ -87,4 +87,8 @@ func (config *ServerConfiguration) ConfigurationClientCapabilities() bool {
 		return false
 	}
 	return workspaceCapabilities.Configuration
+}
+
+func (config *ServerConfiguration) IsProgressCreationSupported() bool {
+	return config.clientCapabilities.Window != nil && config.clientCapabilities.Window.WorkDoneProgress
 }
