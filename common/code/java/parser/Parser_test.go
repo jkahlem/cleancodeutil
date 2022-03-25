@@ -19,7 +19,7 @@ public class SomeClass { // valid line comment()
 		return name;
 	}
 
-	public static void doSomething
+	public static <T> T doSomething
 		(String str, int value) {
 		if (name == "some /* \\" name()") {
 			System.out.println("This is valid code.");
@@ -34,7 +34,7 @@ func TestTokenizerWithValidCode(t *testing.T) {
 
 	// then
 	assert.Equal(t, `package,com,example,;,/**/,/* "multi
-line*/,public,class,SomeClass,{,// valid line comment(),private,String,name,;,public,String,getName,(,),{,return,name,;,},public,static,void,doSomething,(,String,str,int,value,),{,if,(,name,"some /* \\" name()",),{,System,out,println,(,"This is valid code.",),;,},},}`, strings.Join(tokenized, ","))
+line*/,public,class,SomeClass,{,// valid line comment(),private,String,name,;,@Override,public,String,getName,(,),{,return,name,;,},public,static,<,T,>,T,doSomething,(,String,str,int,value,),{,if,(,name,"some /* \\" name()",),{,System,out,println,(,"This is valid code.",),;,},},}`, strings.Join(tokenized, ","))
 }
 
 func TestParseClass(t *testing.T) {
@@ -49,8 +49,10 @@ func TestParseClass(t *testing.T) {
 	assert.Equal(t, "getName", methods[0].Name.Content)
 	assert.Equal(t, "()", methods[0].RoundBraces.Content)
 	assert.Equal(t, "@Override", methods[0].Annotations[0].Content)
+	assert.Equal(t, "String", methods[0].Type.Content)
 	assert.Equal(t, "doSomething", methods[1].Name.Content)
 	assert.Equal(t, "(String str, int value)", methods[1].RoundBraces.Content)
+	assert.Equal(t, "T", methods[1].Type.Content)
 	assert.True(t, methods[1].IsStatic)
 }
 
@@ -58,7 +60,7 @@ func TestParseInterface(t *testing.T) {
 	// when
 	class := Parse(`
 public interface ExampleInterface {
-	public void doSomething(String str);
+	void doSomething(String str);
 }`)
 	methods := class.Methods
 
@@ -68,6 +70,7 @@ public interface ExampleInterface {
 	assert.Equal(t, InterfaceContext, class.ClassType)
 	assert.Equal(t, "doSomething", methods[0].Name.Content)
 	assert.Equal(t, "(String str)", methods[0].RoundBraces.Content)
+	assert.Equal(t, "void", methods[0].Type.Content)
 }
 
 func getTokens(code string) []string {

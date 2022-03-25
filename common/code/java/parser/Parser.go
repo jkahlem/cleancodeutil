@@ -49,6 +49,12 @@ func Parse(code string) *Class {
 		}
 		afterAnnotation = false
 
+		if token.Content == "<" {
+			// Skip type parameters
+			// When changing this behaviour to not skipping type parameters, the type parsing
+			// in getMethodFromStatement should be changed.
+			skipBlock(tokenizer, "<", ">", 1)
+		}
 		if token.Content == ";" {
 			if top, ok := context.Peek(); ok && top.ClassType == InterfaceContext {
 				// statement is method definition
@@ -124,6 +130,11 @@ func getMethodFromStatement(statement []Token, code string) Method {
 			}
 			method.Name = statement[i-1]
 			method.RoundBraces.Range.Start = t.Range.Start
+			// if two tokens before the round brace token a token exists which is no method modifier, then it should be the result (return type) of the method.
+			// (as the current implementation skips type parameter definitions)
+			if i-2 >= 0 && !statement[i-2].IsMethodModifier() {
+				method.Type = statement[i-2]
+			}
 		} else if t.Content == ")" {
 			method.RoundBraces.Range.End = t.Range.End
 		} else if !parseParameterList {

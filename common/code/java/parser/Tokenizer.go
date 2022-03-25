@@ -2,6 +2,7 @@ package parser
 
 import (
 	"regexp"
+	"returntypes-langserver/common/utils"
 	"strings"
 )
 
@@ -38,12 +39,23 @@ func (t Token) IsAnnotation() bool {
 	return strings.HasPrefix(t.Content, "@")
 }
 
+func (t Token) IsMethodModifier() bool {
+	if t.IsAnnotation() {
+		return true
+	}
+	return utils.StringIsAnyOf(t.Content, "public", "protected", "private", "abstract", "static", "final", "synchronized", "native", "strictfp")
+}
+
+func (t Token) IsValid() bool {
+	return t.Content != "" && t.Range.Start < t.Range.End
+}
+
 type Range struct {
 	Start int
 	End   int
 }
 
-var TokenPattern = regexp.MustCompile(`"(\\"|.)*?"|'(\\'|.)*?'|//.*|/\\*(.|\n)*?\\*/|@?[a-zA-Z][a-zA-Z0-9]*|[{}();]`)
+var TokenPattern = regexp.MustCompile(`"(\\"|.)*?"|'(\\'|.)*?'|//.*|/\\*(.|\n)*?\\*/|@?[a-zA-Z][a-zA-Z0-9]*|[{}();<>]`)
 
 type Tokenizer struct {
 	input  []byte

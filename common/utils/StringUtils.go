@@ -63,6 +63,16 @@ func TestString(s, expr string) bool {
 	return r.MatchString(s)
 }
 
+// Returns true if the target string is contained in values which makes (static) equality checks easier.
+func StringIsAnyOf(target string, values ...string) bool {
+	for _, value := range values {
+		if target == value {
+			return true
+		}
+	}
+	return false
+}
+
 type SuffixMatcher string
 type PrefixMatcher string
 type ContainingMatcher string

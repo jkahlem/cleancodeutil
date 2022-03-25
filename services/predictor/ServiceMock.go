@@ -65,6 +65,7 @@ func (p *mock) GenerateMethods(contexts []MethodContext) ([]MethodValues, errors
 	methods := make([]MethodValues, len(contexts))
 	for i := range methods {
 		methods[i].Parameters = append(methods[i].Parameters, MockParameter)
+		methods[i].ReturnType = "void"
 	}
 	return methods, nil
 }
