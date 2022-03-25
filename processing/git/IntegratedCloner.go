@@ -3,7 +3,6 @@ package git
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -30,7 +29,7 @@ type IntegratedCloner struct {
 
 func (c *IntegratedCloner) Clone(uri, outputDir string) errors.Error {
 	if !c.isSupportedUrl(uri) {
-		return errors.New(CloneErrorTitle, fmt.Sprintf("The git repository under %s is currently not supported by the integrated cloner.", uri))
+		return errors.New(CloneErrorTitle, "The git repository under %s is currently not supported by the integrated cloner.", uri)
 	}
 
 	if err := c.clone(outputDir, c.buildCloneOptions(uri)); err != nil {

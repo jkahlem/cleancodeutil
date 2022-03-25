@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"reflect"
 
 	"returntypes-langserver/common/debug/errors"
@@ -68,7 +67,7 @@ func CastValueToTypeIfPossible(value reflect.Value, expectedType reflect.Type) (
 		if MayBeNilKind(expectedType.Kind()) {
 			return reflect.Zero(expectedType), nil
 		} else {
-			return reflect.ValueOf(nil), errors.New("Type Error", fmt.Sprintf("Unexpected type: Expected %s but go invalid value.", expectedType))
+			return reflect.ValueOf(nil), errors.New("Type Error", "Unexpected type: Expected %s but go invalid value.", expectedType)
 		}
 	}
 
@@ -89,7 +88,7 @@ func CastValueToTypeIfPossible(value reflect.Value, expectedType reflect.Type) (
 			return casted.Addr(), err
 		}
 	} else {
-		return reflect.ValueOf(nil), errors.New("Type Error", fmt.Sprintf("Unexpected type: Expected %s but got %s.", expectedType, v.Type()))
+		return reflect.ValueOf(nil), errors.New("Type Error", "Unexpected type: Expected %s but got %s.", expectedType, v.Type())
 	}
 }
 
@@ -104,7 +103,7 @@ func CopyToSliceType(sourceSlice reflect.Value, targetType reflect.Type) (reflec
 	targetElemType := targetType.Elem()
 	for i := 0; i < sourceSlice.Len(); i++ {
 		if value, err := CastValueToTypeIfPossible(sourceSlice.Index(i), targetElemType); err != nil {
-			return value, errors.Wrap(err, "Error", fmt.Sprintf("Incompatible types at index %d", i))
+			return value, errors.Wrap(err, "Error", "Incompatible types at index %d", i)
 		} else {
 			destination.Index(i).Set(value)
 		}
@@ -120,7 +119,7 @@ func MapToStruct(source reflect.Value, targetType reflect.Type) (reflect.Value, 
 	}
 	destination := reflect.New(targetType)
 	if err := DecodeMapToStruct(source.Interface(), destination.Interface()); err != nil {
-		return reflect.Zero(targetType), errors.Wrap(err, "Error", fmt.Sprintf("Could not map json object to desired structure"))
+		return reflect.Zero(targetType), errors.Wrap(err, "Error", "Could not map json object to desired structure")
 	}
 	return destination.Elem(), nil
 }

@@ -97,7 +97,7 @@ func (c *ExcelSet) fromInterface(itf interface{}) error {
 func validateFilter(filter FilterConfiguration, datasetName string) errors.Error {
 	for _, pattern := range filter.Method {
 		if pattern.Type != RegExp && pattern.Pattern != strings.ToLower(pattern.Pattern) {
-			return errors.New("Excel Error", fmt.Sprintf("Invalid method name pattern in dataset %s: Uppercase characters are not allowed.", datasetName))
+			return errors.New("Excel Error", "Invalid method name pattern in dataset %s: Uppercase characters are not allowed.", datasetName)
 		}
 	}
 	return nil

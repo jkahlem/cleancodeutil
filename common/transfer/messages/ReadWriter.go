@@ -3,7 +3,6 @@
 package messages
 
 import (
-	"fmt"
 	"io"
 	"sync"
 
@@ -48,7 +47,7 @@ func (r *ReadWriter) readMessage() (MessageWrapper, errors.Error) {
 	if err != nil {
 		return MessageWrapper{}, err
 	} else if !r.isMessageAccepted(header) {
-		return MessageWrapper{}, errors.New("Error", fmt.Sprintf("The mime type %s is not accepted", header.ContentType))
+		return MessageWrapper{}, errors.New("Error", "The mime type %s is not accepted", header.ContentType)
 	}
 	body, err := r.readBody(header)
 	if err != nil {

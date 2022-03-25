@@ -140,7 +140,7 @@ func (c MetricConfiguration) AsBleu() (BleuConfiguration, errors.Error) {
 
 func (c MetricConfiguration) as(expectedType string, destination interface{}) errors.Error {
 	if val, ok := c["type"]; !ok || val != expectedType {
-		return errors.New("Type Error", fmt.Sprintf("Cannot interpret metric type '%s' as %s", val, expectedType))
+		return errors.New("Type Error", "Cannot interpret metric type '%s' as %s", val, expectedType)
 	}
 	return utils.DecodeMapToStructStrict(c, &destination)
 }
@@ -209,7 +209,7 @@ func (c Measure) AsFScore() (FScoreConfiguration, errors.Error) {
 
 func (c Measure) as(expectedType string, destination interface{}) errors.Error {
 	if val, ok := c["type"]; !ok || val != expectedType {
-		return errors.New("Type Error", fmt.Sprintf("Cannot interpret metric type '%s' as %s", val, expectedType))
+		return errors.New("Type Error", "Cannot interpret metric type '%s' as %s", val, expectedType)
 	}
 	return utils.DecodeMapToStructStrict(c, &destination)
 }

@@ -1,7 +1,6 @@
 package excel
 
 import (
-	"fmt"
 	"reflect"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/utils"
@@ -202,7 +201,7 @@ func (w *columnInserter) BuildLayout(layout Layout) errors.Error {
 	if w.writer == nil {
 		return nil
 	} else if pos < 0 {
-		return errors.New("Excel Error", fmt.Sprintf("Column insertion position: Expected value greater than or equal to 0 but got %d", w.positionToInsert))
+		return errors.New("Excel Error", "Column insertion position: Expected value greater than or equal to 0 but got %d", w.positionToInsert)
 	} else if pos > len(layout.Columns) {
 		for i := len(layout.Columns); i < pos; i++ {
 			layout.Columns = append(layout.Columns, Column{Header: ""})

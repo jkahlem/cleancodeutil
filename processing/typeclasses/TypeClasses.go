@@ -1,7 +1,6 @@
 package typeclasses
 
 import (
-	"fmt"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/utils"
@@ -46,13 +45,13 @@ func buildTypeClassConfiguration(typeClasses []configuration.TypeClass) (TypeCla
 				config.DefaultType = &config.Classes[i]
 			}
 			if loadedTypes.Has(typeName) {
-				return config, errors.New(TypeClassMapperErrorTitle, fmt.Sprintf("The type %s is contained in different type classes. (Types must be unique in the type classes)", typeName))
+				return config, errors.New(TypeClassMapperErrorTitle, "The type %s is contained in different type classes. (Types must be unique in the type classes)", typeName)
 			}
 			loadedTypes.Put(typeName)
 		}
 	}
 	if config.DefaultType == nil {
-		return config, errors.New(TypeClassMapperErrorTitle, fmt.Sprintf("At least one type class needs to include the default type %s.", DefaultType))
+		return config, errors.New(TypeClassMapperErrorTitle, "At least one type class needs to include the default type %s.", DefaultType)
 	}
 	return config, nil
 }

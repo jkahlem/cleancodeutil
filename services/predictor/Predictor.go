@@ -4,7 +4,6 @@
 package predictor
 
 import (
-	"fmt"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
@@ -89,7 +88,7 @@ func (p *predictor) PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error 
 	}
 
 	if len(names) != len(predictedTypes) {
-		return errors.New(PredictorErrorTitle, fmt.Sprintf("Expected %d predictions, but got %d.", len(names), len(predictedTypes)))
+		return errors.New(PredictorErrorTitle, "Expected %d predictions, but got %d.", len(names), len(predictedTypes))
 	}
 
 	for index, name := range names {

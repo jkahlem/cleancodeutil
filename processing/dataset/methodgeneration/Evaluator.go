@@ -73,7 +73,7 @@ func (e *Evaluator) generateMethodDefinitions(methods []predictor.Method) ([]Met
 
 	predicted, err := predictor.OnDataset(e.Dataset).GenerateMethods(contexts)
 	if len(predicted) != len(methods) {
-		return nil, errors.New("Predictor error", fmt.Sprintf("Expected %d methods to be generated but got %d.", len(methods), len(predicted)))
+		return nil, errors.New("Predictor error", "Expected %d methods to be generated but got %d.", len(methods), len(predicted))
 	}
 
 	outputMethods := make([]Method, len(predicted))

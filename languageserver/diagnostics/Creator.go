@@ -1,7 +1,6 @@
 package diagnostics
 
 import (
-	"fmt"
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/configuration"
@@ -89,7 +88,7 @@ func (d *Creator) getTypeClassMapper() (typeclasses.Mapper, errors.Error) {
 	if d.typeClassMapper == nil {
 		set, ok := configuration.FindDatasetByReference(configuration.LanguageServerReturntypesDataset())
 		if !ok {
-			return nil, errors.New(DiagnosticsErrorTitle, fmt.Sprintf("Returntypes validation dataset not found: %s", configuration.LanguageServerReturntypesDataset()))
+			return nil, errors.New(DiagnosticsErrorTitle, "Returntypes validation dataset not found: %s", configuration.LanguageServerReturntypesDataset())
 		}
 		return typeclasses.New(d.tree, set.SpecialOptions.TypeClasses)
 	} else {

@@ -139,22 +139,22 @@ func (e ErrorIdentifier) Error() string {
 	return e.title + ": " + e.message
 }
 
-func ErrorId(title, message string) ErrorIdentifier {
+func ErrorId(title, message string, args ...interface{}) ErrorIdentifier {
 	return ErrorIdentifier{
 		title:   title,
-		message: message,
+		message: fmt.Sprintf(message, args...),
 	}
 }
 
 // Wraps the given error in the new error type. Does nothing if err is nil.
-func Wrap(err error, title, message string) Error {
+func Wrap(err error, title, message string, args ...interface{}) Error {
 	if err == nil {
 		return nil
 	}
 	return &customError{
 		wrappedErr: wrapInGoErrorIfUnknownError(err),
 		title:      title,
-		message:    message,
+		message:    fmt.Sprintf(message, args...),
 	}
 }
 
@@ -162,12 +162,12 @@ func WrapWithId(err error, id ErrorIdentifier) Error {
 	return Wrap(err, id.title, id.message)
 }
 
-// Creates a new error.
-func New(title, message string) Error {
+// Creates a new error. The args parameters are formatting arguments for the passed message.
+func New(title, message string, args ...interface{}) Error {
 	return &customError{
 		wrappedErr: wrapInGoErrorIfUnknownError(&dummyErrorForCreationByNew{}),
 		title:      title,
-		message:    message,
+		message:    fmt.Sprintf(message, args...),
 	}
 }
 

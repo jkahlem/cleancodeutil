@@ -1,7 +1,6 @@
 package methodgeneration
 
 import (
-	"fmt"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
@@ -40,7 +39,7 @@ func mapToParameters(parameters []string) ([]predictor.Parameter, errors.Error) 
 	for i := range parameters {
 		typeAndNamePair := strings.Split(parameters[i], " ")
 		if len(typeAndNamePair) != 2 {
-			return nil, errors.New("Format error", fmt.Sprintf("Unexpected format for parameters in dataset output: %s", parameters[i]))
+			return nil, errors.New("Format error", "Unexpected format for parameters in dataset output: %s", parameters[i])
 		}
 		output[i].Type = typeAndNamePair[0]
 		output[i].Name = typeAndNamePair[1]

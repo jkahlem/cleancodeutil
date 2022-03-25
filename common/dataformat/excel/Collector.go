@@ -1,7 +1,6 @@
 package excel
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"returntypes-langserver/common/debug/errors"
@@ -133,10 +132,10 @@ func (w *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors
 			cell := getCellIdentifier(colIndex, rowIndex)
 			if w.layout.Columns[colIndex].Markdown {
 				if err := w.excelFile.SetCellRichText(DefaultSheetName, cell, w.parseMarkdown(value)); err != nil {
-					return errors.Wrap(err, "Excel Error", fmt.Sprintf("Could not add row to excel file for %s (value: %v)", cell, value))
+					return errors.Wrap(err, "Excel Error", "Could not add row to excel file for %s (value: %v)", cell, value)
 				}
 			} else if err := w.excelFile.SetCellValue(DefaultSheetName, cell, value); err != nil {
-				return errors.Wrap(err, "Excel Error", fmt.Sprintf("Could not add row to excel file for %s (value: %v)", cell, value))
+				return errors.Wrap(err, "Excel Error", "Could not add row to excel file for %s (value: %v)", cell, value)
 			}
 		}*/
 		cellStyle := styleId
@@ -153,7 +152,7 @@ func (w *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors
 		})
 	}
 	if err := w.streamWriter.SetRow(getCellIdentifier(0, rowIndex), cells); err != nil {
-		return errors.Wrap(err, "Excel Error", fmt.Sprintf("Could not write row %d", rowIndex))
+		return errors.Wrap(err, "Excel Error", "Could not write row %d", rowIndex)
 	}
 	return nil
 	//return w.applyRowStyle(rowIndex, len(values), styleId)

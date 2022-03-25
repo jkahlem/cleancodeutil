@@ -1,7 +1,6 @@
 package rpc
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 
@@ -65,7 +64,7 @@ func makeProxy(proxy reflect.Value, _interface *_interface) errors.Error {
 			Params: splitParams(field.Tag.Get(ProxyMethodParamsTag)),
 		}
 		if len(methodDef.Name) == 0 {
-			return errors.New("RPC Error", fmt.Sprintf("Field '%s' of proxy has no method name.", field.Name))
+			return errors.New("RPC Error", "Field '%s' of proxy has no method name.", field.Name)
 		}
 		if err := checkProxyMethod(methodDef); err != nil {
 			return err
@@ -124,10 +123,9 @@ func checkProxy(proxy reflect.Value) errors.Error {
 // Checks if fn is a valid function definition for the proxy / rpc
 func checkProxyMethod(methodDef MethodDefinition) errors.Error {
 	if methodDef.Type.Kind() != reflect.Func {
-		return errors.New("RPC Error", fmt.Sprintf("Expected function type but got %s.", methodDef.Type.Name()))
+		return errors.New("RPC Error", "Expected function type but got %s.", methodDef.Type.Name())
 	} else if methodDef.Type.NumIn() != len(methodDef.Params) {
-		errmsg := fmt.Sprintf("Function expects %d parameters, but %d are defined", methodDef.Type.NumIn(), len(methodDef.Params))
-		return errors.New("RPC Error", errmsg)
+		return errors.New("RPC Error", "Function expects %d parameters, but %d are defined", methodDef.Type.NumIn(), len(methodDef.Params))
 	} else if methodDef.Type.NumOut() > 0 && !utils.IsErrorType(lastOut(methodDef.Type)) {
 		return errors.New("RPC Error", "A proxy method for requests should always return an error type")
 	} else if methodDef.Type.NumOut() > 2 {
@@ -198,7 +196,7 @@ func mapResultsToSlice(results interface{}, err errors.Error, methodDef MethodDe
 	} else {
 		if resultsValue.IsValid() {
 			if v, err2 := utils.CastValueToTypeIfPossible(resultsValue, expectedReturnType); err2 != nil {
-				err = errors.Wrap(err2, "RPC Error", fmt.Sprintf("Error at return parameter for method %s", methodDef.Name))
+				err = errors.Wrap(err2, "RPC Error", "Error at return parameter for method %s", methodDef.Name)
 			} else {
 				returnValue = v
 			}

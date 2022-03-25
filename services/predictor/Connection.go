@@ -69,7 +69,7 @@ func (p *PredictorConnection) Write(b []byte) (int, error) {
 		}
 		return n, nil
 	} else {
-		return 0, errors.Wrap(io.ErrClosedPipe, PredictorErrorTitle, fmt.Sprintf("No connection p = %p", p))
+		return 0, errors.Wrap(io.ErrClosedPipe, PredictorErrorTitle, "No connection p = %p", p)
 	}
 }
 
