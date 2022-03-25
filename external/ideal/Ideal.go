@@ -9,6 +9,8 @@ import (
 	"returntypes-langserver/common/utils"
 )
 
+var InputWritingError = errors.ErrorId("IDEAL", "Could not write input")
+
 func AnalyzeFiles(filepath []string) ([]csv.IdealResult, errors.Error) {
 	if err := writeFilePaths(filepath); err != nil {
 		return nil, err
@@ -18,10 +20,18 @@ func AnalyzeFiles(filepath []string) ([]csv.IdealResult, errors.Error) {
 	return loadResultOutput()
 }
 
-func AnalyzeSourceCode(sourceCode string) {
-	// TODO: Write source code to some temporary file
-	//       and then call AnalyzeFiles([]string{temporaryPath})
-	//       Remove temporary file afterwards
+func AnalyzeSourceCode(sourceCode string) ([]csv.IdealResult, errors.Error) {
+	file, err := os.CreateTemp("", "ideal-input")
+	defer os.Remove(file.Name())
+	defer file.Close()
+	if err != nil {
+		return nil, errors.WrapWithId(err, InputWritingError)
+	}
+	if _, err := file.Write([]byte(sourceCode)); err != nil {
+		return nil, errors.WrapWithId(err, InputWritingError)
+	}
+	file.Close()
+	return AnalyzeFiles([]string{file.Name()})
 }
 
 func writeFilePaths(path []string) errors.Error {
@@ -30,7 +40,7 @@ func writeFilePaths(path []string) errors.Error {
 		output += "\n" + p
 	}
 	if err := os.WriteFile(filepath.Join(configuration.IdealBinaryDir(), "input.csv"), []byte(output), os.ModePerm); err != nil {
-		return errors.Wrap(err, "IDEAL Error", "Could not write input")
+		return errors.WrapWithId(err, InputWritingError)
 	}
 	return nil
 }
@@ -48,7 +58,7 @@ func runIdeal() errors.Error {
 func loadResultOutput() ([]csv.IdealResult, errors.Error) {
 	records, err := csv.ReadRecords(filepath.Join(configuration.IdealBinaryDir(), "IDEAL_Results.csv"))
 	if err != nil {
-		return nil, errors.Wrap(err, "IDEAL Error", "Could not open output file")
+		return nil, errors.Wrap(err, "IDEAL", "Could not open output file")
 	}
 	return csv.UnmarshalIdealResult(records), nil
 }

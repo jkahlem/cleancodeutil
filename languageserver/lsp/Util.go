@@ -37,7 +37,6 @@ func ToJavaRange(lspRange Range) java.Range {
 
 // Returns the filepath as a DocumentURI in the file scheme.
 func FilePathToDocumentURI(path string) DocumentURI {
-	//return DocumentURI(fmt.Sprintf("file:///%s", strings.Replace(filepath.ToSlash(path), ":", "%3A", 1)))
 	return DocumentURI(utils.FilePathToURI(strings.Replace(path, ":", "%3A", 1)))
 }
 

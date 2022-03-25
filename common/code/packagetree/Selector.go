@@ -1,7 +1,6 @@
 package packagetree
 
 import (
-	"fmt"
 	"regexp"
 	"strings"
 
@@ -184,8 +183,7 @@ func (selector *Selector) Get() Node {
 				current.AddChild(child, selector.options)
 				current = child
 			} else {
-				errorMsg := fmt.Sprintf("Selector Error: Node %s not found in path %s", selection.name, selector.Path())
-				selector.err = errors.New(PackageTreeErrorTitle, errorMsg)
+				selector.err = errors.New(PackageTreeErrorTitle, "Selector Error: Node %s not found in path %s", selection.name, selector.Path())
 				return nil
 			}
 
