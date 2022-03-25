@@ -8,6 +8,8 @@ GOTEST=$(GO) test
 DATASETCREATOR_BINARY=./bin/datasetcreator.exe
 LANGUAGESERVER_BINARY=./bin/languageserver.exe
 
+.PHONY: languageserver
+
 all: build
 
 build: datasetcreator languageserver

@@ -73,6 +73,22 @@ public interface ExampleInterface {
 	assert.Equal(t, "void", methods[0].Type.Content)
 }
 
+func TestParseMethodWithoutReturnType(t *testing.T) {
+	// when
+	class := Parse(`
+public class Example {
+	public doSomething(String str) {}
+}`)
+	methods := class.Methods
+
+	// then
+	if assert.Len(t, methods, 1) {
+		assert.Equal(t, "doSomething", methods[0].Name.Content)
+		assert.Equal(t, "(String str)", methods[0].RoundBraces.Content)
+		assert.False(t, methods[0].Type.IsValid())
+	}
+}
+
 func getTokens(code string) []string {
 	tokenizer := NewTokenizer(code)
 	tokens := make([]string, 0, 64)

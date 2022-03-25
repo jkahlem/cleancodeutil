@@ -328,11 +328,20 @@ func (ls *languageServer) CompleteMethodDefinition(method Method, doc *workspace
 		}
 
 		// convert output to completion item & return it
-		insertionRange := lsp.Range{
+		parameterList := ls.createTextEdit(ls.joinParameterList(value[0].Parameters), lsp.Range{
 			Start: doc.ToPosition(method.RoundBraces.Range.Start + 1),
 			End:   doc.ToPosition(method.RoundBraces.Range.End - 1),
+		})
+		if !method.Type.IsValid() {
+			// No return type provided: Insert return type before method name
+			returnType := ls.createTextEdit(value[0].ReturnType+" ", lsp.Range{
+				Start: doc.ToPosition(method.Name.Range.Start),
+				End:   doc.ToPosition(method.Name.Range.Start),
+			})
+			return ls.createCompletionItem(parameterList, returnType), nil
 		}
-		return ls.createCompletionItem(ls.createTextEdit(ls.joinParameterList(value[0].Parameters), insertionRange)), nil
+
+		return ls.createCompletionItem(parameterList), nil
 	}
 	return nil, nil
 }
