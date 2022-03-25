@@ -13,25 +13,25 @@ import (
 func CreateOutput() errors.Error {
 	log.Info("Write output to excel file ...\n")
 
-	records, err := csv.ReadRecords(configuration.MethodsWithReturnTypesOutputPath())
+	methods, err := csv.NewFileReader(configuration.MethodsWithReturnTypesOutputPath()).ReadMethodRecords()
 	if err != nil {
 		return err
 	}
 
 	log.Info("Write records...\n")
-	createOutputOnRecords(records, configuration.MethodsWithReturnTypesExcelOutputDir(), configuration.ExcelSets())
+	createOutputOnMethods(methods, configuration.MethodsWithReturnTypesExcelOutputDir(), configuration.ExcelSets())
 
 	return nil
 }
 
-func createOutputOnRecords(records [][]string, path string, sets []configuration.ExcelSet) {
+func createOutputOnMethods(methods []csv.Method, path string, sets []configuration.ExcelSet) {
 	processors := make([]DatasetProcessor, 0, len(sets))
 	for _, dataset := range sets {
 		processors = append(processors, NewDatasetProcessor(dataset, configuration.MethodsWithReturnTypesExcelOutputDir()))
 	}
-	for recordIndex, method := range csv.UnmarshalMethod(records) {
+	for recordIndex, method := range methods {
 		if (recordIndex+1)%100 == 0 {
-			log.Info("Write record %d of %d\n", recordIndex+1, len(records))
+			log.Info("Write record %d of %d\n", recordIndex+1, len(methods))
 		}
 		method = unqualifyTypeNames(method)
 		for i := range processors {
@@ -44,11 +44,6 @@ func createOutputOnRecords(records [][]string, path string, sets []configuration
 	for i := range processors {
 		processors[i].close()
 	}
-}
-
-func unqualifyTypeNamesInRecord(methodRecord []string) []string {
-	method := csv.UnmarshalMethod([][]string{methodRecord})[0]
-	return unqualifyTypeNames(method).ToRecord()
 }
 
 func unqualifyTypeNames(method csv.Method) csv.Method {

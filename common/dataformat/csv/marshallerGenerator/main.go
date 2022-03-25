@@ -79,30 +79,28 @@ func typeError(typeName string) (string, error) {
 }
 
 const UnmarshalTemplate = `
-func Unmarshal{{.TypeName}}(records [][]string) []{{.TypeName}} {
-	result := make([]{{.TypeName}}, len(records))
-	for i, record := range records {
-	{{- range $i, $e := .Fields}}
-		{{- if eq .TypeName "[]string"}}
-		result[i].{{.Name}} = SplitList(record[{{$i}}])
-		{{- else if isIntegerType .TypeName}}
-		if val, err := strconv.Atoi(record[{{$i}}]); err != nil {
-			log.Error(errors.Wrap(err, "Csv Error", "Could not convert int value"))
-			log.ReportProblem("An error occured while unmarshalling data")
-		} else {
-			{{- if eq .TypeName "int"}}
-			result[i].{{.Name}} = val
-			{{- else}}
-			result[i].{{.Name}} = {{.TypeName}}(val)
-			{{- end}}
-		}
-		{{- else if eq .TypeName "string"}}
-		result[i].{{.Name}} = record[{{$i}}]
+func Unmarshal{{.TypeName}}(record []string) {{.TypeName}} {
+	result := {{.TypeName}}{}
+{{- range $i, $e := .Fields}}
+	{{- if eq .TypeName "[]string"}}
+	result.{{.Name}} = SplitList(record[{{$i}}])
+	{{- else if isIntegerType .TypeName}}
+	if val, err := strconv.Atoi(record[{{$i}}]); err != nil {
+		log.Error(errors.Wrap(err, "Csv Error", "Could not convert int value"))
+		log.ReportProblem("An error occured while unmarshalling data")
+	} else {
+		{{- if eq .TypeName "int"}}
+		result.{{.Name}} = val
 		{{- else}}
-			{{typeError .TypeName}}
+		result.{{.Name}} = {{.TypeName}}(val)
 		{{- end}}
-	{{- end}}
 	}
+	{{- else if eq .TypeName "string"}}
+	result.{{.Name}} = record[{{$i}}]
+	{{- else}}
+		{{typeError .TypeName}}
+	{{- end}}
+{{- end}}
 	return result
 }
 
@@ -128,7 +126,34 @@ func Marshal{{.TypeName}}(records []{{.TypeName}}) [][]string {
 		result[i] = records[i].ToRecord()
 	}
 	return result
-}`
+}
+
+func (r *Reader) Read{{.TypeName}}Records() ([]{{.TypeName}}, errors.Error) {
+	defer r.Close()
+	rows := make([]{{.TypeName}}, 0, 8)
+	for {
+		if record, err := r.ReadRecord(); err != nil {
+			if err.Is(errors.EOF) {
+				return rows, nil
+			}
+			return nil, err
+		} else {
+			rows = append(rows, Unmarshal{{.TypeName}}(record))
+		}
+	}
+}
+
+func (w *Writer) Write{{.TypeName}}Records(rows []{{.TypeName}}) errors.Error {
+	defer w.Close()
+	for _, row := range rows {
+		if err := w.WriteRecord(row.ToRecord()); err != nil {
+			w.err = err
+			return err
+		}
+	}
+	return nil
+}
+`
 
 const Imports = `
 import (

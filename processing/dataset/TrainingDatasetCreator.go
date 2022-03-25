@@ -42,25 +42,25 @@ func CreateTrainingAndEvaluationSet(modelType configuration.ModelType, methodsWi
 
 // Loads the methods and class data into the creator
 func loadMethodsAndClasses(methodsWithReturnTypesPath, classHierarchyPath string) ([]csv.Method, []csv.Class, errors.Error) {
-	methodsRecords, err := csv.ReadRecords(methodsWithReturnTypesPath)
+	methodsRecords, err := csv.NewFileReader(methodsWithReturnTypesPath).ReadMethodRecords()
 	if err != nil {
 		return nil, nil, err
 	}
 
-	classesRecords, err := csv.ReadRecords(classHierarchyPath)
+	classesRecords, err := csv.NewFileReader(classHierarchyPath).ReadClassRecords()
 	if err != nil {
 		return nil, nil, err
 	}
 
 	for _, defaultLibrary := range configuration.DefaultLibraries() {
-		defaultClassesRecords, err := csv.ReadRecords(defaultLibrary)
+		defaultClassesRecords, err := csv.NewFileReader(defaultLibrary).ReadClassRecords()
 		if err != nil {
 			return nil, nil, err
 		}
 		classesRecords = append(classesRecords, defaultClassesRecords...)
 	}
 
-	return csv.UnmarshalMethod(methodsRecords), csv.UnmarshalClass(classesRecords), nil
+	return methodsRecords, classesRecords, nil
 }
 
 func createPackageTree(classes []csv.Class) *packagetree.Tree {

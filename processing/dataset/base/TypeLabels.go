@@ -14,12 +14,11 @@ type TypeLabelMapper struct {
 
 // Imports labels from a csv file
 func (m *TypeLabelMapper) LoadFromFile(labelFile string) errors.Error {
-	records, err := csv.ReadRecords(labelFile)
+	labels, err := csv.NewFileReader(labelFile).ReadTypeLabelRecords()
 	if err != nil {
 		return err
 	}
 
-	labels := csv.UnmarshalTypeLabel(records)
 	for _, label := range labels {
 		m.AddLabel(label)
 	}

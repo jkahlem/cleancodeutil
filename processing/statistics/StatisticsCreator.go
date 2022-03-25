@@ -180,11 +180,11 @@ func (c *StatisticsCreator) convertLabelToTypeName(typeLabel int) string {
 
 // Loads and unmarshals rows of the given dataset
 func (c *StatisticsCreator) loadDatasetRows(path string) ([]csv.ReturnTypesDatasetRow, errors.Error) {
-	records, err := csv.ReadRecords(path)
+	records, err := csv.NewFileReader(path).ReadReturnTypesDatasetRowRecords()
 	if err != nil {
 		return nil, err
 	}
-	return csv.UnmarshalReturnTypesDatasetRow(records), nil
+	return records, nil
 }
 
 // Adds statistics using the methods which were extracted from the project before filtering them for the dataset.
@@ -212,11 +212,11 @@ func (c *StatisticsCreator) parseProjectIdFromFilepath(path string) string {
 
 // Loads all extracted methods
 func (c *StatisticsCreator) loadAllExtractedMethods() ([]csv.Method, errors.Error) {
-	records, err := csv.ReadRecords(configuration.MethodsWithTypeClassesOutputPath())
+	records, err := csv.NewFileReader(configuration.MethodsWithTypeClassesOutputPath()).ReadMethodRecords()
 	if err != nil {
 		return nil, err
 	}
-	return csv.UnmarshalMethod(records), nil
+	return records, nil
 }
 
 // Adds the evaluation result to the statistics

@@ -69,13 +69,12 @@ func FindCodeFile(element JavaElement) *CodeFile {
 // Loads the java standard packages and saves them to the package tree.
 func LoadDefaultPackagesToTree(packageTree *packagetree.Tree) errors.Error {
 	for _, file := range configuration.DefaultLibraries() {
-		records, err := csv.ReadRecords(file)
+		records, err := csv.NewFileReader(file).ReadClassRecords()
 		if err != nil {
 			return err
 		}
 
-		classRecords := csv.UnmarshalClass(records)
-		FillPackageTreeByCsvClassNodes(packageTree, classRecords)
+		FillPackageTreeByCsvClassNodes(packageTree, records)
 	}
 	return nil
 }

@@ -44,14 +44,14 @@ func (t *Trainer) loadData(path string) errors.Error {
 		t.labels = labels
 	}
 
-	if trainingSet, err := csv.ReadRecords(filepath.Join(path, TrainingSetFileName)); err != nil {
+	if trainingSet, err := csv.NewFileReader(filepath.Join(path, TrainingSetFileName)).ReadReturnTypesDatasetRowRecords(); err != nil {
 		return err
 	} else {
 		limit := t.Dataset.SpecialOptions.MaxTrainingRows
 		if limit <= 0 || limit > len(trainingSet) {
 			limit = len(trainingSet)
 		}
-		t.trainingSet = csv.UnmarshalReturnTypesDatasetRow(trainingSet[:limit])
+		t.trainingSet = trainingSet[:limit]
 	}
 	return nil
 }

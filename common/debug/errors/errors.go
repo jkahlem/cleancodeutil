@@ -15,6 +15,8 @@ import (
 	goErrors "github.com/go-errors/errors"
 )
 
+var EOF = ErrorId("IO", "Reached end of file")
+
 // Used for stacktraces for errors created with New function (as goErrors.New does not support skipping stack frames)
 type dummyErrorForCreationByNew struct{}
 

@@ -26,7 +26,7 @@ func (t *Trainer) Train(path string) errors.Error {
 		// Skip because the model is already trained
 		return nil
 	}
-	trainingSet, err := csv.ReadRecords(filepath.Join(path, TrainingSetFileName))
+	trainingSet, err := csv.NewFileReader(filepath.Join(path, TrainingSetFileName)).ReadMethodGenerationDatasetRowRecords()
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func (t *Trainer) Train(path string) errors.Error {
 	if limit <= 0 || limit > len(trainingSet) {
 		limit = len(trainingSet)
 	}
-	methods, err := mapToMethods(csv.UnmarshalMethodGenerationDatasetRow(trainingSet[:limit]))
+	methods, err := mapToMethods(trainingSet[:limit])
 	if err != nil {
 		return err
 	}

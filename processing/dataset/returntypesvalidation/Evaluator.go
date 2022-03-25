@@ -45,14 +45,14 @@ func (e *Evaluator) loadData(path string) errors.Error {
 	} else {
 		e.labels = labels
 	}
-	if evaluationSet, err := csv.ReadRecords(filepath.Join(path, EvaluationSetFileName)); err != nil {
+	if evaluationSet, err := csv.NewFileReader(filepath.Join(path, EvaluationSetFileName)).ReadReturnTypesDatasetRowRecords(); err != nil {
 		return err
 	} else {
 		limit := e.Dataset.SpecialOptions.MaxEvaluationRows
 		if limit <= 0 || limit > len(evaluationSet) {
 			limit = len(evaluationSet)
 		}
-		e.evaluationSet = csv.UnmarshalReturnTypesDatasetRow(evaluationSet[:limit])
+		e.evaluationSet = evaluationSet[:limit]
 	}
 	return nil
 }

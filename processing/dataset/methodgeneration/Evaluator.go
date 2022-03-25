@@ -50,7 +50,7 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 }
 
 func (e *Evaluator) loadEvaluationSet(path string) ([]predictor.Method, errors.Error) {
-	evaluationSet, err := csv.ReadRecords(filepath.Join(path, EvaluationSetFileName))
+	evaluationSet, err := csv.NewFileReader(filepath.Join(path, EvaluationSetFileName)).ReadMethodGenerationDatasetRowRecords()
 	if err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (e *Evaluator) loadEvaluationSet(path string) ([]predictor.Method, errors.E
 	if limit <= 0 || limit > len(evaluationSet) {
 		limit = len(evaluationSet)
 	}
-	methods, err := mapToMethods(csv.UnmarshalMethodGenerationDatasetRow(evaluationSet[:limit]))
+	methods, err := mapToMethods(evaluationSet[:limit])
 	if err != nil {
 		return nil, err
 	}

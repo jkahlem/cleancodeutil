@@ -16,14 +16,14 @@ import (
 const CsvErrorTitle string = "CSV Error"
 
 // Creates a Writer for csv files using the seperator defined in the configuration.
-func NewWriter(w io.Writer) *csv.Writer {
+func NewProjectCsvWriter(w io.Writer) *csv.Writer {
 	csvWriter := csv.NewWriter(w)
 	csvWriter.Comma = configuration.CsvSeperator()
 	return csvWriter
 }
 
 // Creates a Reader for csv files using the seperator defined in the configuration.
-func NewReader(r io.Reader) *csv.Reader {
+func NewProjectCsvReader(r io.Reader) *csv.Reader {
 	csvReader := csv.NewReader(r)
 	csvReader.Comma = configuration.CsvSeperator()
 	return csvReader
@@ -47,7 +47,7 @@ func ReadRecords(input string) ([][]string, errors.Error) {
 	}
 	defer csvFile.Close()
 
-	csvReader := NewReader(csvFile)
+	csvReader := NewProjectCsvReader(csvFile)
 	records, err := csvReader.ReadAll()
 	if err != nil {
 		return nil, errors.Wrap(err, CsvErrorTitle, "Could not read CSV file")
@@ -73,7 +73,7 @@ func WriteCsvRecords(path string, records [][]string) errors.Error {
 
 // Writes the records to the given file.
 func WriteRecordsToTarget(target io.Writer, records [][]string) errors.Error {
-	writer := NewWriter(target)
+	writer := NewProjectCsvWriter(target)
 	if err := writer.WriteAll(records); err != nil {
 		return errors.Wrap(err, CsvErrorTitle, "Could not save data to CSV file")
 	}

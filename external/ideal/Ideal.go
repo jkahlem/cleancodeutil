@@ -62,11 +62,11 @@ func runIdeal() errors.Error {
 }
 
 func loadResultOutput() ([]csv.IdealResult, errors.Error) {
-	records, err := csv.ReadRecords(filepath.Join(configuration.IdealBinaryDir(), "IDEAL_Results.csv"))
+	records, err := csv.NewFileReader(filepath.Join(configuration.IdealBinaryDir(), "IDEAL_Results.csv")).WithSeparator(',').ReadIdealResultRecords()
 	if err != nil {
 		return nil, errors.Wrap(err, "IDEAL", "Could not open output file")
 	}
-	return csv.UnmarshalIdealResult(records), nil
+	return records, nil
 }
 
 func IsIdealConfigured() bool {
