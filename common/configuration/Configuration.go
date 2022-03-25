@@ -250,11 +250,10 @@ func ExcelSets() []ExcelSet {
 }
 
 func IdealBinaryDir() string {
-	// TODO
 	if loadedConfig == nil {
 		return ""
 	}
-	return ""
+	return loadedConfig.External.Ideal.BinaryDir
 }
 
 func SkipIfOutputExists() bool {

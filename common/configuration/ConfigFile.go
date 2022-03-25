@@ -51,10 +51,12 @@ type configFile struct {
 	Datasets DatasetConfiguration `json:"datasets"`
 	// If true, skips all processes (like dataset creation, excel set creation etc.) if the output files exists
 	SkipIfOutputExists bool `json:"skipIfOutputExists"`
-	// Additional prefix which is added to datasets for experimental uses etc.
-	DatasetPrefix string
 	// Configurations which are specific for the language server
 	LanguageServer LanguageServerConfiguration `json:"languageServer"`
+	// Configurations for external services
+	External ExternalConfiguration `json:"external"`
+	// Additional prefix which is added to datasets for experimental uses etc.
+	DatasetPrefix string
 	// If true, then the program is in language server mode (command line only)
 	IsLangServMode bool
 }
@@ -139,6 +141,14 @@ type LanguageServerConfiguration struct {
 type LanguageServerModelConfiguration struct {
 	ReturnTypesValidator string `json:"returntypesValidator"`
 	MethodGenerator      string `json:"methodGenerator"`
+}
+
+type ExternalConfiguration struct {
+	Ideal IdealConfiguration `json:"ideal"`
+}
+
+type IdealConfiguration struct {
+	BinaryDir string `json:"binaryDir"`
 }
 
 var loadedConfig *configFile

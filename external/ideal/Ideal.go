@@ -10,9 +10,12 @@ import (
 )
 
 var InputWritingError = errors.ErrorId("IDEAL", "Could not write input")
+var NotConfiguredError = errors.ErrorId("IDEAL", "Cannot use IDEAL because of missing configurations.")
 
 func AnalyzeFiles(filepath []string) ([]csv.IdealResult, errors.Error) {
-	if err := writeFilePaths(filepath); err != nil {
+	if !IsIdealConfigured() {
+		return nil, errors.NewById(NotConfiguredError)
+	} else if err := writeFilePaths(filepath); err != nil {
 		return nil, err
 	} else if err := runIdeal(); err != nil {
 		return nil, err
@@ -21,14 +24,17 @@ func AnalyzeFiles(filepath []string) ([]csv.IdealResult, errors.Error) {
 }
 
 func AnalyzeSourceCode(sourceCode string) ([]csv.IdealResult, errors.Error) {
+	if !IsIdealConfigured() {
+		return nil, errors.NewById(NotConfiguredError)
+	}
 	file, err := os.CreateTemp("", "ideal-input")
 	defer os.Remove(file.Name())
 	defer file.Close()
 	if err != nil {
-		return nil, errors.WrapWithId(err, InputWritingError)
+		return nil, errors.WrapById(err, InputWritingError)
 	}
 	if _, err := file.Write([]byte(sourceCode)); err != nil {
-		return nil, errors.WrapWithId(err, InputWritingError)
+		return nil, errors.WrapById(err, InputWritingError)
 	}
 	file.Close()
 	return AnalyzeFiles([]string{file.Name()})
@@ -40,7 +46,7 @@ func writeFilePaths(path []string) errors.Error {
 		output += "\n" + p
 	}
 	if err := os.WriteFile(filepath.Join(configuration.IdealBinaryDir(), "input.csv"), []byte(output), os.ModePerm); err != nil {
-		return errors.WrapWithId(err, InputWritingError)
+		return errors.WrapById(err, InputWritingError)
 	}
 	return nil
 }
@@ -61,4 +67,8 @@ func loadResultOutput() ([]csv.IdealResult, errors.Error) {
 		return nil, errors.Wrap(err, "IDEAL", "Could not open output file")
 	}
 	return csv.UnmarshalIdealResult(records), nil
+}
+
+func IsIdealConfigured() bool {
+	return configuration.IdealBinaryDir() != ""
 }

@@ -158,7 +158,7 @@ func Wrap(err error, title, message string, args ...interface{}) Error {
 	}
 }
 
-func WrapWithId(err error, id ErrorIdentifier) Error {
+func WrapById(err error, id ErrorIdentifier) Error {
 	return Wrap(err, id.title, id.message)
 }
 

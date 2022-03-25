@@ -15,6 +15,10 @@ const (
 	StatisticsConfigurationSchemaPath     = "configuration/statistics-configuration.schema.json"
 	LanguageServerConfigurationSchemaPath = "configuration/language-server-configuration.schema.json"
 
+	// External configuration schemas
+	ExternalConfigurationSchemaPath = "configuration/external-configuraiton.schema.json"
+	IdealConfigurationSchemaPath    = "configuration/external/ideal-configuration.schema.json"
+
 	// Excel set schemas
 	FilterSchemaPath                    = "datasets/filter.schema.json"
 	FilterConfigurationSchemaPath       = "datasets/filter-configuration.schema.json"
@@ -106,6 +110,8 @@ func initializeSchemas() {
 			DatasetSpecialOptionsSchemaPath,
 			DatasetSizeSchemaPath,
 			TypeClassSchemaPath,
-			ModelListSchemaPath).
+			ModelListSchemaPath,
+			ExternalConfigurationSchemaPath,
+			IdealConfigurationSchemaPath).
 		MustCompile()
 }

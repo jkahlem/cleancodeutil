@@ -1,0 +1,14 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "external-configuration.schema.json",
+    "title": "External Service Configuration",
+    "description": "Contains configurations for external services",
+    "type": "object",
+    "properties": {
+        "ideal": {
+            "description": "Defines configurations for IDEAL. If unset, some functionalities which requires IDEAL will not work.",
+            "type": "object",
+            "$ref": "external/ideal-configuration.schema.json"
+        }
+    }
+}
