@@ -79,15 +79,14 @@ func typeError(typeName string) (string, error) {
 }
 
 const UnmarshalTemplate = `
-func Unmarshal{{.TypeName}}(record []string) {{.TypeName}} {
+func Unmarshal{{.TypeName}}(record []string) ({{.TypeName}}, errors.Error) {
 	result := {{.TypeName}}{}
 {{- range $i, $e := .Fields}}
 	{{- if eq .TypeName "[]string"}}
 	result.{{.Name}} = SplitList(record[{{$i}}])
 	{{- else if isIntegerType .TypeName}}
 	if val, err := strconv.Atoi(record[{{$i}}]); err != nil {
-		log.Error(errors.Wrap(err, "Csv Error", "Could not convert int value"))
-		log.ReportProblem("An error occured while unmarshalling data")
+		return result, errors.Wrap(err, "CSV", "Could not unmarshal to {{.TypeName}}: Expected integer value but got '%s'", record[{{$i}}])
 	} else {
 		{{- if eq .TypeName "int"}}
 		result.{{.Name}} = val
@@ -101,7 +100,7 @@ func Unmarshal{{.TypeName}}(record []string) {{.TypeName}} {
 		{{typeError .TypeName}}
 	{{- end}}
 {{- end}}
-	return result
+	return result, nil
 }
 
 func (s {{.TypeName}}) ToRecord() []string {
@@ -137,8 +136,10 @@ func (r *Reader) Read{{.TypeName}}Records() ([]{{.TypeName}}, errors.Error) {
 				return rows, nil
 			}
 			return nil, err
+		} else if unmarshalled, err := Unmarshal{{.TypeName}}(record); err != nil {
+			return nil, err
 		} else {
-			rows = append(rows, Unmarshal{{.TypeName}}(record))
+			rows = append(rows, unmarshalled)
 		}
 	}
 }

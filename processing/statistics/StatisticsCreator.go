@@ -244,12 +244,11 @@ func (c *StatisticsCreator) loadEvaluationResult() (predictor.Evaluation, errors
 
 // Adds the summarized methods data
 func (c *StatisticsCreator) addSummarizedMethodsData() {
-	if records, err := csv.ReadRecords(configuration.MethodSummarizationDataOutputPath()); err != nil {
+	if records, err := csv.NewFileReader(configuration.MethodSummarizationDataOutputPath()).ReadMethodSummarizationDataRecords(); err != nil {
 		log.Error(err)
 		return
 	} else {
-		data := csv.UnmarshalMethodSummarizationData(records)
-		c.builder.AddSummarizedMethodsData(data)
+		c.builder.AddSummarizedMethodsData(records)
 	}
 }
 

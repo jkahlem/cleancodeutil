@@ -6,11 +6,10 @@ package csv
 import (
 	"fmt"
 	"returntypes-langserver/common/debug/errors"
-	"returntypes-langserver/common/debug/log"
 	"strconv"
 )
 
-func UnmarshalMethod(record []string) Method {
+func UnmarshalMethod(record []string) (Method, errors.Error) {
 	result := Method{}
 	result.ClassName = record[0]
 	result.ReturnType = record[1]
@@ -20,7 +19,7 @@ func UnmarshalMethod(record []string) Method {
 	result.Modifier = SplitList(record[5])
 	result.ClassField = record[6]
 	result.FilePath = record[7]
-	return result
+	return result, nil
 }
 
 func (s Method) ToRecord() []string {
@@ -53,8 +52,10 @@ func (r *Reader) ReadMethodRecords() ([]Method, errors.Error) {
 				return rows, nil
 			}
 			return nil, err
+		} else if unmarshalled, err := UnmarshalMethod(record); err != nil {
+			return nil, err
 		} else {
-			rows = append(rows, UnmarshalMethod(record))
+			rows = append(rows, unmarshalled)
 		}
 	}
 }
@@ -70,11 +71,11 @@ func (w *Writer) WriteMethodRecords(rows []Method) errors.Error {
 	return nil
 }
 
-func UnmarshalClass(record []string) Class {
+func UnmarshalClass(record []string) (Class, errors.Error) {
 	result := Class{}
 	result.ClassName = record[0]
 	result.Extends = SplitList(record[1])
-	return result
+	return result, nil
 }
 
 func (s Class) ToRecord() []string {
@@ -101,8 +102,10 @@ func (r *Reader) ReadClassRecords() ([]Class, errors.Error) {
 				return rows, nil
 			}
 			return nil, err
+		} else if unmarshalled, err := UnmarshalClass(record); err != nil {
+			return nil, err
 		} else {
-			rows = append(rows, UnmarshalClass(record))
+			rows = append(rows, unmarshalled)
 		}
 	}
 }
@@ -118,11 +121,11 @@ func (w *Writer) WriteClassRecords(rows []Class) errors.Error {
 	return nil
 }
 
-func UnmarshalTypeConversion(record []string) TypeConversion {
+func UnmarshalTypeConversion(record []string) (TypeConversion, errors.Error) {
 	result := TypeConversion{}
 	result.SourceType = record[0]
 	result.DestinationType = record[1]
-	return result
+	return result, nil
 }
 
 func (s TypeConversion) ToRecord() []string {
@@ -149,8 +152,10 @@ func (r *Reader) ReadTypeConversionRecords() ([]TypeConversion, errors.Error) {
 				return rows, nil
 			}
 			return nil, err
+		} else if unmarshalled, err := UnmarshalTypeConversion(record); err != nil {
+			return nil, err
 		} else {
-			rows = append(rows, UnmarshalTypeConversion(record))
+			rows = append(rows, unmarshalled)
 		}
 	}
 }
@@ -166,16 +171,15 @@ func (w *Writer) WriteTypeConversionRecords(rows []TypeConversion) errors.Error 
 	return nil
 }
 
-func UnmarshalReturnTypesDatasetRow(record []string) ReturnTypesDatasetRow {
+func UnmarshalReturnTypesDatasetRow(record []string) (ReturnTypesDatasetRow, errors.Error) {
 	result := ReturnTypesDatasetRow{}
 	result.MethodName = record[0]
 	if val, err := strconv.Atoi(record[1]); err != nil {
-		log.Error(errors.Wrap(err, "Csv Error", "Could not convert int value"))
-		log.ReportProblem("An error occured while unmarshalling data")
+		return result, errors.Wrap(err, "CSV", "Could not unmarshal to int: Expected integer value but got '%s'", record[1])
 	} else {
 		result.TypeLabel = val
 	}
-	return result
+	return result, nil
 }
 
 func (s ReturnTypesDatasetRow) ToRecord() []string {
@@ -202,8 +206,10 @@ func (r *Reader) ReadReturnTypesDatasetRowRecords() ([]ReturnTypesDatasetRow, er
 				return rows, nil
 			}
 			return nil, err
+		} else if unmarshalled, err := UnmarshalReturnTypesDatasetRow(record); err != nil {
+			return nil, err
 		} else {
-			rows = append(rows, UnmarshalReturnTypesDatasetRow(record))
+			rows = append(rows, unmarshalled)
 		}
 	}
 }
@@ -219,12 +225,12 @@ func (w *Writer) WriteReturnTypesDatasetRowRecords(rows []ReturnTypesDatasetRow)
 	return nil
 }
 
-func UnmarshalMethodGenerationDatasetRow(record []string) MethodGenerationDatasetRow {
+func UnmarshalMethodGenerationDatasetRow(record []string) (MethodGenerationDatasetRow, errors.Error) {
 	result := MethodGenerationDatasetRow{}
 	result.ClassName = record[0]
 	result.MethodName = record[1]
 	result.Parameters = SplitList(record[2])
-	return result
+	return result, nil
 }
 
 func (s MethodGenerationDatasetRow) ToRecord() []string {
@@ -252,8 +258,10 @@ func (r *Reader) ReadMethodGenerationDatasetRowRecords() ([]MethodGenerationData
 				return rows, nil
 			}
 			return nil, err
+		} else if unmarshalled, err := UnmarshalMethodGenerationDatasetRow(record); err != nil {
+			return nil, err
 		} else {
-			rows = append(rows, UnmarshalMethodGenerationDatasetRow(record))
+			rows = append(rows, unmarshalled)
 		}
 	}
 }
@@ -269,16 +277,15 @@ func (w *Writer) WriteMethodGenerationDatasetRowRecords(rows []MethodGenerationD
 	return nil
 }
 
-func UnmarshalTypeLabel(record []string) TypeLabel {
+func UnmarshalTypeLabel(record []string) (TypeLabel, errors.Error) {
 	result := TypeLabel{}
 	result.Name = record[0]
 	if val, err := strconv.Atoi(record[1]); err != nil {
-		log.Error(errors.Wrap(err, "Csv Error", "Could not convert int value"))
-		log.ReportProblem("An error occured while unmarshalling data")
+		return result, errors.Wrap(err, "CSV", "Could not unmarshal to int: Expected integer value but got '%s'", record[1])
 	} else {
 		result.Label = val
 	}
-	return result
+	return result, nil
 }
 
 func (s TypeLabel) ToRecord() []string {
@@ -305,8 +312,10 @@ func (r *Reader) ReadTypeLabelRecords() ([]TypeLabel, errors.Error) {
 				return rows, nil
 			}
 			return nil, err
+		} else if unmarshalled, err := UnmarshalTypeLabel(record); err != nil {
+			return nil, err
 		} else {
-			rows = append(rows, UnmarshalTypeLabel(record))
+			rows = append(rows, unmarshalled)
 		}
 	}
 }
@@ -322,21 +331,19 @@ func (w *Writer) WriteTypeLabelRecords(rows []TypeLabel) errors.Error {
 	return nil
 }
 
-func UnmarshalIdealResult(record []string) IdealResult {
+func UnmarshalIdealResult(record []string) (IdealResult, errors.Error) {
 	result := IdealResult{}
 	result.FilePath = record[0]
 	result.FileType = record[1]
 	result.Identifier = record[2]
 	result.IdentifierType = record[3]
 	if val, err := strconv.Atoi(record[4]); err != nil {
-		log.Error(errors.Wrap(err, "Csv Error", "Could not convert int value"))
-		log.ReportProblem("An error occured while unmarshalling data")
+		return result, errors.Wrap(err, "CSV", "Could not unmarshal to int: Expected integer value but got '%s'", record[4])
 	} else {
 		result.LineNumber = val
 	}
 	if val, err := strconv.Atoi(record[5]); err != nil {
-		log.Error(errors.Wrap(err, "Csv Error", "Could not convert int value"))
-		log.ReportProblem("An error occured while unmarshalling data")
+		return result, errors.Wrap(err, "CSV", "Could not unmarshal to int: Expected integer value but got '%s'", record[5])
 	} else {
 		result.ColumnNumber = val
 	}
@@ -345,7 +352,7 @@ func UnmarshalIdealResult(record []string) IdealResult {
 	result.IssueCategory = record[8]
 	result.IssueDetail = record[9]
 	result.AnalysisDateTime = record[10]
-	return result
+	return result, nil
 }
 
 func (s IdealResult) ToRecord() []string {
@@ -381,8 +388,10 @@ func (r *Reader) ReadIdealResultRecords() ([]IdealResult, errors.Error) {
 				return rows, nil
 			}
 			return nil, err
+		} else if unmarshalled, err := UnmarshalIdealResult(record); err != nil {
+			return nil, err
 		} else {
-			rows = append(rows, UnmarshalIdealResult(record))
+			rows = append(rows, unmarshalled)
 		}
 	}
 }
