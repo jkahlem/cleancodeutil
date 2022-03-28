@@ -6,6 +6,7 @@ import (
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/metrics"
 	"returntypes-langserver/common/utils"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/services/predictor"
@@ -21,8 +22,8 @@ type Evaluator struct {
 
 type Method struct {
 	Name                string
-	ExpectedDefinition  string
-	GeneratedDefinition string
+	ExpectedDefinition  *metrics.Sentence
+	GeneratedDefinition *metrics.Sentence
 }
 
 func NewEvaluator(dataset configuration.Dataset) base.Evaluator {
@@ -94,9 +95,9 @@ func (e *Evaluator) parseOutputToMethod(method predictor.Method, expectedValues 
 	}
 }
 
-func (e *Evaluator) joinParameters(parameters []predictor.Parameter) string {
+func (e *Evaluator) joinParameters(parameters []predictor.Parameter) *metrics.Sentence {
 	if len(parameters) == 0 {
-		return "void."
+		return metrics.NewSentence("void.")
 	}
 	joined := ""
 	for i := range parameters {
@@ -105,7 +106,7 @@ func (e *Evaluator) joinParameters(parameters []predictor.Parameter) string {
 		}
 		joined += fmt.Sprintf("%s %s", parameters[i].Type, parameters[i].Name)
 	}
-	return joined
+	return metrics.NewSentence(joined)
 }
 
 func (e *Evaluator) getEvaluationSetConfig() *EvaluationSet {

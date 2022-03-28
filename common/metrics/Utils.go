@@ -5,14 +5,14 @@ import (
 	"strings"
 )
 
-type ngram []string
+type Ngram []string
 
 func FScore(precision, recall, beta float64) float64 {
 	b2 := beta * beta
 	return (1 + b2) * (precision * recall) / ((b2 * precision) + recall)
 }
 
-func getNgrams(target []string, n int) ngram {
+func getNgrams(target []string, n int) Ngram {
 	if n <= 0 {
 		panic("invalid n-gram value")
 	} else if n == 1 {
@@ -31,7 +31,7 @@ func getNgrams(target []string, n int) ngram {
 	return result
 }
 
-func countOverlappingWords(candidate, reference ngram) float64 {
+func countOverlappingWords(candidate, reference Ngram) float64 {
 	var n float64 = 0
 	for _, word := range candidate {
 		for i, refWord := range reference {
@@ -46,7 +46,7 @@ func countOverlappingWords(candidate, reference ngram) float64 {
 	return n
 }
 
-func getSkipGrams(target []string, n int) ngram {
+func getSkipGrams(target []string, n int) Ngram {
 	if len(target) < 2 {
 		panic("Cannot build skip grams for sentence with lesser than 2 words")
 	}

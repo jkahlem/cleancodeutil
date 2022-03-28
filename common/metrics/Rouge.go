@@ -1,42 +1,39 @@
 package metrics
 
-func RougeN(candidate string, references []string, n int) (precision, recall float64) {
-	candidateNgrams := getNgrams(tokenizeSentence(candidate), n)
-	referenceNgrams := make([]ngram, len(references))
+func RougeN(candidate *Sentence, references []*Sentence, n int) (precision, recall float64) {
+	referenceNgrams := make([]Ngram, len(references))
 	for i, ref := range references {
-		referenceNgrams[i] = getNgrams(tokenizeSentence(ref), n)
+		referenceNgrams[i] = ref.Ngram(n)
 	}
 
-	return computeScoreForNgrams(candidateNgrams, referenceNgrams)
+	return computeScoreForNgrams(candidate.Ngram(n), referenceNgrams)
 }
 
-func computeScoreForNgrams(candidateNgrams ngram, referenceNgrams []ngram) (precision, recall float64) {
+func computeScoreForNgrams(candidateNgrams Ngram, referenceNgrams []Ngram) (precision, recall float64) {
 	for i := range referenceNgrams {
 		overlapping := countOverlappingWords(candidateNgrams, referenceNgrams[i])
 		p, r := calculatePrecisionRecall(overlapping, lenf(candidateNgrams), lenf(referenceNgrams[i]))
 		precision += p
 		recall += r
 	}
-	// TODO: Need to get the average of precision/recall?
 	return precision, recall
 }
 
 // Computes rouge-s score for the given sentencens based on "skip-ngrams" (word pairs which allow n gaps between the two words.)
-func RougeS(candidate string, references []string, n int) (precision, recall float64) {
-	candidateSkipGrams := getSkipGrams(tokenizeSentence(candidate), n)
-	referenceSkipGrams := make([]ngram, len(references))
+func RougeS(candidate *Sentence, references []*Sentence, n int) (precision, recall float64) {
+	referenceSkipGrams := make([]Ngram, len(references))
 	for i, ref := range references {
-		referenceSkipGrams[i] = getSkipGrams(tokenizeSentence(ref), n)
+		referenceSkipGrams[i] = ref.Sgram(n)
 	}
 
-	return computeScoreForNgrams(candidateSkipGrams, referenceSkipGrams)
+	return computeScoreForNgrams(candidate.Sgram(n), referenceSkipGrams)
 }
 
 // Computes rouge-l score for the given sentences (based on longest common subsequence)
-func RougeL(candidate string, references []string) (precision, recall float64) {
-	candidateTokenized := tokenizeSentence(candidate)
+func RougeL(candidate *Sentence, references []*Sentence) (precision, recall float64) {
+	candidateTokenized := candidate.Tokens()
 	for _, ref := range references {
-		refTokenized := tokenizeSentence(ref)
+		refTokenized := ref.Tokens()
 		p, r := calculatePrecisionRecall(getLcsLength(candidateTokenized, refTokenized), lenf(candidateTokenized), lenf(refTokenized))
 		precision += p
 		recall += r

@@ -40,8 +40,8 @@ func (r *BleuRater) Rate(m Method) {
 	r.count++
 }
 
-func (r *BleuRater) sentence(str string) bleu.Sentence {
-	return strings.Split(str, " ")
+func (r *BleuRater) sentence(str *metrics.Sentence) bleu.Sentence {
+	return str.Tokens()
 }
 
 func (r *BleuRater) Score() float64 {
@@ -77,7 +77,7 @@ func NewRougeLRater(config configuration.MetricConfiguration) *RougeRater {
 	}
 	return &RougeRater{
 		rater: func(m Method) (precision, recall float64) {
-			return metrics.RougeL(m.ExpectedDefinition, []string{m.GeneratedDefinition})
+			return metrics.RougeL(m.ExpectedDefinition, []*metrics.Sentence{m.GeneratedDefinition})
 		},
 		measure: c.Measure,
 	}
@@ -91,7 +91,7 @@ func NewRougeNRater(config configuration.MetricConfiguration) *RougeRater {
 	}
 	return &RougeRater{
 		rater: func(m Method) (precision, recall float64) {
-			return metrics.RougeN(m.ExpectedDefinition, []string{m.GeneratedDefinition}, c.N)
+			return metrics.RougeN(m.ExpectedDefinition, []*metrics.Sentence{m.GeneratedDefinition}, c.N)
 		},
 		measure: c.Measure,
 	}
@@ -105,7 +105,7 @@ func NewRougeSRater(config configuration.MetricConfiguration) *RougeRater {
 	}
 	return &RougeRater{
 		rater: func(m Method) (precision, recall float64) {
-			return metrics.RougeS(m.ExpectedDefinition, []string{m.GeneratedDefinition}, c.SkipN)
+			return metrics.RougeS(m.ExpectedDefinition, []*metrics.Sentence{m.GeneratedDefinition}, c.SkipN)
 		},
 		measure: c.Measure,
 	}
