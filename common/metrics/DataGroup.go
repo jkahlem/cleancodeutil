@@ -6,6 +6,7 @@ type DataGroup struct {
 }
 
 type Sentence struct {
+	plain  string
 	tokens []string
 	ngrams map[int]Ngram
 	sgrams map[int]Ngram
@@ -24,6 +25,7 @@ func NewDataGroup(candidate string, references []string) DataGroup {
 
 func NewSentence(str string) *Sentence {
 	return &Sentence{
+		plain:  str,
 		tokens: tokenizeSentence(str),
 	}
 }
@@ -52,4 +54,8 @@ func (s *Sentence) Sgram(n int) Ngram {
 
 func (s *Sentence) Tokens() []string {
 	return s.tokens
+}
+
+func (s *Sentence) String() string {
+	return s.plain
 }
