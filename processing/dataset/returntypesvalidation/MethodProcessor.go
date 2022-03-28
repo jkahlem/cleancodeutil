@@ -121,11 +121,11 @@ func (p *Processor) Close() errors.Error {
 	}
 
 	trainingSet, evaluationSet := SplitToTrainingAndEvaluationSet(rows, p.Options.DatasetSize)
-	if err := csv.WriteCsvRecords(p.trainingFilePath(), csv.MarshalReturnTypesDatasetRow(trainingSet)); err != nil {
+	if err := csv.NewFileWriter(p.trainingFilePath()).WriteReturnTypesDatasetRowRecords(trainingSet); err != nil {
 		return err
-	} else if err := csv.WriteCsvRecords(p.evaluationFilePath(), csv.MarshalReturnTypesDatasetRow(evaluationSet)); err != nil {
+	} else if err := csv.NewFileWriter(p.evaluationFilePath()).WriteReturnTypesDatasetRowRecords(evaluationSet); err != nil {
 		return err
-	} else if err := csv.WriteCsvRecords(p.labelFilePath(), csv.MarshalTypeLabel(p.typeLabelMapper.GetMappings())); err != nil {
+	} else if err := csv.NewFileWriter(p.labelFilePath()).WriteTypeLabelRecords(p.typeLabelMapper.GetMappings()); err != nil {
 		return err
 	}
 	return nil

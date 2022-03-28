@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"returntypes-langserver/common/configuration"
-	"returntypes-langserver/common/debug/errors"
 )
 
 const CsvErrorTitle string = "CSV Error"
@@ -35,16 +34,6 @@ func MakeList(str []string) string {
 // Turns a string into an array using the csv list seperator defined in the configuration.
 func SplitList(str string) []string {
 	return strings.Split(str, configuration.CsvListSeperator())
-}
-
-// Writes the records to the given file.
-func WriteRecordsToTarget(target io.Writer, records [][]string) errors.Error {
-	writer := NewProjectCsvWriter(target)
-	if err := writer.WriteAll(records); err != nil {
-		return errors.Wrap(err, CsvErrorTitle, "Could not save data to CSV file")
-	}
-	writer.Flush()
-	return nil
 }
 
 // Returns true if a list value of a csv record is empty

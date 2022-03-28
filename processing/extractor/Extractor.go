@@ -128,5 +128,5 @@ func (extractor *Extractor) writeCsvRecords(path string, records [][]string) {
 	if extractor.err != nil {
 		return
 	}
-	extractor.err = csv.WriteCsvRecords(path, records)
+	extractor.err = csv.NewFileWriter(path).WriteAllRecords(records)
 }

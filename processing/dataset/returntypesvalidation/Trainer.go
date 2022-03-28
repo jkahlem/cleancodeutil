@@ -1,7 +1,6 @@
 package returntypesvalidation
 
 import (
-	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
@@ -38,13 +37,13 @@ func (t *Trainer) Train(path string) errors.Error {
 
 func (t *Trainer) loadData(path string) errors.Error {
 	// Load csv data
-	if labels, err := csv.NewFileReader(filepath.Join(path, LabelSetFileName)).ReadAllRecords(); err != nil {
+	if labels, err := csv.NewFileReader(path, LabelSetFileName).ReadAllRecords(); err != nil {
 		return err
 	} else {
 		t.labels = labels
 	}
 
-	if trainingSet, err := csv.NewFileReader(filepath.Join(path, TrainingSetFileName)).ReadReturnTypesDatasetRowRecords(); err != nil {
+	if trainingSet, err := csv.NewFileReader(path, TrainingSetFileName).ReadReturnTypesDatasetRowRecords(); err != nil {
 		return err
 	} else {
 		limit := t.Dataset.SpecialOptions.MaxTrainingRows

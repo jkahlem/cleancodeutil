@@ -123,13 +123,16 @@ func (p *Processor) getIdentifier(method *csv.Method) string {
 }
 
 func (p *Processor) Close() errors.Error {
-	// TODO: Split evaluation set?
 	log.Info("Close dataset file at %s\n", p.trainingFilePath())
 	proportion := p.Options.DatasetSize
 	trainingSetSize, _ := utils.FitProportions(proportion.Training, proportion.Evaluation, len(p.rows))
 	trainingSet, evaluationSet := p.rows[:trainingSetSize], p.rows[trainingSetSize:]
-	csv.WriteCsvRecords(p.trainingFilePath(), csv.MarshalMethodGenerationDatasetRow(trainingSet))
-	csv.WriteCsvRecords(filepath.Join(p.OutputDir, EvaluationSetFileName), csv.MarshalMethodGenerationDatasetRow(evaluationSet))
+
+	if err := csv.NewFileWriter(p.trainingFilePath()).WriteMethodGenerationDatasetRowRecords(trainingSet); err != nil {
+		return err
+	} else if err := csv.NewFileWriter(p.OutputDir, EvaluationSetFileName).WriteMethodGenerationDatasetRowRecords(evaluationSet); err != nil {
+		return err
+	}
 	return nil
 }
 

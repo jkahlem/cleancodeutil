@@ -3,7 +3,6 @@ package returntypesvalidation
 import (
 	"encoding/json"
 	"os"
-	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
@@ -40,12 +39,12 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 
 func (e *Evaluator) loadData(path string) errors.Error {
 	// Load csv data
-	if labels, err := csv.NewFileReader(filepath.Join(path, LabelSetFileName)).ReadAllRecords(); err != nil {
+	if labels, err := csv.NewFileReader(path, LabelSetFileName).ReadAllRecords(); err != nil {
 		return err
 	} else {
 		e.labels = labels
 	}
-	if evaluationSet, err := csv.NewFileReader(filepath.Join(path, EvaluationSetFileName)).ReadReturnTypesDatasetRowRecords(); err != nil {
+	if evaluationSet, err := csv.NewFileReader(path, EvaluationSetFileName).ReadReturnTypesDatasetRowRecords(); err != nil {
 		return err
 	} else {
 		limit := e.Dataset.SpecialOptions.MaxEvaluationRows

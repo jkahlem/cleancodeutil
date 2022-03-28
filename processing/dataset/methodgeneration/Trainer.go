@@ -1,7 +1,6 @@
 package methodgeneration
 
 import (
-	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
@@ -26,7 +25,7 @@ func (t *Trainer) Train(path string) errors.Error {
 		// Skip because the model is already trained
 		return nil
 	}
-	trainingSet, err := csv.NewFileReader(filepath.Join(path, TrainingSetFileName)).ReadMethodGenerationDatasetRowRecords()
+	trainingSet, err := csv.NewFileReader(path, TrainingSetFileName).ReadMethodGenerationDatasetRowRecords()
 	if err != nil {
 		return err
 	}

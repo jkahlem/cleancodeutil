@@ -72,9 +72,9 @@ func (m *TypeLabelMapper) GetTypeName(label int) (typeName string, ok bool) {
 // Exports the mappings to the given file
 func (m *TypeLabelMapper) WriteMappings(outputPath string) errors.Error {
 	mappings := m.GetMappings()
-	records := make([][]string, len(mappings))
+	records := make([]csv.TypeLabel, len(mappings))
 	for i, row := range mappings {
-		records[i] = row.ToRecord()
+		records[i] = row
 	}
-	return csv.WriteCsvRecords(outputPath, records)
+	return csv.NewFileWriter(outputPath).WriteTypeLabelRecords(records)
 }
