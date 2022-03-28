@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"math"
+	"regexp"
 	"strings"
 )
 
@@ -100,6 +101,9 @@ func (g GeometricMean) Value() float64 {
 	return math.Exp(g.sum / g.count)
 }
 
+var tokenizer = regexp.MustCompile("[a-zA-Z]+")
+
 func tokenizeSentence(str string) []string {
-	return strings.Split(str, " ")
+	return tokenizer.FindAllString(str, -1)
+	//return strings.Split(str, " ")
 }

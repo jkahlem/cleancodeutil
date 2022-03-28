@@ -9,10 +9,8 @@ import (
 )
 
 func TestRouge(t *testing.T) {
-	s := NewSentence("the cat was found under the bed")
-	p, r := RougeN(s, []*Sentence{NewSentence("the cat was under the bed")}, 1)
+	p, r := RougeN(NewSentence("the cat was found under the bed"), []*Sentence{NewSentence("the cat was under the bed")}, 1)
 	fmt.Println(FScore(p, r, 1))
-	assert.NotNil(t, s.ngrams[1])
 }
 
 func TestLcs(t *testing.T) {
