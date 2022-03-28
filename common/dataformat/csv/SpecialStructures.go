@@ -82,6 +82,10 @@ func (w *Writer) WriteMethodSummarizationDataRecords(rows []MethodSummarizationD
 			return err
 		}
 	}
+
+	if w.destination.Flush(); w.destination.Error() != nil {
+		return errors.Wrap(w.destination.Error(), CsvErrorTitle, "Could not write to csv output file")
+	}
 	return nil
 }
 

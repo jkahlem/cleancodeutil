@@ -40,7 +40,7 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 
 func (e *Evaluator) loadData(path string) errors.Error {
 	// Load csv data
-	if labels, err := csv.ReadRecords(filepath.Join(path, LabelSetFileName)); err != nil {
+	if labels, err := csv.NewFileReader(filepath.Join(path, LabelSetFileName)).ReadAllRecords(); err != nil {
 		return err
 	} else {
 		e.labels = labels

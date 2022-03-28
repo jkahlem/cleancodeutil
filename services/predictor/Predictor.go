@@ -124,6 +124,6 @@ func (p *predictor) getOptions(modelType SupportedModels) Options {
 
 func (p *predictor) asCsvString(records [][]string) string {
 	builder := strings.Builder{}
-	csv.WriteRecordsToTarget(&builder, records)
+	csv.NewWriter(&builder).WriteAllRecords(records)
 	return builder.String()
 }

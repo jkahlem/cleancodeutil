@@ -81,3 +81,66 @@ func (w *StdoutPrintWriter) Write(bytes []byte) (n int, err error) {
 	fmt.Print(string(bytes))
 	return w.Writer.Write(bytes)
 }
+
+type LazyFile struct {
+	path string
+	fd   *os.File
+}
+
+// Opens a file with the given path lazily, therefore the file is actually only opened/created when performing writing/reading operations.
+func OpenFileLazy(path string) *LazyFile {
+	return &LazyFile{
+		path: path,
+	}
+}
+
+func (f *LazyFile) Write(p []byte) (int, error) {
+	if len(p) == 0 {
+		return 0, nil
+	} else if f.fd == nil {
+		if err := f.openOrCreateFile(); err != nil {
+			return 0, err
+		}
+	}
+	return f.fd.Write(p)
+}
+
+func (f *LazyFile) openOrCreateFile() error {
+	if file, err := CreateFile(f.path); err != nil {
+		return err
+	} else {
+		f.fd = file
+		return nil
+	}
+}
+
+func (f *LazyFile) Close() error {
+	if f.fd != nil {
+		if err := f.fd.Close(); err != nil {
+			return err
+		} else {
+			f.fd = nil
+		}
+	}
+	return nil
+}
+
+func (f *LazyFile) Read(p []byte) (int, error) {
+	if len(p) == 0 {
+		return 0, nil
+	} else if f.fd == nil {
+		if err := f.openFile(); err != nil {
+			return 0, err
+		}
+	}
+	return f.fd.Read(p)
+}
+
+func (f *LazyFile) openFile() error {
+	if file, err := os.OpenFile(f.path, os.O_RDWR, 0777); err != nil {
+		return err
+	} else {
+		f.fd = file
+		return nil
+	}
+}

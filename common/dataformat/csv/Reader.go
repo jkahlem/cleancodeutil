@@ -3,6 +3,7 @@ package csv
 import (
 	"encoding/csv"
 	"io"
+	"path/filepath"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/utils"
 )
@@ -20,16 +21,12 @@ func NewReader(destination io.Reader) *Reader {
 	}
 }
 
-func NewFileReader(path string) *Reader {
-	file, err := utils.CreateFile(path)
-	if err != nil {
-		return &Reader{
-			err: errors.Wrap(err, CsvErrorTitle, "Could not save CSV file"),
-		}
-	}
+// Creates a new file reader reading the file on the given path. If multiple path elements are passed, they are joined with filepath.Join.
+func NewFileReader(path ...string) *Reader {
+	file := utils.OpenFileLazy(filepath.Join(path...))
 	return &Reader{
 		source: NewProjectCsvReader(file),
-		closer: file,
+		closer: utils.OpenFileLazy(filepath.Join(path...)),
 	}
 }
 
@@ -50,6 +47,21 @@ func (r *Reader) ReadRecord() ([]string, errors.Error) {
 		return nil, errors.Wrap(err, CsvErrorTitle, "Could not read from csv input file")
 	} else {
 		return record, nil
+	}
+}
+
+func (r *Reader) ReadAllRecords() ([][]string, errors.Error) {
+	defer r.Close()
+	rows := make([][]string, 0, 8)
+	for {
+		if record, err := r.ReadRecord(); err != nil {
+			if err.Is(errors.EOF) {
+				return rows, nil
+			}
+			return nil, err
+		} else {
+			rows = append(rows, record)
+		}
 	}
 }
 

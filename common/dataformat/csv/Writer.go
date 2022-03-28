@@ -3,6 +3,7 @@ package csv
 import (
 	"encoding/csv"
 	"io"
+	"path/filepath"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/utils"
 )
@@ -20,13 +21,9 @@ func NewWriter(destination io.Writer) *Writer {
 	}
 }
 
-func NewFileWriter(path string) *Writer {
-	file, err := utils.CreateFile(path)
-	if err != nil {
-		return &Writer{
-			err: errors.Wrap(err, CsvErrorTitle, "Could not save CSV file"),
-		}
-	}
+// Creates a new file writer writing to the file on the given path. If multiple path elements are passed, they are joined with filepath.Join.
+func NewFileWriter(path ...string) *Writer {
+	file := utils.OpenFileLazy(filepath.Join(path...))
 	return &Writer{
 		destination: NewProjectCsvWriter(file),
 		closer:      file,
@@ -49,11 +46,22 @@ func (w *Writer) WriteRecord(record []string) errors.Error {
 	return nil
 }
 
+func (w *Writer) WriteAllRecords(records [][]string) errors.Error {
+	defer w.Close()
+	for _, record := range records {
+		if err := w.WriteRecord(record); err != nil {
+			w.err = err
+			return err
+		}
+	}
+	if w.destination.Flush(); w.destination.Error() != nil {
+		return errors.Wrap(w.destination.Error(), CsvErrorTitle, "Could not write to csv output file")
+	}
+	return nil
+}
+
 func (w *Writer) Close() {
 	if w.closer != nil {
 		w.closer.Close()
 	}
 }
-
-// csv.NewWriter(writer).WithSeparator(",").WriteDatasetRows(datasetRows)
-// csv.NewFileWriter(writer)

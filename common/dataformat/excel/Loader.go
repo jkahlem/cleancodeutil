@@ -18,7 +18,7 @@ type csvLoader struct {
 }
 
 func newCsvLoader(path string) *csvLoader {
-	records, err := csv.ReadRecords(path)
+	records, err := csv.NewFileReader(path).ReadAllRecords()
 	return &csvLoader{
 		err:         err,
 		sliceLoader: newSliceLoader(records),

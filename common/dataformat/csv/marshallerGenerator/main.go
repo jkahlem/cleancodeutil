@@ -86,7 +86,7 @@ func Unmarshal{{.TypeName}}(record []string) ({{.TypeName}}, errors.Error) {
 	result.{{.Name}} = SplitList(record[{{$i}}])
 	{{- else if isIntegerType .TypeName}}
 	if val, err := strconv.Atoi(record[{{$i}}]); err != nil {
-		return result, errors.Wrap(err, "CSV", "Could not unmarshal to {{.TypeName}}: Expected integer value but got '%s'", record[{{$i}}])
+		return result, errors.Wrap(err, CsvErrorTitle, "Could not unmarshal to {{.TypeName}}: Expected integer value but got '%s'", record[{{$i}}])
 	} else {
 		{{- if eq .TypeName "int"}}
 		result.{{.Name}} = val
@@ -151,6 +151,10 @@ func (w *Writer) Write{{.TypeName}}Records(rows []{{.TypeName}}) errors.Error {
 			w.err = err
 			return err
 		}
+	}
+	
+	if w.destination.Flush(); w.destination.Error() != nil {
+		return errors.Wrap(w.destination.Error(), CsvErrorTitle, "Could not write to csv output file")
 	}
 	return nil
 }

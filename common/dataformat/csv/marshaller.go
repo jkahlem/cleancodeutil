@@ -68,6 +68,10 @@ func (w *Writer) WriteMethodRecords(rows []Method) errors.Error {
 			return err
 		}
 	}
+
+	if w.destination.Flush(); w.destination.Error() != nil {
+		return errors.Wrap(w.destination.Error(), CsvErrorTitle, "Could not write to csv output file")
+	}
 	return nil
 }
 
@@ -117,6 +121,10 @@ func (w *Writer) WriteClassRecords(rows []Class) errors.Error {
 			w.err = err
 			return err
 		}
+	}
+
+	if w.destination.Flush(); w.destination.Error() != nil {
+		return errors.Wrap(w.destination.Error(), CsvErrorTitle, "Could not write to csv output file")
 	}
 	return nil
 }
@@ -168,6 +176,10 @@ func (w *Writer) WriteTypeConversionRecords(rows []TypeConversion) errors.Error 
 			return err
 		}
 	}
+
+	if w.destination.Flush(); w.destination.Error() != nil {
+		return errors.Wrap(w.destination.Error(), CsvErrorTitle, "Could not write to csv output file")
+	}
 	return nil
 }
 
@@ -175,7 +187,7 @@ func UnmarshalReturnTypesDatasetRow(record []string) (ReturnTypesDatasetRow, err
 	result := ReturnTypesDatasetRow{}
 	result.MethodName = record[0]
 	if val, err := strconv.Atoi(record[1]); err != nil {
-		return result, errors.Wrap(err, "CSV", "Could not unmarshal to int: Expected integer value but got '%s'", record[1])
+		return result, errors.Wrap(err, CsvErrorTitle, "Could not unmarshal to int: Expected integer value but got '%s'", record[1])
 	} else {
 		result.TypeLabel = val
 	}
@@ -221,6 +233,10 @@ func (w *Writer) WriteReturnTypesDatasetRowRecords(rows []ReturnTypesDatasetRow)
 			w.err = err
 			return err
 		}
+	}
+
+	if w.destination.Flush(); w.destination.Error() != nil {
+		return errors.Wrap(w.destination.Error(), CsvErrorTitle, "Could not write to csv output file")
 	}
 	return nil
 }
@@ -274,6 +290,10 @@ func (w *Writer) WriteMethodGenerationDatasetRowRecords(rows []MethodGenerationD
 			return err
 		}
 	}
+
+	if w.destination.Flush(); w.destination.Error() != nil {
+		return errors.Wrap(w.destination.Error(), CsvErrorTitle, "Could not write to csv output file")
+	}
 	return nil
 }
 
@@ -281,7 +301,7 @@ func UnmarshalTypeLabel(record []string) (TypeLabel, errors.Error) {
 	result := TypeLabel{}
 	result.Name = record[0]
 	if val, err := strconv.Atoi(record[1]); err != nil {
-		return result, errors.Wrap(err, "CSV", "Could not unmarshal to int: Expected integer value but got '%s'", record[1])
+		return result, errors.Wrap(err, CsvErrorTitle, "Could not unmarshal to int: Expected integer value but got '%s'", record[1])
 	} else {
 		result.Label = val
 	}
@@ -328,6 +348,10 @@ func (w *Writer) WriteTypeLabelRecords(rows []TypeLabel) errors.Error {
 			return err
 		}
 	}
+
+	if w.destination.Flush(); w.destination.Error() != nil {
+		return errors.Wrap(w.destination.Error(), CsvErrorTitle, "Could not write to csv output file")
+	}
 	return nil
 }
 
@@ -338,12 +362,12 @@ func UnmarshalIdealResult(record []string) (IdealResult, errors.Error) {
 	result.Identifier = record[2]
 	result.IdentifierType = record[3]
 	if val, err := strconv.Atoi(record[4]); err != nil {
-		return result, errors.Wrap(err, "CSV", "Could not unmarshal to int: Expected integer value but got '%s'", record[4])
+		return result, errors.Wrap(err, CsvErrorTitle, "Could not unmarshal to int: Expected integer value but got '%s'", record[4])
 	} else {
 		result.LineNumber = val
 	}
 	if val, err := strconv.Atoi(record[5]); err != nil {
-		return result, errors.Wrap(err, "CSV", "Could not unmarshal to int: Expected integer value but got '%s'", record[5])
+		return result, errors.Wrap(err, CsvErrorTitle, "Could not unmarshal to int: Expected integer value but got '%s'", record[5])
 	} else {
 		result.ColumnNumber = val
 	}
@@ -403,6 +427,10 @@ func (w *Writer) WriteIdealResultRecords(rows []IdealResult) errors.Error {
 			w.err = err
 			return err
 		}
+	}
+
+	if w.destination.Flush(); w.destination.Error() != nil {
+		return errors.Wrap(w.destination.Error(), CsvErrorTitle, "Could not write to csv output file")
 	}
 	return nil
 }

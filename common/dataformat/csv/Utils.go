@@ -5,12 +5,10 @@ package csv
 import (
 	"encoding/csv"
 	"io"
-	"os"
 	"strings"
 
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
-	"returntypes-langserver/common/utils"
 )
 
 const CsvErrorTitle string = "CSV Error"
@@ -37,38 +35,6 @@ func MakeList(str []string) string {
 // Turns a string into an array using the csv list seperator defined in the configuration.
 func SplitList(str string) []string {
 	return strings.Split(str, configuration.CsvListSeperator())
-}
-
-// Reads a whole csv file and returning all it's records.
-func ReadRecords(input string) ([][]string, errors.Error) {
-	csvFile, err := os.Open(input)
-	if err != nil {
-		return nil, errors.Wrap(err, CsvErrorTitle, "Could not open CSV file")
-	}
-	defer csvFile.Close()
-
-	csvReader := NewProjectCsvReader(csvFile)
-	records, err := csvReader.ReadAll()
-	if err != nil {
-		return nil, errors.Wrap(err, CsvErrorTitle, "Could not read CSV file")
-	}
-
-	return records, nil
-}
-
-// Writes the records to the file at the given path.
-// The file (and directory) will be created if it does not exist.
-func WriteCsvRecords(path string, records [][]string) errors.Error {
-	file, err := utils.CreateFile(path)
-	if err != nil {
-		return errors.Wrap(err, CsvErrorTitle, "Could not save CSV file")
-	}
-	defer file.Close()
-
-	if err := WriteRecordsToTarget(file, records); err != nil {
-		return err
-	}
-	return nil
 }
 
 // Writes the records to the given file.
