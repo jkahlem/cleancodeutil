@@ -136,7 +136,7 @@ func (e *Evaluator) buildEvaluationSet(setConfiguration configuration.Evaluation
 }
 
 func (e *Evaluator) isEvaluationResultPresent(path string) bool {
-	return utils.FileExists(filepath.Join(path, GeneratedMethodsFile))
+	return utils.FileExists(filepath.Join(path, e.Dataset.Name()+GeneratedMethodsFile))
 }
 
 func (e *Evaluator) evaluateMethods(path string, evalset *EvaluationSet) errors.Error {
@@ -145,7 +145,7 @@ func (e *Evaluator) evaluateMethods(path string, evalset *EvaluationSet) errors.
 		return err
 	}
 
-	generatedMethodsFile, err := utils.CreateFile(filepath.Join(path, GeneratedMethodsFile))
+	generatedMethodsFile, err := utils.CreateFile(filepath.Join(path, e.Dataset.Name()+GeneratedMethodsFile))
 	if err != nil {
 		return err
 	}
@@ -172,7 +172,7 @@ func (e *Evaluator) getGeneratedMethodsForEvaluationSet(path string) ([]Method, 
 }
 
 func (e *Evaluator) writeScoreOutput(path string, evalset *EvaluationSet) errors.Error {
-	scoreFile, err := utils.CreateFile(filepath.Join(path, ScoreOutputFile))
+	scoreFile, err := utils.CreateFile(filepath.Join(path, e.Dataset.Name()+ScoreOutputFile))
 	if err != nil {
 		return err
 	}
@@ -192,7 +192,7 @@ func (e *Evaluator) writeExampleOutput(path string, evalset *EvaluationSet) erro
 		return err
 	}
 
-	file, err := utils.CreateFile(filepath.Join(path, ExampleOutputFile))
+	file, err := utils.CreateFile(filepath.Join(path, e.Dataset.Name()+ExampleOutputFile))
 	if err != nil {
 		return err
 	}

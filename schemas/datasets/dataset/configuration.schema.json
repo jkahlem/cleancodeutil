@@ -15,7 +15,7 @@
             "type": "string"
         },
         "filter": {
-            "description": "A filter which is used on each method before doing anything else with it. If the method does not fulfill this filter, then it is not accepted.",
+            "description": "A filter which is used on each method before doing anything else with it. If the method does not fulfill this filter, then it is not accepted. If this set is a subset and no filter is defined, then no training set/evaluation set output is created.",
             "type": "object",
             "$ref": "../filter.schema.json"
         },
