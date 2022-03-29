@@ -219,6 +219,7 @@ func (s *communicator) awaitMessage() (interface{}, errors.Error) {
 	}
 	rpcMsg, err := jsonrpc.Unmarshal(msg)
 	if err != nil {
+		log.Error(errors.Wrap(err, "Communicator", "Received invalid RPC message."))
 		responseError := jsonrpc.NewResponseError(jsonrpc.InvalidRequest, "Unmarshalling json object to request failed.")
 		return nil, s.respond(JsonNULL{}, nil, &responseError)
 	}

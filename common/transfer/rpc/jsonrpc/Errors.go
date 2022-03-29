@@ -12,7 +12,7 @@ const (
 )
 
 type ResponseError struct {
-	Code    ErrorCode   `json:"code" mapelement:"code"`
+	Code    ErrorCode   `json:"code"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data,omitempty"`
 }

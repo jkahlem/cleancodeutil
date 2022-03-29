@@ -76,8 +76,9 @@ func TestGenerateMethods(t *testing.T) {
 		},
 	})
 
-	fmt.Println(values[0], values[1])
-	assert.NoError(t, err)
+	if assert.NoError(t, err) {
+		fmt.Println(values[0], values[1])
+	}
 }
 
 /*
