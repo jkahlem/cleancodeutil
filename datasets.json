@@ -1,10 +1,10 @@
 {
     "datasets": [
         {
-            "name": "experimental-set3",
+            "name": "exp-compound-task-220329",
             "filter": {
                 "exclude": [{
-                    "modifier": ["native"]
+                    "modifier": ["native", "private"]
                 },{
                     "label": ["testCode", "override"]
                 }]
@@ -17,11 +17,17 @@
                     "training": 7,
                     "evaluation": 3
                 },
-                "maxTrainingRows": 4000,
-                "maxEvaluationRows": 3000
+                "maxTrainingRows": 8000,
+                "maxEvaluationRows": 5000
             },
             "modelOptions": {
-                "numOfEpochs": 1
+                "numOfEpochs": 1,
+                "generationTasks": {
+                    "parameterNames":{
+                        "withParameterTypes": true,
+                        "withReturnType": true
+                    }
+                }
             }
         }
     ]

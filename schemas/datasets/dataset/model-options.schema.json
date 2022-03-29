@@ -14,6 +14,34 @@
             "description": "Defines the number of training epochs.",
             "type": "integer",
             "minimum": 1
+        },
+        "generationTasks": {
+            "description": "Defines further options for method generation tasks.",
+            "type": "object",
+            "properties": {
+                "parameterNames": {
+                    "description": "Defines, which tasks should also be performed when generating parameter names in the same task.",
+                    "type": "object",
+                    "properties": {
+                        "withReturnType": {
+                            "description": "If true, the parameter list generation will be extended by return type generation in the same task.",
+                            "type": "boolean"
+                        },
+                        "withParameterTypes": {
+                            "description": "If true, the parameter list generation will be extended by parameter type generation in the same task.",
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "parameterTypes": {
+                    "description": "If true, parameter type generation is performed in a separate task.",
+                    "type": "boolean"
+                },
+                "returnType": {
+                    "description": "If true, return type generation is performed in a separate task.",
+                    "type": "boolean"
+                }
+            }
         }
     }
 }

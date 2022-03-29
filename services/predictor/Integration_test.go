@@ -54,7 +54,15 @@ func TestGenerateMethods(t *testing.T) {
 	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
 
 	values, err := OnDataset(configuration.Dataset{
-		NameRaw: "experimental-set",
+		NameRaw: "exp-compound-task-220329",
+		ModelOptions: configuration.ModelOptions{
+			GenerationTasks: configuration.MethodGenerationTaskOptions{
+				ParameterNames: configuration.CompounTaskOptions{
+					WithReturnType:     true,
+					WithParameterTypes: true,
+				},
+			},
+		},
 	}).GenerateMethods([]MethodContext{
 		{
 			MethodName: "compare strings",

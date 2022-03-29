@@ -90,9 +90,13 @@ func (e *Evaluator) generateMethodDefinitions(methods []predictor.Method) ([]Met
 func (e *Evaluator) parseOutputToMethod(method predictor.Method, expectedValues predictor.MethodValues) Method {
 	return Method{
 		Name:                string(method.Context.MethodName),
-		ExpectedDefinition:  e.joinParameters(expectedValues.Parameters),
-		GeneratedDefinition: e.joinParameters(method.Values.Parameters),
+		ExpectedDefinition:  e.joinParameters2(expectedValues),
+		GeneratedDefinition: e.joinParameters2(method.Values),
 	}
+}
+
+func (e *Evaluator) joinParameters2(values predictor.MethodValues) *metrics.Sentence {
+	return metrics.NewSentence(values.String())
 }
 
 func (e *Evaluator) joinParameters(parameters []predictor.Parameter) *metrics.Sentence {

@@ -36,11 +36,15 @@ func (m MethodValues) String() string {
 	str := ""
 	if len(m.Parameters) > 0 {
 		str += "parameters: "
-		for i, p := range m.Parameters {
-			if i > 0 {
-				str += ", "
+		if len(m.Parameters) == 0 {
+			str += "void."
+		} else {
+			for i, p := range m.Parameters {
+				if i > 0 {
+					str += ", "
+				}
+				str += p.String()
 			}
-			str += p.String()
 		}
 	}
 	if m.ReturnType != "" {
@@ -74,6 +78,23 @@ type Options struct {
 }
 
 type ModelOptions struct {
-	BatchSize   int `json:"batchSize"`
-	NumOfEpochs int `json:"numOfEpochs"`
+	BatchSize       int                         `json:"batchSize"`
+	NumOfEpochs     int                         `json:"numOfEpochs"`
+	GenerationTasks MethodGenerationTaskOptions `json:"generationTasks"`
+}
+
+type MethodGenerationTaskOptions struct {
+	// Defines, which tasks should also be performed when generating parameter names in the same task
+	ParameterNames CompounTaskOptions `json:"parameterNames"`
+	// If true, parameter type generation is performed in a separate task
+	ParameterTypes bool `json:"parameterTypes"`
+	// If true, return type generation is performed in a separate task
+	ReturnType bool `json:"returnType"`
+}
+
+type CompounTaskOptions struct {
+	// If true, the parameter list generation will be extended by return type generation in the same task
+	WithReturnType bool `json:"withReturnType"`
+	// If true, the parameter list generation will be extended by parameter type generation in the same task
+	WithParameterTypes bool `json:"withParameterTypes"`
 }

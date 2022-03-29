@@ -35,7 +35,7 @@ func (e *ErrorCollector) NilIfEmpty() Error {
 	if len(e.contained) == 0 {
 		return nil
 	}
-	return nil
+	return e
 }
 
 // The formatted message of the error

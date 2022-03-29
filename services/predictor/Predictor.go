@@ -117,8 +117,24 @@ func (p *predictor) GenerateMethods(contexts []MethodContext) ([]MethodValues, e
 
 func (p *predictor) getOptions(modelType SupportedModels) Options {
 	return Options{
-		Identifier: p.config.QualifiedIdentifier(),
-		Type:       modelType,
+		Identifier:   p.config.QualifiedIdentifier(),
+		Type:         modelType,
+		ModelOptions: p.mapModelOptions(p.config.ModelOptions),
+	}
+}
+
+func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOptions {
+	return ModelOptions{
+		BatchSize:   options.BatchSize,
+		NumOfEpochs: options.NumOfEpochs,
+		GenerationTasks: MethodGenerationTaskOptions{
+			ParameterNames: CompounTaskOptions{
+				WithParameterTypes: options.GenerationTasks.ParameterNames.WithReturnType,
+				WithReturnType:     options.GenerationTasks.ParameterNames.WithReturnType,
+			},
+			ParameterTypes: options.GenerationTasks.ParameterTypes,
+			ReturnType:     options.GenerationTasks.ReturnType,
+		},
 	}
 }
 
