@@ -33,6 +33,7 @@ type ReturnTypesDatasetRow struct {
 type MethodGenerationDatasetRow struct {
 	ClassName  string
 	MethodName string
+	ReturnType string
 	Parameters []string
 }
 

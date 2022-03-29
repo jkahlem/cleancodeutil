@@ -42,6 +42,12 @@ func KeyValueByEqualSign(raw string) (key, value string, ok bool) {
 	return splitted[0], splitted[1], true
 }
 
+// Gets the last part of the string after splitting it by sep.
+func GetStringExtension(str, sep string) string {
+	splitted := strings.Split(str, sep)
+	return splitted[len(splitted)-1]
+}
+
 // Allows to store strings in a set.
 type StringSet map[string]struct{}
 

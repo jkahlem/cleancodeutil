@@ -77,6 +77,7 @@ func (p *Processor) mapMethodToDatasetRow(method *csv.Method) csv.MethodGenerati
 	datasetRow := csv.MethodGenerationDatasetRow{
 		ClassName:  method.ClassName,
 		MethodName: string(predictor.GetPredictableMethodName(method.MethodName)),
+		ReturnType: utils.GetStringExtension(method.ReturnType, "."),
 		Parameters: parameters,
 	}
 	return datasetRow

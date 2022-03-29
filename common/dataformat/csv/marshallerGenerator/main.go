@@ -164,6 +164,5 @@ const Imports = `
 import (
 	"fmt"
 	"returntypes-langserver/common/debug/errors"
-	"returntypes-langserver/common/debug/log"
 	"strconv"
 )`

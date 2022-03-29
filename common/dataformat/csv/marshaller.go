@@ -245,15 +245,17 @@ func UnmarshalMethodGenerationDatasetRow(record []string) (MethodGenerationDatas
 	result := MethodGenerationDatasetRow{}
 	result.ClassName = record[0]
 	result.MethodName = record[1]
-	result.Parameters = SplitList(record[2])
+	result.ReturnType = record[2]
+	result.Parameters = SplitList(record[3])
 	return result, nil
 }
 
 func (s MethodGenerationDatasetRow) ToRecord() []string {
-	record := make([]string, 3)
+	record := make([]string, 4)
 	record[0] = s.ClassName
 	record[1] = s.MethodName
-	record[2] = MakeList(s.Parameters)
+	record[2] = s.ReturnType
+	record[3] = MakeList(s.Parameters)
 	return record
 }
 

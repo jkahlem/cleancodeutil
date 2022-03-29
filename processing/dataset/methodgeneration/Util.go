@@ -23,7 +23,7 @@ func mapToMethods(rows []csv.MethodGenerationDatasetRow) ([]predictor.Method, er
 				Types:      nil,
 			},
 			Values: predictor.MethodValues{
-				ReturnType: "void", // TODO
+				ReturnType: method.ReturnType,
 				Parameters: parameters,
 			},
 		}
