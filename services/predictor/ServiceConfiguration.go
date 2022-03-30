@@ -46,10 +46,11 @@ func serviceConfiguration() rpc.ServiceConfiguration {
 }
 
 type Proxy struct {
-	Predict  func(predictionData []MethodContext, options Options) ([]MethodValues, errors.Error) `rpcmethod:"predict" rpcparams:"predictionData,options"`
-	Train    func(trainData []Method, options Options) errors.Error                               `rpcmethod:"train" rpcparams:"trainData,options"`
-	Evaluate func(evaluationData []Method, options Options) (Evaluation, errors.Error)            `rpcmethod:"evaluate" rpcparams:"evaluationData,options"`
-	Exists   func(options Options) (bool, errors.Error)                                           `rpcmethod:"exists" rpcparams:"options"`
+	Predict         func(predictionData []MethodContext, options Options) ([]MethodValues, errors.Error)   `rpcmethod:"predict" rpcparams:"predictionData,options"`
+	PredictMultiple func(predictionData []MethodContext, options Options) ([][]MethodValues, errors.Error) `rpcmethod:"predict" rpcparams:"predictionData,options"`
+	Train           func(trainData []Method, options Options) errors.Error                                 `rpcmethod:"train" rpcparams:"trainData,options"`
+	Evaluate        func(evaluationData []Method, options Options) (Evaluation, errors.Error)              `rpcmethod:"evaluate" rpcparams:"evaluationData,options"`
+	Exists          func(options Options) (bool, errors.Error)                                             `rpcmethod:"exists" rpcparams:"options"`
 }
 
 // Adds a handler for the RecoverFailed event.

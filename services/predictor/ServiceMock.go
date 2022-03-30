@@ -61,11 +61,14 @@ func (p *mock) TrainMethods(trainingSet []Method) errors.Error {
 	return nil
 }
 
-func (p *mock) GenerateMethods(contexts []MethodContext) ([]MethodValues, errors.Error) {
-	methods := make([]MethodValues, len(contexts))
+func (p *mock) GenerateMethods(contexts []MethodContext) ([][]MethodValues, errors.Error) {
+	methods := make([][]MethodValues, len(contexts))
 	for i := range methods {
-		methods[i].Parameters = append(methods[i].Parameters, MockParameter)
-		methods[i].ReturnType = "void"
+		method := MethodValues{
+			Parameters: []Parameter{MockParameter},
+			ReturnType: "void",
+		}
+		methods[i] = []MethodValues{method}
 	}
 	return methods, nil
 }

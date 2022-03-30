@@ -18,9 +18,18 @@ type ProxyFacade struct {
 
 func (p *ProxyFacade) Predict(predictionData []MethodContext, options Options) ([]MethodValues, errors.Error) {
 	if err := p.validate(p.Proxy.Predict); err != nil {
-		return nil, err
+		var empty0 []MethodValues
+		return empty0, err
 	}
 	return p.Proxy.Predict(predictionData, options)
+}
+
+func (p *ProxyFacade) PredictMultiple(predictionData []MethodContext, options Options) ([][]MethodValues, errors.Error) {
+	if err := p.validate(p.Proxy.PredictMultiple); err != nil {
+		var empty0 [][]MethodValues
+		return empty0, err
+	}
+	return p.Proxy.PredictMultiple(predictionData, options)
 }
 
 func (p *ProxyFacade) Train(trainData []Method, options Options) errors.Error {
@@ -32,14 +41,16 @@ func (p *ProxyFacade) Train(trainData []Method, options Options) errors.Error {
 
 func (p *ProxyFacade) Evaluate(evaluationData []Method, options Options) (Evaluation, errors.Error) {
 	if err := p.validate(p.Proxy.Evaluate); err != nil {
-		return Evaluation{}, err
+		var empty0 Evaluation
+		return empty0, err
 	}
 	return p.Proxy.Evaluate(evaluationData, options)
 }
 
 func (p *ProxyFacade) Exists(options Options) (bool, errors.Error) {
 	if err := p.validate(p.Proxy.Exists); err != nil {
-		return false, err
+		var empty0 bool
+		return empty0, err
 	}
 	return p.Proxy.Exists(options)
 }

@@ -318,7 +318,7 @@ func (ls *languageServer) RegisterCapability(registrations ...lsp.Registration) 
 func (ls *languageServer) CompleteMethodDefinition(method Method, doc *workspace.Document) (*lsp.CompletionItem, errors.Error) {
 	// Generate parameter list
 	if set, ok := configuration.FindDatasetByReference(configuration.LanguageServerMethodGenerationDataset()); ok && doc != nil {
-		value, err := predictor.OnDataset(set).GenerateMethods([]predictor.MethodContext{{
+		value2, err := predictor.OnDataset(set).GenerateMethods([]predictor.MethodContext{{
 			MethodName: predictor.GetPredictableMethodName(method.Name.Content),
 			ClassName:  method.ClassName,
 			IsStatic:   method.IsStatic,
@@ -326,6 +326,7 @@ func (ls *languageServer) CompleteMethodDefinition(method Method, doc *workspace
 		if err != nil {
 			return nil, err
 		}
+		value := value2[0] //TODO Multiple Suggestions
 
 		// convert output to completion item & return it
 		parameterList := ls.createTextEdit(ls.joinParameterList(value[0].Parameters), lsp.Range{

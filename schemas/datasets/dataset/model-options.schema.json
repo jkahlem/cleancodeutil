@@ -15,6 +15,16 @@
             "type": "integer",
             "minimum": 1
         },
+        "numReturnSequences": {
+            "description": "Sets the number of expected return sequences to predict different suggestions",
+            "type": "integer",
+            "minimum": 1
+        },
+        "maxSequenceLength": {
+            "description": "Sets the maximum length of the predicted sequence",
+            "type": "integer",
+            "minimum": 1
+        },
         "generationTasks": {
             "description": "Defines further options for method generation tasks.",
             "type": "object",

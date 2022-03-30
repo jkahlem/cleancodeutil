@@ -31,7 +31,7 @@ type Predictor interface {
 	// Evaluates the passed methods and returns the scores for it
 	EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error)
 	// Generates the remained part of a method by it's method name
-	GenerateMethods(contexts []MethodContext) ([]MethodValues, errors.Error)
+	GenerateMethods(contexts []MethodContext) ([][]MethodValues, errors.Error)
 	// Starts the training and evaluation process.
 	TrainReturnTypes(methods []Method, labels [][]string) errors.Error
 	// Starts the training and evaluation process.
@@ -111,8 +111,8 @@ func (p *predictor) TrainMethods(trainingSet []Method) errors.Error {
 	return remote().Train(trainingSet, p.getOptions(MethodGenerator))
 }
 
-func (p *predictor) GenerateMethods(contexts []MethodContext) ([]MethodValues, errors.Error) {
-	return remote().Predict(contexts, p.getOptions(MethodGenerator))
+func (p *predictor) GenerateMethods(contexts []MethodContext) ([][]MethodValues, errors.Error) {
+	return remote().PredictMultiple(contexts, p.getOptions(MethodGenerator))
 }
 
 func (p *predictor) getOptions(modelType SupportedModels) Options {
@@ -135,6 +135,8 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 			ParameterTypes: options.GenerationTasks.ParameterTypes,
 			ReturnType:     options.GenerationTasks.ReturnType,
 		},
+		NumReturnSequences: options.NumReturnSequences,
+		MaxSequenceLength:  options.MaxSequenceLength,
 	}
 }
 

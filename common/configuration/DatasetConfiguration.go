@@ -38,6 +38,10 @@ type ModelOptions struct {
 	NumOfEpochs     int                         `json:"numOfEpochs"`
 	BatchSize       int                         `json:"batchSize"`
 	GenerationTasks MethodGenerationTaskOptions `json:"generationTasks"`
+	// Sets the number of expected return sequences to predict different suggestions
+	NumReturnSequences int `json:"numReturnSequences"`
+	// Sets the maximum length of the predicted sequence
+	MaxSequenceLength int `json:"maxSequenceLength"`
 }
 
 type MethodGenerationTaskOptions struct {

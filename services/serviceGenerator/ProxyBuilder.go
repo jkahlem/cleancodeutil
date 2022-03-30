@@ -59,7 +59,12 @@ const ProxyFacadeDef = "type ProxyFacade struct {\n\tProxy Proxy `rpcproxy:\"tru
 const ProxyFacadeFunctionTemplate = `{{asLineComments .Documentation}}
 func (p *ProxyFacade) {{.FunctionName}}({{range $i, $e := .Parameters}}{{if $i}}, {{end}}{{.Name}} {{.Type}}{{end}}) ({{range $i, $e := .Result}}{{if $i}}, {{end}}{{.Name}} {{.Type}}{{end}}) {
 	if err := p.validate(p.Proxy.{{.FunctionName}}); err != nil {
-		return {{range $i, $e := .Result}}{{if $i}}, {{end}}{{if eq .Type "string"}}""{{else if eq .Type "errors.Error"}}err{{else}}nil{{end}}{{end}}
+		{{- range $i, $e := .Result}}
+			{{- if ne .Type "errors.Error"}}
+				var empty{{$i}} {{.Type}}
+			{{- end}}
+		{{- end}}
+		return {{range $i, $e := .Result}}{{if $i}}, {{end}}{{if eq .Type "errors.Error"}}err{{else}}empty{{$i}}{{end}}{{end}}
 	}
 	{{if ne 0 (len .Result)}}return {{end}}p.Proxy.{{.FunctionName}}({{range $i, $e := .Parameters}}{{if $i}}, {{end}}{{.Name}}{{if isVariadic .Type}}...{{end}}{{end}})
 }

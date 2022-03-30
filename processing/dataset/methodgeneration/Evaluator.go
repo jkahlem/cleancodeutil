@@ -81,7 +81,7 @@ func (e *Evaluator) generateMethodDefinitions(methods []predictor.Method) ([]Met
 	for i := range predicted {
 		outputMethods[i] = e.parseOutputToMethod(predictor.Method{
 			Context: contexts[i],
-			Values:  predicted[i],
+			Values:  predicted[i][0], //TODO Multiple Suggestions
 		}, methods[i].Values)
 	}
 	return outputMethods, err
@@ -198,8 +198,11 @@ func (e *Evaluator) writeExampleOutput(path string, evalset *EvaluationSet) erro
 	}
 	defer file.Close()
 
-	for i, methodValue := range generated {
-		fmt.Fprintf(file, "%s -> %s\n", examples[i], methodValue)
+	for i, methodValues := range generated {
+		fmt.Fprintf(file, "%s:\n", examples[i])
+		for _, value := range methodValues {
+			fmt.Fprintf(file, "- %s\n", value)
+		}
 	}
 
 	return nil
