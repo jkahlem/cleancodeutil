@@ -56,12 +56,13 @@ func TestGenerateMethods(t *testing.T) {
 	values, err := OnDataset(configuration.Dataset{
 		NameRaw: "exp-compound-task-220329",
 		ModelOptions: configuration.ModelOptions{
-			GenerationTasks: configuration.MethodGenerationTaskOptions{
-				ParameterNames: configuration.CompounTaskOptions{
+			GenerationTasks: &configuration.MethodGenerationTaskOptions{
+				ParameterNames: configuration.CompoundTaskOptions{
 					WithReturnType:     true,
 					WithParameterTypes: true,
 				},
 			},
+			NumReturnSequences: 3,
 		},
 	}).GenerateMethods([]MethodContext{
 		{

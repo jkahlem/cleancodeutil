@@ -38,3 +38,12 @@ func MustUnmarshalJsonToMap(raw string) map[string]interface{} {
 	}
 	return v
 }
+
+// Adds all values in destination if they are set in source and unset in destination
+func AddUnsettedValues(source, destination map[string]interface{}) {
+	for key, value := range source {
+		if _, ok := destination[key]; !ok {
+			destination[key] = value
+		}
+	}
+}

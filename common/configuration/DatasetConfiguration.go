@@ -3,6 +3,7 @@ package configuration
 import (
 	"os"
 	"returntypes-langserver/common/dataformat/jsonschema"
+	"returntypes-langserver/common/utils"
 )
 
 type DatasetConfiguration []Dataset
@@ -35,9 +36,9 @@ type SpecialOptions struct {
 }
 
 type ModelOptions struct {
-	NumOfEpochs     int                         `json:"numOfEpochs"`
-	BatchSize       int                         `json:"batchSize"`
-	GenerationTasks MethodGenerationTaskOptions `json:"generationTasks"`
+	NumOfEpochs     int                          `json:"numOfEpochs"`
+	BatchSize       int                          `json:"batchSize"`
+	GenerationTasks *MethodGenerationTaskOptions `json:"generationTasks,omitempty"`
 	// Sets the number of expected return sequences to predict different suggestions
 	NumReturnSequences int `json:"numReturnSequences"`
 	// Sets the maximum length of the predicted sequence
@@ -46,14 +47,14 @@ type ModelOptions struct {
 
 type MethodGenerationTaskOptions struct {
 	// Defines, which tasks should also be performed when generating parameter names in the same task
-	ParameterNames CompounTaskOptions `json:"parameterNames"`
+	ParameterNames CompoundTaskOptions `json:"parameterNames"`
 	// If true, parameter type generation is performed in a separate task
 	ParameterTypes bool `json:"parameterTypes"`
 	// If true, return type generation is performed in a separate task
 	ReturnType bool `json:"returnType"`
 }
 
-type CompounTaskOptions struct {
+type CompoundTaskOptions struct {
 	// If true, the parameter list generation will be extended by return type generation in the same task
 	WithReturnType bool `json:"withReturnType"`
 	// If true, the parameter list generation will be extended by parameter type generation in the same task
@@ -113,5 +114,63 @@ func connectDatasetPaths(datasets []Dataset, parentPath string) {
 	for i := range datasets {
 		datasets[i].parentPath = parentPath
 		connectDatasetPaths(datasets[i].Subsets, datasets[i].QualifiedIdentifier())
+	}
+}
+
+func (c Dataset) DecodeValue(value interface{}) (interface{}, error) {
+	// Before mapping the json output (map[string]interface{}) to a dataset struct,
+	// merge the modelOptions/specialOptions of this dataset to the modelOptions/specialOptions
+	// of each subset (so set only keys which are unset).
+	//
+	// This approach allows leaving the implementation of the data structure as it currently is
+	// without implementing pointers and pointer checks everywhere as otherwise it is unknown
+	// if a value (bool/int values etc.) is explicitly set to a zero value or was just omitted.
+	if jsonObj, ok := value.(map[string]interface{}); ok {
+		sourceModelOptions, hasModelOptions := jsonObj["modelOptions"]
+		sourceSpecialOptions, hasSpecialOptions := jsonObj["specialOptions"]
+
+		if subsets, ok := jsonObj["subsets"]; ok {
+			if subsetSlice, ok := subsets.([]interface{}); ok {
+				if hasModelOptions {
+					if typedModelOptions, ok := sourceModelOptions.(map[string]interface{}); ok {
+						c.mergeModelOptionsToSubsets(typedModelOptions, subsetSlice)
+					}
+				}
+				if hasSpecialOptions {
+					if typedSpecialOptions, ok := sourceSpecialOptions.(map[string]interface{}); ok {
+						c.mergeSpecialOptionsToSubsets(typedSpecialOptions, subsetSlice)
+					}
+				}
+			}
+		}
+	}
+	return value, nil
+}
+
+func (c Dataset) mergeModelOptionsToSubsets(sourceModelOptions map[string]interface{}, subsets []interface{}) {
+	for i := range subsets {
+		if subsetObject, ok := subsets[i].(map[string]interface{}); ok {
+			if destinationModelOptions, ok := subsetObject["modelOptions"]; ok {
+				if typed, ok := destinationModelOptions.(map[string]interface{}); ok {
+					utils.AddUnsettedValues(sourceModelOptions, typed)
+				}
+			} else {
+				subsetObject["modelOptions"] = sourceModelOptions
+			}
+		}
+	}
+}
+
+func (c Dataset) mergeSpecialOptionsToSubsets(sourceSpecialOptions map[string]interface{}, subsets []interface{}) {
+	for i := range subsets {
+		if subsetObject, ok := subsets[i].(map[string]interface{}); ok {
+			if specialOptions, ok := subsetObject["specialOptions"]; ok {
+				if typed, ok := specialOptions.(map[string]interface{}); ok {
+					utils.AddUnsettedValues(sourceSpecialOptions, typed)
+				}
+			} else {
+				subsetObject["specialOptions"] = sourceSpecialOptions
+			}
+		}
 	}
 }

@@ -11,13 +11,11 @@ type ValueDecoder interface {
 	DecodeValue(interface{}) (interface{}, error)
 }
 
-func valueDecoderHook(from, to reflect.Type, sourceValue interface{}) (interface{}, error) {
+func valueDecoderHook(sourceType, destinationType reflect.Type, sourceValue interface{}) (interface{}, error) {
 	var valueDecoder ValueDecoder
 	valueDecoderType := reflect.TypeOf(&valueDecoder).Elem()
-	fromT, toT := from.String(), to.String()
-	_, _ = fromT, toT
-	if to.Implements(valueDecoderType) {
-		v := reflect.New(to).Interface()
+	if destinationType.Implements(valueDecoderType) {
+		v := reflect.New(destinationType).Interface()
 		if valueDecoder, ok := v.(ValueDecoder); ok {
 			return valueDecoder.DecodeValue(sourceValue)
 		}

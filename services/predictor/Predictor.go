@@ -128,7 +128,7 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 		BatchSize:   options.BatchSize,
 		NumOfEpochs: options.NumOfEpochs,
 		GenerationTasks: MethodGenerationTaskOptions{
-			ParameterNames: CompounTaskOptions{
+			ParameterNames: CompoundTaskOptions{
 				WithParameterTypes: options.GenerationTasks.ParameterNames.WithReturnType,
 				WithReturnType:     options.GenerationTasks.ParameterNames.WithReturnType,
 			},
@@ -137,6 +137,20 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 		},
 		NumReturnSequences: options.NumReturnSequences,
 		MaxSequenceLength:  options.MaxSequenceLength,
+	}
+}
+
+func (p *predictor) mapGenerationTask(options *configuration.MethodGenerationTaskOptions) MethodGenerationTaskOptions {
+	if options == nil {
+		return MethodGenerationTaskOptions{}
+	}
+	return MethodGenerationTaskOptions{
+		ParameterNames: CompoundTaskOptions{
+			WithParameterTypes: options.ParameterNames.WithReturnType,
+			WithReturnType:     options.ParameterNames.WithReturnType,
+		},
+		ParameterTypes: options.ParameterTypes,
+		ReturnType:     options.ReturnType,
 	}
 }
 
