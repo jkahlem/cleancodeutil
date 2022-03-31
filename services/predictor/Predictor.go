@@ -135,8 +135,9 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 			ParameterTypes: options.GenerationTasks.ParameterTypes,
 			ReturnType:     options.GenerationTasks.ReturnType,
 		},
-		NumReturnSequences: options.NumReturnSequences,
-		MaxSequenceLength:  options.MaxSequenceLength,
+		NumReturnSequences:  options.NumReturnSequences,
+		MaxSequenceLength:   options.MaxSequenceLength,
+		DefaultContextTypes: configuration.PredictorDefaultContextTypes(),
 	}
 }
 

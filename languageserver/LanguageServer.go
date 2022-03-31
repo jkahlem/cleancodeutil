@@ -322,6 +322,7 @@ func (ls *languageServer) CompleteMethodDefinition(method Method, doc *workspace
 			MethodName: predictor.GetPredictableMethodName(method.Name.Content),
 			ClassName:  method.ClassName,
 			IsStatic:   method.IsStatic,
+			Types:      nil, // TODO: Add context types
 		}})
 		if err != nil {
 			return nil, err

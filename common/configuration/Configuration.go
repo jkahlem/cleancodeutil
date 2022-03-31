@@ -172,6 +172,13 @@ func PredictorUseMock() bool {
 	return loadedConfig.Predictor.UseMock
 }
 
+func PredictorDefaultContextTypes() []string {
+	if loadedConfig == nil {
+		return nil
+	}
+	return loadedConfig.Predictor.DefaultContextTypes
+}
+
 func StrictMode() bool {
 	if loadedConfig == nil {
 		return false

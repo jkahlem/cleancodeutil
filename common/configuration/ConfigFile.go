@@ -98,6 +98,8 @@ type PredictorConfiguration struct {
 	SkipTraining bool `json:"skipTraining"`
 	// If true, uses the mocked predictor implementation
 	UseMock bool `json:"useMock"`
+	// A list of types (simple identifiers) which will be used as default context types in predictor requests.
+	DefaultContextTypes []string `json:"defaultContextTypes"`
 }
 
 type LoggerConfiguration struct {

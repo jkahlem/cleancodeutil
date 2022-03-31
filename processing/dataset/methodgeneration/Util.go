@@ -20,7 +20,7 @@ func mapToMethods(rows []csv.MethodGenerationDatasetRow) ([]predictor.Method, er
 				MethodName: predictor.PredictableMethodName(method.MethodName),
 				ClassName:  method.ClassName,
 				IsStatic:   true, // TODO
-				Types:      nil,
+				Types:      method.ContextTypes,
 			},
 			Values: predictor.MethodValues{
 				ReturnType: method.ReturnType,
@@ -60,5 +60,6 @@ func mapExampleToMethod(example configuration.MethodExample) predictor.MethodCon
 		MethodName: predictor.PredictableMethodName(predictor.SplitMethodNameToSentence(example.MethodName)),
 		ClassName:  example.ClassName,
 		IsStatic:   example.Static,
+		Types:      []string{example.ClassName},
 	}
 }

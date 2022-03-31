@@ -26,6 +26,13 @@
         "useMock": {
             "description": "If true, uses the mocked predictor implementation",
             "type": "boolean"
+        },
+        "defaultContextTypes": {
+            "description": "A list of types (simple identifiers) which will be used as default context types in predictor requests.",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
         }
     }
 }
