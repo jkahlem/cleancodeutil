@@ -11,6 +11,9 @@ import (
 
 func UnmarshalMethod(record []string) (Method, errors.Error) {
 	result := Method{}
+	if len(record) < 8 {
+		return result, errors.New(CsvErrorTitle, "Could not unmarshal to Method: Expected 8 fields but got record with %d fields.", len(record))
+	}
 	result.ClassName = record[0]
 	result.ReturnType = record[1]
 	result.MethodName = record[2]
@@ -77,6 +80,9 @@ func (w *Writer) WriteMethodRecords(rows []Method) errors.Error {
 
 func UnmarshalClass(record []string) (Class, errors.Error) {
 	result := Class{}
+	if len(record) < 2 {
+		return result, errors.New(CsvErrorTitle, "Could not unmarshal to Class: Expected 2 fields but got record with %d fields.", len(record))
+	}
 	result.ClassName = record[0]
 	result.Extends = SplitList(record[1])
 	return result, nil
@@ -131,6 +137,9 @@ func (w *Writer) WriteClassRecords(rows []Class) errors.Error {
 
 func UnmarshalTypeConversion(record []string) (TypeConversion, errors.Error) {
 	result := TypeConversion{}
+	if len(record) < 2 {
+		return result, errors.New(CsvErrorTitle, "Could not unmarshal to TypeConversion: Expected 2 fields but got record with %d fields.", len(record))
+	}
 	result.SourceType = record[0]
 	result.DestinationType = record[1]
 	return result, nil
@@ -185,6 +194,9 @@ func (w *Writer) WriteTypeConversionRecords(rows []TypeConversion) errors.Error 
 
 func UnmarshalReturnTypesDatasetRow(record []string) (ReturnTypesDatasetRow, errors.Error) {
 	result := ReturnTypesDatasetRow{}
+	if len(record) < 2 {
+		return result, errors.New(CsvErrorTitle, "Could not unmarshal to ReturnTypesDatasetRow: Expected 2 fields but got record with %d fields.", len(record))
+	}
 	result.MethodName = record[0]
 	if val, err := strconv.Atoi(record[1]); err != nil {
 		return result, errors.Wrap(err, CsvErrorTitle, "Could not unmarshal to int: Expected integer value but got '%s'", record[1])
@@ -243,6 +255,9 @@ func (w *Writer) WriteReturnTypesDatasetRowRecords(rows []ReturnTypesDatasetRow)
 
 func UnmarshalMethodGenerationDatasetRow(record []string) (MethodGenerationDatasetRow, errors.Error) {
 	result := MethodGenerationDatasetRow{}
+	if len(record) < 6 {
+		return result, errors.New(CsvErrorTitle, "Could not unmarshal to MethodGenerationDatasetRow: Expected 6 fields but got record with %d fields.", len(record))
+	}
 	result.ClassName = record[0]
 	result.MethodName = record[1]
 	result.ReturnType = record[2]
@@ -309,6 +324,9 @@ func (w *Writer) WriteMethodGenerationDatasetRowRecords(rows []MethodGenerationD
 
 func UnmarshalTypeLabel(record []string) (TypeLabel, errors.Error) {
 	result := TypeLabel{}
+	if len(record) < 2 {
+		return result, errors.New(CsvErrorTitle, "Could not unmarshal to TypeLabel: Expected 2 fields but got record with %d fields.", len(record))
+	}
 	result.Name = record[0]
 	if val, err := strconv.Atoi(record[1]); err != nil {
 		return result, errors.Wrap(err, CsvErrorTitle, "Could not unmarshal to int: Expected integer value but got '%s'", record[1])
@@ -367,6 +385,9 @@ func (w *Writer) WriteTypeLabelRecords(rows []TypeLabel) errors.Error {
 
 func UnmarshalIdealResult(record []string) (IdealResult, errors.Error) {
 	result := IdealResult{}
+	if len(record) < 11 {
+		return result, errors.New(CsvErrorTitle, "Could not unmarshal to IdealResult: Expected 11 fields but got record with %d fields.", len(record))
+	}
 	result.FilePath = record[0]
 	result.FileType = record[1]
 	result.Identifier = record[2]
@@ -447,6 +468,9 @@ func (w *Writer) WriteIdealResultRecords(rows []IdealResult) errors.Error {
 
 func UnmarshalFileContextTypes(record []string) (FileContextTypes, errors.Error) {
 	result := FileContextTypes{}
+	if len(record) < 2 {
+		return result, errors.New(CsvErrorTitle, "Could not unmarshal to FileContextTypes: Expected 2 fields but got record with %d fields.", len(record))
+	}
 	result.FilePath = record[0]
 	result.ContextTypes = SplitList(record[1])
 	return result, nil

@@ -81,6 +81,10 @@ func typeError(typeName string) (string, error) {
 const UnmarshalTemplate = `
 func Unmarshal{{.TypeName}}(record []string) ({{.TypeName}}, errors.Error) {
 	result := {{.TypeName}}{}
+	if len(record) < {{len .Fields}} {
+		return result, errors.New(CsvErrorTitle, "Could not unmarshal to {{.TypeName}}: Expected {{len .Fields}} fields but got record with %d fields.", len(record))
+	}
+
 {{- range $i, $e := .Fields}}
 	{{- if eq .TypeName "[]string"}}
 	result.{{.Name}} = SplitList(record[{{$i}}])
