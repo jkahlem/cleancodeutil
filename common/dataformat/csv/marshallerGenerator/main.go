@@ -96,6 +96,12 @@ func Unmarshal{{.TypeName}}(record []string) ({{.TypeName}}, errors.Error) {
 	}
 	{{- else if eq .TypeName "string"}}
 	result.{{.Name}} = record[{{$i}}]
+	{{- else if eq .TypeName "bool"}}
+	if val, err := strconv.ParseBool(record[{{$i}}]); err != nil {
+		return result, errors.Wrap(err, CsvErrorTitle, "Could not unmarshal to {{.TypeName}}: Expected boolean value, but got '%s'", record[{{$i}}])
+	} else {
+		result.{{.Name}} = val
+	}
 	{{- else}}
 		{{typeError .TypeName}}
 	{{- end}}
@@ -112,6 +118,8 @@ func (s {{.TypeName}}) ToRecord() []string {
 	record[{{$i}}] = fmt.Sprintf("%d", s.{{.Name}})
 	{{- else if eq .TypeName "string"}}
 	record[{{$i}}] = s.{{.Name}}
+	{{- else if eq .TypeName "bool"}}
+	record[{{$i}}] = strconv.FormatBool(s.{{.Name}})
 	{{- else}}
 		{{typeError .TypeName}}
 	{{- end}}

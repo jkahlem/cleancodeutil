@@ -89,6 +89,7 @@ func (p *Processor) mapMethodToDatasetRow(method *csv.Method) csv.MethodGenerati
 		ReturnType:   utils.GetStringExtension(method.ReturnType, "."),
 		Parameters:   parameters,
 		ContextTypes: p.getContextTypes(method.FilePath),
+		IsStatic:     utils.ContainsString(method.Modifier, "static"),
 	}
 	return datasetRow
 }

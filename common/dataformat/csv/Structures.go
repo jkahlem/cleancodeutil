@@ -34,6 +34,7 @@ type MethodGenerationDatasetRow struct {
 	ClassName    string
 	MethodName   string
 	ReturnType   string
+	IsStatic     bool
 	Parameters   []string
 	ContextTypes []string
 }
