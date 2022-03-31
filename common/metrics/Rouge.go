@@ -1,32 +1,28 @@
 package metrics
 
 func RougeN(candidate *Sentence, references []*Sentence, n int) (precision, recall float64) {
-	referenceNgrams := make([]Ngram, len(references))
+	referenceNgrams := make([]WordCount, len(references))
 	for i, ref := range references {
-		referenceNgrams[i] = ref.Ngram(n)
+		referenceNgrams[i] = ref.NgramWordCount(n)
 	}
 
-	return computeScoreForNgrams(candidate.Ngram(n), referenceNgrams)
+	return computeScoreForNgrams(candidate.NgramWordCount(n), referenceNgrams)
 }
 
-func computeScoreForNgrams(candidateNgrams Ngram, referenceNgrams []Ngram) (precision, recall float64) {
-	for i := range referenceNgrams {
-		overlapping := countOverlappingWords(candidateNgrams, referenceNgrams[i])
-		p, r := calculatePrecisionRecall(overlapping, lenf(candidateNgrams), lenf(referenceNgrams[i]))
-		precision += p
-		recall += r
-	}
-	return precision, recall
+func computeScoreForNgrams(candidateNgrams WordCount, referenceNgrams []WordCount) (precision, recall float64) {
+	candidateCounts, referenceCounts, clippedCount := countOverlappingWords(candidateNgrams, referenceNgrams)
+	precision, recall = calculatePrecisionRecall(float64(clippedCount), float64(candidateCounts), float64(referenceCounts))
+	return
 }
 
 // Computes rouge-s score for the given sentencens based on "skip-ngrams" (word pairs which allow n gaps between the two words.)
 func RougeS(candidate *Sentence, references []*Sentence, n int) (precision, recall float64) {
-	referenceSkipGrams := make([]Ngram, len(references))
+	referenceSkipGrams := make([]WordCount, len(references))
 	for i, ref := range references {
-		referenceSkipGrams[i] = ref.Sgram(n)
+		referenceSkipGrams[i] = countWords(ref.Sgram(n))
 	}
 
-	return computeScoreForNgrams(candidate.Sgram(n), referenceSkipGrams)
+	return computeScoreForNgrams(countWords(candidate.Sgram(n)), referenceSkipGrams)
 }
 
 // Computes rouge-l score for the given sentences (based on longest common subsequence)

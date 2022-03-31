@@ -32,19 +32,43 @@ func getNgrams(target []string, n int) Ngram {
 	return result
 }
 
-func countOverlappingWords(candidate, reference Ngram) float64 {
-	var n float64 = 0
-	for _, word := range candidate {
-		for i, refWord := range reference {
-			if word == refWord {
-				n++
-				// TODO: this might actually change the contents of the input (for n = 1)... maybe accept only strings and split them by whitespaces?
-				reference[i] = ""
-				break
+// Counts how often tokens of candidate occurs in reference including clipping (so each reference token maps to max. only one candidate token).
+func countOverlappingWords(candidate WordCount, references []WordCount) (candidateCounts, referenceCounts, clippedCount int) {
+	tokenCounts := make(WordCount)
+	for _, reference := range references {
+		for key, value := range reference {
+			if val, ok := tokenCounts[key]; !ok || val < value {
+				tokenCounts[key] = value
 			}
 		}
 	}
-	return n
+	candidateCounts, referenceCounts, clippedCount = 0, 0, 0
+	for key, candidateCount := range candidate {
+		if refCount, ok := tokenCounts[key]; ok {
+			if candidateCount < refCount {
+				clippedCount += candidateCount
+			} else {
+				clippedCount += refCount
+			}
+		}
+		candidateCounts += candidateCount
+	}
+	for _, value := range tokenCounts {
+		referenceCounts += value
+	}
+	return candidateCounts, referenceCounts, clippedCount
+}
+
+func countWords(ngram Ngram) WordCount {
+	counts := make(WordCount)
+	for _, word := range ngram {
+		if _, ok := counts[word]; ok {
+			counts[word]++
+		} else {
+			counts[word] = 1
+		}
+	}
+	return counts
 }
 
 func getSkipGrams(target []string, n int) Ngram {
@@ -104,6 +128,14 @@ func (g GeometricMean) Value() float64 {
 var tokenizer = regexp.MustCompile("[a-zA-Z]+")
 
 func tokenizeSentence(str string) []string {
-	return tokenizer.FindAllString(str, -1)
+	return tokenizer.FindAllString(strings.ToLower(str), -1)
 	//return strings.Split(str, " ")
+}
+
+func sentencesToNgrams(sentences []*Sentence, n int) []Ngram {
+	referenceNgrams := make([]Ngram, len(sentences))
+	for i, ref := range sentences {
+		referenceNgrams[i] = ref.Ngram(n)
+	}
+	return referenceNgrams
 }

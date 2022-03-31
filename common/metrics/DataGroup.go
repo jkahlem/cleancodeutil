@@ -1,15 +1,18 @@
 package metrics
 
+type WordCount map[string]int
+
 type DataGroup struct {
 	Candidate  *Sentence
 	References []*Sentence
 }
 
 type Sentence struct {
-	plain  string
-	tokens []string
-	ngrams map[int]Ngram
-	sgrams map[int]Ngram
+	plain       string
+	tokens      []string
+	ngrams      map[int]Ngram
+	sgrams      map[int]Ngram
+	ngramsWords map[int]WordCount
 }
 
 func NewDataGroup(candidate string, references []string) DataGroup {
@@ -39,6 +42,16 @@ func (s *Sentence) Ngram(n int) Ngram {
 	val := getNgrams(s.tokens, n)
 	s.ngrams[n] = val
 	return val
+}
+
+func (s *Sentence) NgramWordCount(n int) WordCount {
+	if s.ngramsWords == nil {
+		s.ngramsWords = make(map[int]WordCount)
+	} else if val, ok := s.ngramsWords[n]; ok {
+		return val
+	}
+	s.ngramsWords[n] = countWords(s.Ngram(n))
+	return s.ngramsWords[n]
 }
 
 func (s *Sentence) Sgram(n int) Ngram {
