@@ -5,6 +5,7 @@ import (
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/dataformat/csv"
+	"returntypes-langserver/common/utils"
 	"strings"
 )
 
@@ -12,9 +13,11 @@ import (
 // methods and classes properties. The type names are resolved to their canonical name (if resolution is possible)
 type ExtractionVisitor struct {
 	// List of CSV Records for java methods
-	methods [][]string
+	methods []csv.Method
 	// List of CSV Records for java classes
-	classes [][]string
+	classes []csv.Class
+	// List of CSV Records for types in files
+	fileTypes []csv.FileContextTypes
 	// Package tree to use for type resolution
 	packageTree *packagetree.Tree
 	// The currently visited java code file.
@@ -24,7 +27,16 @@ type ExtractionVisitor struct {
 }
 
 func (visitor *ExtractionVisitor) VisitCodeFile(codeFile *java.CodeFile) {
+	visitor.fileTypes = append(visitor.fileTypes, csv.FileContextTypes{
+		FilePath:     codeFile.FilePath,
+		ContextTypes: make([]string, 0),
+	})
 	visitor.currentFile = codeFile
+	if codeFile.Imports != nil {
+		for i := range codeFile.Imports {
+			codeFile.Imports[i].Accept(visitor)
+		}
+	}
 	if codeFile.Classes != nil {
 		for i := range codeFile.Classes {
 			codeFile.Classes[i].Accept(visitor)
@@ -33,6 +45,8 @@ func (visitor *ExtractionVisitor) VisitCodeFile(codeFile *java.CodeFile) {
 }
 
 func (visitor *ExtractionVisitor) VisitClass(class *java.Class) {
+	visitor.addContextType(utils.GetStringExtension(class.ClassName, "."))
+
 	if class.Classes != nil {
 		for i := range class.Classes {
 			class.Classes[i].Accept(visitor)
@@ -55,7 +69,7 @@ func (visitor *ExtractionVisitor) extractClass(class *java.Class) {
 		visitor.classes = append(visitor.classes, csv.Class{
 			ClassName: visitor.currentFile.PackageName + "." + class.ClassName,
 			Extends:   visitor.getExtendedClassesWithCanonicalName(class),
-		}.ToRecord())
+		})
 	}
 }
 
@@ -91,7 +105,7 @@ func (visitor *ExtractionVisitor) VisitMethod(method *java.Method) {
 		ClassName:  visitor.getQualifiedCurrentClassName(),
 		Modifier:   method.Modifier,
 		ClassField: visitor.findClassFieldMatchInName(method.MethodName),
-	}.ToRecord())
+	})
 }
 
 // Searches for the longest match of a class field name in the given name. The match is case insensitive.
@@ -154,9 +168,16 @@ func (visitor *ExtractionVisitor) getUnqualifiedTypeName(identifier string) stri
 }
 
 func (visitor *ExtractionVisitor) VisitImport(_import *java.Import) {
-	// Do nothing.
+	visitor.addContextType(utils.GetStringExtension(_import.ImportPath, "."))
 }
 
 func (visitor *ExtractionVisitor) VisitTypeParameter(typeParameter *java.TypeParameter) {
 	// Do nothing.
+}
+
+func (visitor *ExtractionVisitor) addContextType(typeName string) {
+	l := len(visitor.fileTypes)
+	if l > 0 {
+		visitor.fileTypes[l-1].ContextTypes = append(visitor.fileTypes[l-1].ContextTypes, typeName)
+	}
 }

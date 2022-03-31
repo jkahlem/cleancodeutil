@@ -26,6 +26,7 @@ type Processor struct {
 	Options         configuration.SpecialOptions
 	typeClassMapper typeclasses.Mapper
 	skip            bool
+	files           map[string][]string // TODO: find some way to pass the files/store them globally
 }
 
 func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) (base.MethodProcessor, errors.Error) {
@@ -36,6 +37,14 @@ func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *
 	}
 	if utils.FileExists(processor.trainingFilePath()) {
 		processor.skip = true
+	}
+	if records, err := csv.NewFileReader(configuration.FileContextTypesOutputPath()).ReadFileContextTypesRecords(); err != nil {
+		return nil, err
+	} else {
+		processor.files = make(map[string][]string)
+		for _, record := range records {
+			processor.files[record.FilePath] = record.ContextTypes
+		}
 	}
 	if options.TypeClasses != nil {
 		if typeClassMapper, err := typeclasses.New(tree, options.TypeClasses); err != nil {
@@ -75,10 +84,11 @@ func (p *Processor) mapMethodToDatasetRow(method *csv.Method) csv.MethodGenerati
 		parameters = []string{"void"}
 	}
 	datasetRow := csv.MethodGenerationDatasetRow{
-		ClassName:  method.ClassName,
-		MethodName: string(predictor.GetPredictableMethodName(method.MethodName)),
-		ReturnType: utils.GetStringExtension(method.ReturnType, "."),
-		Parameters: parameters,
+		ClassName:    method.ClassName,
+		MethodName:   string(predictor.GetPredictableMethodName(method.MethodName)),
+		ReturnType:   utils.GetStringExtension(method.ReturnType, "."),
+		Parameters:   parameters,
+		ContextTypes: p.getContextTypes(method.FilePath),
 	}
 	return datasetRow
 }
@@ -140,3 +150,47 @@ func (p *Processor) Close() errors.Error {
 func (p *Processor) trainingFilePath() string {
 	return filepath.Join(p.OutputDir, TrainingSetFileName)
 }
+
+func (p *Processor) getContextTypes(filePath string) []string {
+	if val, ok := p.files[filePath]; ok {
+		return val
+	}
+	/*selector := p.tree.Select(className)
+	node := selector.Get()
+	for node != nil {
+		if fileNode, ok := node.(*java.CodeFile); ok {
+			if fileNode.FilePath == p.currentFile {
+				return p.currentFileContextTypes
+			}
+			// Cache context types per file
+			p.currentFile = fileNode.FilePath
+			p.currentFileContextTypes = p.getContextTypesOfFileNode(fileNode)
+			return p.currentFileContextTypes
+		} else {
+			node = node.ParentNode()
+		}
+	}*/
+	return nil
+}
+
+/*
+func (p *Processor) getContextTypesOfFileNode(fileNode *java.CodeFile) []string {
+	types := make([]string, len(fileNode.Imports)+len(fileNode.Classes))
+	for i, importType := range fileNode.Imports {
+		types[i] = utils.GetStringExtension(importType.ImportPath, ".")
+	}
+	for _, class := range fileNode.Classes {
+		types = append(types, p.getContextTypesOfClassNode(class)...)
+	}
+	return nil
+}
+
+func (p *Processor) getContextTypesOfClassNode(classNode *java.Class) []string {
+	types := make([]string, 1, len(classNode.Classes)+1)
+	types[0] = classNode.ClassName
+	for _, class := range classNode.Classes {
+		types = append(types, p.getContextTypesOfClassNode(class)...)
+	}
+	return types
+}
+*/

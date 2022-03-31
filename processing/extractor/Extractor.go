@@ -105,23 +105,31 @@ func (extractor *Extractor) extract() {
 	}
 
 	counter := 0
-	methodsRecords, classesRecords := make([][]string, 0), make([][]string, 0)
+	methodRecords, classRecords, fileRecords := make([]csv.Method, 0, allFileCount), make([]csv.Class, 0, allFileCount), make([]csv.FileContextTypes, 0, allFileCount)
 	for i := range extractor.xmlroots {
 		for j := range extractor.xmlroots[i].CodeFiles() {
 			counter++
 			codeFile := extractor.xmlroots[i].CodeFiles()[j]
-			log.Info("[%d/%d] Extract code from file: %s\n", counter, allFileCount, codeFile.FilePath)
+			if (counter % 5000) == 0 {
+				log.Info("[%d/%d] Extract code from file: %s\n", counter, allFileCount, codeFile.FilePath)
+			}
 			visitor := ExtractionVisitor{
-				methods:     methodsRecords,
-				classes:     classesRecords,
+				methods:     methodRecords,
+				classes:     classRecords,
+				fileTypes:   fileRecords,
 				packageTree: &extractor.tree,
 			}
 			codeFile.Accept(&visitor)
-			methodsRecords, classesRecords = visitor.methods, visitor.classes
+			methodRecords, classRecords, fileRecords = visitor.methods, visitor.classes, visitor.fileTypes
 		}
 	}
-	extractor.writeCsvRecords(configuration.MethodsWithReturnTypesOutputPath(), methodsRecords)
-	extractor.writeCsvRecords(configuration.ClassHierarchyOutputPath(), classesRecords)
+	if err := csv.NewFileWriter(configuration.ClassHierarchyOutputPath()).WriteClassRecords(classRecords); err != nil {
+		extractor.err = err
+	} else if err := csv.NewFileWriter(configuration.MethodsWithReturnTypesOutputPath()).WriteMethodRecords(methodRecords); err != nil {
+		extractor.err = err
+	} else if err := csv.NewFileWriter(configuration.FileContextTypesOutputPath()).WriteFileContextTypesRecords(fileRecords); err != nil {
+		extractor.err = err
+	}
 }
 
 func (extractor *Extractor) writeCsvRecords(path string, records [][]string) {

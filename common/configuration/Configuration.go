@@ -305,6 +305,11 @@ func MethodsWithReturnTypesOutputPath() string {
 	return filepath.Join(ExtractorOutputDir(), "methodsWithReturnTypes.csv")
 }
 
+// The path to the file containing all context types of each java file
+func FileContextTypesOutputPath() string {
+	return filepath.Join(ExtractorOutputDir(), "fileContextTypes.csv")
+}
+
 // The path where files for statistics will be saved
 func StatisticsOutputDir() string {
 	return filepath.Join(MainOutputDir(), "statistics")

@@ -31,10 +31,11 @@ type ReturnTypesDatasetRow struct {
 }
 
 type MethodGenerationDatasetRow struct {
-	ClassName  string
-	MethodName string
-	ReturnType string
-	Parameters []string
+	ClassName    string
+	MethodName   string
+	ReturnType   string
+	Parameters   []string
+	ContextTypes []string
 }
 
 type TypeLabel struct {
@@ -54,4 +55,9 @@ type IdealResult struct {
 	IssueCategory         string
 	IssueDetail           string
 	AnalysisDateTime      string
+}
+
+type FileContextTypes struct {
+	FilePath     string
+	ContextTypes []string
 }

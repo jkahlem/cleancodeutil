@@ -38,7 +38,7 @@ func (p *Processor) ProcessDatasetCreation() {
 	// Load the java code of each repository and summarize it using the crawler
 	//p.summarizeJavaCode()
 	// Extract method/classes of all of the repositories and put them into one file for methods and one for classes.
-	//p.createBasicData()
+	p.createBasicData()
 	// Creates excel outputs for excel output configurations
 	//p.createExcelOutput()
 	// Create a dataset based on the method/class files above.
@@ -212,11 +212,11 @@ func (p *Processor) trainPredictor() {
 	}
 	log.Info("Start training process\n")
 	if err := p.train(); err != nil {
-		log.ReportProblemWithError(err, "Could not train the predictor")
+		log.ReportProblemWithError(errors.Wrap(err, "Training", "Could not train the predictor"), "Could not train the predictor")
 	} else {
 		log.Info("Evaluate...\n")
 		if err := dataset.Evaluate(configuration.MethodGenerator); err != nil {
-			log.ReportProblemWithError(err, "Could not evaluate datasets")
+			log.ReportProblemWithError(errors.Wrap(err, "Evaluation", "Could not train the predictor"), "Could not evaluate datasets")
 		}
 	}
 
