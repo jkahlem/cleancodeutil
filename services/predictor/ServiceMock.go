@@ -1,6 +1,7 @@
 package predictor
 
 import (
+	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
 )
 
@@ -74,5 +75,5 @@ func (p *mock) GenerateMethods(contexts []MethodContext) ([][]MethodValues, erro
 }
 
 func (p *mock) ModelExists(modelType SupportedModels) (bool, errors.Error) {
-	return true, nil
+	return configuration.IsLangServMode(), nil
 }

@@ -163,8 +163,8 @@ func getEvaluatorByModelType(modelType configuration.ModelType, dataset configur
 }
 
 func getPathForDataset(parentPath string, dataset configuration.Dataset, isSubset bool) string {
-	if isSubset && dataset.Filter.Excludes == nil && dataset.Filter.Includes == nil {
+	/*if isSubset && dataset.Filter.Excludes == nil && dataset.Filter.Includes == nil {
 		return parentPath
-	}
+	}*/
 	return filepath.Join(parentPath, dataset.Name())
 }
