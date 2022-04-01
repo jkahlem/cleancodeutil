@@ -4,6 +4,7 @@ import (
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/services/predictor"
 )
@@ -23,6 +24,7 @@ func (t *Trainer) Train(path string) errors.Error {
 		return err
 	} else if exists {
 		// Skip because the model is already trained
+		log.Info("[Method generation] Skip training of dataset '%s' because it is already trained.", t.Dataset.Name())
 		return nil
 	}
 	trainingSet, err := csv.NewFileReader(path, TrainingSetFileName).ReadMethodGenerationDatasetRowRecords()

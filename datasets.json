@@ -28,7 +28,10 @@
                         "withReturnType": true
                     }
                 }
-            }
+            },
+            "subsets": [{
+                "name": "exp-static-220401"
+            }]
         }
     ]
 }

@@ -54,7 +54,7 @@ func TestGenerateMethods(t *testing.T) {
 	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
 
 	values, err := OnDataset(configuration.Dataset{
-		NameRaw: "exp-compound-task-220329",
+		NameRaw: "exp-context-types-220331/exp-static-220401",
 		ModelOptions: configuration.ModelOptions{
 			GenerationTasks: &configuration.MethodGenerationTaskOptions{
 				ParameterNames: configuration.CompoundTaskOptions{
@@ -66,14 +66,16 @@ func TestGenerateMethods(t *testing.T) {
 		},
 	}).GenerateMethods([]MethodContext{
 		{
-			MethodName: "compare strings",
-			ClassName:  "StringUtil",
+			MethodName: "copy to",
+			ClassName:  "Terminal",
 			IsStatic:   false,
+			Types:      []string{"Terminal"},
 		},
 		{
-			MethodName: "set name",
-			ClassName:  "SomeClass",
-			IsStatic:   false,
+			MethodName: "copy to",
+			ClassName:  "Terminal",
+			IsStatic:   true,
+			Types:      []string{"Terminal"},
 		},
 	})
 

@@ -88,7 +88,7 @@ func (p *Processor) mapMethodToDatasetRow(method *csv.Method) csv.MethodGenerati
 		MethodName:   string(predictor.GetPredictableMethodName(method.MethodName)),
 		ReturnType:   utils.GetStringExtension(method.ReturnType, "."),
 		Parameters:   parameters,
-		ContextTypes: p.getContextTypes(method.FilePath),
+		ContextTypes: p.getContextTypes(*method),
 		IsStatic:     utils.ContainsString(method.Modifier, "static"),
 	}
 	return datasetRow
@@ -152,46 +152,28 @@ func (p *Processor) trainingFilePath() string {
 	return filepath.Join(p.OutputDir, TrainingSetFileName)
 }
 
-func (p *Processor) getContextTypes(filePath string) []string {
-	if val, ok := p.files[filePath]; ok {
-		return val
+func (p *Processor) getContextTypes(method csv.Method) []string {
+	contextTypes := make([]string, 0, 6)
+	if val, ok := p.files[method.FilePath]; ok {
+		contextTypes = append(contextTypes, val...)
 	}
-	/*selector := p.tree.Select(className)
-	node := selector.Get()
-	for node != nil {
-		if fileNode, ok := node.(*java.CodeFile); ok {
-			if fileNode.FilePath == p.currentFile {
-				return p.currentFileContextTypes
-			}
-			// Cache context types per file
-			p.currentFile = fileNode.FilePath
-			p.currentFileContextTypes = p.getContextTypesOfFileNode(fileNode)
-			return p.currentFileContextTypes
-		} else {
-			node = node.ParentNode()
+	contextTypes = p.appendContextType(contextTypes, method.ReturnType)
+	for _, par := range method.Parameters {
+		splitted := strings.Split(par, " ")
+		if len(splitted) == 2 {
+			contextTypes = p.appendContextType(contextTypes, splitted[0])
 		}
-	}*/
-	return nil
+	}
+	if len(contextTypes) == 0 {
+		return nil
+	}
+	return contextTypes
 }
 
-/*
-func (p *Processor) getContextTypesOfFileNode(fileNode *java.CodeFile) []string {
-	types := make([]string, len(fileNode.Imports)+len(fileNode.Classes))
-	for i, importType := range fileNode.Imports {
-		types[i] = utils.GetStringExtension(importType.ImportPath, ".")
+func (p *Processor) appendContextType(contextTypes []string, typeName string) []string {
+	shortened := utils.GetStringExtension(typeName, ".")
+	if utils.ContainsString(contextTypes, typeName) {
+		contextTypes = append(contextTypes, shortened)
 	}
-	for _, class := range fileNode.Classes {
-		types = append(types, p.getContextTypesOfClassNode(class)...)
-	}
-	return nil
+	return contextTypes
 }
-
-func (p *Processor) getContextTypesOfClassNode(classNode *java.Class) []string {
-	types := make([]string, 1, len(classNode.Classes)+1)
-	types[0] = classNode.ClassName
-	for _, class := range classNode.Classes {
-		types = append(types, p.getContextTypesOfClassNode(class)...)
-	}
-	return types
-}
-*/

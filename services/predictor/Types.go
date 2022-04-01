@@ -34,7 +34,7 @@ type MethodValues struct {
 
 func (m MethodValues) String() string {
 	str := ""
-	if len(m.Parameters) > 0 {
+	if m.Parameters != nil {
 		str += "parameters: "
 		if len(m.Parameters) == 0 {
 			str += "void."
