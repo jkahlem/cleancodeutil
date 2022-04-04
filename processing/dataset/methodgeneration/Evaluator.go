@@ -108,7 +108,11 @@ func (e *Evaluator) joinParameters(parameters []predictor.Parameter) *metrics.Se
 		if i > 0 {
 			joined += ", "
 		}
-		joined += fmt.Sprintf("%s %s", parameters[i].Type, parameters[i].Name)
+		if parameters[i].IsArray {
+			joined += fmt.Sprintf("%s[] %s", parameters[i].Type, parameters[i].Name)
+		} else {
+			joined += fmt.Sprintf("%s %s", parameters[i].Type, parameters[i].Name)
+		}
 	}
 	return metrics.NewSentence(joined)
 }

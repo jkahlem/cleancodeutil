@@ -43,6 +43,7 @@ func mapToParameters(rawParameters []string) ([]predictor.Parameter, errors.Erro
 	for i, par := range parameters {
 		output[i].Type = par.Type.TypeName
 		output[i].Name = par.Name
+		output[i].IsArray = par.Type.IsArrayType
 	}
 	return output, nil
 }

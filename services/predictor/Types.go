@@ -57,11 +57,15 @@ func (m MethodValues) String() string {
 }
 
 type Parameter struct {
-	Name string `json:"name"`
-	Type string `json:"type"`
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+	IsArray bool   `json:"isArray"`
 }
 
 func (p Parameter) String() string {
+	if p.IsArray {
+		return fmt.Sprintf("%s[] %s", p.Type, p.Name)
+	}
 	return fmt.Sprintf("%s %s", p.Type, p.Name)
 }
 

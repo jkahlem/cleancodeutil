@@ -377,7 +377,10 @@ func (ls *languageServer) joinParameterList(value []predictor.Parameter) string 
 	output := ""
 	for i, par := range value {
 		if i > 0 {
-			output += fmt.Sprintf(", %s %s", par.Type, par.Name)
+			output += ", "
+		}
+		if par.IsArray {
+			output += fmt.Sprintf("%s[] %s", par.Type, par.Name)
 		} else {
 			output += fmt.Sprintf("%s %s", par.Type, par.Name)
 		}
