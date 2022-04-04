@@ -1,11 +1,11 @@
 package methodgeneration
 
 import (
+	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/services/predictor"
-	"strings"
 )
 
 func mapToMethods(rows []csv.MethodGenerationDatasetRow) ([]predictor.Method, errors.Error) {
@@ -31,18 +31,18 @@ func mapToMethods(rows []csv.MethodGenerationDatasetRow) ([]predictor.Method, er
 	return output, nil
 }
 
-func mapToParameters(parameters []string) ([]predictor.Parameter, errors.Error) {
-	if parameters[0] == "void" {
+func mapToParameters(rawParameters []string) ([]predictor.Parameter, errors.Error) {
+	if csv.IsEmptyList(rawParameters) {
 		return nil, nil
 	}
-	output := make([]predictor.Parameter, len(parameters))
-	for i := range parameters {
-		typeAndNamePair := strings.Split(parameters[i], " ")
-		if len(typeAndNamePair) != 2 {
-			return nil, errors.New("Format error", "Unexpected format for parameters in dataset output: %s", parameters[i])
-		}
-		output[i].Type = typeAndNamePair[0]
-		output[i].Name = typeAndNamePair[1]
+	output := make([]predictor.Parameter, len(rawParameters))
+	parameters, err := java.ParseParameterList(rawParameters)
+	if err != nil {
+		return nil, err
+	}
+	for i, par := range parameters {
+		output[i].Type = par.Type.TypeName
+		output[i].Name = par.Name
 	}
 	return output, nil
 }

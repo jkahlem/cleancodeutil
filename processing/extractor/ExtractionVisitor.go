@@ -1,7 +1,6 @@
 package extractor
 
 import (
-	"fmt"
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/dataformat/csv"
@@ -128,14 +127,9 @@ func (visitor *ExtractionVisitor) findClassFieldMatchInName(name string) string 
 
 // Maps parameters in this format: "<type> <method>"
 func (visitor *ExtractionVisitor) mapParameters(parameters []java.Parameter) []string {
-	result := make([]string, 0, len(parameters))
-	for _, parameter := range parameters {
-		//resolvedParameterType, _ := visitor.resolve(&parameter.Type)
-		unqualifiedTypeName := visitor.getUnqualifiedTypeName(parameter.Type.TypeName)
-		csvStr := fmt.Sprintf("%s %s", unqualifiedTypeName, parameter.Name)
-		result = append(result, csvStr)
-	}
-	return result
+	return java.FormatParameterList(parameters, func(p java.Parameter) (typ, name string) {
+		return p.Type.TypeName, p.Name
+	})
 }
 
 // Gets the qualified name of the class which is currently visited. The name includes all classes in which it is defined.

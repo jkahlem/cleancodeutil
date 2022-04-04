@@ -1,6 +1,7 @@
 package java
 
 import (
+	"fmt"
 	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
@@ -93,4 +94,46 @@ func LoadFilesToPackageTree(tree *packagetree.Tree, fileContainer FileContainer)
 		}
 	}
 	return nil
+}
+
+const ParameterFieldSeparator = "/"
+const ArrayTypeExtension = "[]"
+
+// Formats a slice of parameters into a slice of strings where each string contains the type and name in a specific format.
+// The result can be parsed with ParseParameterList back to the parameter slice.
+// The formatter can be used to do specific formatting on the type name / parameter name before creating the output.
+// The formatter might be nil - in this case, the type name and parameter name fields are used as they are.
+func FormatParameterList(parameters []Parameter, formatter func(Parameter) (typ, name string)) []string {
+	if formatter == nil {
+		formatter = func(p Parameter) (typ, name string) {
+			return p.Type.TypeName, p.Name
+		}
+	}
+	output := make([]string, len(parameters))
+	for i, par := range parameters {
+		name, typeName := formatter(par)
+		if par.Type.IsArrayType {
+			typeName += ArrayTypeExtension
+		}
+		output[i] = fmt.Sprintf("%s%s%s", typeName, ParameterFieldSeparator, name)
+	}
+	return output
+}
+
+func ParseParameterList(input []string) ([]Parameter, errors.Error) {
+	output := make([]Parameter, len(input))
+	for i, parameter := range input {
+		parts := strings.Split(parameter, ParameterFieldSeparator)
+		if len(parts) != 2 {
+			return nil, errors.New("Parsing Error", "Expected type and name for parameters but got %d value(s).", len(parts))
+		}
+		output[i] = Parameter{
+			Name: parts[1],
+			Type: Type{
+				TypeName:    strings.TrimRight(parts[0], ArrayTypeExtension),
+				IsArrayType: strings.HasSuffix(parts[0], ArrayTypeExtension),
+			},
+		}
+	}
+	return output, nil
 }

@@ -2,6 +2,7 @@ package methodgeneration
 
 import (
 	"path/filepath"
+	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
@@ -79,15 +80,11 @@ func (p *Processor) Process(method *csv.Method) (isFiltered bool, err errors.Err
 }
 
 func (p *Processor) mapMethodToDatasetRow(method *csv.Method) csv.MethodGenerationDatasetRow {
-	parameters := method.Parameters
-	if csv.IsEmptyList(parameters) {
-		parameters = []string{"void"}
-	}
 	datasetRow := csv.MethodGenerationDatasetRow{
 		ClassName:    method.ClassName,
 		MethodName:   string(predictor.GetPredictableMethodName(method.MethodName)),
 		ReturnType:   utils.GetStringExtension(method.ReturnType, "."),
-		Parameters:   parameters,
+		Parameters:   method.Parameters,
 		ContextTypes: p.getContextTypes(*method),
 		IsStatic:     utils.ContainsString(method.Modifier, "static"),
 	}
@@ -110,24 +107,27 @@ func (p *Processor) mapTypeToTypeClasses(method *csv.Method) errors.Error {
 }
 
 // Maps the parameters to have a type class instead of the type name ...
-func (p *Processor) mapParameterTypesToTypeClasses(parameters []string) ([]string, errors.Error) {
-	if csv.IsEmptyList(parameters) {
+func (p *Processor) mapParameterTypesToTypeClasses(rawParameters []string) ([]string, errors.Error) {
+	if csv.IsEmptyList(rawParameters) {
 		return nil, nil
 	}
 
-	results := make([]string, len(parameters))
+	parameters, err := java.ParseParameterList(rawParameters)
+	if err != nil {
+		return nil, err
+	}
 	for i, parameter := range parameters {
-		// splitted has for each element the pattern "<type> <name>"
-		splitted := strings.Split(parameter, " ")
-		// TODO: Method labels for parameter types? (e.g. array type for array type parameters ...)
-		if typeClass, err := p.typeClassMapper.MapParameterTypeToTypeClass(splitted[0], nil); err != nil {
+		var labels []string
+		if parameter.Type.IsArrayType {
+			labels = []string{string(java.ArrayType)}
+		}
+		if typeClass, err := p.typeClassMapper.MapParameterTypeToTypeClass(parameter.Type.TypeName, labels); err != nil {
 			return nil, err
 		} else {
-			splitted[0] = typeClass
-			results[i] = strings.Join(splitted, " ")
+			parameters[i].Type.TypeName = typeClass
 		}
 	}
-	return results, nil
+	return java.FormatParameterList(parameters, nil), nil
 }
 
 func (p *Processor) getIdentifier(method *csv.Method) string {
@@ -158,10 +158,9 @@ func (p *Processor) getContextTypes(method csv.Method) []string {
 		contextTypes = append(contextTypes, val...)
 	}
 	contextTypes = p.appendContextType(contextTypes, method.ReturnType)
-	for _, par := range method.Parameters {
-		splitted := strings.Split(par, " ")
-		if len(splitted) == 2 {
-			contextTypes = p.appendContextType(contextTypes, splitted[0])
+	if parameters, err := java.ParseParameterList(method.Parameters); err != nil {
+		for _, par := range parameters {
+			contextTypes = p.appendContextType(contextTypes, par.Type.TypeName)
 		}
 	}
 	if len(contextTypes) == 0 {

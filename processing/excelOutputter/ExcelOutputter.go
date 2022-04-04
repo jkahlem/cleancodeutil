@@ -3,6 +3,7 @@ package excelOutputter
 
 import (
 	"fmt"
+	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
@@ -47,15 +48,16 @@ func createOutputOnMethods(methods []csv.Method, path string, sets []configurati
 }
 
 func unqualifyTypeNames(method csv.Method) csv.Method {
-	for i, parameter := range method.Parameters {
-		par := strings.Split(parameter, " ")
-		// Add spaces here so they are present after .ToRecord() conversion
-		space := ""
-		if i > 0 {
-			space = " "
+	if parameters, err := java.ParseParameterList(method.Parameters); err != nil {
+		for i, parameter := range parameters {
+			// Add spaces here so they are present after the formatting for excel output
+			space := ""
+			if i > 0 {
+				space = " "
+			}
+			// Directly overwrite parameter formatting to excel file format
+			method.Parameters[i] = fmt.Sprintf("%s%s%s", space, parameter.Type.TypeName, parameter.Name)
 		}
-		par[0] = fmt.Sprintf("%s%s", space, unqualifyTypeName(par[0]))
-		method.Parameters[i] = strings.Join(par, " ")
 	}
 	method.ReturnType = unqualifyTypeName(method.ReturnType)
 	return method
