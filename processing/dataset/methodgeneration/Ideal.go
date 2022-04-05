@@ -6,7 +6,7 @@ import (
 )
 
 func CreateMethodDefinition(context predictor.MethodContext, value predictor.MethodValues) string {
-	returnType := ConcatByUpperCamelCase(split(value.ReturnType))
+	returnType := ConcatTypeName(split(value.ReturnType))
 	methodName := ConcatByLowerCamelCase(split(context.MethodName))
 	parameterList := ConcatParametersToList(value.Parameters)
 	return "public " + returnType + " " + methodName + "(" + parameterList + ") {}"
@@ -16,13 +16,26 @@ func split(str string) []string {
 	return strings.Split(str, " ")
 }
 
+func ConcatTypeName(typeName []string) string {
+	if len(typeName) == 0 {
+		return ""
+	}
+	if len(typeName) == 1 || typeName[1] == "[]" {
+		switch typeName[0] {
+		case "void", "int", "float", "double", "byte", "char", "boolean", "long", "short":
+			return strings.Join(typeName, "")
+		}
+	}
+	return ConcatByUpperCamelCase(typeName)
+}
+
 func ConcatParametersToList(parameters []predictor.Parameter) string {
 	output := ""
 	for i, par := range parameters {
 		if i > 0 {
 			output += ", "
 		}
-		output += ConcatByUpperCamelCase(split(par.Type))
+		output += ConcatTypeName(split(par.Type))
 		if par.IsArray {
 			output += "[]"
 		}
