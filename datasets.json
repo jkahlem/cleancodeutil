@@ -18,7 +18,7 @@
                     "evaluation": 3
                 },
                 "maxTrainingRows": 25000,
-                "maxEvaluationRows": 80,
+                "maxEvaluationRows": 8000,
                 "sentenceFormatting": true
             },
             "modelOptions": {
