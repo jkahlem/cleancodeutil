@@ -11,7 +11,6 @@ import (
 	"returntypes-langserver/common/utils"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/processing/typeclasses"
-	"returntypes-langserver/services/predictor"
 	"strings"
 )
 
@@ -82,7 +81,7 @@ func (p *Processor) Process(method *csv.Method) (isFiltered bool, err errors.Err
 func (p *Processor) mapMethodToDatasetRow(method *csv.Method) csv.MethodGenerationDatasetRow {
 	datasetRow := csv.MethodGenerationDatasetRow{
 		ClassName:    method.ClassName,
-		MethodName:   string(predictor.GetPredictableMethodName(method.MethodName)),
+		MethodName:   method.MethodName,
 		ReturnType:   utils.GetStringExtension(method.ReturnType, "."),
 		Parameters:   method.Parameters,
 		ContextTypes: p.getContextTypes(*method),

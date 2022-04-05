@@ -10,10 +10,10 @@ type Evaluation struct {
 }
 
 type MethodContext struct {
-	MethodName PredictableMethodName `json:"methodName"`
-	ClassName  string                `json:"className"`
-	IsStatic   bool                  `json:"isStatic"`
-	Types      []string              `json:"types"`
+	MethodName string   `json:"methodName"`
+	ClassName  string   `json:"className"`
+	IsStatic   bool     `json:"isStatic"`
+	Types      []string `json:"types"`
 }
 
 func (m MethodContext) String() string {

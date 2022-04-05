@@ -17,7 +17,7 @@ func mapToMethods(rows []csv.MethodGenerationDatasetRow) ([]predictor.Method, er
 		}
 		output[i] = predictor.Method{
 			Context: predictor.MethodContext{
-				MethodName: predictor.PredictableMethodName(method.MethodName),
+				MethodName: method.MethodName,
 				ClassName:  method.ClassName,
 				IsStatic:   method.IsStatic,
 				Types:      method.ContextTypes,
@@ -58,7 +58,7 @@ func mapExamplesToMethod(examples []configuration.MethodExample) []predictor.Met
 
 func mapExampleToMethod(example configuration.MethodExample) predictor.MethodContext {
 	return predictor.MethodContext{
-		MethodName: predictor.PredictableMethodName(predictor.SplitMethodNameToSentence(example.MethodName)),
+		MethodName: example.MethodName,
 		ClassName:  example.ClassName,
 		IsStatic:   example.Static,
 		Types:      []string{example.ClassName},

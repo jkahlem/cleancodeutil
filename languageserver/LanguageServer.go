@@ -319,7 +319,7 @@ func (ls *languageServer) CompleteMethodDefinition(method Method, doc *workspace
 	// Generate parameter list
 	if set, ok := configuration.FindDatasetByReference(configuration.LanguageServerMethodGenerationDataset()); ok && doc != nil {
 		value2, err := predictor.OnDataset(set).GenerateMethods([]predictor.MethodContext{{
-			MethodName: predictor.GetPredictableMethodName(method.Name.Content),
+			MethodName: method.Name.Content,
 			ClassName:  method.ClassName,
 			IsStatic:   method.IsStatic,
 			Types:      nil, // TODO: Add context types

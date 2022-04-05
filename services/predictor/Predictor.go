@@ -61,12 +61,14 @@ func (p *predictor) ModelExists(modelType SupportedModels) (bool, errors.Error) 
 func (p *predictor) TrainReturnTypes(methods []Method, labels [][]string) errors.Error {
 	options := p.getOptions(ReturnTypesPrediction)
 	options.LabelsCsv = p.asCsvString(labels)
+	FormatMethods(methods, p.config.SpecialOptions.SentenceFormatting)
 	return remote().Train(methods, options)
 }
 
 func (p *predictor) EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error) {
 	options := p.getOptions(ReturnTypesPrediction)
 	options.LabelsCsv = p.asCsvString(labels)
+	FormatMethods(evaluationSet, p.config.SpecialOptions.SentenceFormatting)
 	return remote().Evaluate(evaluationSet, options)
 }
 
@@ -74,7 +76,7 @@ func (p *predictor) PredictReturnTypes(methodNames []PredictableMethodName) ([]M
 	options := p.getOptions(ReturnTypesPrediction)
 	contexts := make([]MethodContext, len(methodNames))
 	for i, name := range methodNames {
-		contexts[i].MethodName = name
+		contexts[i].MethodName = string(name)
 	}
 	return remote().Predict(contexts, options)
 }
@@ -108,10 +110,12 @@ func (p *predictor) getMethodNamesInsideOfMap(mapping MethodTypeMap) []Predictab
 }
 
 func (p *predictor) TrainMethods(trainingSet []Method) errors.Error {
+	FormatMethods(trainingSet, p.config.SpecialOptions.SentenceFormatting)
 	return remote().Train(trainingSet, p.getOptions(MethodGenerator))
 }
 
 func (p *predictor) GenerateMethods(contexts []MethodContext) ([][]MethodValues, errors.Error) {
+	FormatContexts(contexts, p.config.SpecialOptions.SentenceFormatting)
 	return remote().PredictMultiple(contexts, p.getOptions(MethodGenerator))
 }
 

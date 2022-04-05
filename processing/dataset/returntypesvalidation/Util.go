@@ -11,7 +11,7 @@ func mapToMethod(rows []csv.ReturnTypesDatasetRow) []predictor.Method {
 	for i := range rows {
 		outputRows[i] = predictor.Method{
 			Context: predictor.MethodContext{
-				MethodName: predictor.PredictableMethodName(rows[i].MethodName),
+				MethodName: rows[i].MethodName,
 			},
 			Values: predictor.MethodValues{
 				// TODO: Type label? Or actual name?
