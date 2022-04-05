@@ -101,31 +101,13 @@ func (e *Evaluator) formatMethods(contexts []predictor.MethodContext, values [][
 func (e *Evaluator) parseOutputToMethod(method predictor.Method, expectedValues predictor.MethodValues) Method {
 	return Method{
 		Name:                string(method.Context.MethodName),
-		ExpectedDefinition:  e.joinParameters2(expectedValues),
-		GeneratedDefinition: e.joinParameters2(method.Values),
+		ExpectedDefinition:  e.joinParameters(expectedValues),
+		GeneratedDefinition: e.joinParameters(method.Values),
 	}
 }
 
-func (e *Evaluator) joinParameters2(values predictor.MethodValues) *metrics.Sentence {
+func (e *Evaluator) joinParameters(values predictor.MethodValues) *metrics.Sentence {
 	return metrics.NewSentence(values.String())
-}
-
-func (e *Evaluator) joinParameters(parameters []predictor.Parameter) *metrics.Sentence {
-	if len(parameters) == 0 {
-		return metrics.NewSentence("void.")
-	}
-	joined := ""
-	for i := range parameters {
-		if i > 0 {
-			joined += ", "
-		}
-		if parameters[i].IsArray {
-			joined += fmt.Sprintf("%s[] %s", parameters[i].Type, parameters[i].Name)
-		} else {
-			joined += fmt.Sprintf("%s %s", parameters[i].Type, parameters[i].Name)
-		}
-	}
-	return metrics.NewSentence(joined)
 }
 
 func (e *Evaluator) getEvaluationSetConfig() *EvaluationSet {

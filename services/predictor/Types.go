@@ -64,9 +64,9 @@ type Parameter struct {
 
 func (p Parameter) String() string {
 	if p.IsArray {
-		return fmt.Sprintf("%s[] %s", p.Type, p.Name)
+		return fmt.Sprintf("%s[] - %s", p.Type, p.Name)
 	}
-	return fmt.Sprintf("%s %s", p.Type, p.Name)
+	return fmt.Sprintf("%s - %s", p.Type, p.Name)
 }
 
 type Method struct {
