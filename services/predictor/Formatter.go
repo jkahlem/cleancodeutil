@@ -28,6 +28,20 @@ func FormatContexts(contexts []MethodContext, options configuration.SentenceForm
 	}
 }
 
+func FormatValues(values [][]MethodValues, options configuration.SentenceFormattingOptions) {
+	if !options.MethodName {
+		return
+	}
+	for i := range values {
+		for j := range values[i] {
+			if options.TypeName {
+				values[i][j].ReturnType = string(GetPredictableMethodName(values[i][j].ReturnType))
+			}
+			FormatParameters(values[i][j].Parameters, options)
+		}
+	}
+}
+
 func FormatParameters(parameters []Parameter, options configuration.SentenceFormattingOptions) {
 	for i := range parameters {
 		if options.ParameterName {

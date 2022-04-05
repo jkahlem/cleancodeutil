@@ -76,6 +76,7 @@ func (e *Evaluator) generateMethodDefinitions(methods []predictor.Method) ([]Met
 	if len(predicted) != len(methods) {
 		return nil, errors.New("Predictor error", "Expected %d methods to be generated but got %d.", len(methods), len(predicted))
 	}
+	e.formatMethods(contexts, predicted)
 
 	outputMethods := make([]Method, len(predicted))
 	for i := range predicted {
@@ -85,6 +86,16 @@ func (e *Evaluator) generateMethodDefinitions(methods []predictor.Method) ([]Met
 		}, methods[i].Values)
 	}
 	return outputMethods, err
+}
+
+func (e *Evaluator) formatMethods(contexts []predictor.MethodContext, values [][]predictor.MethodValues) {
+	options := configuration.SentenceFormattingOptions{
+		MethodName:    true,
+		ParameterName: true,
+		TypeName:      true,
+	}
+	predictor.FormatContexts(contexts, options)
+	predictor.FormatValues(values, options)
 }
 
 func (e *Evaluator) parseOutputToMethod(method predictor.Method, expectedValues predictor.MethodValues) Method {
