@@ -32,7 +32,8 @@ type SpecialOptions struct {
 	MaxTrainingRows     int                     `json:"maxTrainingRows"`
 	MaxEvaluationRows   int                     `json:"maxEvaluationRows"`
 	// The size of the splitted datasets as a proportion
-	DatasetSize DatasetProportion `json:"datasetSize"`
+	DatasetSize        DatasetProportion         `json:"datasetSize"`
+	SentenceFormatting SentenceFormattingOptions `json:"sentenceFormatting"`
 }
 
 type ModelOptions struct {
@@ -59,6 +60,26 @@ type CompoundTaskOptions struct {
 	WithReturnType bool `json:"withReturnType"`
 	// If true, the parameter list generation will be extended by parameter type generation in the same task
 	WithParameterTypes bool `json:"withParameterTypes"`
+}
+
+type SentenceFormattingOptions struct {
+	// If true, method names should be splitted for the model/evaluation.
+	MethodName bool `json:"methodName"`
+	// If true, type names should be splitted for the model/evaluation.
+	TypeName bool `json:"typeName"`
+	// If true, parameter names should be splitted for the model/evaluation.
+	ParameterName bool `json:"parameterName"`
+}
+
+func (o SentenceFormattingOptions) DecodeValue(value interface{}) (interface{}, error) {
+	if boolVal, ok := value.(bool); ok {
+		return SentenceFormattingOptions{
+			MethodName:    boolVal,
+			TypeName:      boolVal,
+			ParameterName: boolVal,
+		}, nil
+	}
+	return value, nil
 }
 
 type ModelType string

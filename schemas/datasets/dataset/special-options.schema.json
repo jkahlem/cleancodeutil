@@ -39,6 +39,24 @@
             "description": "The maximum number of rows used for evaluating the dataset. If this value is 0 or unset or exceeds the number of rows, then all rows are used.",
             "type": "integer",
             "minimum": 0
+        },
+        "sentenceFormatting": {
+            "description": "If true, all names (method name, type name, parameter name) are formatted into sentences for the model. Might also be an object, where it is possible to define this setting per name type.",
+            "type": ["boolean", "object"],
+            "properties": {
+                "methodName": {
+                    "description": "If true, method names are splitted into sentences.",
+                    "type": "boolean"
+                },
+                "typeName": {
+                    "description": "If true, all type names are splitted into sentences. This does not affect type classes.",
+                    "type": "boolean"
+                },
+                "parameterName": {
+                    "description": "If true, parameter names are splitted into sentences.",
+                    "type": "boolean"
+                }
+            }
         }
     }
 }
