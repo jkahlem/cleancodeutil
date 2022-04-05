@@ -54,7 +54,7 @@ func TestGenerateMethods(t *testing.T) {
 	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
 
 	values, err := OnDataset(configuration.Dataset{
-		NameRaw: "exp-context-types-220331/exp-static-220401",
+		NameRaw: "exp-sentences-220405",
 		ModelOptions: configuration.ModelOptions{
 			GenerationTasks: &configuration.MethodGenerationTaskOptions{
 				ParameterNames: configuration.CompoundTaskOptions{

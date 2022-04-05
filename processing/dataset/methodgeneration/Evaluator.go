@@ -229,7 +229,8 @@ func (e *Evaluator) writeExampleOutput(path string, evalset *EvaluationSet) erro
 	for i, methodValues := range generated {
 		fmt.Fprintf(file, "%s:\n", examples[i])
 		for _, value := range methodValues {
-			fmt.Fprintf(file, "- %s\n", value)
+			//fmt.Fprintf(file, "- %s\n", value)
+			fmt.Fprintf(file, "- %s\n", CreateMethodDefinition(examples[i], value))
 		}
 	}
 
