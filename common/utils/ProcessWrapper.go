@@ -4,6 +4,7 @@ import (
 	"io"
 	"os/exec"
 	"returntypes-langserver/common/debug/errors"
+	"strings"
 )
 
 const ProcessErrorTitle = "Process Error"
@@ -15,7 +16,13 @@ type Process struct {
 // Wraps the exec.Command functionalities of the official go lib while converting errors to the stacktraceable errors.
 func NewProcess(name string, args ...string) *Process {
 	g := &Process{}
-	g.cmd = exec.Command(name, args...)
+	if strings.HasSuffix(name, ".bat") || strings.HasSuffix(name, ".cmd") {
+		cmdArgs := []string{name}
+		cmdArgs = append(cmdArgs, args...)
+		g.cmd = exec.Command("cmd", cmdArgs...)
+	} else {
+		g.cmd = exec.Command(name, args...)
+	}
 	return g
 }
 

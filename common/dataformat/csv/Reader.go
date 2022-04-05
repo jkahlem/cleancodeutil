@@ -9,7 +9,8 @@ import (
 )
 
 type Reader struct {
-	source *csv.Reader
+	source         *csv.Reader
+	skipFirstLines int
 	// If closer != nil, then the writer is responsible for closing the file
 	closer io.Closer
 	err    errors.Error
@@ -35,7 +36,21 @@ func (r *Reader) WithSeparator(separator rune) *Reader {
 	return r
 }
 
+func (r *Reader) SkipFirstLines(count int) *Reader {
+	r.skipFirstLines = count
+	return r
+}
+
 func (r *Reader) ReadRecord() ([]string, errors.Error) {
+	for ; r.skipFirstLines > 0; r.skipFirstLines-- {
+		if _, err := r.readRecord(); err != nil {
+			return nil, err
+		}
+	}
+	return r.readRecord()
+}
+
+func (r *Reader) readRecord() ([]string, errors.Error) {
 	if r.err != nil {
 		return nil, r.err
 	} else if r.source == nil {

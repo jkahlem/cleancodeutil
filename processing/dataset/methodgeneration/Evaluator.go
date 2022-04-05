@@ -146,18 +146,20 @@ func (e *Evaluator) evaluateMethods(path string, evalset *EvaluationSet) errors.
 		return err
 	}
 
-	generatedMethodsFile, err := utils.CreateFile(filepath.Join(path, e.Dataset.Name()+GeneratedMethodsFile))
 	if err != nil {
 		return err
 	}
-	defer generatedMethodsFile.Close()
 
 	if err := e.calculateIdealScore(path, methods, evalset); err != nil {
 		return err
 	}
+	writer := csv.NewFileWriter(path, e.Dataset.Name()+GeneratedMethodsFile)
+	defer writer.Close()
 	for _, m := range methods {
 		evalset.AddMethod(m)
-		fmt.Fprintf(generatedMethodsFile, "%s;%s;%s\n", m.Name, m.ExpectedDefinition, m.GeneratedDefinition)
+		if err := writer.WriteRecord([]string{m.Name, m.ExpectedDefinition.String(), m.GeneratedDefinition.String()}); err != nil {
+			return errors.Wrap(err, "Evaluator", "Could not write the generated methods") // TODO: Use something like error collector? As this is not that critical.
+		}
 	}
 	return nil
 }

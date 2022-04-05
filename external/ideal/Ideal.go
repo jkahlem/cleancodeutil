@@ -43,7 +43,7 @@ func AnalyzeSourceCode(sourceCode string) ([]csv.IdealResult, errors.Error) {
 func writeFilePaths(path []string) errors.Error {
 	output := "file,type,junit"
 	for _, p := range path {
-		output += "\n" + p
+		output += "\n" + p + ",,"
 	}
 	if err := os.WriteFile(filepath.Join(configuration.IdealBinaryDir(), "input.csv"), []byte(output), os.ModePerm); err != nil {
 		return errors.WrapById(err, InputWritingError)
@@ -62,7 +62,10 @@ func runIdeal() errors.Error {
 }
 
 func loadResultOutput() ([]csv.IdealResult, errors.Error) {
-	records, err := csv.NewFileReader(configuration.IdealBinaryDir(), "IDEAL_Results.csv").WithSeparator(',').ReadIdealResultRecords()
+	records, err := csv.NewFileReader(configuration.IdealBinaryDir(), "IDEAL_Results.csv").
+		WithSeparator(','). // IDEAL uses comma separator
+		SkipFirstLines(1).  // IDEAL results start with a header line
+		ReadIdealResultRecords()
 	if err != nil {
 		return nil, errors.Wrap(err, "IDEAL", "Could not open output file")
 	}
