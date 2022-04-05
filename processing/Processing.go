@@ -216,7 +216,7 @@ func (p *Processor) trainPredictor() {
 	} else {
 		log.Info("Evaluate...\n")
 		if err := dataset.Evaluate(configuration.MethodGenerator); err != nil {
-			log.ReportProblemWithError(errors.Wrap(err, "Evaluation", "Could not train the predictor"), "Could not evaluate datasets")
+			log.ReportProblemWithError(errors.Wrap(err, "Evaluation", "Could not evaluate datasets"), "Could not evaluate datasets")
 		}
 	}
 

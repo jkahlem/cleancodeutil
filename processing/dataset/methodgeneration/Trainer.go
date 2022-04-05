@@ -24,9 +24,10 @@ func (t *Trainer) Train(path string) errors.Error {
 		return err
 	} else if exists {
 		// Skip because the model is already trained
-		log.Info("[Method generation] Skip training of dataset '%s' because it is already trained.", t.Dataset.Name())
+		log.Info("[Method generation] Skip training of dataset '%s' because it is already trained.\n", t.Dataset.Name())
 		return nil
 	}
+	log.Info("Start training of dataset '%s'...\n", t.Dataset.Name())
 	trainingSet, err := csv.NewFileReader(path, TrainingSetFileName).ReadMethodGenerationDatasetRowRecords()
 	if err != nil {
 		return err

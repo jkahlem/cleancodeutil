@@ -41,6 +41,9 @@ func ConcatByLowerCamelCase(words []string) string {
 func ConcatByUpperCamelCase(words []string) string {
 	output := ""
 	for _, word := range words {
+		if word == "" {
+			continue
+		}
 		output += strings.ToUpper(word[0:1])
 		if len(word) > 1 {
 			output += word[1:]
