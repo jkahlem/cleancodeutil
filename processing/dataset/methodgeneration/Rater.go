@@ -140,3 +140,13 @@ func (r *RougeRater) Score() float64 {
 		return metrics.FScore(r.precision/r.count, r.recall/r.count, 1)
 	}
 }
+
+type IdealRater struct{}
+
+func (r *IdealRater) Rate(m Method) {}
+func (r *IdealRater) Name() string {
+	return "Ideal"
+}
+func (r *IdealRater) Score() float64 {
+	return 0
+}

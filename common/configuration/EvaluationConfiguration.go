@@ -82,6 +82,7 @@ const (
 	RougeS = "rouge-s"
 	RougeN = "rouge-n"
 	Bleu   = "bleu"
+	Ideal  = "ideal"
 )
 
 type MetricConfiguration map[string]interface{}
@@ -106,6 +107,10 @@ func (c MetricConfiguration) DecodeValue(value interface{}) (interface{}, error)
 		case Bleu:
 			return BleuConfiguration{
 				Type: Bleu,
+			}, nil
+		case Ideal:
+			return IdealMetricConfiguration{
+				Type: Ideal,
 			}, nil
 		default:
 			return value, fmt.Errorf("Unsupported metric type preset: %s", metricType)
@@ -135,6 +140,12 @@ func (c MetricConfiguration) AsRougeN() (RougeNConfiguration, errors.Error) {
 func (c MetricConfiguration) AsBleu() (BleuConfiguration, errors.Error) {
 	var config BleuConfiguration
 	err := c.as(Bleu, &config)
+	return config, err
+}
+
+func (c MetricConfiguration) AsIdeal() (IdealMetricConfiguration, errors.Error) {
+	var config IdealMetricConfiguration
+	err := c.as(Ideal, &config)
 	return config, err
 }
 
@@ -174,6 +185,10 @@ type RougeNConfiguration struct {
 type BleuConfiguration struct {
 	Type    string    `json:"type"`
 	Weights []float64 `json:"weights"`
+}
+
+type IdealMetricConfiguration struct {
+	Type string `json:"type"`
 }
 
 const FScore = "fscore"

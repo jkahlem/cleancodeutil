@@ -8,6 +8,7 @@ import (
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/metrics"
 	"returntypes-langserver/common/utils"
+	"returntypes-langserver/external/ideal"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/services/predictor"
 )
@@ -24,6 +25,8 @@ type Method struct {
 	Name                string
 	ExpectedDefinition  *metrics.Sentence
 	GeneratedDefinition *metrics.Sentence
+	IdealScore          int
+	MethodDefinition    string
 }
 
 func NewEvaluator(dataset configuration.Dataset) base.Evaluator {
@@ -103,6 +106,7 @@ func (e *Evaluator) parseOutputToMethod(method predictor.Method, expectedValues 
 		Name:                string(method.Context.MethodName),
 		ExpectedDefinition:  e.joinParameters(expectedValues),
 		GeneratedDefinition: e.joinParameters(method.Values),
+		MethodDefinition:    CreateMethodDefinition(method.Context, method.Values),
 	}
 }
 
@@ -148,11 +152,36 @@ func (e *Evaluator) evaluateMethods(path string, evalset *EvaluationSet) errors.
 	}
 	defer generatedMethodsFile.Close()
 
+	if err := e.calculateIdealScore(path, methods, evalset); err != nil {
+		return err
+	}
 	for _, m := range methods {
 		evalset.AddMethod(m)
 		fmt.Fprintf(generatedMethodsFile, "%s;%s;%s\n", m.Name, m.ExpectedDefinition, m.GeneratedDefinition)
 	}
 	return nil
+}
+
+func (e *Evaluator) calculateIdealScore(path string, methods []Method, evalset *EvaluationSet) errors.Error {
+	if !evalset.IsIdealScoreRequired() {
+		return nil
+	}
+	code := `package com.example;
+
+public class Example {
+	`
+	for _, method := range methods {
+		code += method.MethodDefinition + "\n"
+	}
+	code += "}"
+	if results, err := ideal.AnalyzeSourceCode(code); err != nil {
+		return err
+	} else {
+		if err := csv.NewFileWriter(path, e.Dataset.Name()+"IDEAL.csv").WriteIdealResultRecords(results); err != nil {
+			return err
+		}
+		return nil
+	}
 }
 
 func (e *Evaluator) getGeneratedMethodsForEvaluationSet(path string) ([]Method, errors.Error) {

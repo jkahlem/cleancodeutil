@@ -28,6 +28,20 @@ func (e *EvaluationSet) AddMethod(m Method) {
 	}
 }
 
+func (e *EvaluationSet) IsIdealScoreRequired() bool {
+	for _, r := range e.Rater {
+		if r.Name() == "Ideal" { // TODO: Better recognition?
+			return true
+		}
+	}
+	for i := range e.Subsets {
+		if e.Subsets[i].IsIdealScoreRequired() {
+			return true
+		}
+	}
+	return false
+}
+
 func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
 	e.Rater = make([]Metric, 0, len(metrics))
 	for _, metric := range metrics {
@@ -47,6 +61,13 @@ func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
 			e.Rater = append(e.Rater, &BleuRater{
 				config: config,
 			})
+		case configuration.Ideal:
+			_, err := metric.AsIdeal()
+			if err != nil {
+				// TODO: remove panic
+				panic(err)
+			}
+			e.Rater = append(e.Rater, &IdealRater{})
 		default:
 			// TODO: remove panic
 			panic(fmt.Errorf("Unknown metric: %s", metric))

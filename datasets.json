@@ -1,7 +1,7 @@
 {
     "datasets": [
         {
-            "name": "exp-context-types-220331",
+            "name": "exp-sentences-220405",
             "filter": {
                 "exclude": [{
                     "modifier": ["native", "private"]
@@ -17,8 +17,9 @@
                     "training": 7,
                     "evaluation": 3
                 },
-                "maxTrainingRows": 12000,
-                "maxEvaluationRows": 5000
+                "maxTrainingRows": 25000,
+                "maxEvaluationRows": 8000,
+                "sentenceFormatting": true
             },
             "modelOptions": {
                 "numOfEpochs": 1,
@@ -28,10 +29,7 @@
                         "withReturnType": true
                     }
                 }
-            },
-            "subsets": [{
-                "name": "exp-static-220401"
-            }]
+            }
         }
     ]
 }
