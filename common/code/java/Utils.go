@@ -111,7 +111,7 @@ func FormatParameterList(parameters []Parameter, formatter func(Parameter) (typ,
 	}
 	output := make([]string, len(parameters))
 	for i, par := range parameters {
-		name, typeName := formatter(par)
+		typeName, name := formatter(par)
 		if par.Type.IsArrayType {
 			typeName += ArrayTypeExtension
 		}
