@@ -23,19 +23,19 @@ type MethodTypeMap map[PredictableMethodName]string
 
 // Interface used for the predictor to support multiple predictor implementations like the mock.
 type Predictor interface {
+	// Starts the training and evaluation process.
+	TrainReturnTypes(methods []Method, labels [][]string) errors.Error
+	// Evaluates the passed methods and returns the scores for it
+	EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error)
 	// Makes predictions for the methods in the map and sets the types as their value.
 	PredictReturnTypesToMap(mapping MethodTypeMap) errors.Error
 	// Predicts the expected return type for the given method names. Returns a list of expected return types in the exact order
 	// the method names were passed.
 	PredictReturnTypes(methodNames []PredictableMethodName) ([]MethodValues, errors.Error)
-	// Evaluates the passed methods and returns the scores for it
-	EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error)
-	// Generates the remained part of a method by it's method name
-	GenerateMethods(contexts []MethodContext) ([][]MethodValues, errors.Error)
-	// Starts the training and evaluation process.
-	TrainReturnTypes(methods []Method, labels [][]string) errors.Error
-	// Starts the training and evaluation process.
+	// Starts the training and evaluation process. This method might apply side effects on the passed methods.
 	TrainMethods(trainingSet []Method) errors.Error
+	// Generates the remained part of a method by it's method name. This method might apply side effects on the passed contexts.
+	GenerateMethods(contexts []MethodContext) ([][]MethodValues, errors.Error)
 	// Returns true if the model exists and is already trained
 	ModelExists(modelType SupportedModels) (bool, errors.Error)
 }
@@ -111,11 +111,21 @@ func (p *predictor) getMethodNamesInsideOfMap(mapping MethodTypeMap) []Predictab
 
 func (p *predictor) TrainMethods(trainingSet []Method) errors.Error {
 	FormatMethods(trainingSet, p.config.SpecialOptions.SentenceFormatting)
+	if !p.config.ModelOptions.UseContextTypes {
+		for i := range trainingSet {
+			trainingSet[i].Context.Types = nil
+		}
+	}
 	return remote().Train(trainingSet, p.getOptions(MethodGenerator))
 }
 
 func (p *predictor) GenerateMethods(contexts []MethodContext) ([][]MethodValues, errors.Error) {
 	FormatContexts(contexts, p.config.SpecialOptions.SentenceFormatting)
+	if !p.config.ModelOptions.UseContextTypes {
+		for i := range contexts {
+			contexts[i].Types = nil
+		}
+	}
 	return remote().PredictMultiple(contexts, p.getOptions(MethodGenerator))
 }
 
@@ -128,7 +138,7 @@ func (p *predictor) getOptions(modelType SupportedModels) Options {
 }
 
 func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOptions {
-	return ModelOptions{
+	modelOptions := ModelOptions{
 		BatchSize:   options.BatchSize,
 		NumOfEpochs: options.NumOfEpochs,
 		GenerationTasks: MethodGenerationTaskOptions{
@@ -139,10 +149,13 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 			ParameterTypes: options.GenerationTasks.ParameterTypes,
 			ReturnType:     options.GenerationTasks.ReturnType,
 		},
-		NumReturnSequences:  options.NumReturnSequences,
-		MaxSequenceLength:   options.MaxSequenceLength,
-		DefaultContextTypes: configuration.PredictorDefaultContextTypes(),
+		NumReturnSequences: options.NumReturnSequences,
+		MaxSequenceLength:  options.MaxSequenceLength,
 	}
+	if options.UseContextTypes {
+		modelOptions.DefaultContextTypes = configuration.PredictorDefaultContextTypes()
+	}
+	return modelOptions
 }
 
 func (p *predictor) mapGenerationTask(options *configuration.MethodGenerationTaskOptions) MethodGenerationTaskOptions {

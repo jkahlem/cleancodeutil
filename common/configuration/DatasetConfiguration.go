@@ -44,6 +44,8 @@ type ModelOptions struct {
 	NumReturnSequences int `json:"numReturnSequences"`
 	// Sets the maximum length of the predicted sequence
 	MaxSequenceLength int `json:"maxSequenceLength"`
+	// If true, the types available in a file are also sent to the predictor.
+	UseContextTypes bool `json:"useContextTypes"`
 }
 
 type MethodGenerationTaskOptions struct {
