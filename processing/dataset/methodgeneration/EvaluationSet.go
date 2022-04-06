@@ -68,6 +68,13 @@ func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
 				panic(err)
 			}
 			e.Rater = append(e.Rater, &IdealRater{})
+		case configuration.TokenCounter:
+			_, err := metric.AsTokenCounter()
+			if err != nil {
+				// TODO: remove panic
+				panic(err)
+			}
+			e.Rater = append(e.Rater, &TokenCounter{})
 		default:
 			// TODO: remove panic
 			panic(fmt.Errorf("Unknown metric: %s", metric))
@@ -77,9 +84,9 @@ func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
 
 func (e *EvaluationSet) PrintScore(writer io.Writer) {
 	if len(e.Rater) > 0 {
-		fmt.Fprintf(writer, "Evaluation Type: %s\n", e.Name)
+		fmt.Fprintf(writer, "#Evaluation Type: %s\n\n", e.Name)
 		for i := range e.Rater {
-			fmt.Fprintf(writer, "Metric: %s. Score: %v\n", e.Rater[i].Name(), e.Rater[i].Score())
+			fmt.Fprintf(writer, "## Metric: %s.\n\nResult:\n%s\n\n", e.Rater[i].Name(), e.Rater[i].Score())
 		}
 	}
 	for i := range e.Subsets {

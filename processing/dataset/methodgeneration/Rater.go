@@ -1,6 +1,7 @@
 package methodgeneration
 
 import (
+	"fmt"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/metrics"
 	"strings"
@@ -11,7 +12,7 @@ import (
 type Metric interface {
 	Rate(m Method)
 	Name() string
-	Score() float64
+	Score() string
 }
 
 type AllZeroRater struct{}
@@ -22,8 +23,8 @@ func (r *AllZeroRater) Name() string {
 	return "All zero"
 }
 
-func (r *AllZeroRater) Score() float64 {
-	return 0
+func (r *AllZeroRater) Score() string {
+	return "Score: 0"
 }
 
 type BleuRater struct {
@@ -44,8 +45,8 @@ func (r *BleuRater) sentence(str *metrics.Sentence) bleu.Sentence {
 	return str.Tokens()
 }
 
-func (r *BleuRater) Score() float64 {
-	return r.score / r.count
+func (r *BleuRater) Score() string {
+	return fmt.Sprintf("- Score: %f", r.score/r.count)
 }
 
 func (r *BleuRater) Name() string {
@@ -127,7 +128,7 @@ func (r *RougeRater) Name() string {
 	return "Rouge"
 }
 
-func (r *RougeRater) Score() float64 {
+func (r *RougeRater) score() float64 {
 	switch r.measure.Type() {
 	case configuration.FScore:
 		if fscore, err := r.measure.AsFScore(); err != nil {
@@ -141,12 +142,80 @@ func (r *RougeRater) Score() float64 {
 	}
 }
 
+func (r *RougeRater) Score() string {
+	return fmt.Sprintf("- Score: %f", r.score())
+}
+
 type IdealRater struct{}
 
 func (r *IdealRater) Rate(m Method) {}
 func (r *IdealRater) Name() string {
 	return "Ideal"
 }
-func (r *IdealRater) Score() float64 {
-	return 0
+func (r *IdealRater) Score() string {
+	return "[Not implemented]"
+}
+
+type TokenCounter struct {
+	expectedTokenCount  TokenCount
+	generatedTokenCount TokenCount
+	rowsCount           int
+}
+
+type TokenCount struct {
+	TokenSum          int
+	MinCount          int
+	MaxCount          int
+	RowsPerTokenCount []int
+}
+
+func (c *TokenCount) Add(tokens metrics.Ngram) {
+	tokensCount := len(tokens)
+	if c.RowsPerTokenCount == nil {
+		c.RowsPerTokenCount = make([]int, tokensCount)
+	}
+	if len(c.RowsPerTokenCount) <= tokensCount {
+		expand := make([]int, (tokensCount+1)-len(c.RowsPerTokenCount))
+		c.RowsPerTokenCount = append(c.RowsPerTokenCount, expand...)
+	}
+	c.RowsPerTokenCount[tokensCount]++
+
+	if c.MaxCount < tokensCount {
+		c.MaxCount = tokensCount
+	}
+	if c.MinCount > tokensCount || c.TokenSum == 0 {
+		c.MinCount = tokensCount
+	}
+	c.TokenSum += tokensCount
+}
+
+func (r *TokenCounter) Rate(m Method) {
+	r.expectedTokenCount.Add(m.ExpectedDefinition.Ngram(1))
+	r.generatedTokenCount.Add(m.GeneratedDefinition.Ngram(1))
+	r.rowsCount++
+}
+
+func (r *TokenCounter) Name() string {
+	return "Parameter counter"
+}
+
+func (r *TokenCounter) Score() string {
+	return fmt.Sprintf("Expected Definitions:\n%s\nGenerated Definitions:\n%s", r.resultFor(r.expectedTokenCount), r.resultFor(r.generatedTokenCount))
+}
+
+func (r *TokenCounter) resultFor(count TokenCount) string {
+	return fmt.Sprintf(`- Overall number of tokens: %d in %d sequences
+- Minimum of tokens in one output sequence: %d
+- Maximum of tokens in one output sequence: %d
+- Average token count per sequence: %f
+
+%s`, count.TokenSum, r.rowsCount, count.MinCount, count.MaxCount, float64(count.TokenSum)/float64(r.rowsCount), r.tokenMap(count))
+}
+
+func (r *TokenCounter) tokenMap(count TokenCount) string {
+	output := "The following list contains the amount of tokens in the output sequence on the left side and the number of rows with this output sequence on the right side.\n"
+	for tokenCount, rowsCount := range count.RowsPerTokenCount {
+		output += fmt.Sprintf("- %d: %d (%f)\n", tokenCount, rowsCount, float64(rowsCount)/float64(r.rowsCount))
+	}
+	return output
 }

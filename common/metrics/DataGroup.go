@@ -44,6 +44,7 @@ func (s *Sentence) Ngram(n int) Ngram {
 	return val
 }
 
+// Returns a WordCount value containing mappings between each token and how often it occurs in the sequence
 func (s *Sentence) NgramWordCount(n int) WordCount {
 	if s.ngramsWords == nil {
 		s.ngramsWords = make(map[int]WordCount)

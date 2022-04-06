@@ -78,11 +78,12 @@ func (e MethodExample) DecodeValue(value interface{}) (interface{}, error) {
 }
 
 const (
-	RougeL = "rouge-l"
-	RougeS = "rouge-s"
-	RougeN = "rouge-n"
-	Bleu   = "bleu"
-	Ideal  = "ideal"
+	RougeL       = "rouge-l"
+	RougeS       = "rouge-s"
+	RougeN       = "rouge-n"
+	Bleu         = "bleu"
+	Ideal        = "ideal"
+	TokenCounter = "tokenCounter"
 )
 
 type MetricConfiguration map[string]interface{}
@@ -111,6 +112,10 @@ func (c MetricConfiguration) DecodeValue(value interface{}) (interface{}, error)
 		case Ideal:
 			return IdealMetricConfiguration{
 				Type: Ideal,
+			}, nil
+		case TokenCounter:
+			return TokenCounterConfiguration{
+				Type: TokenCounter,
 			}, nil
 		default:
 			return value, fmt.Errorf("Unsupported metric type preset: %s", metricType)
@@ -146,6 +151,12 @@ func (c MetricConfiguration) AsBleu() (BleuConfiguration, errors.Error) {
 func (c MetricConfiguration) AsIdeal() (IdealMetricConfiguration, errors.Error) {
 	var config IdealMetricConfiguration
 	err := c.as(Ideal, &config)
+	return config, err
+}
+
+func (c MetricConfiguration) AsTokenCounter() (TokenCounterConfiguration, errors.Error) {
+	var config TokenCounterConfiguration
+	err := c.as(TokenCounter, &config)
 	return config, err
 }
 
@@ -188,6 +199,10 @@ type BleuConfiguration struct {
 }
 
 type IdealMetricConfiguration struct {
+	Type string `json:"type"`
+}
+
+type TokenCounterConfiguration struct {
 	Type string `json:"type"`
 }
 

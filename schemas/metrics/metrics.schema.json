@@ -4,7 +4,7 @@
     "title": "Metrics",
     "description": "Type for all possible metric types.",
     "type": ["string", "object"],
-    "enum": ["rouge-l", "rouge-s", "rouge-2", "bleu", "ideal"],
+    "enum": ["rouge-l", "rouge-s", "rouge-2", "bleu", "ideal", "tokenCounter"],
     "anyOf": [
         {"type": "string"},
         {"type": "object", "$ref": "rouge-l.schema.json"},
