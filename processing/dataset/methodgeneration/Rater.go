@@ -215,7 +215,7 @@ func (r *TokenCounter) resultFor(count TokenCount) string {
 func (r *TokenCounter) tokenMap(count TokenCount) string {
 	output := "The following list contains the amount of tokens in the output sequence on the left side and the number of rows with this output sequence on the right side.\n"
 	for tokenCount, rowsCount := range count.RowsPerTokenCount {
-		output += fmt.Sprintf("- %d: %d (%f)\n", tokenCount, rowsCount, float64(rowsCount)/float64(r.rowsCount))
+		output += fmt.Sprintf("- %d: %d (%f%%)\n", tokenCount, rowsCount, float64(rowsCount)/float64(r.rowsCount)*100)
 	}
 	return output
 }
