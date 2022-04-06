@@ -91,6 +91,7 @@ type ModelOptions struct {
 	MaxSequenceLength int `json:"maxSequenceLength"`
 	// Default context types which are always added to the MethodContext types
 	DefaultContextTypes []string `json:"defaultContext,omitempty"`
+	UseTypePrefixing    bool     `json:"useTypePrefixing"`
 }
 
 type MethodGenerationTaskOptions struct {

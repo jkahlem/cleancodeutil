@@ -46,6 +46,8 @@ type ModelOptions struct {
 	MaxSequenceLength int `json:"maxSequenceLength"`
 	// If true, the types available in a file are also sent to the predictor.
 	UseContextTypes bool `json:"useContextTypes"`
+	// Activates type prefixing (type tokens (context types/return types/parameter types) are prefixed with some token)
+	UseTypePrefixing bool `json:"useTypePrefixing"`
 }
 
 type MethodGenerationTaskOptions struct {

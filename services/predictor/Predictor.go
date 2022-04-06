@@ -151,6 +151,7 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 		},
 		NumReturnSequences: options.NumReturnSequences,
 		MaxSequenceLength:  options.MaxSequenceLength,
+		UseTypePrefixing:   options.UseTypePrefixing,
 	}
 	if options.UseContextTypes {
 		modelOptions.DefaultContextTypes = configuration.PredictorDefaultContextTypes()

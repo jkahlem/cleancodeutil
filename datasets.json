@@ -19,10 +19,15 @@
                 },
                 "maxTrainingRows": 25000,
                 "maxEvaluationRows": 8000,
-                "sentenceFormatting": true
+                "sentenceFormatting": {
+                    "methodName": true,
+                    "parameterName": true
+                }
             },
             "modelOptions": {
                 "numOfEpochs": 1,
+                "useContextTypes": true,
+                "useTypePrefixing": true,
                 "generationTasks": {
                     "parameterNames":{
                         "withParameterTypes": true,
