@@ -86,7 +86,7 @@ func (s *Style) border(dir string) excelize.Border {
 
 func ApplyLayout(layout Layout, excelFile *excelize.File, sheetName string) {
 	for i, col := range layout.Columns {
-		colId := getColumnIdentifier(i)
+		colId := GetColumnIdentifier(i)
 		excelFile.SetColWidth(sheetName, colId, colId, col.Width)
 	}
 	excelize.NewFile().NewStyle(&excelize.Style{})

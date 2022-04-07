@@ -49,7 +49,11 @@ func (w *EvaluationResultWriter) WriteExamples(exampleContexts []predictor.Metho
 		return errors.New("Evaluation", "Could not write example output: The amount of generated values does not match the amount of examples.")
 	}
 
-	w.file.NewSheet("Examples")
+	sheet := "Examples"
+	w.file.NewSheet(sheet)
+	w.file.SetColWidth(sheet, excel.GetColumnIdentifier(0), excel.GetColumnIdentifier(0), 50)
+	w.file.SetColWidth(sheet, excel.GetColumnIdentifier(1), excel.GetColumnIdentifier(1), 80)
+
 	cursor := excel.NewCursor(w.file, "Examples")
 	cursor.SetStyle(w.headerStyle.Id())
 	cursor.WriteRowValues("Input", "Generated outputs")
@@ -80,7 +84,7 @@ func (w *EvaluationResultWriter) WriteMethods(methods []Method) errors.Error {
 		record := w.toMethodRecord(methods[i])
 		i++
 		return record
-	}).ToSheet(w.file, "Generated methods")
+	}).WithColumnsFromStruct(MethodRecordLayout{}).ToSheet(w.file, "Generated methods")
 }
 
 func (w *EvaluationResultWriter) toMethodRecord(method Method) []string {
@@ -129,6 +133,8 @@ func (w *EvaluationResultWriter) writeScoreSheetForSet(evalset *EvaluationSet) e
 
 	sheet := "Set - " + evalset.Name
 	w.file.NewSheet(sheet)
+	w.file.SetColWidth(sheet, excel.GetColumnIdentifier(0), excel.GetColumnIdentifier(0), 50)
+	w.file.SetColWidth(sheet, excel.GetColumnIdentifier(1), excel.GetColumnIdentifier(1), 50)
 	cursor := excel.NewCursor(w.file, sheet)
 
 	for _, rater := range evalset.Rater {
@@ -160,5 +166,13 @@ func (w *EvaluationResultWriter) Close() errors.Error {
 	if w.file == nil {
 		return nil
 	}
+	// Delete the default sheet - this needs to be done at the end if there are other sheets.
+	w.file.DeleteSheet("Sheet1")
 	return errors.Wrap(w.file.Save(), "Evaluation", "Could not save output file")
+}
+
+type MethodRecordLayout struct {
+	Name                string `excel:"Method Name,width=25"`
+	ExpectedDefinition  string `excel:"Expected Definition,width=80"`
+	GeneratedDefinition string `excel:"Generated Definition,width=80"`
 }

@@ -69,7 +69,7 @@ func (c *Cursor) WriteValues(values [][]interface{}) errors.Error {
 }
 
 func (c *Cursor) setCellValue(x, y int, value interface{}) errors.Error {
-	targetCell := getCellIdentifier(c.x+x, c.y+y)
+	targetCell := GetCellIdentifier(c.x+x, c.y+y)
 	if str, ok := value.(Markdown); ok {
 		if err := c.file.SetCellRichText(c.sheet, targetCell, MarkdownToRichText(str)); err != nil {
 			c.err = errors.Wrap(err, "Excel", "Could not write cell at position %s (%d, %d)", targetCell, c.x+x, c.y+y)
@@ -84,7 +84,7 @@ func (c *Cursor) setCellValue(x, y int, value interface{}) errors.Error {
 
 func (c *Cursor) applyStyle(sx, sy, wdt, hgt int) errors.Error {
 	if c.styleId > 0 && wdt >= 0 && hgt >= 0 {
-		if err := c.file.SetCellStyle(c.sheet, getCellIdentifier(sx, sy), getCellIdentifier(sx+wdt, sy+hgt), c.styleId); err != nil {
+		if err := c.file.SetCellStyle(c.sheet, GetCellIdentifier(sx, sy), GetCellIdentifier(sx+wdt, sy+hgt), c.styleId); err != nil {
 			c.err = errors.Wrap(err, "Excel", "Could not apply style")
 			return c.err
 		}

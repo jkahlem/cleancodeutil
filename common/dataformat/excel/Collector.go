@@ -160,7 +160,7 @@ func (w *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors
 			StyleID: cellStyle,
 		})
 	}
-	if err := w.streamWriter.SetRow(getCellIdentifier(0, rowIndex), cells); err != nil {
+	if err := w.streamWriter.SetRow(GetCellIdentifier(0, rowIndex), cells); err != nil {
 		return errors.Wrap(err, "Excel Error", "Could not write row %d", rowIndex)
 	}
 	return nil
@@ -173,7 +173,7 @@ func (w *file) applyRowStyle(rowIndex, valuesLength, styleId int) errors.Error {
 	}
 	// The row style does somehow not apply to cells which were set (even if called before setting cell values)
 	// therefore we need to set the cell's style seperately..
-	startCell, endCell := getCellIdentifier(0, rowIndex), getCellIdentifier(valuesLength, rowIndex)
+	startCell, endCell := GetCellIdentifier(0, rowIndex), GetCellIdentifier(valuesLength, rowIndex)
 	if err := w.excelFile.SetCellStyle(w.sheet, startCell, endCell, styleId); err != nil {
 		return errors.Wrap(err, "Excel Error", "Cannot apply row style")
 	}

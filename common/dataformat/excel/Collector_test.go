@@ -9,11 +9,11 @@ import (
 )
 
 func TestColumnIdentifierGeneration(t *testing.T) {
-	assert.Equal(t, "A", getColumnIdentifier(0))
-	assert.Equal(t, "Z", getColumnIdentifier(25))
-	assert.Equal(t, "AA", getColumnIdentifier(26))
-	assert.Equal(t, "AB", getColumnIdentifier(27))
-	assert.Equal(t, "BA", getColumnIdentifier(52))
+	assert.Equal(t, "A", GetColumnIdentifier(0))
+	assert.Equal(t, "Z", GetColumnIdentifier(25))
+	assert.Equal(t, "AA", GetColumnIdentifier(26))
+	assert.Equal(t, "AB", GetColumnIdentifier(27))
+	assert.Equal(t, "BA", GetColumnIdentifier(52))
 }
 
 func TestExcelFileGeneration(t *testing.T) {
