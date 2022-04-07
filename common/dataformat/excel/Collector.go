@@ -4,7 +4,6 @@ import (
 	"os"
 	"path/filepath"
 	"returntypes-langserver/common/debug/errors"
-	"strings"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -141,7 +140,7 @@ func (w *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors
 		/*if len(value) > 0 {
 			cell := getCellIdentifier(colIndex, rowIndex)
 			if w.layout.Columns[colIndex].Markdown {
-				if err := w.excelFile.SetCellRichText(w.sheet, cell, w.parseMarkdown(value)); err != nil {
+				if err := w.excelFile.SetCellRichText(w.sheet, cell, MarkdownToRichText(value)); err != nil {
 					return errors.Wrap(err, "Excel Error", "Could not add row to excel file for %s (value: %v)", cell, value)
 				}
 			} else if err := w.excelFile.SetCellValue(w.sheet, cell, value); err != nil {
@@ -166,23 +165,6 @@ func (w *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors
 	}
 	return nil
 	//return w.applyRowStyle(rowIndex, len(values), styleId)
-}
-
-// Very naive markdown parser that only parses for bold text
-func (w *file) parseMarkdown(value string) []excelize.RichTextRun {
-	isBold := false
-	richText := make([]excelize.RichTextRun, 0)
-	for _, part := range strings.Split(value, "**") {
-		richTextPart := excelize.RichTextRun{Text: part}
-		if isBold {
-			richTextPart.Font = &excelize.Font{
-				Bold: true,
-			}
-		}
-		richText = append(richText, richTextPart)
-		isBold = !isBold
-	}
-	return richText
 }
 
 func (w *file) applyRowStyle(rowIndex, valuesLength, styleId int) errors.Error {

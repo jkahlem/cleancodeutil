@@ -2,7 +2,7 @@ package excel
 
 import (
 	"fmt"
-	"returntypes-langserver/common/debug/errors"
+	"strings"
 
 	"github.com/xuri/excelize/v2"
 )
@@ -26,7 +26,18 @@ func getColumnIdentifier(index int) string {
 	return chr
 }
 
-func FromCSV(string, interface{}) (*excelize.File, errors.Error) {
-	// TODO: This is the outdated functionality which should be replaced by the new streams. (Remove this function)
-	return nil, errors.New("Error", "Currently not implemented.")
+func MarkdownToRichText(value string) []excelize.RichTextRun {
+	isBold := false
+	richText := make([]excelize.RichTextRun, 0)
+	for _, part := range strings.Split(value, "**") {
+		richTextPart := excelize.RichTextRun{Text: part}
+		if isBold {
+			richTextPart.Font = &excelize.Font{
+				Bold: true,
+			}
+		}
+		richText = append(richText, richTextPart)
+		isBold = !isBold
+	}
+	return richText
 }

@@ -69,6 +69,13 @@ func (s *Style) ToExcelStyle(file *excelize.File) (int, errors.Error) {
 	return id, nil
 }
 
+func (s *Style) Id() int {
+	if s.file != nil {
+		return s.styleId
+	}
+	return -1
+}
+
 func (s *Style) border(dir string) excelize.Border {
 	return excelize.Border{
 		Type:  dir,

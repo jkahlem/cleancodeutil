@@ -40,7 +40,11 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 	if e.isEvaluationResultPresent(path) {
 		return nil
 	}
-	e.resultWriter = NewResultWriter(filepath.Join(path, e.Dataset.Name()+ResultOutputFile))
+	if writer, err := NewResultWriter(filepath.Join(path, e.Dataset.Name()+ResultOutputFile)); err != nil {
+		return err
+	} else {
+		e.resultWriter = writer
+	}
 	evalset := e.getEvaluationSetConfig()
 
 	if err := e.evaluateMethods(path, evalset); err != nil {

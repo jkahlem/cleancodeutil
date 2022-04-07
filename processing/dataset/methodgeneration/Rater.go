@@ -203,9 +203,9 @@ func (r *TokenCounter) Result() [][]string {
 	expectedDefinitionsResult := r.resultFor(r.expectedTokenCount)
 	generatedDefinitionsResult := r.resultFor(r.generatedTokenCount)
 	result := make([][]string, 0, len(expectedDefinitionsResult)+len(generatedDefinitionsResult)+2)
-	result = append(result, []string{"Expected Definitions"})
+	result = append(result, []string{"**Expected Definitions**"})
 	result = append(result, expectedDefinitionsResult...)
-	result = append(result, []string{"Generated Definitions"})
+	result = append(result, []string{"**Generated Definitions**"})
 	result = append(result, expectedDefinitionsResult...)
 	return result
 }
@@ -216,6 +216,7 @@ func (r *TokenCounter) resultFor(count TokenCount) [][]string {
 		{"Minimum of tokens in one output sequence", fmt.Sprintf("%d", count.MinCount)},
 		{"Maximum of tokens in one output sequence", fmt.Sprintf("%d", count.MaxCount)},
 		{"Average token count per sequence", fmt.Sprintf("%f", float64(count.TokenSum)/float64(r.rowsCount))},
+		{},
 	}
 	outputs = append(outputs, r.tokenMap(count)...)
 	return outputs
@@ -228,5 +229,6 @@ func (r *TokenCounter) tokenMap(count TokenCount) [][]string {
 	for tokenCount, rowsCount := range count.RowsPerTokenCount {
 		output = append(output, []string{fmt.Sprintf("%d", tokenCount), fmt.Sprintf("%d (%f%%)", rowsCount, float64(rowsCount)/float64(r.rowsCount)*100)})
 	}
+	output = append(output, []string{})
 	return output
 }
