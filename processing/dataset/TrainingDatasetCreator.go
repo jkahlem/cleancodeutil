@@ -70,22 +70,36 @@ func createPackageTree(classes []csv.Class) *packagetree.Tree {
 }
 
 func Train(modelType configuration.ModelType) errors.Error {
-	return trainDatasets(modelType, configuration.DatasetOutputDir(), configuration.Datasets(), false)
+	return trainDatasets(modelType, configuration.DatasetOutputDir(), configuration.Datasets())
 }
 
-func trainDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset, isSubset bool) errors.Error {
+func trainDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset) errors.Error {
 	for _, dataset := range datasets {
-		if len(dataset.TargetModels) > 0 {
-			if !utils.ContainsString(dataset.TargetModels, string(modelType)) {
-				continue
-			}
+		if !acceptsModelType(modelType, dataset.TargetModels) {
+			continue
 		}
 
-		path := getPathForDataset(path, dataset, isSubset)
+		path := getPathForDataset(path, dataset)
 		if err := train(modelType, path, dataset); err != nil {
 			return err
+		} else if err := trainAlternatives(modelType, path, dataset); err != nil {
+			return err
+		} else if err := trainDatasets(modelType, path, dataset.Subsets); err != nil {
+			return err
 		}
-		if err := trainDatasets(modelType, path, dataset.Subsets, true); err != nil {
+	}
+	return nil
+}
+
+func trainAlternatives(modelType configuration.ModelType, path string, dataset configuration.Dataset) errors.Error {
+	for _, alternative := range dataset.Alternatives {
+		if !acceptsModelType(modelType, alternative.TargetModels) {
+			continue
+		}
+
+		set := dataset
+		set.DatasetBase = alternative
+		if err := train(modelType, path, set); err != nil {
 			return err
 		}
 	}
@@ -117,22 +131,20 @@ func getTrainerByModelType(modelType configuration.ModelType, dataset configurat
 }
 
 func Evaluate(modelType configuration.ModelType) errors.Error {
-	return evaluateDatasets(modelType, configuration.DatasetOutputDir(), configuration.Datasets(), false)
+	return evaluateDatasets(modelType, configuration.DatasetOutputDir(), configuration.Datasets())
 }
 
-func evaluateDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset, isSubset bool) errors.Error {
+func evaluateDatasets(modelType configuration.ModelType, path string, datasets []configuration.Dataset) errors.Error {
 	for _, dataset := range datasets {
-		if len(dataset.TargetModels) > 0 {
-			if !utils.ContainsString(dataset.TargetModels, string(modelType)) {
-				continue
-			}
+		if !acceptsModelType(modelType, dataset.TargetModels) {
+			continue
 		}
 
-		path := getPathForDataset(path, dataset, isSubset)
+		path := getPathForDataset(path, dataset)
 		if err := evaluate(modelType, path, dataset); err != nil {
 			return err
 		}
-		if err := evaluateDatasets(modelType, path, dataset.Subsets, true); err != nil {
+		if err := evaluateDatasets(modelType, path, dataset.Subsets); err != nil {
 			return err
 		}
 	}
@@ -162,9 +174,16 @@ func getEvaluatorByModelType(modelType configuration.ModelType, dataset configur
 	}
 }
 
-func getPathForDataset(parentPath string, dataset configuration.Dataset, isSubset bool) string {
+func getPathForDataset(parentPath string, dataset configuration.Dataset) string {
 	/*if isSubset && dataset.Filter.Excludes == nil && dataset.Filter.Includes == nil {
 		return parentPath
 	}*/
 	return filepath.Join(parentPath, dataset.Name())
+}
+
+func acceptsModelType(modelType configuration.ModelType, acceptedModelTypes []string) bool {
+	if len(acceptedModelTypes) > 0 {
+		return utils.ContainsString(acceptedModelTypes, string(modelType))
+	}
+	return true
 }

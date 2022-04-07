@@ -54,15 +54,17 @@ func TestGenerateMethods(t *testing.T) {
 	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
 
 	values, err := OnDataset(configuration.Dataset{
-		NameRaw: "exp-sentences-220405",
-		ModelOptions: configuration.ModelOptions{
-			GenerationTasks: &configuration.MethodGenerationTaskOptions{
-				ParameterNames: configuration.CompoundTaskOptions{
-					WithReturnType:     true,
-					WithParameterTypes: true,
+		DatasetBase: configuration.DatasetBase{
+			NameRaw: "exp-sentences-220405",
+			ModelOptions: configuration.ModelOptions{
+				GenerationTasks: &configuration.MethodGenerationTaskOptions{
+					ParameterNames: configuration.CompoundTaskOptions{
+						WithReturnType:     true,
+						WithParameterTypes: true,
+					},
 				},
+				NumReturnSequences: 3,
 			},
-			NumReturnSequences: 3,
 		},
 	}).GenerateMethods([]MethodContext{
 		{
@@ -203,7 +205,9 @@ func TestPredictUnstable(t *testing.T) {
 
 func dataset() configuration.Dataset {
 	return configuration.Dataset{
-		NameRaw: "test",
+		DatasetBase: configuration.DatasetBase{
+			NameRaw: "test",
+		},
 	}
 }
 

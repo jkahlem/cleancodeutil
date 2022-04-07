@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"fmt"
 	"os"
 	"returntypes-langserver/common/dataformat/jsonschema"
 	"returntypes-langserver/common/utils"
@@ -143,6 +144,9 @@ func connectDatasetPaths(datasets []Dataset, parentPath string) {
 	for i := range datasets {
 		datasets[i].parentPath = parentPath
 		connectDatasetPaths(datasets[i].Subsets, datasets[i].QualifiedIdentifier())
+		for j, alt := range datasets[i].Alternatives {
+			datasets[i].Alternatives[j].NameRaw = fmt.Sprintf("%s_%s", datasets[i].NameRaw, alt.NameRaw)
+		}
 	}
 }
 
