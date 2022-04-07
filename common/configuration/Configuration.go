@@ -7,6 +7,7 @@
 package configuration
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 	"time"
@@ -37,17 +38,45 @@ func FindDatasetByReference(reference string) (Dataset, bool) {
 	return findDatasetByReference(strings.Split(reference, "/"), Datasets())
 }
 
-func findDatasetByReference(reference []string, sets []Dataset) (Dataset, bool) {
+func findDatasetByReference(referenceParts []string, sets []Dataset) (Dataset, bool) {
 	for _, set := range sets {
-		if set.NameRaw == reference[0] {
-			if len(reference) > 1 {
-				return findDatasetByReference(reference[1:], set.Subsets)
-			} else {
-				return set, true
+		splittedName := strings.Split(referenceParts[0], ":")
+		if len(splittedName) == 1 {
+			// No colon: continue search for dataset
+			if set.NameRaw == referenceParts[0] {
+				if len(referenceParts) > 1 {
+					return findDatasetByReference(referenceParts[1:], set.Subsets)
+				} else {
+					return set, true
+				}
 			}
+		} else if len(splittedName) == 2 {
+			// one colon was present
+			setName, alternativeName := splittedName[0], splittedName[1]
+			if len(referenceParts) != 1 {
+				// TODO: Remove panic
+				panic(fmt.Errorf("Tried to access subset of alternative set, which is not supported."))
+			} else if set.NameRaw == setName {
+				alternative, ok := findDatasetAlternativeByName(alternativeName, set.Alternatives)
+				set.DatasetBase = alternative
+				return set, ok
+			} else {
+				return Dataset{}, false
+			}
+		} else {
+			panic(fmt.Errorf("Unexpected amount of parts in reference name: `%s`. Expected 1 or 2, but got %d.", referenceParts[0], len(splittedName)))
 		}
 	}
 	return Dataset{}, false
+}
+
+func findDatasetAlternativeByName(name string, alternatives []DatasetBase) (DatasetBase, bool) {
+	for _, set := range alternatives {
+		if set.NameRaw == name {
+			return set, true
+		}
+	}
+	return DatasetBase{}, false
 }
 
 func UsedModelType() ModelType {
