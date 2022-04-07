@@ -12,7 +12,7 @@ import (
 type Metric interface {
 	Rate(m Method)
 	Name() string
-	Score() string
+	Result() [][]string
 }
 
 type AllZeroRater struct{}
@@ -23,8 +23,8 @@ func (r *AllZeroRater) Name() string {
 	return "All zero"
 }
 
-func (r *AllZeroRater) Score() string {
-	return "Score: 0"
+func (r *AllZeroRater) Result() [][]string {
+	return [][]string{{"Score", "0"}}
 }
 
 type BleuRater struct {
@@ -45,8 +45,8 @@ func (r *BleuRater) sentence(str *metrics.Sentence) bleu.Sentence {
 	return str.Tokens()
 }
 
-func (r *BleuRater) Score() string {
-	return fmt.Sprintf("- Score: %f", r.score/r.count)
+func (r *BleuRater) Result() [][]string {
+	return [][]string{{"Score", fmt.Sprintf("%f", r.score/r.count)}}
 }
 
 func (r *BleuRater) Name() string {
@@ -142,8 +142,8 @@ func (r *RougeRater) score() float64 {
 	}
 }
 
-func (r *RougeRater) Score() string {
-	return fmt.Sprintf("- Score: %f", r.score())
+func (r *RougeRater) Result() [][]string {
+	return [][]string{{"Score", fmt.Sprintf("%f", r.score())}}
 }
 
 type IdealRater struct{}
@@ -152,8 +152,8 @@ func (r *IdealRater) Rate(m Method) {}
 func (r *IdealRater) Name() string {
 	return "Ideal"
 }
-func (r *IdealRater) Score() string {
-	return "[Not implemented]"
+func (r *IdealRater) Result() [][]string {
+	return nil
 }
 
 type TokenCounter struct {
@@ -199,23 +199,34 @@ func (r *TokenCounter) Name() string {
 	return "Parameter counter"
 }
 
-func (r *TokenCounter) Score() string {
-	return fmt.Sprintf("Expected Definitions:\n%s\nGenerated Definitions:\n%s", r.resultFor(r.expectedTokenCount), r.resultFor(r.generatedTokenCount))
+func (r *TokenCounter) Result() [][]string {
+	expectedDefinitionsResult := r.resultFor(r.expectedTokenCount)
+	generatedDefinitionsResult := r.resultFor(r.generatedTokenCount)
+	result := make([][]string, 0, len(expectedDefinitionsResult)+len(generatedDefinitionsResult)+2)
+	result = append(result, []string{"Expected Definitions"})
+	result = append(result, expectedDefinitionsResult...)
+	result = append(result, []string{"Generated Definitions"})
+	result = append(result, expectedDefinitionsResult...)
+	return result
 }
 
-func (r *TokenCounter) resultFor(count TokenCount) string {
-	return fmt.Sprintf(`- Overall number of tokens: %d in %d sequences
-- Minimum of tokens in one output sequence: %d
-- Maximum of tokens in one output sequence: %d
-- Average token count per sequence: %f
-
-%s`, count.TokenSum, r.rowsCount, count.MinCount, count.MaxCount, float64(count.TokenSum)/float64(r.rowsCount), r.tokenMap(count))
+func (r *TokenCounter) resultFor(count TokenCount) [][]string {
+	outputs := [][]string{
+		{"Overall number of tokens", fmt.Sprintf("%d in %d sequences", count.TokenSum, r.rowsCount)},
+		{"Minimum of tokens in one output sequence", fmt.Sprintf("%d", count.MinCount)},
+		{"Maximum of tokens in one output sequence", fmt.Sprintf("%d", count.MaxCount)},
+		{"Average token count per sequence", fmt.Sprintf("%f", float64(count.TokenSum)/float64(r.rowsCount))},
+	}
+	outputs = append(outputs, r.tokenMap(count)...)
+	return outputs
 }
 
-func (r *TokenCounter) tokenMap(count TokenCount) string {
-	output := "The following list contains the amount of tokens in the output sequence on the left side and the number of rows with this output sequence on the right side.\n"
+func (r *TokenCounter) tokenMap(count TokenCount) [][]string {
+	output := [][]string{
+		{"Token count", "Rows with exactly that token count"},
+	}
 	for tokenCount, rowsCount := range count.RowsPerTokenCount {
-		output += fmt.Sprintf("- %d: %d (%f%%)\n", tokenCount, rowsCount, float64(rowsCount)/float64(r.rowsCount)*100)
+		output = append(output, []string{fmt.Sprintf("%d", tokenCount), fmt.Sprintf("%d (%f%%)", rowsCount, float64(rowsCount)/float64(r.rowsCount)*100)})
 	}
 	return output
 }

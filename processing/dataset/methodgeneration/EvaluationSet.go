@@ -86,7 +86,7 @@ func (e *EvaluationSet) PrintScore(writer io.Writer) {
 	if len(e.Rater) > 0 {
 		fmt.Fprintf(writer, "#Evaluation Type: %s\n\n", e.Name)
 		for i := range e.Rater {
-			fmt.Fprintf(writer, "## Metric: %s.\n\nResult:\n%s\n\n", e.Rater[i].Name(), e.Rater[i].Score())
+			fmt.Fprintf(writer, "## Metric: %s.\n\nResult:\n%s\n\n", e.Rater[i].Name(), e.Rater[i].Result())
 		}
 	}
 	for i := range e.Subsets {

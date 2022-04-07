@@ -1,7 +1,6 @@
 package methodgeneration
 
 import (
-	"fmt"
 	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
@@ -16,9 +15,11 @@ import (
 const GeneratedMethodsFile = "methodgeneration_generatedMethods.csv"
 const ScoreOutputFile = "methodgeneration_scores.txt"
 const ExampleOutputFile = "methodgeneration_examples.txt"
+const ResultOutputFile = "methodgeneration_result.xlsx"
 
 type Evaluator struct {
-	Dataset configuration.Dataset
+	Dataset      configuration.Dataset
+	resultWriter *EvaluationResultWriter
 }
 
 type Method struct {
@@ -39,6 +40,7 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 	if e.isEvaluationResultPresent(path) {
 		return nil
 	}
+	e.resultWriter = NewResultWriter(filepath.Join(path, e.Dataset.Name()+ResultOutputFile))
 	evalset := e.getEvaluationSetConfig()
 
 	if err := e.evaluateMethods(path, evalset); err != nil {
@@ -48,6 +50,9 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 		return err
 	}
 	if err := e.writeExampleOutput(path, evalset); err != nil {
+		return err
+	}
+	if err := e.resultWriter.Close(); err != nil {
 		return err
 	}
 	return nil
@@ -137,7 +142,7 @@ func (e *Evaluator) buildEvaluationSet(setConfiguration configuration.Evaluation
 }
 
 func (e *Evaluator) isEvaluationResultPresent(path string) bool {
-	return utils.FileExists(filepath.Join(path, e.Dataset.Name()+GeneratedMethodsFile))
+	return utils.FileExists(filepath.Join(path, e.Dataset.Name()+ResultOutputFile))
 }
 
 func (e *Evaluator) evaluateMethods(path string, evalset *EvaluationSet) errors.Error {
@@ -153,15 +158,10 @@ func (e *Evaluator) evaluateMethods(path string, evalset *EvaluationSet) errors.
 	if err := e.calculateIdealScore(path, methods, evalset); err != nil {
 		return err
 	}
-	writer := csv.NewFileWriter(path, e.Dataset.Name()+GeneratedMethodsFile)
-	defer writer.Close()
 	for _, m := range methods {
 		evalset.AddMethod(m)
-		if err := writer.WriteRecord([]string{m.Name, m.ExpectedDefinition.String(), m.GeneratedDefinition.String()}); err != nil {
-			return errors.Wrap(err, "Evaluator", "Could not write the generated methods") // TODO: Use something like error collector? As this is not that critical.
-		}
 	}
-	return nil
+	return e.resultWriter.WriteMethods(methods)
 }
 
 func (e *Evaluator) calculateIdealScore(path string, methods []Method, evalset *EvaluationSet) errors.Error {
@@ -179,10 +179,7 @@ public class Example {
 	if results, err := ideal.AnalyzeSourceCode(code); err != nil {
 		return err
 	} else {
-		if err := csv.NewFileWriter(path, e.Dataset.Name()+"IDEAL.csv").WriteIdealResultRecords(results); err != nil {
-			return err
-		}
-		return nil
+		return e.resultWriter.WriteIdealResults(results)
 	}
 }
 
@@ -200,14 +197,7 @@ func (e *Evaluator) getGeneratedMethodsForEvaluationSet(path string) ([]Method, 
 }
 
 func (e *Evaluator) writeScoreOutput(path string, evalset *EvaluationSet) errors.Error {
-	scoreFile, err := utils.CreateFile(filepath.Join(path, e.Dataset.Name()+ScoreOutputFile))
-	if err != nil {
-		return err
-	}
-	defer scoreFile.Close()
-	fmt.Fprintln(scoreFile, "Print evaluations for: ", path)
-	evalset.PrintScore(scoreFile)
-	return nil
+	return e.resultWriter.WriteScores(evalset)
 }
 
 func (e *Evaluator) writeExampleOutput(path string, evalset *EvaluationSet) errors.Error {
@@ -220,19 +210,5 @@ func (e *Evaluator) writeExampleOutput(path string, evalset *EvaluationSet) erro
 		return err
 	}
 
-	file, err := utils.CreateFile(filepath.Join(path, e.Dataset.Name()+ExampleOutputFile))
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	for i, methodValues := range generated {
-		fmt.Fprintf(file, "%s:\n", examples[i])
-		for _, value := range methodValues {
-			//fmt.Fprintf(file, "- %s\n", value)
-			fmt.Fprintf(file, "- %s\n", CreateMethodDefinition(examples[i], value))
-		}
-	}
-
-	return nil
+	return e.resultWriter.WriteExamples(examples, generated)
 }

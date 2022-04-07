@@ -110,25 +110,25 @@ func TestExcelFileSavingByStruct(t *testing.T) {
 func TestChannelLoading(t *testing.T) {
 	// given
 	destination := make([][]string, 0)
-	channel := make(chan []string)
+	channel := NewChannel()
 	records := [][]string{
 		{"0", "1"},
 		{"X", "Y", "Z"},
 		{"A", "B", "C"},
 	}
 
+	// when
 	go func() {
-		channel <- records[0]
-		channel <- records[1]
-		channel <- records[2]
-		close(channel)
+		channel.PutError(Stream().FromChannel(channel).WithStaticHeaders("Col0", "Col1", "Col2").ToSlice(&destination))
 	}()
 
-	// when
-	err := Stream().FromChannel(channel).WithStaticHeaders("Col0", "Col1", "Col2").ToSlice(&destination)
+	channel.PutRecord(records[0])
+	channel.PutRecord(records[1])
+	channel.PutRecord(records[2])
+	channel.Close()
 
 	// then
-	assert.NoError(t, err)
+	assert.NoError(t, channel.NextError())
 	assert.Len(t, destination, 4)
 	utils.AssertStringSlice(t, destination[0], "Col0", "Col1", "Col2")
 }

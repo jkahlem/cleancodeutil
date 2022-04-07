@@ -16,7 +16,9 @@ type StreamStart interface {
 	FromSlice(records [][]string) BaseLayoutStream
 	// Loads all records from a channel and passes them through the stream.
 	// This operation will block the thread if the channel is not closed and has no data anymore.
-	FromChannel(channel chan []string) BaseLayoutStream
+	FromChannel(channel *Channel) BaseLayoutStream
+	// Loads all records passed by the given loader func
+	FromFunc(LoaderFunc) BaseLayoutStream
 	From(loader Loader) BaseLayoutStream
 }
 
@@ -55,6 +57,7 @@ type stream struct {
 	loader      Loader
 	parts       []StreamWriter
 	isReporting bool
+	channel     *Channel
 }
 
 // Creates a stream to process data on a stream, starting with loading the data, altering data, columns and so on and writing them to the file.
@@ -85,8 +88,12 @@ func (s *stream) FromSlice(records [][]string) BaseLayoutStream {
 	return s.From(newSliceLoader(records))
 }
 
-func (s *stream) FromChannel(channel chan []string) BaseLayoutStream {
+func (s *stream) FromChannel(channel *Channel) BaseLayoutStream {
 	return s.From(newChannelLoader(channel))
+}
+
+func (s *stream) FromFunc(l LoaderFunc) BaseLayoutStream {
+	return s.From(l)
 }
 
 func (s *stream) From(loader Loader) BaseLayoutStream {
