@@ -9,7 +9,11 @@ func CreateMethodDefinition(context predictor.MethodContext, value predictor.Met
 	returnType := ConcatTypeName(split(value.ReturnType))
 	methodName := ConcatByLowerCamelCase(split(context.MethodName))
 	parameterList := ConcatParametersToList(value.Parameters)
-	return "public " + returnType + " " + methodName + "(" + parameterList + ") {}"
+	static := ""
+	if context.IsStatic {
+		static = "static "
+	}
+	return "public " + static + returnType + " " + methodName + "(" + parameterList + ") {}"
 }
 
 func split(str string) []string {
