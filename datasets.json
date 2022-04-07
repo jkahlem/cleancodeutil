@@ -30,8 +30,8 @@
                     "training": 7,
                     "evaluation": 3
                 },
-                "maxTrainingRows": 250,
-                "maxEvaluationRows": 25,
+                "maxTrainingRows": 25000,
+                "maxEvaluationRows": 8000,
                 "sentenceFormatting": {
                     "methodName": true,
                     "parameterName": true

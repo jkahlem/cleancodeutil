@@ -1,0 +1,28 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "configuration.schema.json",
+    "title": "Dataset Base Configuration",
+    "description": "A dataset configuration.",
+    "type": "object",
+    "properties": {
+        "name": {
+            "description": "The name of the set. This name will be used for the output file. Subsets will be written into a sub directory with this name.",
+            "type": "string",
+            "pattern": "^[^/\\?&#]+$"
+        },
+        "description": {
+            "description": "A description of the dataset, e.g. which data/options are used and why for documentation purposes.",
+            "type": "string"
+        },
+        "modelOptions": {
+            "description": "Defines options which should be applied to the model for creating this dataset",
+            "type": "object",
+            "$ref": "model-options.schema.json"
+        },
+        "targetModels": {
+            "type": "array",
+            "$ref": "../model-list.schema.json"
+        }
+    },
+    "required": ["name"]
+}

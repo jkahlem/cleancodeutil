@@ -12,15 +12,20 @@ type DatasetFileConfiguration struct {
 	Datasets []Dataset `json:"datasets"`
 }
 
+type DatasetBase struct {
+	NameRaw      string       `json:"name"`
+	Description  string       `json:"description"`
+	ModelOptions ModelOptions `json:"modelOptions"`
+	TargetModels []string     `json:"targetModels"`
+}
+
 type Dataset struct {
-	NameRaw        string         `json:"name"`
+	DatasetBase    `json:",squash"`
 	Filter         Filter         `json:"filter"`
 	IsGroupOnly    bool           `json:"isGroupOnly"`
-	Description    string         `json:"description"`
 	SpecialOptions SpecialOptions `json:"specialOptions"`
-	ModelOptions   ModelOptions   `json:"modelOptions"`
 	Subsets        []Dataset      `json:"subsets"`
-	TargetModels   []string       `json:"targetModels"`
+	Alternatives   []DatasetBase  `json:"alternatives"`
 	parentPath     string
 }
 

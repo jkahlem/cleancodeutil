@@ -37,6 +37,7 @@ const (
 
 	// Dataset schemas
 	DatasetConfigurationFileSchemaPath = "datasets/dataset/config-file.schema.json"
+	DatasetConfigurationBaseSchemaPath = "datasets/dataset/base.schema.json"
 	DatasetConfigurationSchemaPath     = "datasets/dataset/configuration.schema.json"
 	DatasetModelOptionsSchemaPath      = "datasets/dataset/model-options.schema.json"
 	DatasetSpecialOptionsSchemaPath    = "datasets/dataset/special-options.schema.json"
@@ -75,7 +76,8 @@ func initializeSchemas() {
 
 	DatasetConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
 		WithTopLevel(DatasetConfigurationFileSchemaPath).
-		WithResources(DatasetConfigurationSchemaPath,
+		WithResources(DatasetConfigurationBaseSchemaPath,
+			DatasetConfigurationSchemaPath,
 			DatasetModelOptionsSchemaPath,
 			DatasetSpecialOptionsSchemaPath,
 			DatasetSizeSchemaPath,
@@ -105,6 +107,7 @@ func initializeSchemas() {
 			EvaluationConfigurationSchemaPath,
 			EvaluationSetSchemaPath,
 			MethodContextSchemaPath,
+			DatasetConfigurationBaseSchemaPath,
 			DatasetConfigurationSchemaPath,
 			DatasetModelOptionsSchemaPath,
 			DatasetSpecialOptionsSchemaPath,

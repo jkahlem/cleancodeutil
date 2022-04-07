@@ -4,16 +4,8 @@
     "title": "Dataset Configuration",
     "description": "A dataset configuration.",
     "type": "object",
+    "allOf": [{ "$ref": "base.schema.json" }],
     "properties": {
-        "name": {
-            "description": "The name of the set. This name will be used for the output file. Subsets will be written into a sub directory with this name.",
-            "type": "string",
-            "pattern": "^[^/\\?&#]+$"
-        },
-        "description": {
-            "description": "A description of the dataset, e.g. which data/options are used and why for documentation purposes.",
-            "type": "string"
-        },
         "filter": {
             "description": "A filter which is used on each method before doing anything else with it. If the method does not fulfill this filter, then it is not accepted.",
             "type": "object",
@@ -22,11 +14,6 @@
         "isGroupOnly": {
             "description": "If true, then no dataset output is created for this dataset, which is useful to group datasets. Output for subsets will still be created.",
             "type": "boolean"
-        },
-        "modelOptions": {
-            "description": "Defines options which should be applied to the model for creating this dataset",
-            "type": "object",
-            "$ref": "model-options.schema.json"
         },
         "specialOptions": {
             "description": "Defines special filter options which are used for creating the dataset. Options are applied before passing to subsets, so overwriting them might not take effect.",
@@ -41,10 +28,13 @@
                 "$ref": "#"
             }
         },
-        "targetModels": {
+        "alternatives": {
+            "description": "A list of alternative versions of the dataset. These can be used to try different variants of model options for a dataset and will reuse the exact same output files as the dataset. Therefore it is not possible to define further filters on the methods in the set, as this is already a subset.",
             "type": "array",
-            "$ref": "../model-list.schema.json"
+            "items": {
+                "type": "object",
+                "$ref": "base.schema.json"
+            }
         }
-    },
-    "required": ["name"]
+    }
 }
