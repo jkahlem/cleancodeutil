@@ -3,6 +3,8 @@ package excel
 import (
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
+
+	"github.com/xuri/excelize/v2"
 )
 
 type Col int
@@ -32,6 +34,8 @@ type WriteableStream interface {
 	ToFile(path string) errors.Error
 	// Writes all records to the given slice
 	ToSlice(slice *[][]string) errors.Error
+	// Writes all records to the given sheet of an excel file
+	ToSheet(file *excelize.File, sheet string) errors.Error
 	// For external collectors
 	To(Collector) errors.Error
 }
@@ -135,6 +139,10 @@ func (s *stream) ToFile(path string) errors.Error {
 
 func (s *stream) ToSlice(slice *[][]string) errors.Error {
 	return s.To(newSliceCollector(slice))
+}
+
+func (s *stream) ToSheet(file *excelize.File, sheet string) errors.Error {
+	return s.To(newFileCollectorByFileAndSheet(file, sheet))
 }
 
 func (s *stream) To(collector Collector) errors.Error {

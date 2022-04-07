@@ -21,21 +21,29 @@ type file struct {
 	index        int
 	layout       Layout
 	streamWriter *excelize.StreamWriter
+	sheet        string
 }
 
 func newFileCollector(outputPath string) Collector {
 	f := excelize.NewFile()
 	f.Path = outputPath
 	f.SetActiveSheet(f.NewSheet(DefaultSheetName))
-
-	return &file{
-		excelFile: f,
-	}
+	return newFileCollectorByFileAndSheet(f, DefaultSheetName)
 }
 
 func newFileCollectorByExcelFile(excelFile *excelize.File) Collector {
 	return &file{
 		excelFile: excelFile,
+	}
+}
+
+func newFileCollectorByFileAndSheet(excelFile *excelize.File, sheet string) Collector {
+	if excelFile.GetSheetIndex(sheet) == -1 {
+		excelFile.NewSheet(sheet)
+	}
+	return &file{
+		excelFile: excelFile,
+		sheet:     sheet,
 	}
 }
 
@@ -63,7 +71,7 @@ func (w *file) applyColumnWidth(col Column, zeroIndexedCol int) error {
 		}
 	}
 	/*if col.Hide {
-		if err := w.excelFile.SetColVisible(DefaultSheetName, colId, false); err != nil {
+		if err := w.excelFile.SetColVisible(w.sheet, colId, false); err != nil {
 			return err
 		}
 	}*/
@@ -90,7 +98,7 @@ func (w *file) Write(record []string, style *Style) errors.Error {
 
 func (w *file) checkStreamWriter() errors.Error {
 	if w.streamWriter == nil {
-		if sw, err := w.excelFile.NewStreamWriter(DefaultSheetName); err != nil {
+		if sw, err := w.excelFile.NewStreamWriter(w.sheet); err != nil {
 			return errors.Wrap(err, "Excel Error", "Could not open file stream")
 		} else {
 			w.streamWriter = sw
@@ -131,10 +139,10 @@ func (w *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors
 		/*if len(value) > 0 {
 			cell := getCellIdentifier(colIndex, rowIndex)
 			if w.layout.Columns[colIndex].Markdown {
-				if err := w.excelFile.SetCellRichText(DefaultSheetName, cell, w.parseMarkdown(value)); err != nil {
+				if err := w.excelFile.SetCellRichText(w.sheet, cell, w.parseMarkdown(value)); err != nil {
 					return errors.Wrap(err, "Excel Error", "Could not add row to excel file for %s (value: %v)", cell, value)
 				}
-			} else if err := w.excelFile.SetCellValue(DefaultSheetName, cell, value); err != nil {
+			} else if err := w.excelFile.SetCellValue(w.sheet, cell, value); err != nil {
 				return errors.Wrap(err, "Excel Error", "Could not add row to excel file for %s (value: %v)", cell, value)
 			}
 		}*/
@@ -176,13 +184,13 @@ func (w *file) parseMarkdown(value string) []excelize.RichTextRun {
 }
 
 func (w *file) applyRowStyle(rowIndex, valuesLength, styleId int) errors.Error {
-	if err := w.excelFile.SetRowStyle(DefaultSheetName, rowIndex+1, rowIndex+1, styleId); err != nil {
+	if err := w.excelFile.SetRowStyle(w.sheet, rowIndex+1, rowIndex+1, styleId); err != nil {
 		return errors.Wrap(err, "Excel Error", "Cannot apply row style")
 	}
 	// The row style does somehow not apply to cells which were set (even if called before setting cell values)
 	// therefore we need to set the cell's style seperately..
 	startCell, endCell := getCellIdentifier(0, rowIndex), getCellIdentifier(valuesLength, rowIndex)
-	if err := w.excelFile.SetCellStyle(DefaultSheetName, startCell, endCell, styleId); err != nil {
+	if err := w.excelFile.SetCellStyle(w.sheet, startCell, endCell, styleId); err != nil {
 		return errors.Wrap(err, "Excel Error", "Cannot apply row style")
 	}
 	return nil

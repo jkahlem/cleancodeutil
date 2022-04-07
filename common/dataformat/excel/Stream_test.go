@@ -136,7 +136,7 @@ func TestChannelLoading(t *testing.T) {
 func TestExcelizeWithStreamOnDifferentSheet(t *testing.T) {
 	file := excelize.NewFile()
 	file.Path = "test.xlsx"
-	file.SetActiveSheet(file.NewSheet("asd"))
+	file.NewSheet("asd")
 	s, err := file.NewStreamWriter("asd")
 	if assert.NoError(t, err) {
 		s.SetRow("A1", []interface{}{"A", "B"})

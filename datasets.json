@@ -1,15 +1,29 @@
 {
     "datasets": [
         {
-            "name": "exp-prefixes-220406",
+            "name": "exp-no-digits-220406",
             "filter": {
                 "exclude": [{
                     "modifier": ["native", "private"]
                 },{
                     "label": ["testCode", "override"]
+                },{
+                    "method": [{
+                        "pattern": ".+\\d.+",
+                        "type": "regexp"
+                    }]
+                },{
+                    "classname": [{
+                        "pattern": ".+\\d.+",
+                        "type": "regexp"
+                    }]
+                },{
+                    "parameter": [{
+                        "pattern": ".+\\d.+",
+                        "type": "regexp"
+                    }]
                 }]
             },
-            "isGroupOnly": true,
             "specialOptions": {
                 "convert2ToWords": true,
                 "minMethodNameLength": 2,
@@ -26,8 +40,8 @@
             },
             "modelOptions": {
                 "numOfEpochs": 1,
-                "useContextTypes": true,
-                "useTypePrefixing": true,
+                "useContextTypes": false,
+                "useTypePrefixing": false,
                 "generationTasks": {
                     "parameterNames":{
                         "withParameterTypes": true,
