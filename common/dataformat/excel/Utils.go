@@ -26,10 +26,12 @@ func getColumnIdentifier(index int) string {
 	return chr
 }
 
-func MarkdownToRichText(value string) []excelize.RichTextRun {
+type Markdown string
+
+func MarkdownToRichText(value Markdown) []excelize.RichTextRun {
 	isBold := false
 	richText := make([]excelize.RichTextRun, 0)
-	for _, part := range strings.Split(value, "**") {
+	for _, part := range strings.Split(string(value), "**") {
 		richTextPart := excelize.RichTextRun{Text: part}
 		if isBold {
 			richTextPart.Font = &excelize.Font{

@@ -137,7 +137,7 @@ func (w *EvaluationResultWriter) writeScoreSheetForSet(evalset *EvaluationSet) e
 		cursor.SetStyle(0)
 		cursor.Move(0, 1)
 		result := rater.Result()
-		cursor.WriteStringValues(result)
+		cursor.WriteValues(result)
 		cursor.Move(0, len(result)+1)
 	}
 

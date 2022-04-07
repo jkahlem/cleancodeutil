@@ -51,7 +51,7 @@ func (c *Cursor) WriteRowValues(values ...interface{}) errors.Error {
 	return nil
 }
 
-func (c *Cursor) WriteStringValues(values [][]string) errors.Error {
+func (c *Cursor) WriteValues(values [][]interface{}) errors.Error {
 	if c.file == nil || c.err != nil {
 		return c.err
 	}
@@ -70,7 +70,7 @@ func (c *Cursor) WriteStringValues(values [][]string) errors.Error {
 
 func (c *Cursor) setCellValue(x, y int, value interface{}) errors.Error {
 	targetCell := getCellIdentifier(c.x+x, c.y+y)
-	if str, ok := value.(string); ok {
+	if str, ok := value.(Markdown); ok {
 		if err := c.file.SetCellRichText(c.sheet, targetCell, MarkdownToRichText(str)); err != nil {
 			c.err = errors.Wrap(err, "Excel", "Could not write cell at position %s (%d, %d)", targetCell, c.x+x, c.y+y)
 			return c.err

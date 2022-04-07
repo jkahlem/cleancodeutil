@@ -3,6 +3,7 @@ package methodgeneration
 import (
 	"fmt"
 	"returntypes-langserver/common/configuration"
+	"returntypes-langserver/common/dataformat/excel"
 	"returntypes-langserver/common/metrics"
 	"strings"
 
@@ -12,7 +13,7 @@ import (
 type Metric interface {
 	Rate(m Method)
 	Name() string
-	Result() [][]string
+	Result() [][]interface{}
 }
 
 type AllZeroRater struct{}
@@ -23,8 +24,8 @@ func (r *AllZeroRater) Name() string {
 	return "All zero"
 }
 
-func (r *AllZeroRater) Result() [][]string {
-	return [][]string{{"Score", "0"}}
+func (r *AllZeroRater) Result() [][]interface{} {
+	return [][]interface{}{{"Score", "0"}}
 }
 
 type BleuRater struct {
@@ -45,8 +46,8 @@ func (r *BleuRater) sentence(str *metrics.Sentence) bleu.Sentence {
 	return str.Tokens()
 }
 
-func (r *BleuRater) Result() [][]string {
-	return [][]string{{"Score", fmt.Sprintf("%f", r.score/r.count)}}
+func (r *BleuRater) Result() [][]interface{} {
+	return [][]interface{}{{"Score", fmt.Sprintf("%f", r.score/r.count)}}
 }
 
 func (r *BleuRater) Name() string {
@@ -142,8 +143,8 @@ func (r *RougeRater) score() float64 {
 	}
 }
 
-func (r *RougeRater) Result() [][]string {
-	return [][]string{{"Score", fmt.Sprintf("%f", r.score())}}
+func (r *RougeRater) Result() [][]interface{} {
+	return [][]interface{}{{"Score", fmt.Sprintf("%f", r.score())}}
 }
 
 type IdealRater struct{}
@@ -152,7 +153,7 @@ func (r *IdealRater) Rate(m Method) {}
 func (r *IdealRater) Name() string {
 	return "Ideal"
 }
-func (r *IdealRater) Result() [][]string {
+func (r *IdealRater) Result() [][]interface{} {
 	return nil
 }
 
@@ -199,19 +200,21 @@ func (r *TokenCounter) Name() string {
 	return "Parameter counter"
 }
 
-func (r *TokenCounter) Result() [][]string {
+func (r *TokenCounter) Result() [][]interface{} {
 	expectedDefinitionsResult := r.resultFor(r.expectedTokenCount)
 	generatedDefinitionsResult := r.resultFor(r.generatedTokenCount)
-	result := make([][]string, 0, len(expectedDefinitionsResult)+len(generatedDefinitionsResult)+2)
-	result = append(result, []string{"**Expected Definitions**"})
+	result := make([][]interface{}, 0, len(expectedDefinitionsResult)+len(generatedDefinitionsResult)+2)
+
+	result = append(result, []interface{}{excel.Markdown("**Expected Definitions**")})
 	result = append(result, expectedDefinitionsResult...)
-	result = append(result, []string{"**Generated Definitions**"})
+
+	result = append(result, []interface{}{excel.Markdown("**Generated Definitions**")})
 	result = append(result, expectedDefinitionsResult...)
 	return result
 }
 
-func (r *TokenCounter) resultFor(count TokenCount) [][]string {
-	outputs := [][]string{
+func (r *TokenCounter) resultFor(count TokenCount) [][]interface{} {
+	outputs := [][]interface{}{
 		{"Overall number of tokens", fmt.Sprintf("%d in %d sequences", count.TokenSum, r.rowsCount)},
 		{"Minimum of tokens in one output sequence", fmt.Sprintf("%d", count.MinCount)},
 		{"Maximum of tokens in one output sequence", fmt.Sprintf("%d", count.MaxCount)},
@@ -222,13 +225,13 @@ func (r *TokenCounter) resultFor(count TokenCount) [][]string {
 	return outputs
 }
 
-func (r *TokenCounter) tokenMap(count TokenCount) [][]string {
-	output := [][]string{
+func (r *TokenCounter) tokenMap(count TokenCount) [][]interface{} {
+	output := [][]interface{}{
 		{"Token count", "Rows with exactly that token count"},
 	}
 	for tokenCount, rowsCount := range count.RowsPerTokenCount {
-		output = append(output, []string{fmt.Sprintf("%d", tokenCount), fmt.Sprintf("%d (%f%%)", rowsCount, float64(rowsCount)/float64(r.rowsCount)*100)})
+		output = append(output, []interface{}{fmt.Sprintf("%d", tokenCount), fmt.Sprintf("%d (%f%%)", rowsCount, float64(rowsCount)/float64(r.rowsCount)*100)})
 	}
-	output = append(output, []string{})
+	output = append(output, []interface{}{})
 	return output
 }
