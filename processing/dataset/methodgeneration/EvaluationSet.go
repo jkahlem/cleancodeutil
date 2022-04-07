@@ -2,7 +2,6 @@ package methodgeneration
 
 import (
 	"fmt"
-	"io"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/services/predictor"
@@ -79,18 +78,6 @@ func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
 			// TODO: remove panic
 			panic(fmt.Errorf("Unknown metric: %s", metric))
 		}
-	}
-}
-
-func (e *EvaluationSet) PrintScore(writer io.Writer) {
-	if len(e.Rater) > 0 {
-		fmt.Fprintf(writer, "#Evaluation Type: %s\n\n", e.Name)
-		for i := range e.Rater {
-			fmt.Fprintf(writer, "## Metric: %s.\n\nResult:\n%s\n\n", e.Rater[i].Name(), e.Rater[i].Result())
-		}
-	}
-	for i := range e.Subsets {
-		e.Subsets[i].PrintScore(writer)
 	}
 }
 
