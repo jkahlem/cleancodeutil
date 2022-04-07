@@ -143,8 +143,24 @@ func evaluateDatasets(modelType configuration.ModelType, path string, datasets [
 		path := getPathForDataset(path, dataset)
 		if err := evaluate(modelType, path, dataset); err != nil {
 			return err
+		} else if err := evaluateAlternatives(modelType, path, dataset); err != nil {
+			return err
+		} else if err := evaluateDatasets(modelType, path, dataset.Subsets); err != nil {
+			return err
 		}
-		if err := evaluateDatasets(modelType, path, dataset.Subsets); err != nil {
+	}
+	return nil
+}
+
+func evaluateAlternatives(modelType configuration.ModelType, path string, dataset configuration.Dataset) errors.Error {
+	for _, alternative := range dataset.Alternatives {
+		if !acceptsModelType(modelType, alternative.TargetModels) {
+			continue
+		}
+
+		set := dataset
+		set.DatasetBase = alternative
+		if err := evaluate(modelType, path, set); err != nil {
 			return err
 		}
 	}

@@ -1,7 +1,7 @@
 {
     "datasets": [
         {
-            "name": "exp-test-for-excel-output-220407",
+            "name": "exp-prefixes-220406",
             "filter": {
                 "exclude": [{
                     "modifier": ["native", "private"]
@@ -47,7 +47,10 @@
                         "withReturnType": true
                     }
                 }
-            }
+            },
+            "alternatives": [{
+                "name": "exp-alternative-220407"
+            }]
         }
     ]
 }

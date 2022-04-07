@@ -176,8 +176,37 @@ func (c Dataset) DecodeValue(value interface{}) (interface{}, error) {
 				}
 			}
 		}
+		if alternatives, ok := jsonObj["alternatives"]; ok {
+			if alternativesSlice, ok := alternatives.([]interface{}); ok {
+				if hasModelOptions {
+					if typedModelOptions, ok := sourceModelOptions.(map[string]interface{}); ok {
+						c.mergeModelOptionsToSubsets(typedModelOptions, alternativesSlice)
+					}
+				}
+			}
+		}
 	}
 	return value, nil
+}
+
+func (c Dataset) mergeOptionsToSubsets(jsonObj map[string]interface{}, subsets []interface{}) {
+	sourceModelOptions, hasModelOptions := jsonObj["modelOptions"]
+	sourceSpecialOptions, hasSpecialOptions := jsonObj["specialOptions"]
+
+	if subsets, ok := jsonObj["subsets"]; ok {
+		if subsetSlice, ok := subsets.([]interface{}); ok {
+			if hasModelOptions {
+				if typedModelOptions, ok := sourceModelOptions.(map[string]interface{}); ok {
+					c.mergeModelOptionsToSubsets(typedModelOptions, subsetSlice)
+				}
+			}
+			if hasSpecialOptions {
+				if typedSpecialOptions, ok := sourceSpecialOptions.(map[string]interface{}); ok {
+					c.mergeSpecialOptionsToSubsets(typedSpecialOptions, subsetSlice)
+				}
+			}
+		}
+	}
 }
 
 func (c Dataset) mergeModelOptionsToSubsets(sourceModelOptions map[string]interface{}, subsets []interface{}) {

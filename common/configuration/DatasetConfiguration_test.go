@@ -70,3 +70,27 @@ func TestOptionsMerging(t *testing.T) {
 		assert.Equal(t, true, subsetOfSubset2.SpecialOptions.FilterDuplicates)
 	}
 }
+
+func TestStuff(t *testing.T) {
+	set := Dataset{
+		DatasetBase: DatasetBase{
+			NameRaw: "a",
+			ModelOptions: ModelOptions{
+				NumReturnSequences: 1,
+			},
+		},
+		SpecialOptions: SpecialOptions{
+			MaxTrainingRows: 300,
+		},
+	}
+	alt := DatasetBase{
+		NameRaw: "b",
+	}
+
+	altSet := set
+	altSet.DatasetBase = alt
+
+	assert.Equal(t, altSet.NameRaw, "b")
+	assert.Equal(t, altSet.ModelOptions.NumReturnSequences, 1)
+	assert.Equal(t, altSet.SpecialOptions.MaxTrainingRows, 300)
+}
