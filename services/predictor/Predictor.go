@@ -139,12 +139,13 @@ func (p *predictor) getOptions(modelType SupportedModels) Options {
 
 func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOptions {
 	modelOptions := ModelOptions{
-		BatchSize:          options.BatchSize,
-		NumOfEpochs:        options.NumOfEpochs,
-		GenerationTasks:    p.mapGenerationTask(options.GenerationTasks),
-		NumReturnSequences: options.NumReturnSequences,
-		MaxSequenceLength:  options.MaxSequenceLength,
-		UseTypePrefixing:   options.UseTypePrefixing,
+		BatchSize:                   options.BatchSize,
+		NumOfEpochs:                 options.NumOfEpochs,
+		GenerationTasks:             p.mapGenerationTask(options.GenerationTasks),
+		NumReturnSequences:          options.NumReturnSequences,
+		MaxSequenceLength:           options.MaxSequenceLength,
+		UseTypePrefixing:            options.UseTypePrefixing,
+		EmptyParameterListByKeyword: options.EmptyParameterListByKeyword,
 	}
 	if options.UseContextTypes {
 		modelOptions.DefaultContextTypes = configuration.PredictorDefaultContextTypes()

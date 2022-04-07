@@ -46,11 +46,9 @@
                         "withParameterTypes": true,
                         "withReturnType": true
                     }
-                }
-            },
-            "alternatives": [{
-                "name": "exp-alternative-220407"
-            }]
+                },
+                "emptyParameterListByKeyword": true
+            }
         }
     ]
 }
