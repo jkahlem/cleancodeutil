@@ -1,7 +1,7 @@
 {
     "datasets": [
         {
-            "name": "exp-no-digits-220406",
+            "name": "exp-test-for-excel-output-220407",
             "filter": {
                 "exclude": [{
                     "modifier": ["native", "private"]
@@ -31,8 +31,8 @@
                     "training": 7,
                     "evaluation": 3
                 },
-                "maxTrainingRows": 25000,
-                "maxEvaluationRows": 8000,
+                "maxTrainingRows": 250,
+                "maxEvaluationRows": 80,
                 "sentenceFormatting": {
                     "methodName": true,
                     "parameterName": true

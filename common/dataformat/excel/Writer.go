@@ -320,3 +320,28 @@ func (w *merger) BuildLayout(layout Layout) errors.Error {
 func (w *merger) SetWriter(writer StreamWriter) {
 	w.writer = writer
 }
+
+var Nothing StreamWriter = &Chain{}
+
+// Does nothing and is only used for chaining
+type Chain struct {
+	writer StreamWriter
+}
+
+func (w *Chain) SetWriter(writer StreamWriter) {
+	w.writer = writer
+}
+
+func (w *Chain) Write(record []string) errors.Error {
+	if w.writer == nil {
+		return nil
+	}
+	return w.writer.Write(record)
+}
+
+func (w *Chain) BuildLayout(layout Layout) errors.Error {
+	if w.writer == nil {
+		return nil
+	}
+	return w.writer.BuildLayout(layout)
+}

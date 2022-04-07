@@ -155,6 +155,10 @@ func (s *stream) ToSheet(file *excelize.File, sheet string) errors.Error {
 func (s *stream) To(collector Collector) errors.Error {
 	defer collector.Close()
 
+	if len(s.parts) == 0 {
+		// To make things easier, if no effects are applied to the input, add a transformation doing nothing
+		s.Do(Nothing)
+	}
 	s.connect(collector)
 	head := s.parts[0]
 	if err := head.BuildLayout(DefaultLayout()); err != nil {

@@ -39,7 +39,7 @@ func (w *EvaluationResultWriter) WriteExamples(exampleContexts []predictor.Metho
 	for i, example := range exampleContexts {
 		cursor.Move(0, 1)
 		cursor.WriteRowValues(example)
-		cursor.Move(1, 1)
+		cursor.Move(1, 0)
 		for _, generatedValues := range generatedOutputs[i] {
 			cursor.WriteRowValues(CreateMethodDefinition(example, generatedValues))
 			cursor.Move(0, 1)
@@ -54,7 +54,7 @@ func (w *EvaluationResultWriter) WriteMethods(methods []Method) errors.Error {
 
 	i := 0
 	return excel.Stream().FromFunc(func() []string {
-		if i > len(methods) {
+		if i >= len(methods) {
 			return nil
 		}
 		record := w.toMethodRecord(methods[i])
@@ -72,7 +72,7 @@ func (w *EvaluationResultWriter) WriteIdealResults(records []csv.IdealResult) er
 
 	i := 0
 	return excel.Stream().FromFunc(func() []string {
-		if i > len(records) {
+		if i >= len(records) {
 			return nil
 		}
 		record := records[i].ToRecord()

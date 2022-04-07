@@ -108,17 +108,19 @@ func (w *file) checkStreamWriter() errors.Error {
 }
 
 func (w *file) Close() errors.Error {
-	if w.closed || w.excelFile == nil {
+	if w.closed || w.excelFile == nil || w.streamWriter == nil {
 		return nil
 	} else {
 		if err := w.streamWriter.Flush(); err != nil {
 			return errors.Wrap(err, "Excel Error", "Could not flush stream")
 		}
 		w.closed = true
-		if err := os.MkdirAll(filepath.Dir(w.excelFile.Path), 0777); err != nil {
-			return errors.Wrap(err, "Excel Error", "Could not create directories")
-		} else if err := w.excelFile.Save(); err != nil {
-			return errors.Wrap(err, "Excel Error", "Could not save excel file")
+		if w.sheet == "" {
+			if err := os.MkdirAll(filepath.Dir(w.excelFile.Path), 0777); err != nil {
+				return errors.Wrap(err, "Excel Error", "Could not create directories")
+			} else if err := w.excelFile.Save(); err != nil {
+				return errors.Wrap(err, "Excel Error", "Could not save excel file")
+			}
 		}
 		return nil
 	}
