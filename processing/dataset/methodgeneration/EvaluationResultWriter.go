@@ -54,8 +54,8 @@ func (w *EvaluationResultWriter) WriteExamples(exampleContexts []predictor.Metho
 	cursor.SetStyle(w.headerStyle.Id())
 	cursor.WriteRowValues("Input", "Generated outputs")
 	cursor.SetStyle(0)
+	cursor.Move(0, 1)
 	for i, example := range exampleContexts {
-		cursor.Move(0, 1)
 		cursor.WriteRowValues(example)
 		cursor.Move(1, 0)
 		for _, generatedValues := range generatedOutputs[i] {
