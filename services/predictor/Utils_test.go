@@ -13,6 +13,7 @@ func TestSentenceSplitter(t *testing.T) {
 		{"createObject", "create object"},
 		{"FindObjectByName", "find object by name"},
 		{"parseJSON", "parse json"},
+		{"parseJson", "parse json"},
 		{"parseURLs", "parse urls"},
 		{"URLsToParse", "urls to parse"},
 		{"RGBToHSL", "rgb to hsl"},
