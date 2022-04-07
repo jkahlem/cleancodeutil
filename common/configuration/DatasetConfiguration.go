@@ -25,7 +25,6 @@ type Dataset struct {
 }
 
 type SpecialOptions struct {
-	Convert2ToWords     bool                    `json:"convert2ToWords"`
 	MinMethodNameLength int                     `json:"minMethodNameLength"`
 	FilterDuplicates    bool                    `json:"filterDuplicates"`
 	TypeClasses         TypeClassConfigurations `json:"typeClasses"`

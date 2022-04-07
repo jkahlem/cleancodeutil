@@ -5,10 +5,6 @@
     "description": "Defines special filter options which are used for creating the dataset. Options are applied before passing to subsets, so overwriting them might not take effect.",
     "type": "object",
     "properties": {
-        "convert2ToWords": {
-            "description": "If true, then the number 2 is converted to the word 'to' if used in the middle of a method name. ([a-zA-Z_][2][a-zA-Z_]) This is also true for all subsets, so subsets cannot disable/overwrite this setting.",
-            "type": "boolean"
-        },
         "minMethodNameLength": {
             "description": "Sets the minimum length of a method to pass the filter. As only methods with this length pass the filter (and therefore are passed to subsets), subsets can only narrow this setting further.",
             "type": "number"

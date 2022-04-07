@@ -25,7 +25,6 @@
                 }]
             },
             "specialOptions": {
-                "convert2ToWords": true,
                 "minMethodNameLength": 2,
                 "datasetSize": {
                     "training": 7,
