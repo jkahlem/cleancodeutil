@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/xuri/excelize/v2"
 )
 
 func TestBuildHeaderByStruct(t *testing.T) {
@@ -131,22 +130,6 @@ func TestChannelLoading(t *testing.T) {
 	assert.NoError(t, channel.NextError())
 	assert.Len(t, destination, 4)
 	utils.AssertStringSlice(t, destination[0], "Col0", "Col1", "Col2")
-}
-
-func TestExcelizeWithStreamOnDifferentSheet(t *testing.T) {
-	file := excelize.NewFile()
-	file.Path = "test.xlsx"
-	file.NewSheet("asd")
-	s, err := file.NewStreamWriter("asd")
-	if assert.NoError(t, err) {
-		s.SetRow("A1", []interface{}{"A", "B"})
-		s.SetRow("A2", []interface{}{"1.", "2."})
-		s.Flush()
-		file.NewSheet("sheet2")
-		file.SetCellValue("sheet2", "A1", "Test")
-		file.SetCellValue("sheet2", "B2", "Test value 2")
-		file.Save()
-	}
 }
 
 /*-- Unit test helper --*/

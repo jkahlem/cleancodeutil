@@ -141,6 +141,14 @@ func (e ErrorIdentifier) Error() string {
 	return e.title + ": " + e.message
 }
 
+func (e ErrorIdentifier) New() Error {
+	return NewById(e)
+}
+
+func (e ErrorIdentifier) Wrap(err error) Error {
+	return WrapById(err, e)
+}
+
 func ErrorId(title, message string, args ...interface{}) ErrorIdentifier {
 	return ErrorIdentifier{
 		title:   title,
