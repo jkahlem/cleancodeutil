@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/xuri/excelize/v2"
 )
 
 func TestBuildHeaderByStruct(t *testing.T) {
@@ -130,6 +131,49 @@ func TestChannelLoading(t *testing.T) {
 	assert.NoError(t, channel.NextError())
 	assert.Len(t, destination, 4)
 	utils.AssertStringSlice(t, destination[0], "Col0", "Col1", "Col2")
+}
+
+func TestCursorChart(t *testing.T) {
+	chart := Chart{
+
+		ChartBase: ChartBase{
+			Type: "col",
+			Title: &Title{
+				Name: "Tokens per parameter list",
+			},
+			Format: &Format{
+				XScale:          1.0,
+				YScale:          1.0,
+				XOffset:         15,
+				YOffset:         10,
+				PrintObj:        true,
+				LockAspectRatio: false,
+				Locked:          false,
+			},
+			VaryColors: false,
+			PlotArea: &PlotArea{
+				ShowBubbleSize:  true,
+				ShowCatName:     false,
+				ShowLeaderLines: false,
+				ShowPercent:     true,
+				ShowSeriesName:  false,
+				ShowVal:         true,
+			},
+		},
+		Series: []Series{
+			{
+				Categories: []interface{}{"Apple", "Orange", "Pear"},
+				Values:     []interface{}{100, 50, 30},
+			},
+		},
+	}
+
+	f := excelize.NewFile()
+	f.Path = "test.xlsx"
+	c := NewCursor(f, "Sheet1")
+	c.WriteChartAndMove(chart)
+	c.WriteRowValues("a", "b", "c")
+	SaveFile(f)
 }
 
 /*-- Unit test helper --*/

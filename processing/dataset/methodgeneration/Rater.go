@@ -226,12 +226,41 @@ func (r *TokenCounter) resultFor(count TokenCount) [][]interface{} {
 }
 
 func (r *TokenCounter) tokenMap(count TokenCount) [][]interface{} {
-	output := [][]interface{}{
-		{"Token count", "Rows with exactly that token count"},
+	series := excel.Series{
+		Categories: make([]interface{}, count.MaxCount+1),
+		Values:     make([]interface{}, count.MaxCount+1),
 	}
 	for tokenCount, rowsCount := range count.RowsPerTokenCount {
-		output = append(output, []interface{}{fmt.Sprintf("%d", tokenCount), fmt.Sprintf("%d (%f%%)", rowsCount, float64(rowsCount)/float64(r.rowsCount)*100)})
+		series.Categories[tokenCount] = fmt.Sprintf("%d", tokenCount)
+		series.Values[tokenCount] = rowsCount
 	}
-	output = append(output, []interface{}{})
-	return output
+
+	chart := excel.Chart{
+		ChartBase: excel.ChartBase{
+			Type: "col",
+			Title: &excel.Title{
+				Name: "Tokens per parameter list",
+			},
+			Format: &excel.Format{
+				XScale:          1.0,
+				YScale:          1.0,
+				XOffset:         15,
+				YOffset:         10,
+				PrintObj:        true,
+				LockAspectRatio: false,
+				Locked:          false,
+			},
+			VaryColors: false,
+			PlotArea: &excel.PlotArea{
+				ShowBubbleSize:  true,
+				ShowCatName:     false,
+				ShowLeaderLines: false,
+				ShowPercent:     true,
+				ShowSeriesName:  false,
+				ShowVal:         true,
+			},
+		},
+		Series: []excel.Series{series},
+	}
+	return [][]interface{}{{chart}}
 }

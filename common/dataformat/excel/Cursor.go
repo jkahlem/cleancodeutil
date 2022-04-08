@@ -191,26 +191,24 @@ func (c *Cursor) writeSeries(series Series) (SeriesRaw, errors.Error) {
 	raw := SeriesRaw{}
 	values := make([][]interface{}, 0, 3)
 	if series.Name != "" {
+		raw.Name = c.dataRange(c.x, c.y, 0, 0)
 		values = append(values, []interface{}{series.Name})
-		raw.Name = c.dataRange(len(series.Name), 0)
-		c.Move(0, 1)
 	}
 	if len(series.Categories) > 0 {
+		raw.Categories = c.dataRange(c.x, c.y+len(values), len(series.Categories)-1, 0)
 		values = append(values, series.Categories)
-		raw.Categories = c.dataRange(len(series.Name), 0)
-		c.Move(0, 1)
 	}
 	if len(series.Values) > 0 {
+		raw.Values = c.dataRange(c.x, c.y+len(values), len(series.Values)-1, 0)
 		values = append(values, series.Values)
-		raw.Values = c.dataRange(len(series.Name), 0)
-		c.Move(0, 1)
 	}
 	if err := c.WriteValues(values); err != nil {
 		return raw, err
 	}
+	c.Move(0, len(values))
 	return raw, nil
 }
 
-func (c *Cursor) dataRange(toX, toY int) string {
-	return fmt.Sprintf("%s!$%s$%s:$%s$%d", c.sheet, c.Col(), c.Row(), GetColumnIdentifier(c.x+toX), c.y+toY+1)
+func (c *Cursor) dataRange(fromX, fromY, toX, toY int) string {
+	return fmt.Sprintf("%s!$%s$%d:$%s$%d", c.sheet, GetColumnIdentifier(fromX), fromY+1, GetColumnIdentifier(fromX+toX), fromY+toY+1)
 }
