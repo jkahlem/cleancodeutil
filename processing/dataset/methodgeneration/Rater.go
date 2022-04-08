@@ -163,33 +163,6 @@ type TokenCounter struct {
 	rowsCount           int
 }
 
-type TokenCount struct {
-	TokenSum          int
-	MinCount          int
-	MaxCount          int
-	RowsPerTokenCount []int
-}
-
-func (c *TokenCount) Add(tokens metrics.Ngram) {
-	tokensCount := len(tokens)
-	if c.RowsPerTokenCount == nil {
-		c.RowsPerTokenCount = make([]int, tokensCount)
-	}
-	if len(c.RowsPerTokenCount) <= tokensCount {
-		expand := make([]int, (tokensCount+1)-len(c.RowsPerTokenCount))
-		c.RowsPerTokenCount = append(c.RowsPerTokenCount, expand...)
-	}
-	c.RowsPerTokenCount[tokensCount]++
-
-	if c.MaxCount < tokensCount {
-		c.MaxCount = tokensCount
-	}
-	if c.MinCount > tokensCount || c.TokenSum == 0 {
-		c.MinCount = tokensCount
-	}
-	c.TokenSum += tokensCount
-}
-
 func (r *TokenCounter) Rate(m Method) {
 	r.expectedTokenCount.Add(m.ExpectedDefinition.Ngram(1))
 	r.generatedTokenCount.Add(m.GeneratedDefinition.Ngram(1))
@@ -263,4 +236,31 @@ func (r *TokenCounter) tokenMap(count TokenCount) []interface{} {
 		Series: []excel.Series{series},
 	}
 	return []interface{}{chart}
+}
+
+type TokenCount struct {
+	TokenSum          int
+	MinCount          int
+	MaxCount          int
+	RowsPerTokenCount []int
+}
+
+func (c *TokenCount) Add(tokens metrics.Ngram) {
+	tokensCount := len(tokens)
+	if c.RowsPerTokenCount == nil {
+		c.RowsPerTokenCount = make([]int, tokensCount)
+	}
+	if len(c.RowsPerTokenCount) <= tokensCount {
+		expand := make([]int, (tokensCount+1)-len(c.RowsPerTokenCount))
+		c.RowsPerTokenCount = append(c.RowsPerTokenCount, expand...)
+	}
+	c.RowsPerTokenCount[tokensCount]++
+
+	if c.MaxCount < tokensCount {
+		c.MaxCount = tokensCount
+	}
+	if c.MinCount > tokensCount || c.TokenSum == 0 {
+		c.MinCount = tokensCount
+	}
+	c.TokenSum += tokensCount
 }

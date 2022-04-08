@@ -120,7 +120,15 @@ func (e *Evaluator) parseOutputToMethod(method predictor.Method, expectedValues 
 }
 
 func (e *Evaluator) joinParameters(values predictor.MethodValues) *metrics.Sentence {
-	return metrics.NewSentence(values.String())
+	str := ""
+	for i, par := range values.Parameters {
+		if i > 0 {
+			str += ", "
+		}
+		str += par.String()
+	}
+	str += ". " + values.ReturnType
+	return metrics.NewSentence(str)
 }
 
 func (e *Evaluator) getEvaluationSetConfig() *EvaluationSet {
