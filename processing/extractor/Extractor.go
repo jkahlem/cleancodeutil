@@ -9,6 +9,7 @@ import (
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils"
+	"returntypes-langserver/processing/projects"
 )
 
 const ExtractorErrorTitle = "Extractor Error"
@@ -35,6 +36,10 @@ func (extractor *Extractor) Run(inputFiles []string) {
 	extractor.createPackageTree(inputFiles)
 	log.Info("Start extracting code elements...\n")
 	extractor.extract()
+}
+
+func (extractor *Extractor) RunOnProjects(projects []projects.Project) {
+	extractor.Run(GetPreprocessedFilePathForProjects(projects))
 }
 
 // Creates a package tree and loads the java elements into it
