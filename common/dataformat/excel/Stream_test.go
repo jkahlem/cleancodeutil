@@ -135,7 +135,6 @@ func TestChannelLoading(t *testing.T) {
 
 func TestCursorChart(t *testing.T) {
 	chart := Chart{
-
 		ChartBase: ChartBase{
 			Type: "col",
 			Title: &Title{
@@ -162,17 +161,17 @@ func TestCursorChart(t *testing.T) {
 		},
 		Series: []Series{
 			{
-				Categories: []interface{}{"Apple", "Orange", "Pear"},
+				Categories: []interface{}{"0", "1", "2"},
 				Values:     []interface{}{100, 50, 30},
 			},
 		},
 	}
 
 	f := excelize.NewFile()
-	f.Path = "test.xlsx"
+	f.Path = "test2.xlsx"
+	f.NewSheet("Sheet1")
 	c := NewCursor(f, "Sheet1")
-	c.WriteChartAndMove(chart)
-	c.WriteRowValues("a", "b", "c")
+	c.WriteValues([][]interface{}{{"a", "b", "c"}, {}, {"1", "2", "3"}, {chart}, {"x", "y", "z"}})
 	SaveFile(f)
 }
 

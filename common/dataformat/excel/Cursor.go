@@ -53,19 +53,21 @@ func (c *Cursor) WriteRowValues(values ...interface{}) errors.Error {
 	return nil
 }
 
+// Writes the passed values to the excel file from the current position.
 func (c *Cursor) WriteValues(values [][]interface{}) errors.Error {
 	if c.file == nil || c.err != nil {
 		return c.err
 	}
-	for y, row := range values {
+	for _, row := range values {
 		for x, val := range row {
-			if err := c.setCellValue(x, y, val); err != nil {
+			if err := c.setCellValue(x, 0, val); err != nil {
 				return err
 			}
 		}
-		if err := c.applyStyle(c.x, c.y+y, len(row)-1, 0); err != nil {
+		if err := c.applyStyle(c.x, c.y, len(row)-1, 0); err != nil {
 			return err
 		}
+		c.Move(0, 1)
 	}
 	return nil
 }
@@ -78,7 +80,7 @@ func (c *Cursor) setCellValue(x, y int, value interface{}) errors.Error {
 			return c.err
 		}
 	} else if chart, ok := value.(Chart); ok {
-		if err := c.WriteChartAndMove(chart); err != nil {
+		if err := c.WriteChart(chart); err != nil {
 			return err
 		}
 	} else if err := c.file.SetCellValue(c.sheet, targetCell, value); err != nil {
@@ -98,14 +100,14 @@ func (c *Cursor) applyStyle(sx, sy, wdt, hgt int) errors.Error {
 	return nil
 }
 
-func (c *Cursor) ApplyStyle(width, height int) errors.Error {
+func (c *Cursor) ApplyStyle(toX, toY int) errors.Error {
 	if c.styleId == 0 {
 		return errors.New("Excel", "No style set")
-	} else if width < 0 || height < 0 {
-		return errors.New("Excel", "Got negative width/height: %d, %d", width, height)
+	} else if toX < 0 || toY < 0 {
+		return errors.New("Excel", "Negative coordinates not supported: %d, %d", toX, toY)
 	}
 
-	return c.applyStyle(c.x, c.y, width, height)
+	return c.applyStyle(c.x, c.y, toX, toY)
 }
 
 func (c *Cursor) SetStyle(styleId int) {
@@ -138,8 +140,8 @@ func (c *Cursor) Error() errors.Error {
 
 const DefaultChartHeight = 290
 
-// Writes the given chart AND moves the cursor to the row below the chart.
-func (c *Cursor) WriteChartAndMove(chart Chart) errors.Error {
+// Writes the given chart
+func (c *Cursor) WriteChart(chart Chart) errors.Error {
 	if c.file == nil || c.err != nil {
 		return c.err
 	}
@@ -205,10 +207,9 @@ func (c *Cursor) writeSeries(series Series) (SeriesRaw, errors.Error) {
 	if err := c.WriteValues(values); err != nil {
 		return raw, err
 	}
-	c.Move(0, len(values))
 	return raw, nil
 }
 
 func (c *Cursor) dataRange(fromX, fromY, toX, toY int) string {
-	return fmt.Sprintf("%s!$%s$%d:$%s$%d", c.sheet, GetColumnIdentifier(fromX), fromY+1, GetColumnIdentifier(fromX+toX), fromY+toY+1)
+	return fmt.Sprintf("'%s'!$%s$%d:$%s$%d", c.sheet, GetColumnIdentifier(fromX), fromY+1, GetColumnIdentifier(fromX+toX), fromY+toY+1)
 }

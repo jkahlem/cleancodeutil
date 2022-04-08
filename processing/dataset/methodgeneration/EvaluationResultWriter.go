@@ -144,7 +144,6 @@ func (w *EvaluationResultWriter) writeScoreSheetForSet(evalset *EvaluationSet) e
 		cursor.Move(0, 1)
 		result := rater.Result()
 		cursor.WriteValues(result)
-		cursor.Move(0, len(result)+1)
 	}
 
 	if err := cursor.Error(); err != nil {

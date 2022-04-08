@@ -216,16 +216,16 @@ func (r *TokenCounter) Result() [][]interface{} {
 func (r *TokenCounter) resultFor(count TokenCount) [][]interface{} {
 	outputs := [][]interface{}{
 		{"Overall number of tokens", fmt.Sprintf("%d in %d sequences", count.TokenSum, r.rowsCount)},
-		{"Minimum of tokens in one output sequence", fmt.Sprintf("%d", count.MinCount)},
-		{"Maximum of tokens in one output sequence", fmt.Sprintf("%d", count.MaxCount)},
-		{"Average token count per sequence", fmt.Sprintf("%f", float64(count.TokenSum)/float64(r.rowsCount))},
+		{"Minimum of tokens in one output sequence", count.MinCount},
+		{"Maximum of tokens in one output sequence", count.MaxCount},
+		{"Average token count per sequence", float64(count.TokenSum) / float64(r.rowsCount)},
 		{},
 	}
-	outputs = append(outputs, r.tokenMap(count)...)
+	outputs = append(outputs, r.tokenMap(count))
 	return outputs
 }
 
-func (r *TokenCounter) tokenMap(count TokenCount) [][]interface{} {
+func (r *TokenCounter) tokenMap(count TokenCount) []interface{} {
 	series := excel.Series{
 		Categories: make([]interface{}, count.MaxCount+1),
 		Values:     make([]interface{}, count.MaxCount+1),
@@ -262,5 +262,5 @@ func (r *TokenCounter) tokenMap(count TokenCount) [][]interface{} {
 		},
 		Series: []excel.Series{series},
 	}
-	return [][]interface{}{{chart}}
+	return []interface{}{chart}
 }
