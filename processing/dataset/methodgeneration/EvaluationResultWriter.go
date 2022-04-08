@@ -167,7 +167,7 @@ func (w *EvaluationResultWriter) Close() errors.Error {
 	}
 	// Delete the default sheet - this needs to be done at the end if there are other sheets.
 	w.file.DeleteSheet("Sheet1")
-	return errors.Wrap(w.file.Save(), "Evaluation", "Could not save output file")
+	return errors.Wrap(excel.SaveFile(w.file), "Evaluation", "Could not save output file")
 }
 
 type MethodRecordLayout struct {
