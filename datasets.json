@@ -1,7 +1,7 @@
 {
     "datasets": [
         {
-            "name": "exp-test-for-excel-output-220407",
+            "name": "draft-dataset-220411",
             "filter": {
                 "exclude": [{
                     "modifier": ["native", "private"]
@@ -30,15 +30,13 @@
                     "training": 7,
                     "evaluation": 3
                 },
-                "maxTrainingRows": 250,
-                "maxEvaluationRows": 25,
                 "sentenceFormatting": {
                     "methodName": true,
                     "parameterName": true
                 }
             },
             "modelOptions": {
-                "numOfEpochs": 1,
+                "numOfEpochs": 2,
                 "useContextTypes": false,
                 "useTypePrefixing": false,
                 "generationTasks": {

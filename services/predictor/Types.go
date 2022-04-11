@@ -33,27 +33,21 @@ type MethodValues struct {
 }
 
 func (m MethodValues) String() string {
-	str := ""
-	if m.Parameters != nil {
-		str += "parameters: "
-		if len(m.Parameters) == 0 {
-			str += "void."
-		} else {
-			for i, p := range m.Parameters {
-				if i > 0 {
-					str += ", "
-				}
-				str += p.String()
-			}
-		}
-	}
+	returnType, parameterList := "?", "("
 	if m.ReturnType != "" {
-		if str != "" {
-			str += ". "
-		}
-		str += "returns: " + m.ReturnType
+		returnType = m.ReturnType
 	}
-	return str
+	if m.Parameters != nil {
+
+		for i, p := range m.Parameters {
+			if i > 0 {
+				parameterList += ", "
+			}
+			parameterList += p.String()
+		}
+	}
+	parameterList += ")"
+	return fmt.Sprintf("%s %s", returnType, parameterList)
 }
 
 type Parameter struct {

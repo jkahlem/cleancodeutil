@@ -55,7 +55,7 @@ func TestGenerateMethods(t *testing.T) {
 
 	values, err := OnDataset(configuration.Dataset{
 		DatasetBase: configuration.DatasetBase{
-			NameRaw: "exp-sentences-220405",
+			NameRaw: "exp-prefixes-220406_exp-changed-evaluation-220409",
 			ModelOptions: configuration.ModelOptions{
 				GenerationTasks: &configuration.MethodGenerationTaskOptions{
 					ParameterNames: configuration.CompoundTaskOptions{
@@ -63,21 +63,31 @@ func TestGenerateMethods(t *testing.T) {
 						WithParameterTypes: true,
 					},
 				},
-				NumReturnSequences: 3,
+				NumOfEpochs:                 1,
+				UseContextTypes:             false,
+				UseTypePrefixing:            false,
+				EmptyParameterListByKeyword: true,
+				NumReturnSequences:          3,
+			},
+		},
+		SpecialOptions: configuration.SpecialOptions{
+			SentenceFormatting: configuration.SentenceFormattingOptions{
+				MethodName:    true,
+				ParameterName: true,
 			},
 		},
 	}).GenerateMethods([]MethodContext{
 		{
-			MethodName: "copy to",
-			ClassName:  "Terminal",
+			MethodName: "build",
+			ClassName:  "ExceptionBuilder",
 			IsStatic:   false,
-			Types:      []string{"Terminal"},
+			Types:      []string{},
 		},
 		{
 			MethodName: "copy to",
 			ClassName:  "Terminal",
 			IsStatic:   true,
-			Types:      []string{"Terminal"},
+			Types:      []string{},
 		},
 	})
 
