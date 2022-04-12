@@ -11,17 +11,17 @@
                     "method": [{
                         "pattern": ".+\\d.+",
                         "type": "regexp"
-                    }]
+                    }, "*_*"]
                 },{
                     "classname": [{
                         "pattern": ".+\\d.+",
                         "type": "regexp"
-                    }]
+                    }, "*_*"]
                 },{
                     "parameter": [{
                         "pattern": ".+\\d.+",
                         "type": "regexp"
-                    }]
+                    }, "*_*"]
                 }]
             },
             "specialOptions": {
@@ -32,8 +32,11 @@
                 },
                 "sentenceFormatting": {
                     "methodName": true,
-                    "parameterName": true
-                }
+                    "parameterName": true,
+                    "typeName": true
+                },
+                "maxTrainingRows": 50000,
+                "maxEvaluationRows": 18000
             },
             "modelOptions": {
                 "numOfEpochs": 2,
@@ -46,7 +49,10 @@
                     }
                 },
                 "emptyParameterListByKeyword": true
-            }
+            },
+            "alternatives": [{
+                "name": "splitted-typenames"
+            }]
         }
     ]
 }

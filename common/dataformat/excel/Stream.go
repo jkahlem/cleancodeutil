@@ -141,7 +141,7 @@ func (s *stream) addWriter(writer StreamWriter) WriteableStream {
 /*-- Collector Methods --*/
 
 func (s *stream) ToFile(path string) errors.Error {
-	return s.To(newFileCollector(path))
+	return s.To(newFileCollectorByPath(path))
 }
 
 func (s *stream) ToSlice(slice *[][]string) errors.Error {
@@ -149,7 +149,7 @@ func (s *stream) ToSlice(slice *[][]string) errors.Error {
 }
 
 func (s *stream) ToSheet(file *excelize.File, sheet string) errors.Error {
-	return s.To(newFileCollectorByFileAndSheet(file, sheet))
+	return s.To(newFileCollector(file, sheet, false))
 }
 
 func (s *stream) To(collector Collector) errors.Error {

@@ -1,5 +1,31 @@
 {
     "excelSets": [{
+        "name": "test",
+        "filter": {
+            "include": {
+                "label": ["testMethod", "testCode"]
+            }
+        },
+        "noOutput": true,
+        "subsets": [
+            {
+                "name": "testMethods",
+                "filter": {
+                    "include": {
+                        "label": ["testMethod"]
+                    }
+                }
+            },
+            {
+                "name": "testCode",
+                "filter": {
+                    "include": {
+                        "label": ["testCode"]
+                    }
+                }
+            }
+        ]
+    },{
         "name": "default",
         "filter": {
             "exclude": {

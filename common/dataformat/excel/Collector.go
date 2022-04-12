@@ -21,28 +21,24 @@ type file struct {
 	layout       Layout
 	streamWriter *excelize.StreamWriter
 	sheet        string
+	saveOnClose  bool
 }
 
-func newFileCollector(outputPath string) Collector {
+func newFileCollectorByPath(outputPath string) Collector {
 	f := excelize.NewFile()
 	f.Path = outputPath
 	f.SetActiveSheet(f.NewSheet(DefaultSheetName))
-	return newFileCollectorByFileAndSheet(f, DefaultSheetName)
+	return newFileCollector(f, DefaultSheetName, true)
 }
 
-func newFileCollectorByExcelFile(excelFile *excelize.File) Collector {
-	return &file{
-		excelFile: excelFile,
-	}
-}
-
-func newFileCollectorByFileAndSheet(excelFile *excelize.File, sheet string) Collector {
+func newFileCollector(excelFile *excelize.File, sheet string, saveOnClose bool) Collector {
 	if excelFile.GetSheetIndex(sheet) == -1 {
 		excelFile.NewSheet(sheet)
 	}
 	return &file{
-		excelFile: excelFile,
-		sheet:     sheet,
+		excelFile:   excelFile,
+		sheet:       sheet,
+		saveOnClose: saveOnClose,
 	}
 }
 
@@ -114,7 +110,7 @@ func (w *file) Close() errors.Error {
 			return errors.Wrap(err, "Excel Error", "Could not flush stream")
 		}
 		w.closed = true
-		if w.sheet == "" {
+		if w.saveOnClose {
 			if err := os.MkdirAll(filepath.Dir(w.excelFile.Path), 0777); err != nil {
 				return errors.Wrap(err, "Excel Error", "Could not create directories")
 			} else if err := w.excelFile.Save(); err != nil {

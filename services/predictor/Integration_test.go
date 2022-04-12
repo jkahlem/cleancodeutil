@@ -55,7 +55,7 @@ func TestGenerateMethods(t *testing.T) {
 
 	values, err := OnDataset(configuration.Dataset{
 		DatasetBase: configuration.DatasetBase{
-			NameRaw: "exp-prefixes-220406_exp-changed-evaluation-220409",
+			NameRaw: "draft-dataset-220411",
 			ModelOptions: configuration.ModelOptions{
 				GenerationTasks: &configuration.MethodGenerationTaskOptions{
 					ParameterNames: configuration.CompoundTaskOptions{
@@ -63,11 +63,11 @@ func TestGenerateMethods(t *testing.T) {
 						WithParameterTypes: true,
 					},
 				},
-				NumOfEpochs:                 1,
+				NumOfEpochs:                 2,
 				UseContextTypes:             false,
 				UseTypePrefixing:            false,
 				EmptyParameterListByKeyword: true,
-				NumReturnSequences:          3,
+				NumReturnSequences:          1,
 			},
 		},
 		SpecialOptions: configuration.SpecialOptions{

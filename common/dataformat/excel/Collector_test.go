@@ -25,7 +25,7 @@ func TestExcelFileGeneration(t *testing.T) {
 	}
 	file := excelize.NewFile()
 	file.SetActiveSheet(file.NewSheet(DefaultSheetName))
-	collector := newFileCollectorByExcelFile(file)
+	collector := newFileCollector(file, DefaultSheetName, true)
 	style := Style{}
 
 	// when
