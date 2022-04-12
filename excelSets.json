@@ -1,11 +1,6 @@
 {
     "excelSets": [{
         "name": "test",
-        "filter": {
-            "include": {
-                "label": ["testMethod", "testCode"]
-            }
-        },
         "noOutput": true,
         "subsets": [
             {
@@ -21,10 +16,14 @@
                 "filter": {
                     "include": {
                         "label": ["testCode"]
+                    },
+                    "exclude": {
+                        "label": ["testMethod"]
                     }
                 }
             }
-        ]
+        ],
+        "complementFilename": "normalCodeMethods"
     },{
         "name": "default",
         "filter": {

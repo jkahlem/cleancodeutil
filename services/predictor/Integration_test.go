@@ -2,6 +2,7 @@ package predictor
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"returntypes-langserver/common/configuration"
@@ -76,23 +77,31 @@ func TestGenerateMethods(t *testing.T) {
 				ParameterName: true,
 			},
 		},
-	}).GenerateMethods([]MethodContext{
-		{
-			MethodName: "build",
-			ClassName:  "ExceptionBuilder",
-			IsStatic:   false,
-			Types:      []string{},
-		},
-		{
-			MethodName: "copy to",
-			ClassName:  "Terminal",
-			IsStatic:   true,
-			Types:      []string{},
-		},
+	}).GenerateMethods([]MethodContext{context("ListItem", "compareTo"),
+		context("VehicleList", "forEach"),
+		context("Dialog", "createWarning"),
+		context("Dialog", "forException"),
+		context("Exception", "build"),
+		context("Exception", "withMessage"),
 	})
 
 	if assert.NoError(t, err) {
-		fmt.Println(values[0], values[1])
+		fmt.Println(values)
+	}
+}
+
+func context(class, name string) MethodContext {
+	return MethodContext{
+		MethodName: strings.ToLower(SplitMethodNameToSentence(name)),
+		ClassName:  class,
+		IsStatic:   false,
+	}
+}
+func static(class, name string) MethodContext {
+	return MethodContext{
+		MethodName: strings.ToLower(SplitMethodNameToSentence(name)),
+		ClassName:  class,
+		IsStatic:   true,
 	}
 }
 
