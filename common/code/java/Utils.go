@@ -101,17 +101,17 @@ const ArrayTypeExtension = "[]"
 
 // Formats a slice of parameters into a slice of strings where each string contains the type and name in a specific format.
 // The result can be parsed with ParseParameterList back to the parameter slice.
-// The formatter can be used to do specific formatting on the type name / parameter name before creating the output.
-// The formatter might be nil - in this case, the type name and parameter name fields are used as they are.
-func FormatParameterList(parameters []Parameter, formatter func(Parameter) (typ, name string)) []string {
-	if formatter == nil {
-		formatter = func(p Parameter) (typ, name string) {
+// The nameProvider can be used to do specific formatting on the type name / parameter name before creating the output.
+// The nameProvider might be nil - in this case, the type name and parameter name fields are used as they are.
+func FormatParameterList(parameters []Parameter, nameProvider func(Parameter) (typ, name string)) []string {
+	if nameProvider == nil {
+		nameProvider = func(p Parameter) (typ, name string) {
 			return p.Type.TypeName, p.Name
 		}
 	}
 	output := make([]string, len(parameters))
 	for i, par := range parameters {
-		typeName, name := formatter(par)
+		typeName, name := nameProvider(par)
 		if par.Type.IsArrayType {
 			typeName += ArrayTypeExtension
 		}
@@ -120,6 +120,7 @@ func FormatParameterList(parameters []Parameter, formatter func(Parameter) (typ,
 	return output
 }
 
+// Parses a list of parameters formatted with FormatParameterList to the structs.
 func ParseParameterList(input []string) ([]Parameter, errors.Error) {
 	output := make([]Parameter, len(input))
 	for i, parameter := range input {

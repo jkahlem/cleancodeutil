@@ -52,13 +52,15 @@ func ParseSourceCode(sourceCodes ...string) (*context, error) {
 	return &ctx, nil
 }
 
-func ParsePackage(directoryPath string, exceptions ...string) (*context, error) {
+// Parses the source code of all go files in the given package.
+// except contains filenames in this directory, which should be skipped.
+func ParsePackage(directoryPath string, except ...string) (*context, error) {
 	if files, err := os.ReadDir(directoryPath); err != nil {
 		return nil, err
 	} else {
 		paths := make([]string, 0, len(files))
 		for _, file := range files {
-			if isStringInSlice(file.Name(), exceptions) || !strings.HasSuffix(file.Name(), ".go") {
+			if isStringInSlice(file.Name(), except) || !strings.HasSuffix(file.Name(), ".go") {
 				continue
 			}
 			paths = append(paths, filepath.Join(directoryPath, file.Name()))

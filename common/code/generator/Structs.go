@@ -30,7 +30,7 @@ func (ctx *context) ParseStructs() []Struct {
 			if n == nil {
 				return false
 			} else if typeSpec, structType, ok := ctx.getStructNode(n); ok {
-				structs = append(structs, ctx.buildStruct(typeSpec, structType, &ctx.files[i]))
+				structs = append(structs, ctx.createStruct(typeSpec, structType, &ctx.files[i]))
 			}
 			return true
 		})
@@ -47,36 +47,36 @@ func (ctx *context) getStructNode(node ast.Node) (*ast.TypeSpec, *ast.StructType
 	return nil, nil, false
 }
 
-func (ctx *context) buildStruct(typeSpec *ast.TypeSpec, srcStruct *ast.StructType, file *SourceFilePair) Struct {
+func (ctx *context) createStruct(typeSpec *ast.TypeSpec, srcStruct *ast.StructType, file *SourceFilePair) Struct {
 	destStruct := Struct{
 		Base:   getBaseValuesFromTypeSpec(typeSpec),
 		Fields: make([]StructField, 0, len(srcStruct.Fields.List)),
 	}
 	for _, field := range srcStruct.Fields.List {
-		destStruct.Fields = append(destStruct.Fields, ctx.buildStructFields(field, file)...)
+		destStruct.Fields = append(destStruct.Fields, ctx.createStructFields(field, file)...)
 	}
 	return destStruct
 }
 
-// Builds fields from a field definition. Returns a slice, as one field definition might define multiple fields. Example:
+// Creates fields from a field definition. Returns a slice, as one field definition might define multiple fields. Example:
 //   struct Test {
 //	   field1, field2 string
 //   }
-func (ctx *context) buildStructFields(srcField *ast.Field, file *SourceFilePair) []StructField {
+func (ctx *context) createStructFields(srcField *ast.Field, file *SourceFilePair) []StructField {
 	fields := make([]StructField, 0, len(srcField.Names))
 	if len(srcField.Names) == 0 {
 		// Embedded field
-		fields = append(fields, ctx.buildStructField(srcField, -1, file))
+		fields = append(fields, ctx.createStructField(srcField, -1, file))
 	} else {
 		for i := range srcField.Names {
-			fields = append(fields, ctx.buildStructField(srcField, i, file))
+			fields = append(fields, ctx.createStructField(srcField, i, file))
 		}
 	}
 	return fields
 }
 
-// Builds a single struct field. If index is lower than 0, then the field has no name (so is for example embedding another struct)
-func (ctx *context) buildStructField(srcField *ast.Field, index int, file *SourceFilePair) StructField {
+// Creates a single struct field. If index is lower than 0, then the field has no name (so is for example embedding another struct)
+func (ctx *context) createStructField(srcField *ast.Field, index int, file *SourceFilePair) StructField {
 	field := StructField{
 		Base: getBaseValuesFromField(srcField, index),
 		Type: ctx.ofType(srcField.Type, file),

@@ -12,7 +12,6 @@ import (
 type TemplateAttributes struct {
 	OutputType string
 	TargetType string
-	ZeroValue  string
 }
 
 func main() {
@@ -45,7 +44,6 @@ func generateStack(outputType, targetType string) string {
 	} else if err := tmpl.Execute(&strBuilder, TemplateAttributes{
 		OutputType: outputType,
 		TargetType: targetType,
-		ZeroValue:  generator.GetZeroValue(targetType),
 	}); err != nil {
 		log.Fatal(err)
 	}
@@ -67,7 +65,8 @@ func (s *{{.OutputType}}) Push(value {{.TargetType}}) {
 
 func (s *{{.OutputType}}) Pop() ({{.TargetType}}, bool) {
 	if s.IsEmpty() {
-		return {{.ZeroValue}}, false
+		var zero {{.TargetType}}
+		return zero, false
 	}
 	elm := (*s)[len(*s)-1]
 	*s = (*s)[:len(*s)-1]
@@ -76,7 +75,8 @@ func (s *{{.OutputType}}) Pop() ({{.TargetType}}, bool) {
 
 func (s *{{.OutputType}}) Peek() ({{.TargetType}}, bool) {
 	if s.IsEmpty() {
-		return {{.ZeroValue}}, false
+		var zero {{.TargetType}}
+		return zero, false
 	}
 	return (*s)[len(*s)-1], true
 }

@@ -12,42 +12,42 @@ type Parameter struct {
 	Type Type
 }
 
-func (ctx *context) buildFunctionType(srcType *ast.FuncType, file *SourceFilePair) FunctionType {
+func (ctx *context) createFunctionType(srcType *ast.FuncType, file *SourceFilePair) FunctionType {
 	destType := FunctionType{
-		In:  ctx.buildParametersFromList(srcType.Params, file),
-		Out: ctx.buildParametersFromList(srcType.Results, file),
+		In:  ctx.createParametersFromList(srcType.Params, file),
+		Out: ctx.createParametersFromList(srcType.Results, file),
 	}
 	return destType
 }
 
-func (ctx *context) buildParametersFromList(srcList *ast.FieldList, file *SourceFilePair) []Parameter {
+func (ctx *context) createParametersFromList(srcList *ast.FieldList, file *SourceFilePair) []Parameter {
 	if srcList == nil {
 		return nil
 	}
 	destList := make([]Parameter, 0, len(srcList.List))
 	for _, par := range srcList.List {
-		destList = append(destList, ctx.buildParameters(par, file)...)
+		destList = append(destList, ctx.createParameters(par, file)...)
 	}
 	return destList
 }
 
-// Builds parameters from a field declaration belonging to a function type.
+// Creates parameters from a field declaration belonging to a function type.
 // Returns a list of parameters, as one field declaration might declare multiple parameters, e.g. func (par1, par2 string)
-func (ctx *context) buildParameters(srcPar *ast.Field, file *SourceFilePair) []Parameter {
+func (ctx *context) createParameters(srcPar *ast.Field, file *SourceFilePair) []Parameter {
 	parameters := make([]Parameter, 0, len(srcPar.Names))
 	if len(srcPar.Names) == 0 {
 		// Unnamed parameter (e.g. func (string))
-		parameters = append(parameters, ctx.buildParameter(srcPar, -1, file))
+		parameters = append(parameters, ctx.createParameter(srcPar, -1, file))
 	} else {
 		for index := range srcPar.Names {
-			parameters = append(parameters, ctx.buildParameter(srcPar, index, file))
+			parameters = append(parameters, ctx.createParameter(srcPar, index, file))
 		}
 	}
 	return parameters
 }
 
-// Builds a single parameter with the given index. index might be lower than one to indicate, that it is an unnamed parameter.
-func (ctx *context) buildParameter(srcPar *ast.Field, index int, file *SourceFilePair) Parameter {
+// Creates a single parameter with the given index. index might be lower than one to indicate, that it is an unnamed parameter.
+func (ctx *context) createParameter(srcPar *ast.Field, index int, file *SourceFilePair) Parameter {
 	destPar := Parameter{}
 	if index >= 0 {
 		destPar.Name = srcPar.Names[index].Name
@@ -73,7 +73,7 @@ func (ctx *context) ParseFunctionDeclarations() []FunctionDeclaration {
 			if n == nil {
 				return false
 			} else if funcDecl, ok := ctx.getFunctionDeclarationNode(n); ok {
-				declarations = append(declarations, ctx.buildFunctionDeclaration(funcDecl, &ctx.files[i]))
+				declarations = append(declarations, ctx.createFunctionDeclaration(funcDecl, &ctx.files[i]))
 			}
 			return true
 		})
@@ -88,7 +88,7 @@ func (ctx *context) getFunctionDeclarationNode(node ast.Node) (*ast.FuncDecl, bo
 	return nil, false
 }
 
-func (ctx *context) buildFunctionDeclaration(srcFuncDecl *ast.FuncDecl, file *SourceFilePair) FunctionDeclaration {
+func (ctx *context) createFunctionDeclaration(srcFuncDecl *ast.FuncDecl, file *SourceFilePair) FunctionDeclaration {
 	destDecl := FunctionDeclaration{
 		Type: ctx.ofType(srcFuncDecl.Type, file),
 	}
