@@ -11,10 +11,6 @@
             "type": "object",
             "$ref": "../filter.schema.json"
         },
-        "isGroupOnly": {
-            "description": "If true, then no dataset output is created for this dataset, which is useful to group datasets. Output for subsets will still be created.",
-            "type": "boolean"
-        },
         "specialOptions": {
             "description": "Defines special filter options which are used for creating the dataset. Options are applied before passing to subsets, so overwriting them might not take effect.",
             "type": "object",

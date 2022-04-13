@@ -23,7 +23,6 @@ type DatasetBase struct {
 type Dataset struct {
 	DatasetBase    `json:",squash"`
 	Filter         Filter         `json:"filter"`
-	IsGroupOnly    bool           `json:"isGroupOnly"`
 	SpecialOptions SpecialOptions `json:"specialOptions"`
 	Subsets        []Dataset      `json:"subsets"`
 	Alternatives   []DatasetBase  `json:"alternatives"`
