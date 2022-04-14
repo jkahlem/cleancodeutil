@@ -28,7 +28,14 @@ func CreateOutput() errors.Error {
 func createOutputOnMethods(methods []csv.Method, path string, sets []configuration.ExcelSet) {
 	processors := make([]DatasetProcessor, 0, len(sets))
 	for _, dataset := range sets {
-		processors = append(processors, NewDatasetProcessor(dataset, configuration.MethodsWithReturnTypesExcelOutputDir()))
+		p := NewDatasetProcessor(dataset, configuration.MethodsWithReturnTypesExcelOutputDir())
+		if !p.hasOutput() {
+			continue
+		}
+		processors = append(processors, p)
+	}
+	if len(processors) == 0 {
+		return
 	}
 	for recordIndex, method := range methods {
 		if (recordIndex+1)%100 == 0 {

@@ -29,30 +29,48 @@ func (r *AllZeroRater) Result() [][]interface{} {
 }
 
 type BleuRater struct {
-	score  float64
-	count  float64
-	config configuration.BleuConfiguration
+	score               float64
+	count               float64
+	config              configuration.BleuConfiguration
+	scoresPerTokenCount map[int]float64
+	corpusCandidate     []string
+	corpusReference     []string
 }
 
 func (r *BleuRater) Rate(m Method) {
 	if r.config.Weights == nil {
 		r.config.Weights = []float64{0.25, 0.25, 0.25, 0.25}
 	}
-	r.score += bleu.Compute(r.sentence(m.GeneratedDefinition), []bleu.Sentence{r.sentence(m.ExpectedDefinition)}, r.config.Weights)
+	r.corpusCandidate = append(r.corpusCandidate, m.GeneratedDefinition.Tokens()...)
+	r.corpusReference = append(r.corpusReference, m.ExpectedDefinition.Tokens()...)
+	r.score += bleu.Smooth(r.sentence(m.GeneratedDefinition), []bleu.Sentence{r.sentence(m.ExpectedDefinition)}, r.config.Weights)
 	r.count++
 }
 
-func (r *BleuRater) sentence(str *metrics.Sentence) bleu.Sentence {
-	return str.Tokens()
+func (r *BleuRater) sentence(sentence *metrics.Sentence) bleu.Sentence {
+	return sentence.Tokens()
 }
 
 func (r *BleuRater) Result() [][]interface{} {
-	return [][]interface{}{{"Score", fmt.Sprintf("%f", r.score/r.count)}}
+	corpusBleu := bleu.Compute(r.corpusCandidate, []bleu.Sentence{r.corpusReference}, r.config.Weights)
+	return [][]interface{}{{"Sentence score average", r.score / r.count},
+		{"Corpus Score", corpusBleu}}
 }
 
 func (r *BleuRater) Name() string {
 	// TODO: Include options/weights?
-	return "Bleu"
+	return fmt.Sprintf("Smoothed Bleu (Weights: %s)", r.weights())
+}
+
+func (r *BleuRater) weights() string {
+	output := ""
+	for i, weight := range r.config.Weights {
+		if i > 0 {
+			output += ", "
+		}
+		output += fmt.Sprintf("%f", weight)
+	}
+	return output
 }
 
 type RougeType string
