@@ -128,6 +128,12 @@ func (visitor *ExtractionVisitor) findClassFieldMatchInName(name string) string 
 // Maps parameters in this format: "<type> <method>"
 func (visitor *ExtractionVisitor) mapParameters(parameters []java.Parameter) []string {
 	return java.FormatParameterList(parameters, func(p java.Parameter) (typ, name string) {
+		if len(p.Type.TypeName) == 1 {
+			typeName, isResolved := java.Resolve(&p.Type, visitor.packageTree)
+			if isResolved {
+				return utils.GetStringExtension(typeName, "."), p.Name
+			}
+		}
 		return p.Type.TypeName, p.Name
 	})
 }
