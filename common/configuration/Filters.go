@@ -49,6 +49,7 @@ type FilterConfiguration struct {
 	Label      []Pattern             `json:"label"`
 	ReturnType []Pattern             `json:"returntype"`
 	ClassName  []Pattern             `json:"classname"`
+	FilePath   []Pattern             `json:"filePath"`
 	AnyOf      []FilterConfiguration `json:"anyOf"`
 	AllOf      []FilterConfiguration `json:"allOf"`
 }

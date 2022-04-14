@@ -47,6 +47,7 @@ func isFilterFulfilled(method Method, f configuration.FilterConfiguration) bool 
 		checkPatternsOnTargetList(f.Label, method.Labels) &&
 		checkPatterns(f.ReturnType, method.ReturnType) &&
 		checkPatterns(f.ClassName, method.ClassName) &&
+		checkPatterns(f.FilePath, method.FilePath) &&
 		isAnyFilterFulfilled(method, f.AnyOf) &&
 		areAllFiltersFulfilled(method, f.AllOf)
 }

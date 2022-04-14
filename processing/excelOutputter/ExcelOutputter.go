@@ -3,15 +3,19 @@ package excelOutputter
 
 import (
 	"fmt"
+	"path/filepath"
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
+	"returntypes-langserver/common/dataformat/excel"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/common/utils"
+	"returntypes-langserver/processing/projects"
 	"strings"
 )
 
-func CreateOutput() errors.Error {
+func CreateOutput(projects []projects.Project) errors.Error {
 	log.Info("Write output to excel file ...\n")
 
 	methods, err := csv.NewFileReader(configuration.MethodsWithReturnTypesOutputPath()).ReadMethodRecords()
@@ -21,14 +25,37 @@ func CreateOutput() errors.Error {
 
 	log.Info("Write records...\n")
 	createOutputOnMethods(methods, configuration.MethodsWithReturnTypesExcelOutputDir(), configuration.ExcelSets())
+	createOutputForProjects(methods, projects)
 
 	return nil
+}
+
+func createOutputForProjects(methods []csv.Method, projects []projects.Project) {
+	log.Info("Create output for projects...\n")
+	for _, project := range projects {
+		path := filepath.Join(configuration.MethodsWithReturnTypesExcelOutputDir(), "project-output", project.Name()+".xlsx")
+		if utils.FileExists(path) {
+			continue
+		}
+		log.Info("Create project method output for %s... \n", project.Name())
+		projectMethods := make([][]string, 0, len(methods))
+		for _, m := range methods {
+			if strings.Split(m.FilePath, string(filepath.Separator))[0] == project.Name() {
+				projectMethods = append(projectMethods, unqualifyTypeNames(m).ToRecord())
+			}
+		}
+		excel.Stream().FromSlice(projectMethods).
+			WithColumnsFromStruct(csv.Method{}).
+			InsertColumnsAt(excel.Col(7), "Project", "Notes").
+			Transform(addProjectColumn).
+			ToFile(path)
+	}
 }
 
 func createOutputOnMethods(methods []csv.Method, path string, sets []configuration.ExcelSet) {
 	processors := make([]DatasetProcessor, 0, len(sets))
 	for _, dataset := range sets {
-		p := NewDatasetProcessor(dataset, configuration.MethodsWithReturnTypesExcelOutputDir())
+		p := NewDatasetProcessor(dataset, path)
 		if !p.hasOutput() {
 			continue
 		}

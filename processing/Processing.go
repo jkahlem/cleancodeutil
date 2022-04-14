@@ -30,9 +30,9 @@ func ProcessDatasetCreation() {
 // Executes the dataset creation process
 func (p *Processor) ProcessDatasetCreation() {
 	// First, clone repositories if needed
-	//p.clone()
+	p.clone()
 	// Load the java code of each repository and preprocess it using the crawler
-	//p.preprocessJavaCode()
+	p.preprocessJavaCode()
 	// Extract method/classes of all of the repositories and put them into one file for methods and one for classes.
 	p.createBasicData()
 	// Creates excel outputs for excel output configurations
@@ -123,7 +123,7 @@ func (p *Processor) isClassHierarchyAvailable() bool {
 }
 
 func (p *Processor) createExcelOutput() {
-	if err := excelOutputter.CreateOutput(); err != nil {
+	if err := excelOutputter.CreateOutput(p.projects); err != nil {
 		log.FatalError(err)
 	}
 }

@@ -88,7 +88,7 @@ func (c *StatisticsCreator) createStatistics(projects []projects.Project) (Stati
 // Adds project info to the statistics
 func (c *StatisticsCreator) addProjectInfos(projects []projects.Project) errors.Error {
 	for _, project := range projects {
-		c.addProjectInfo(project.ProjectName())
+		c.addProjectInfo(project.Name())
 	}
 	return nil
 }
@@ -114,13 +114,13 @@ func (c *StatisticsCreator) loadRepositoryInfo(name string) (RepositoryInfo, boo
 // Adds the file count statistics
 func (c *StatisticsCreator) addFileCounts(projects []projects.Project) errors.Error {
 	for _, project := range projects {
-		path := filepath.Join(configuration.CrawlerOutputDir(), project.ProjectName())
+		path := filepath.Join(configuration.CrawlerOutputDir(), project.Name())
 		if !utils.FileExists(path) {
 			continue
 		} else if nodeCount, err := c.getFileNodesCountOfXmlFile(path); err != nil {
 			return err
 		} else {
-			c.builder.AddFileCount(project.ProjectName(), nodeCount)
+			c.builder.AddFileCount(project.Name(), nodeCount)
 		}
 	}
 	return nil

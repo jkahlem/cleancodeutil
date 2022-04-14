@@ -16,16 +16,16 @@ import (
 func PreprocessSourceCodeForProject(project projects.Project) {
 	// If an output file does already exist, skip preprocessing the data for this project.
 	if exists, err := preprocessedSourceCodeFileExists(project); err != nil {
-		log.ReportProblemWithError(err, "Could not check if xml output file for %s exists", project.ProjectName())
+		log.ReportProblemWithError(err, "Could not check if xml output file for %s exists", project.Name())
 		return
 	} else if exists {
 		return
 	}
 
 	// Use the crawler to preprocess the java code structures for a given project into one xml file
-	log.Info("Preprocess java code for project %s\n", project.ProjectName())
+	log.Info("Preprocess java code for project %s\n", project.Name())
 	if !utils.DirExists(project.ExpectedDirectoryPath()) {
-		log.ReportProblem("Skip project %s as it does not exist at %s\n", project.ProjectName(), project.ExpectedDirectoryPath())
+		log.ReportProblem("Skip project %s as it does not exist at %s\n", project.Name(), project.ExpectedDirectoryPath())
 		return
 	}
 
@@ -82,5 +82,5 @@ func GetPreprocessedFilePathForProjects(projects []projects.Project) []string {
 }
 
 func GetPreprocessedFilePathForProject(project projects.Project) string {
-	return filepath.Join(configuration.CrawlerOutputDir(), project.ProjectName()+".xml")
+	return filepath.Join(configuration.CrawlerOutputDir(), project.Name()+".xml")
 }

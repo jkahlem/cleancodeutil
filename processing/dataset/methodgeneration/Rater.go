@@ -54,7 +54,7 @@ func (r *BleuRater) sentence(sentence *metrics.Sentence) bleu.Sentence {
 func (r *BleuRater) Result() [][]interface{} {
 	corpusBleu := bleu.Compute(r.corpusCandidate, []bleu.Sentence{r.corpusReference}, r.config.Weights)
 	return [][]interface{}{{"Sentence score average", r.score / r.count},
-		{"Corpus Score", corpusBleu}}
+		{"Corpus Score (without smooth)", corpusBleu}}
 }
 
 func (r *BleuRater) Name() string {

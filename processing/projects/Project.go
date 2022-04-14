@@ -24,7 +24,7 @@ func GetProjects() []Project {
 func (p Project) ToRepositoryDefinition() git.RepositoryDefinition {
 	return git.RepositoryDefinition{
 		Url:     p.GitUri,
-		DirName: p.ProjectName(),
+		DirName: p.Name(),
 	}
 }
 
@@ -33,10 +33,10 @@ func (p Project) ExpectedDirectoryPath() string {
 	if p.Directory != "" {
 		return configuration.AbsolutePathFromGoProjectDir(p.Directory)
 	}
-	return filepath.Join(configuration.ClonerOutputDir(), p.ProjectName())
+	return filepath.Join(configuration.ClonerOutputDir(), p.Name())
 }
 
-func (p Project) ProjectName() string {
+func (p Project) Name() string {
 	if p.AlternativeName != "" {
 		return p.AlternativeName
 	}
