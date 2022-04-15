@@ -1,7 +1,6 @@
 package extractor
 
 import (
-	"path/filepath"
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/configuration"
@@ -59,11 +58,11 @@ func (extractor *Extractor) loadJavaFilesFromXMLFiles(inputFiles []string) {
 	extractor.xmlroots = make([]java.FileContainer, 0, len(inputFiles))
 
 	progress := progressbar.StartNew(len(inputFiles))
+	progress.SetOperation("Read entries")
 	defer progress.Finish()
 
 	for _, path := range inputFiles {
-		progress.SetOperation("Read entries of %s", filepath.Base(path))
-		defer progress.Add(1)
+		progress.Increment()
 
 		if !utils.FileExists(path) {
 			log.Info("XML file under %s not found.", path)
@@ -116,15 +115,14 @@ func (extractor *Extractor) extract() {
 
 	progress := progressbar.StartNew(allFileCount)
 	defer progress.Finish()
+	progress.SetOperation("Extract code")
 
 	methodRecords, classRecords, fileRecords := make([]csv.Method, 0, allFileCount), make([]csv.Class, 0, allFileCount), make([]csv.FileContextTypes, 0, allFileCount)
 	for i := range extractor.xmlroots {
 		for j := range extractor.xmlroots[i].CodeFiles() {
+			progress.Increment()
+
 			codeFile := extractor.xmlroots[i].CodeFiles()[j]
-
-			progress.SetOperation("Extract code from file: %s", codeFile.FilePath)
-			defer progress.Add(1)
-
 			visitor := ExtractionVisitor{
 				methods:     methodRecords,
 				classes:     classRecords,

@@ -24,7 +24,6 @@ func CreateOutput(projects []projects.Project) errors.Error {
 		return err
 	}
 
-	log.Info("Write records...\n")
 	createOutputOnMethods(methods, configuration.MethodsWithReturnTypesExcelOutputDir(), configuration.ExcelSets())
 	createOutputForProjects(methods, projects)
 
@@ -32,12 +31,13 @@ func CreateOutput(projects []projects.Project) errors.Error {
 }
 
 func createOutputForProjects(methods []csv.Method, projects []projects.Project) {
+	log.Info("Write methods per project ...")
 	progress := progressbar.StartNew(len(projects))
 	defer progress.Finish()
 
 	for _, project := range projects {
-		defer progress.Add(1)
-		progress.SetOperation("Write methods for %s...", project.Name())
+		progress.Increment()
+		progress.SetOperation(project.Name())
 
 		path := filepath.Join(configuration.MethodsWithReturnTypesExcelOutputDir(), "project-output", project.Name()+".xlsx")
 		if utils.FileExists(path) {
@@ -74,9 +74,9 @@ func createOutputOnMethods(methods []csv.Method, path string, sets []configurati
 	progress := progressbar.StartNew(len(methods))
 	defer progress.Finish()
 
-	progress.SetOperation("Write methods to excel files...")
+	progress.SetOperation("Write methods")
 	for _, method := range methods {
-		defer progress.Add(1)
+		progress.Increment()
 
 		method = unqualifyTypeNames(method)
 		for i := range processors {
@@ -87,7 +87,7 @@ func createOutputOnMethods(methods []csv.Method, path string, sets []configurati
 		}
 	}
 
-	progress.SetOperation("Save excel files...")
+	progress.SetOperation("Save output")
 	for i := range processors {
 		processors[i].close()
 	}

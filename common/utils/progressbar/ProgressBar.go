@@ -1,8 +1,6 @@
 package progressbar
 
 import (
-	"fmt"
-
 	"github.com/cheggaaa/pb/v3"
 )
 
@@ -45,6 +43,11 @@ func (p *ProgressBar) Add(value int) *ProgressBar {
 	return p
 }
 
+func (p *ProgressBar) Increment() *ProgressBar {
+	p.bar.Increment()
+	return p
+}
+
 func (p *ProgressBar) SetCurrent(value int) *ProgressBar {
 	p.bar.SetCurrent(int64(value))
 	return p
@@ -64,9 +67,9 @@ func (p *ProgressBar) Total() int {
 	return int(p.bar.Total())
 }
 
-func (p *ProgressBar) SetOperation(operation string, args ...interface{}) *ProgressBar {
+func (p *ProgressBar) SetOperation(operation string) *ProgressBar {
 	if operation != "" {
-		p.bar.Set(Operation, fmt.Sprintf(operation+"\n", args...))
+		p.bar.Set(Operation, operation+" ")
 	} else {
 		p.bar.Set(Operation, nil)
 	}
@@ -75,6 +78,7 @@ func (p *ProgressBar) SetOperation(operation string, args ...interface{}) *Progr
 
 func (p *ProgressBar) Finish() *ProgressBar {
 	p.SetOperation("")
+	p.bar.SetCurrent(p.bar.Total())
 	p.bar.Finish()
 	return p
 }

@@ -14,8 +14,8 @@ type crawler struct{} // @ServiceGenerator:ServiceDefinition
 
 // Gets the content of one java file.
 func (c *crawler) GetCodeElements(path string, options Options) (java.FileContainer, errors.Error) {
-	progress := StartProgress(options)
-	defer progress.Finish()
+	StartProgress(options)
+	defer FinishProgress()
 
 	xml, err := remote().GetFileContent(path, options)
 	if err != nil {
@@ -26,8 +26,8 @@ func (c *crawler) GetCodeElements(path string, options Options) (java.FileContai
 
 // Gets the content of all java files in the specified directory.
 func (c *crawler) GetCodeElementsOfDirectory(path string, options Options) (java.FileContainer, errors.Error) {
-	progress := StartProgress(options)
-	defer progress.Finish()
+	StartProgress(options)
+	defer FinishProgress()
 
 	xml, err := remote().GetDirectoryContents(path, options)
 	if err != nil {
@@ -38,8 +38,8 @@ func (c *crawler) GetCodeElementsOfDirectory(path string, options Options) (java
 
 // Gets the content of all java files in the specified directory.
 func (c *crawler) GetRawCodeElementsOfDirectory(path string, options Options) (string, errors.Error) {
-	progress := StartProgress(options)
-	defer progress.Finish()
+	StartProgress(options)
+	defer FinishProgress()
 
 	xml, err := remote().GetDirectoryContents(path, options)
 	if err != nil {
@@ -49,8 +49,8 @@ func (c *crawler) GetRawCodeElementsOfDirectory(path string, options Options) (s
 }
 
 func (c *crawler) ParseSourceCode(code string, options Options) (java.FileContainer, errors.Error) {
-	progress := StartProgress(options)
-	defer progress.Finish()
+	StartProgress(options)
+	defer FinishProgress()
 
 	xml, err := remote().ParseSourceCode(code, options)
 	if err != nil {

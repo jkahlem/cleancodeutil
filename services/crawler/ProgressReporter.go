@@ -13,14 +13,22 @@ type ProgressReporter struct {
 	options Options
 }
 
-func StartProgress(options Options) *ProgressReporter {
+func StartProgress(options Options) {
 	progressReporterMutex.Lock()
 	defer progressReporterMutex.Unlock()
 
-	return &ProgressReporter{
+	progressReporter = &ProgressReporter{
 		bar:     progressbar.New(0),
 		options: options,
 	}
+}
+
+func FinishProgress() {
+	progressReporterMutex.Lock()
+	defer progressReporterMutex.Unlock()
+
+	progressReporter.Finish()
+	progressReporter = nil
 }
 
 func (p *ProgressReporter) ReportProgress(progress, total int, operation string) {
@@ -34,11 +42,7 @@ func (p *ProgressReporter) ReportProgress(progress, total int, operation string)
 }
 
 func (p *ProgressReporter) Finish() {
-	progressReporterMutex.Lock()
-	defer progressReporterMutex.Unlock()
-
 	if !p.options.Silent {
 		p.bar.Finish()
 	}
-	progressReporter = nil
 }
