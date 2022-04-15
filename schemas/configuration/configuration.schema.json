@@ -66,6 +66,10 @@
             "type": "object",
             "$ref": "statistics-configuration.schema.json"
         },
+        "createMethodOutputPerProject": {
+            "description": "If true, writes all methods into an excel file per project.",
+            "type": "boolean"
+        },
         "excelSets": {
             "description": "Configuration for excel sets. Can also be a string pointing to a json file containing excel set definitions.",
             "type": ["string", "array"],

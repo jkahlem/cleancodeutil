@@ -43,6 +43,8 @@ type configFile struct {
 	Connection ConnectionConfiguration `json:"connection"`
 	// Configurations for statistics
 	Statistics StatisticsConfiguration `json:"statistics"`
+	// If true, creates method output per project
+	CreateMethodOutputPerProject bool `json:"createMethodOutputPerProject"`
 	// The excel set configurations.
 	ExcelSets ExcelSetConfiguration `json:"excelSets"`
 	// Evaluation configurations

@@ -278,6 +278,13 @@ func StatisticsProjectGroupingThreshold() float64 {
 	return loadedConfig.Statistics.ProjectGroupingThreshold
 }
 
+func CreateMethodOutputPerProject() bool {
+	if loadedConfig == nil {
+		return false
+	}
+	return loadedConfig.CreateMethodOutputPerProject
+}
+
 func ExcelSets() []ExcelSet {
 	if loadedConfig == nil {
 		return nil

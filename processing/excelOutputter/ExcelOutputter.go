@@ -25,7 +25,9 @@ func CreateOutput(projects []projects.Project) errors.Error {
 	}
 
 	createOutputOnMethods(methods, configuration.MethodsWithReturnTypesExcelOutputDir(), configuration.ExcelSets())
-	createOutputForProjects(methods, projects)
+	if configuration.CreateMethodOutputPerProject() {
+		createOutputForProjects(methods, projects)
+	}
 
 	return nil
 }
