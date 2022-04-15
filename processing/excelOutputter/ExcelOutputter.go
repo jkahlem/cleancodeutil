@@ -11,6 +11,7 @@ import (
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils"
+	"returntypes-langserver/common/utils/progressbar"
 	"returntypes-langserver/processing/projects"
 	"strings"
 )
@@ -31,13 +32,18 @@ func CreateOutput(projects []projects.Project) errors.Error {
 }
 
 func createOutputForProjects(methods []csv.Method, projects []projects.Project) {
-	log.Info("Create output for projects...\n")
+	progress := progressbar.StartNew(len(projects))
+	defer progress.Finish()
+
 	for _, project := range projects {
+		defer progress.Add(1)
+		progress.SetOperation("Write methods for %s...", project.Name())
+
 		path := filepath.Join(configuration.MethodsWithReturnTypesExcelOutputDir(), "project-output", project.Name()+".xlsx")
 		if utils.FileExists(path) {
 			continue
 		}
-		log.Info("Create project method output for %s... \n", project.Name())
+
 		projectMethods := make([][]string, 0, len(methods))
 		for _, m := range methods {
 			if strings.Split(m.FilePath, string(filepath.Separator))[0] == project.Name() {
@@ -64,10 +70,14 @@ func createOutputOnMethods(methods []csv.Method, path string, sets []configurati
 	if len(processors) == 0 {
 		return
 	}
-	for recordIndex, method := range methods {
-		if (recordIndex+1)%100 == 0 {
-			log.Info("Write record %d of %d\n", recordIndex+1, len(methods))
-		}
+
+	progress := progressbar.StartNew(len(methods))
+	defer progress.Finish()
+
+	progress.SetOperation("Write methods to excel files...")
+	for _, method := range methods {
+		defer progress.Add(1)
+
 		method = unqualifyTypeNames(method)
 		for i := range processors {
 			if !processors[i].accepts(method) {
@@ -76,6 +86,8 @@ func createOutputOnMethods(methods []csv.Method, path string, sets []configurati
 			processors[i].process(method)
 		}
 	}
+
+	progress.SetOperation("Save excel files...")
 	for i := range processors {
 		processors[i].close()
 	}

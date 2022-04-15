@@ -9,6 +9,7 @@ import (
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils"
+	"returntypes-langserver/common/utils/progressbar"
 	"returntypes-langserver/processing/projects"
 )
 
@@ -57,11 +58,15 @@ func (extractor *Extractor) loadJavaFilesFromXMLFiles(inputFiles []string) {
 
 	extractor.xmlroots = make([]java.FileContainer, 0, len(inputFiles))
 
-	for index, path := range inputFiles {
-		log.Info("[%d/%d] Read entries of %s\n", index+1, len(inputFiles), filepath.Base(path))
+	progress := progressbar.StartNew(len(inputFiles))
+	defer progress.Finish()
+
+	for _, path := range inputFiles {
+		progress.SetOperation("Read entries of %s", filepath.Base(path))
+		defer progress.Add(1)
 
 		if !utils.FileExists(path) {
-			log.Info("[%d/%d] XML file under %s not found.", index+1, len(inputFiles), path)
+			log.Info("XML file under %s not found.", path)
 			continue
 		}
 		extractor.err = nil
@@ -109,15 +114,17 @@ func (extractor *Extractor) extract() {
 		allFileCount += len(extractor.xmlroots[i].CodeFiles())
 	}
 
-	counter := 0
+	progress := progressbar.StartNew(allFileCount)
+	defer progress.Finish()
+
 	methodRecords, classRecords, fileRecords := make([]csv.Method, 0, allFileCount), make([]csv.Class, 0, allFileCount), make([]csv.FileContextTypes, 0, allFileCount)
 	for i := range extractor.xmlroots {
 		for j := range extractor.xmlroots[i].CodeFiles() {
-			counter++
 			codeFile := extractor.xmlroots[i].CodeFiles()[j]
-			if (counter % 5000) == 0 {
-				log.Info("[%d/%d] Extract code from file: %s\n", counter, allFileCount, codeFile.FilePath)
-			}
+
+			progress.SetOperation("Extract code from file: %s", codeFile.FilePath)
+			defer progress.Add(1)
+
 			visitor := ExtractionVisitor{
 				methods:     methodRecords,
 				classes:     classRecords,
