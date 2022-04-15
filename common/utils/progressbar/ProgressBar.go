@@ -32,12 +32,21 @@ func (p *ProgressBar) Start() *ProgressBar {
 	return p
 }
 
+func (p *ProgressBar) IsStarted() bool {
+	return p.bar.IsStarted()
+}
+
 func (p *ProgressBar) Current() int {
 	return int(p.bar.Current())
 }
 
 func (p *ProgressBar) Add(value int) *ProgressBar {
 	p.bar.Add(value)
+	return p
+}
+
+func (p *ProgressBar) SetCurrent(value int) *ProgressBar {
+	p.bar.SetCurrent(int64(value))
 	return p
 }
 
@@ -49,6 +58,10 @@ func (p *ProgressBar) SetTotal(total int) *ProgressBar {
 func (p *ProgressBar) AddTotal(total int) *ProgressBar {
 	p.bar.AddTotal(int64(total))
 	return p
+}
+
+func (p *ProgressBar) Total() int {
+	return int(p.bar.Total())
 }
 
 func (p *ProgressBar) SetOperation(operation string, args ...interface{}) *ProgressBar {
