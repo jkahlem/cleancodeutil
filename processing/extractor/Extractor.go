@@ -1,6 +1,7 @@
 package extractor
 
 import (
+	"path/filepath"
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/configuration"
@@ -10,6 +11,7 @@ import (
 	"returntypes-langserver/common/utils"
 	"returntypes-langserver/common/utils/progressbar"
 	"returntypes-langserver/processing/projects"
+	"returntypes-langserver/processing/statistics"
 )
 
 const ExtractorErrorTitle = "Extractor Error"
@@ -36,6 +38,7 @@ func (extractor *Extractor) Run(inputFiles []string) {
 	extractor.createPackageTree(inputFiles)
 	log.Info("Start extracting code elements...\n")
 	extractor.extract()
+	extractor.createStatistics()
 }
 
 func (extractor *Extractor) RunOnProjects(projects []projects.Project) {
@@ -147,4 +150,13 @@ func (extractor *Extractor) writeCsvRecords(path string, records [][]string) {
 		return
 	}
 	extractor.err = csv.NewFileWriter(path).WriteAllRecords(records)
+}
+
+func (extractor *Extractor) createStatistics() errors.Error {
+	log.Info("Create statistics for extracted methods ...\n")
+	if methods, err := csv.NewFileReader(configuration.MethodsWithReturnTypesOutputPath()).ReadMethodRecords(); err != nil {
+		return err
+	} else {
+		return statistics.CreateStatisticsForMethods(methods, filepath.Join(configuration.ExtractorOutputDir(), "SequencesPerToken.xlsx"))
+	}
 }
