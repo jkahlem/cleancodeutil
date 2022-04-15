@@ -1,14 +1,18 @@
 package dataset
 
 import (
+	"fmt"
 	"path/filepath"
+	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/code/packagetree"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/metrics"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/processing/dataset/methodgeneration"
 	"returntypes-langserver/processing/dataset/returntypesvalidation"
+	"returntypes-langserver/services/predictor"
 )
 
 // Common dataset processor which "preprocesses" the data (like applying common filters and so on)
@@ -125,10 +129,32 @@ func (p *DatasetProcessor) Close() errors.Error {
 func (p *DatasetProcessor) isIncluded(method csv.Method) bool {
 	if !csv.IsMethodIncluded(method, p.TargetSet.Filter) {
 		return false
-	} else if len(method.MethodName) < p.TargetSet.SpecialOptions.MinMethodNameLength {
-		return false
+	}
+	if p.TargetSet.SpecialOptions.MaxTokensPerOutputSequence != 0 {
+		parameters, err := java.ParseParameterList(method.Parameters)
+		if err == nil {
+			outputSequence := p.getOutputSequence(parameters, method.ReturnType)
+			tokens := metrics.TokenizeSentence(predictor.SplitMethodNameToSentence(outputSequence))
+			if len(tokens) > p.TargetSet.SpecialOptions.MaxTokensPerOutputSequence {
+				return false
+			}
+		} else {
+			fmt.Printf("%v\n", method.Parameters)
+			panic(err)
+		}
 	}
 	return true
+}
+
+func (p *DatasetProcessor) getOutputSequence(parameters []java.Parameter, returnType string) string {
+	output := ""
+	for i, par := range parameters {
+		if i > 0 {
+			output += ", "
+		}
+		output += fmt.Sprintf("%s - %s", par.Type.TypeName, par.Name)
+	}
+	return output + ". $ " + returnType
 }
 
 // Copies options from parent to child which should be inherited by the child

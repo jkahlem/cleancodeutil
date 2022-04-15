@@ -29,7 +29,7 @@ func NewDataGroup(candidate string, references []string) DataGroup {
 func NewSentence(str string) *Sentence {
 	return &Sentence{
 		plain:  str,
-		tokens: tokenizeSentence(str),
+		tokens: TokenizeSentence(str),
 	}
 }
 

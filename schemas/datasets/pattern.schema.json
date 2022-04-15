@@ -2,18 +2,26 @@
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "pattern.schema.json",
     "title": "Pattern",
-    "description": "Defines a pattern. If it is a string, it is interpreted as a wildcard match.",
-    "type": ["object", "string"],
+    "description": "Defines a pattern.",
+    "type": ["string", "object"],
     "properties": {
         "pattern": {
-            "description": "Defines the actual pattern to used concerning the type.",
+            "description": "Defines the pattern to count.",
             "type": "string"
         },
 	    "type": {
             "description": "Defines how the pattern is to be interpreted.",
             "type": "string",
-            "enum": ["regexp", "wildcard"]
+            "enum": ["regexp", "wildcard", "counter", "length"]
+        },
+        "min": {
+            "description": "Defines the minimum amount for the value to check.",
+            "type": "integer"
+        },
+        "max": {
+            "description": "Defines the maximum amount for the value to check.",
+            "type": "integer"
         }
     },
-    "required": ["pattern", "type"]
+    "required": ["type"]
 }

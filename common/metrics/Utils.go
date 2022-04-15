@@ -127,7 +127,7 @@ func (g GeometricMean) Value() float64 {
 
 var tokenizer = regexp.MustCompile("([a-zA-Z]+|\\[\\]|-|,)")
 
-func tokenizeSentence(str string) []string {
+func TokenizeSentence(str string) []string {
 	return tokenizer.FindAllString(strings.ToLower(str), -1)
 	//return strings.Split(str, " ")
 }

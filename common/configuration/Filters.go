@@ -61,6 +61,8 @@ type Matcher interface {
 type Pattern struct {
 	Pattern string      `json:"pattern"`
 	Type    PatternType `json:"type"`
+	Min     int         `json:"min"`
+	Max     int         `json:"max"`
 	matcher Matcher
 }
 
@@ -73,13 +75,11 @@ func (p *Pattern) UnmarshalJSON(data []byte) error {
 		p.Pattern = pattern
 		p.Type = Wildcard
 	} else if jsonObj, ok := v.(map[string]interface{}); ok {
-		if err := p.unmarshalPattern(jsonObj); err != nil {
+		if err := p.unmarshalType(jsonObj); err != nil {
 			return err
-		} else if err := p.unmarshalType(jsonObj); err != nil {
-			return err
-		} else if len(jsonObj) != 2 {
-			return fmt.Errorf("expected pattern object to have only 2 fields ('pattern' and 'type')")
 		}
+		p.unmarshalPattern(jsonObj)
+		p.unmarshalMinMax(jsonObj)
 	} else {
 		return fmt.Errorf("unsupported pattern: %v", v)
 	}
@@ -92,32 +92,42 @@ func (p Pattern) DecodeValue(value interface{}) (interface{}, error) {
 		p.Type = Wildcard
 		return p, p.buildMatcher()
 	} else if jsonObj, ok := value.(map[string]interface{}); ok {
-		if err := p.unmarshalPattern(jsonObj); err != nil {
-			return value, err
-		} else if err := p.unmarshalType(jsonObj); err != nil {
+		if err := p.unmarshalType(jsonObj); err != nil {
 			return value, err
 		}
+		p.unmarshalPattern(jsonObj)
+		p.unmarshalMinMax(jsonObj)
 		return p, p.buildMatcher()
 	}
 	return value, nil
 }
 
-func (p *Pattern) unmarshalPattern(jsonObj map[string]interface{}) error {
-	if pattern, ok := jsonObj["pattern"].(string); ok && pattern != "" {
-		p.Pattern = pattern
-		return nil
-	} else {
-		return fmt.Errorf("unsupported pattern: %v", jsonObj["pattern"])
-	}
-}
-
 func (p *Pattern) unmarshalType(jsonObj map[string]interface{}) error {
-	if typ, ok := jsonObj["type"].(string); ok && (typ == string(RegExp) || typ == string(Wildcard)) {
+	if typ, ok := jsonObj["type"].(string); ok && p.isSupportedType(typ) {
 		p.Type = PatternType(typ)
 		return nil
 	} else {
 		return fmt.Errorf("unsupported type: %v", jsonObj["type"])
 	}
+}
+
+func (p *Pattern) unmarshalPattern(jsonObj map[string]interface{}) {
+	if pattern, ok := jsonObj["pattern"].(string); ok && pattern != "" {
+		p.Pattern = pattern
+	}
+}
+
+func (p *Pattern) unmarshalMinMax(jsonObj map[string]interface{}) {
+	if typedValue, ok := jsonObj["min"].(float64); ok {
+		p.Min = int(typedValue)
+	}
+	if typedValue, ok := jsonObj["max"].(float64); ok {
+		p.Max = int(typedValue)
+	}
+}
+
+func (p *Pattern) isSupportedType(typ string) bool {
+	return utils.ContainsString([]string{string(RegExp), string(Wildcard), string(Length), string(Counter)}, typ)
 }
 
 // Returns true if str fulfills this pattern.
@@ -131,23 +141,54 @@ func (p *Pattern) Match(str string) bool {
 }
 
 func (p *Pattern) buildMatcher() error {
+	if (p.Type == Wildcard || p.Type == RegExp) && (p.Min != 0 || p.Max != 0) {
+		return fmt.Errorf("unexpected min/max values for %s matcher", p.Type)
+	} else if (p.Type == Wildcard || p.Type == RegExp || p.Type == Counter) && p.Pattern == "" {
+		return fmt.Errorf("no pattern defined for %s matcher", p.Type)
+	}
+
 	pattern := p.Pattern
-	if p.Type == Wildcard {
+	switch p.Type {
+	case Wildcard:
 		// for simple patterns, use strings library as it is faster
 		if utils.TestString(pattern, "^\\*[a-zA-Z0-9]+$") {
 			p.matcher = utils.SuffixMatcher(pattern[1:])
 			return nil
 		} else if utils.TestString(pattern, "^[a-zA-Z0-9]+\\*$") {
-			p.matcher = utils.PrefixMatcher(pattern[:len(p.Pattern)-1])
+			p.matcher = utils.PrefixMatcher(pattern[:len(pattern)-1])
 			return nil
 		} else if utils.TestString(pattern, "^\\*[a-zA-Z0-9]+\\*$") {
-			p.matcher = utils.ContainingMatcher(pattern[1 : len(p.Pattern)-1])
+			p.matcher = utils.ContainingMatcher(pattern[1 : len(pattern)-1])
 			return nil
 		} else if !strings.ContainsAny(pattern, "?*") {
 			p.matcher = utils.EqualityMatcher(pattern)
 			return nil
 		}
-		pattern = p.wildcardToRegex(p.Pattern)
+		pattern = p.wildcardToRegex(pattern)
+	case Length:
+		if p.Pattern != "" {
+			return fmt.Errorf("unexpected value for field 'pattern' on length matcher")
+		} else if p.Max == 0 && p.Min == 0 {
+			return fmt.Errorf("no min or max boundaries set for length matcher")
+		} else if p.Max > 0 && p.Min > p.Max {
+			return fmt.Errorf("minimum value (%d) is greater than maximum value (%d).", p.Min, p.Max)
+		}
+		p.matcher = LengthMatcher{
+			Min: p.Min,
+			Max: p.Max,
+		}
+		return nil
+	case Counter:
+		if p.Max > 0 && p.Min > p.Max {
+			return fmt.Errorf("minimum value (%d) is greater than maximum value (%d).", p.Min, p.Max)
+		} else if p.Max == 0 && p.Min == 0 {
+			return fmt.Errorf("no min or max boundaries set for counter matcher")
+		}
+		p.matcher = LengthMatcher{
+			Min: p.Min,
+			Max: p.Max,
+		}
+		return nil
 	}
 	reg, err := regexp.Compile(pattern)
 	if err != nil {
@@ -161,4 +202,30 @@ func (p *Pattern) wildcardToRegex(wildcard string) string {
 	wildcard = strings.ReplaceAll(wildcard, "?", ".")
 	wildcard = strings.ReplaceAll(wildcard, "*", ".*")
 	return fmt.Sprintf("^%s$", wildcard)
+}
+
+type LengthMatcher struct {
+	Min int
+	Max int
+}
+
+func (m LengthMatcher) Match(contents []byte) bool {
+	if m.Max > 0 && len(contents) > m.Max {
+		return false
+	}
+	return len(contents) >= m.Min
+}
+
+type CountMatcher struct {
+	Pattern string
+	Min     int
+	Max     int
+}
+
+func (m CountMatcher) Match(contents []byte) bool {
+	count := strings.Count(string(contents), m.Pattern)
+	if m.Max > 0 && count > m.Max {
+		return false
+	}
+	return count >= m.Min
 }

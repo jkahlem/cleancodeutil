@@ -56,7 +56,7 @@ func TestGenerateMethods(t *testing.T) {
 
 	values, err := OnDataset(configuration.Dataset{
 		DatasetBase: configuration.DatasetBase{
-			NameRaw: "draft-dataset-220411",
+			NameRaw: "draft-dataset-220411_using-bart-220416",
 			ModelOptions: configuration.ModelOptions{
 				GenerationTasks: &configuration.MethodGenerationTaskOptions{
 					ParameterNames: configuration.CompoundTaskOptions{

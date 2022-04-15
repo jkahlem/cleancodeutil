@@ -122,6 +122,9 @@ func FormatParameterList(parameters []Parameter, nameProvider func(Parameter) (t
 
 // Parses a list of parameters formatted with FormatParameterList to the structs.
 func ParseParameterList(input []string) ([]Parameter, errors.Error) {
+	if len(input) == 1 && input[0] == "" {
+		return nil, nil
+	}
 	output := make([]Parameter, len(input))
 	for i, parameter := range input {
 		parts := strings.Split(parameter, ParameterFieldSeparator)

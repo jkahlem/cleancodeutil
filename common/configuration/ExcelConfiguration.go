@@ -72,6 +72,8 @@ type PatternType string
 const (
 	Wildcard PatternType = "wildcard"
 	RegExp   PatternType = "regexp"
+	Length   PatternType = "length"
+	Counter  PatternType = "counter"
 )
 
 type ExcelConfiguration struct {
