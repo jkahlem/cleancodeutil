@@ -66,8 +66,14 @@
             "type": "boolean"
         },
         "adafactor": {
+            "description": "Settings for adafactor optimizer",
             "type": "object",
             "$ref": "adafactor.schema.json"
+        },
+        "modelName": {
+            "description": "Defines, which model should be used for the given task.",
+            "type": "string",
+            "enum": ["t5", "bart"]
         }
     }
 }

@@ -56,6 +56,8 @@ type ModelOptions struct {
 	EmptyParameterListByKeyword bool `json:"emptyParameterListByKeyword"`
 	// Adafactor optimizer options
 	Adafactor Adafactor `json:"adafactor"`
+	// Defines the model to use for the task
+	ModelName string `json:"modelName"`
 }
 
 type Adafactor struct {

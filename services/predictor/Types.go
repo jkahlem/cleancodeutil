@@ -88,6 +88,8 @@ type ModelOptions struct {
 	UseTypePrefixing            bool      `json:"useTypePrefixing"`
 	EmptyParameterListByKeyword bool      `json:"emptyParameterListByKeyword"`
 	Adafactor                   Adafactor `json:"adafactor"`
+	// Defines the model to use for the task
+	ModelName string `json:"modelName"`
 }
 
 type Adafactor struct {
