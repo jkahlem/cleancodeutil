@@ -54,6 +54,18 @@ type ModelOptions struct {
 	UseTypePrefixing bool `json:"useTypePrefixing"`
 	// If true, a keyword (like 'void') is used to indicate no output.
 	EmptyParameterListByKeyword bool `json:"emptyParameterListByKeyword"`
+	// Adafactor optimizer options
+	Adafactor Adafactor `json:"adafactor"`
+}
+
+type Adafactor struct {
+	Beta           *float64  `json:"beta,omitempty"`
+	ClipThreshold  *float64  `json:"clipThreshold,omitempty"`
+	DecayRate      *float64  `json:"decayRate,omitempty"`
+	Eps            []float64 `json:"eps,omitempty"`
+	RelativeStep   *bool     `json:"relativeStep,omitempty"`
+	WarmupInit     *bool     `json:"warmupInit,omitempty"`
+	ScaleParameter *bool     `json:"scaleParameter,omitempty"`
 }
 
 type MethodGenerationTaskOptions struct {

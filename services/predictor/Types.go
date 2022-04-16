@@ -84,9 +84,20 @@ type ModelOptions struct {
 	// Sets the maximum length of the predicted sequence
 	MaxSequenceLength int `json:"maxSequenceLength"`
 	// Default context types which are always added to the MethodContext types
-	DefaultContextTypes         []string `json:"defaultContext,omitempty"`
-	UseTypePrefixing            bool     `json:"useTypePrefixing"`
-	EmptyParameterListByKeyword bool     `json:"emptyParameterListByKeyword"`
+	DefaultContextTypes         []string  `json:"defaultContext,omitempty"`
+	UseTypePrefixing            bool      `json:"useTypePrefixing"`
+	EmptyParameterListByKeyword bool      `json:"emptyParameterListByKeyword"`
+	Adafactor                   Adafactor `json:"adafactor"`
+}
+
+type Adafactor struct {
+	Beta           *float64  `json:"beta,omitempty"`
+	ClipThreshold  *float64  `json:"clipThreshold,omitempty"`
+	DecayRate      *float64  `json:"decayRate,omitempty"`
+	Eps            []float64 `json:"eps,omitempty"`
+	RelativeStep   *bool     `json:"relativeStep,omitempty"`
+	WarmupInit     *bool     `json:"warmupInit,omitempty"`
+	ScaleParameter *bool     `json:"scaleParameter,omitempty"`
 }
 
 type MethodGenerationTaskOptions struct {

@@ -1,0 +1,33 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "adafactor.schema.json",
+    "title": "Adafactor options",
+    "description": "Defines options used for adafactor optimizer.",
+    "type": "object",
+    "properties": {
+        "beta": {
+            "type": "number"
+        },
+        "clipThreshold": {
+            "type": "number"
+        },
+        "decayRate": {
+            "type": "number"
+        },
+        "eps": {
+            "type": "array",
+            "items": {
+                "type": "number"
+            }
+        },
+        "relativeStep": {
+            "type": "boolean"
+        },
+        "warmupInit": {
+            "type": "boolean"
+        },
+        "scaleParameter": {
+            "type": "boolean"
+        }
+    }
+}

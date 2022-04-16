@@ -64,6 +64,10 @@
         "emptyParameterListByKeyword": {
             "description": "If true, a keyword (like 'void') is used to indicate no output.",
             "type": "boolean"
+        },
+        "adafactor": {
+            "type": "object",
+            "$ref": "adafactor.schema.json"
         }
     }
 }

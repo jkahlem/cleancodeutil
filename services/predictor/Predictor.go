@@ -146,6 +146,7 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 		MaxSequenceLength:           options.MaxSequenceLength,
 		UseTypePrefixing:            options.UseTypePrefixing,
 		EmptyParameterListByKeyword: options.EmptyParameterListByKeyword,
+		Adafactor:                   Adafactor(options.Adafactor),
 	}
 	if options.UseContextTypes {
 		modelOptions.DefaultContextTypes = configuration.PredictorDefaultContextTypes()

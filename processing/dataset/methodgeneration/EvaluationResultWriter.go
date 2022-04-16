@@ -84,7 +84,8 @@ func (w *EvaluationResultWriter) WriteMethods(methods []Method) errors.Error {
 		record := w.toMethodRecord(methods[i])
 		i++
 		return record
-	}).WithColumnsFromStruct(MethodRecordLayout{}).ToSheet(w.file, "Generated methods")
+	}).WithColumnsFromStruct(MethodRecordLayout{}).
+		ToSheet(w.file, "Generated methods")
 }
 
 func (w *EvaluationResultWriter) toMethodRecord(method Method) []string {

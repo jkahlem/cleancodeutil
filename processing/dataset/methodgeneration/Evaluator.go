@@ -10,6 +10,7 @@ import (
 	"returntypes-langserver/external/ideal"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/services/predictor"
+	"strings"
 )
 
 const GeneratedMethodsFile = "methodgeneration_generatedMethods.csv"
@@ -125,10 +126,16 @@ func (e *Evaluator) joinParameters(values predictor.MethodValues) *metrics.Sente
 		if i > 0 {
 			str += ", "
 		}
+		par.Name = e.formatString(par.Name)
+		par.Type = e.formatString(par.Type)
 		str += par.String()
 	}
-	str += ". " + values.ReturnType
+	str += ". " + e.formatString(values.ReturnType)
 	return metrics.NewSentence(str)
+}
+
+func (e *Evaluator) formatString(str string) string {
+	return strings.ToLower(predictor.SplitMethodNameToSentence(str))
 }
 
 func (e *Evaluator) getEvaluationSetConfig() *EvaluationSet {
