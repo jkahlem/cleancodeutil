@@ -89,6 +89,16 @@
         "topN": {
             "type": "number",
             "minimum": 0
+        },
+        "outputOrder": {
+            "type": "array",
+            "description": "Defines, how the output sequence is ordered. If defined, the array must consist each of the 'returnType', 'parameterName', 'parameterType' tokens exactly once. Also, 'returnType' must not come between the parameter tokens.",
+            "minItems": 3,
+            "maxItems": 3,
+            "items": {
+                "type": "string",
+                "enum": ["returnType", "parameterName", "parameterType"]
+            }
         }
     }
 }

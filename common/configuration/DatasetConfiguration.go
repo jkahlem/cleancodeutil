@@ -62,6 +62,7 @@ type ModelOptions struct {
 	LengthPenalty *float64 `json:"lengthPenalty,omitempty"`
 	TopK          *float64 `json:"topK,omitempty"`
 	TopN          *float64 `json:"topN,omitempty"`
+	OutputOrder   []string `json:"outputOrder"`
 }
 
 type Adafactor struct {

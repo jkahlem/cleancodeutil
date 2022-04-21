@@ -152,6 +152,7 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 		TopK:                        options.TopK,
 		TopN:                        options.TopN,
 		LengthPenalty:               options.LengthPenalty,
+		OutputOrder:                 p.mapOutputOrder(options.OutputOrder),
 	}
 	if options.UseContextTypes {
 		modelOptions.DefaultContextTypes = configuration.PredictorDefaultContextTypes()
@@ -171,6 +172,36 @@ func (p *predictor) mapGenerationTask(options *configuration.MethodGenerationTas
 		ParameterTypes: options.ParameterTypes,
 		ReturnType:     options.ReturnType,
 	}
+}
+
+const OrderReturnToken = "returnType"
+const OrderParameterNameToken = "parameterName"
+const OrderParameterTypeToken = "parameterType"
+
+func (p *predictor) mapOutputOrder(order []string) *OutputComponentOrder {
+	if len(order) == 0 {
+		return nil
+	}
+	returnTypeIndex := p.indexOfToken(order, OrderReturnToken)
+	parameterNameIndex := p.indexOfToken(order, OrderParameterNameToken)
+	parameterTypeIndex := p.indexOfToken(order, OrderParameterTypeToken)
+	if (returnTypeIndex < parameterNameIndex) != (returnTypeIndex < parameterTypeIndex) {
+		panic(errors.New("Error", "Output order pattern: return type token must not come between parameter tokens."))
+	}
+	return &OutputComponentOrder{
+		ReturnType:    returnTypeIndex,
+		ParameterName: parameterNameIndex,
+		ParameterType: parameterTypeIndex,
+	}
+}
+
+func (p *predictor) indexOfToken(order []string, token string) int {
+	for i, t := range order {
+		if token == t {
+			return i
+		}
+	}
+	panic(errors.New("Error", "Output order pattern must contain a '%s' token, but it was not found.", token))
 }
 
 func (p *predictor) asCsvString(records [][]string) string {

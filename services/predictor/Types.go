@@ -89,11 +89,18 @@ type ModelOptions struct {
 	EmptyParameterListByKeyword bool      `json:"emptyParameterListByKeyword"`
 	Adafactor                   Adafactor `json:"adafactor"`
 	// Defines the model to use for the task
-	ModelName     string   `json:"modelName"`
-	NumBeams      int      `json:"numBeams"`
-	LengthPenalty *float64 `json:"lengthPenalty,omitempty"`
-	TopK          *float64 `json:"topK,omitempty"`
-	TopN          *float64 `json:"topN,omitempty"`
+	ModelName     string                `json:"modelName"`
+	NumBeams      int                   `json:"numBeams"`
+	LengthPenalty *float64              `json:"lengthPenalty,omitempty"`
+	TopK          *float64              `json:"topK,omitempty"`
+	TopN          *float64              `json:"topN,omitempty"`
+	OutputOrder   *OutputComponentOrder `json:"outputOrder,omitempty"`
+}
+
+type OutputComponentOrder struct {
+	ReturnType    int `json:"returnType"`
+	ParameterName int `json:"parameterName"`
+	ParameterType int `json:"parameterType"`
 }
 
 type Adafactor struct {
