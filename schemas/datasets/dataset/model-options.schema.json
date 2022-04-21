@@ -74,6 +74,21 @@
             "description": "Defines, which model should be used for the given task.",
             "type": "string",
             "enum": ["t5", "bart"]
+        },
+        "numBeams": {
+            "type": "integer",
+            "minimum": 1
+        },
+        "lengthPenalty": {
+            "type": "number"
+        },
+        "topK": {
+            "type": "number",
+            "minimum": 0
+        },
+        "topN": {
+            "type": "number",
+            "minimum": 0
         }
     }
 }

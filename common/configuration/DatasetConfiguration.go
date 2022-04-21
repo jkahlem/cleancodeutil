@@ -57,7 +57,11 @@ type ModelOptions struct {
 	// Adafactor optimizer options
 	Adafactor Adafactor `json:"adafactor"`
 	// Defines the model to use for the task
-	ModelName string `json:"modelName"`
+	ModelName     string   `json:"modelName"`
+	NumBeams      int      `json:"numBeams"`
+	LengthPenalty *float64 `json:"lengthPenalty,omitempty"`
+	TopK          *float64 `json:"topK,omitempty"`
+	TopN          *float64 `json:"topN,omitempty"`
 }
 
 type Adafactor struct {
