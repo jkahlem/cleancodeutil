@@ -57,6 +57,8 @@ type configFile struct {
 	LanguageServer LanguageServerConfiguration `json:"languageServer"`
 	// Configurations for external services
 	External ExternalConfiguration `json:"external"`
+	// Creates statistics on preprocessed data (token counts).
+	CreateStatistics bool `json:"createStatistics"`
 	// Additional prefix which is added to datasets for experimental uses etc.
 	DatasetPrefix string
 	// If true, then the program is in language server mode (command line only)

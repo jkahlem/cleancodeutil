@@ -153,6 +153,10 @@ func (extractor *Extractor) writeCsvRecords(path string, records [][]string) {
 }
 
 func (extractor *Extractor) createStatistics() errors.Error {
+	if !configuration.CreateStatistics() {
+		return nil
+	}
+
 	log.Info("Create statistics for extracted methods ...\n")
 	if methods, err := csv.NewFileReader(configuration.MethodsWithReturnTypesOutputPath()).ReadMethodRecords(); err != nil {
 		return err

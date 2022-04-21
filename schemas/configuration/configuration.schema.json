@@ -109,6 +109,10 @@
             "description": "Configurations for external services",
             "type": "object",
             "$ref": "external-configuration.schema.json"
+        },
+        "createStatistics": {
+            "description": "Creates statistics on preprocessed data (token counts).",
+            "type": "boolean"
         }
     },
     "required": ["mainOutputDir"]

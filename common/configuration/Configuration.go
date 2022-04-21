@@ -299,6 +299,13 @@ func IdealBinaryDir() string {
 	return loadedConfig.External.Ideal.BinaryDir
 }
 
+func CreateStatistics() bool {
+	if loadedConfig == nil {
+		return false
+	}
+	return loadedConfig.CreateStatistics
+}
+
 func SkipIfOutputExists() bool {
 	if loadedConfig == nil {
 		return false
