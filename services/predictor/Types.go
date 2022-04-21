@@ -85,7 +85,6 @@ type ModelOptions struct {
 	MaxSequenceLength int `json:"maxSequenceLength"`
 	// Default context types which are always added to the MethodContext types
 	DefaultContextTypes         []string  `json:"defaultContext,omitempty"`
-	UseTypePrefixing            bool      `json:"useTypePrefixing"`
 	EmptyParameterListByKeyword bool      `json:"emptyParameterListByKeyword"`
 	Adafactor                   Adafactor `json:"adafactor"`
 	// Defines the model to use for the task

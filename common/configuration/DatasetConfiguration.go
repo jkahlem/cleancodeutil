@@ -50,8 +50,6 @@ type ModelOptions struct {
 	MaxSequenceLength int `json:"maxSequenceLength"`
 	// If true, the types available in a file are also sent to the predictor.
 	UseContextTypes bool `json:"useContextTypes"`
-	// Activates type prefixing (type tokens (context types/return types/parameter types) are prefixed with some token)
-	UseTypePrefixing bool `json:"useTypePrefixing"`
 	// If true, a keyword (like 'void') is used to indicate no output.
 	EmptyParameterListByKeyword bool `json:"emptyParameterListByKeyword"`
 	// Adafactor optimizer options

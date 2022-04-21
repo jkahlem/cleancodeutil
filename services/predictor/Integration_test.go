@@ -66,7 +66,6 @@ func TestGenerateMethods(t *testing.T) {
 				},
 				NumOfEpochs:                 2,
 				UseContextTypes:             false,
-				UseTypePrefixing:            false,
 				EmptyParameterListByKeyword: true,
 				NumReturnSequences:          1,
 			},

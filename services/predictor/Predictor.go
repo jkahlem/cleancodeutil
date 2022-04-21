@@ -144,7 +144,6 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 		GenerationTasks:             p.mapGenerationTask(options.GenerationTasks),
 		NumReturnSequences:          options.NumReturnSequences,
 		MaxSequenceLength:           options.MaxSequenceLength,
-		UseTypePrefixing:            options.UseTypePrefixing,
 		EmptyParameterListByKeyword: options.EmptyParameterListByKeyword,
 		Adafactor:                   Adafactor(options.Adafactor),
 		ModelName:                   options.ModelName,
