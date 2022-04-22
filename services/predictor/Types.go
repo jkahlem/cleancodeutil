@@ -88,6 +88,7 @@ type ModelOptions struct {
 	EmptyParameterListByKeyword bool      `json:"emptyParameterListByKeyword"`
 	Adafactor                   Adafactor `json:"adafactor"`
 	// Defines the model to use for the task
+	ModelType     string                `json:"modelType"`
 	ModelName     string                `json:"modelName"`
 	NumBeams      int                   `json:"numBeams"`
 	LengthPenalty *float64              `json:"lengthPenalty,omitempty"`

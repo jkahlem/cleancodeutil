@@ -66,10 +66,14 @@
             "type": "object",
             "$ref": "adafactor.schema.json"
         },
-        "modelName": {
-            "description": "Defines, which model should be used for the given task.",
+        "modelType": {
+            "description": "Defines, which model type should be used for the given task.",
             "type": "string",
             "enum": ["t5", "bart"]
+        },
+        "modelName": {
+            "description": "Defines, which model should be used for the given task.",
+            "type": "string"
         },
         "numBeams": {
             "type": "integer",
