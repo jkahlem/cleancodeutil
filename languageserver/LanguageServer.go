@@ -320,7 +320,7 @@ func (ls *languageServer) CompleteMethodDefinition(method Method, doc *workspace
 	if set, ok := configuration.FindDatasetByReference(configuration.LanguageServerMethodGenerationDataset()); ok && doc != nil {
 		value2, err := predictor.OnDataset(set).GenerateMethods([]predictor.MethodContext{{
 			MethodName: method.Name.Content,
-			ClassName:  method.ClassName,
+			ClassName:  []string{method.ClassName},
 			IsStatic:   method.IsStatic,
 			Types:      nil, // TODO: Add context types
 		}})

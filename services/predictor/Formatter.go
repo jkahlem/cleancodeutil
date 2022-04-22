@@ -14,22 +14,33 @@ func FormatMethods(methods []Method, options configuration.SentenceFormattingOpt
 			methods[i].Values.ReturnType = string(GetPredictableMethodName(methods[i].Values.ReturnType))
 		}
 		FormatParameters(methods[i].Values.Parameters, options)
+		FormatClassNames(methods[i].Context.ClassName, options)
 	}
 }
 
 func FormatContexts(contexts []MethodContext, options configuration.SentenceFormattingOptions) {
-	if !options.MethodName {
+	if !options.MethodName && !options.TypeName {
 		return
 	}
 	for i := range contexts {
 		if options.MethodName {
 			contexts[i].MethodName = string(GetPredictableMethodName(contexts[i].MethodName))
 		}
+		FormatClassNames(contexts[i].ClassName, options)
+	}
+}
+
+func FormatClassNames(classNames []string, options configuration.SentenceFormattingOptions) {
+	if !options.TypeName {
+		return
+	}
+	for i, name := range classNames {
+		classNames[i] = string(GetPredictableMethodName(name))
 	}
 }
 
 func FormatValues(values [][]MethodValues, options configuration.SentenceFormattingOptions) {
-	if !options.MethodName {
+	if !options.TypeName {
 		return
 	}
 	for i := range values {

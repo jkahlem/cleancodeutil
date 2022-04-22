@@ -1,6 +1,9 @@
 package predictor
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Evaluation struct {
 	AccScore float64 `json:"accScore"`
@@ -11,7 +14,7 @@ type Evaluation struct {
 
 type MethodContext struct {
 	MethodName string   `json:"methodName"`
-	ClassName  string   `json:"className"`
+	ClassName  []string `json:"className"`
 	IsStatic   bool     `json:"isStatic"`
 	Types      []string `json:"types"`
 }
@@ -21,8 +24,8 @@ func (m MethodContext) String() string {
 	if m.IsStatic {
 		str += "static "
 	}
-	if m.ClassName != "" {
-		str += m.ClassName + "."
+	if len(m.ClassName) != 0 {
+		str += strings.Join(m.ClassName, ".")
 	}
 	return str + string(m.MethodName)
 }

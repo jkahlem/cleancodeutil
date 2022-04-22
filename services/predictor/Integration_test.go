@@ -39,7 +39,7 @@ func TestTrainMethods(t *testing.T) {
 	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
 	trainingSet := []Method{{Context: MethodContext{
 		MethodName: "training",
-		ClassName:  "testclass",
+		ClassName:  []string{"testclass"},
 	}, Values: MethodValues{Parameters: []Parameter{
 		{Name: "test", Type: "int"},
 	}}}}
@@ -92,14 +92,14 @@ func TestGenerateMethods(t *testing.T) {
 func context(class, name string) MethodContext {
 	return MethodContext{
 		MethodName: strings.ToLower(SplitMethodNameToSentence(name)),
-		ClassName:  class,
+		ClassName:  []string{class},
 		IsStatic:   false,
 	}
 }
 func static(class, name string) MethodContext {
 	return MethodContext{
 		MethodName: strings.ToLower(SplitMethodNameToSentence(name)),
-		ClassName:  class,
+		ClassName:  []string{class},
 		IsStatic:   true,
 	}
 }

@@ -142,11 +142,11 @@ func (p *Processor) trainPredictor() {
 	}
 	log.Info("Start training process\n")
 	if err := p.train(); err != nil {
-		log.ReportProblemWithError(errors.Wrap(err, "Training", "Could not train the predictor"), "Could not train the predictor")
+		log.ReportProblemWithError(errors.Wrap(err, "Training", "Could not train the predictor"), "Could not train the predictor\n")
 	} else {
 		log.Info("Evaluate...\n")
 		if err := dataset.Evaluate(configuration.MethodGenerator); err != nil {
-			log.ReportProblemWithError(errors.Wrap(err, "Evaluation", "Could not evaluate datasets"), "Could not evaluate datasets")
+			log.ReportProblemWithError(errors.Wrap(err, "Evaluation", "Could not evaluate datasets"), "Could not evaluate datasets\n")
 		}
 	}
 

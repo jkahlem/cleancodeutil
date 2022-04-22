@@ -6,6 +6,7 @@ import (
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/services/predictor"
+	"strings"
 )
 
 func mapToMethods(rows []csv.MethodGenerationDatasetRow) ([]predictor.Method, errors.Error) {
@@ -18,7 +19,7 @@ func mapToMethods(rows []csv.MethodGenerationDatasetRow) ([]predictor.Method, er
 		output[i] = predictor.Method{
 			Context: predictor.MethodContext{
 				MethodName: method.MethodName,
-				ClassName:  method.ClassName,
+				ClassName:  strings.Split(method.ClassName, "."),
 				IsStatic:   method.IsStatic,
 				Types:      method.ContextTypes,
 			},
@@ -59,7 +60,7 @@ func mapExamplesToMethod(examples []configuration.MethodExample) []predictor.Met
 func mapExampleToMethod(example configuration.MethodExample) predictor.MethodContext {
 	return predictor.MethodContext{
 		MethodName: example.MethodName,
-		ClassName:  example.ClassName,
+		ClassName:  strings.Split(example.ClassName, "."),
 		IsStatic:   example.Static,
 		Types:      []string{example.ClassName},
 	}
