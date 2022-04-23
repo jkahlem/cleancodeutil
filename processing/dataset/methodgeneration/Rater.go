@@ -2,9 +2,12 @@ package methodgeneration
 
 import (
 	"fmt"
+	"regexp"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/excel"
 	"returntypes-langserver/common/metrics"
+	"returntypes-langserver/common/utils"
+	"returntypes-langserver/services/predictor"
 	"strings"
 
 	"github.com/waygo/bleu"
@@ -281,4 +284,91 @@ func (c *TokenCount) Add(tokens metrics.Ngram) {
 		c.MinCount = tokensCount
 	}
 	c.TokenSum += tokensCount
+}
+
+type ExactRater struct {
+	matches float64
+	count   float64
+}
+
+func (r *ExactRater) Rate(m Method) {
+	if r.isMatching(m.GeneratedDefinition.Tokens(), m.ExpectedDefinition.Tokens()) {
+		r.matches++
+	}
+	r.count++
+}
+
+func (r *ExactRater) isMatching(generated, expected []string) bool {
+	if len(generated) != len(expected) {
+		return false
+	}
+	for i := range generated {
+		if generated[i] != expected[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func (r *ExactRater) Result() [][]interface{} {
+	return [][]interface{}{{"Average", r.matches / r.count},
+		{"Matches", r.matches},
+		{"Overall count", r.count}}
+}
+
+func (r *ExactRater) Name() string {
+	// TODO: Include options/weights?
+	return fmt.Sprintf("Exact matches")
+}
+
+type CompilabilityRater struct {
+	validCount float64
+	count      float64
+}
+
+var TokenMatcher = regexp.MustCompile("^[a-zA-Z_][a-zA-Z0-9_]*$")
+
+func (r *CompilabilityRater) Rate(m Method) {
+	if !r.hasCompileErrors(m.Method) {
+		r.validCount++
+	}
+	r.count++
+}
+
+func (r *CompilabilityRater) hasCompileErrors(method predictor.Method) bool {
+	// Checks if:
+	// - tokens (parameter names, types and return types) consist of valid characters ([a-zA-Z_][a-zA-Z0-9_]*)
+	//   - for example, parts of the tokens like [arr] and so on should not be present.
+	//   - this checks also, if the tokens are empty
+	// - parameter names do not overlap with other parameter names
+	parameterNames := make(utils.StringSet)
+	for _, par := range method.Values.Parameters {
+		concatenatedName := ConcatByLowerCamelCase(strings.Split(par.Name, " "))
+		if parameterNames.Has(concatenatedName) || !TokenMatcher.Match([]byte(concatenatedName)) {
+			return true
+		} else {
+			parameterNames.Put(concatenatedName)
+		}
+
+		if !r.isValidTypeIdentifier(par.Type) {
+			return true
+		}
+	}
+
+	return !r.isValidTypeIdentifier(method.Values.ReturnType)
+}
+
+func (r *CompilabilityRater) isValidTypeIdentifier(typeIdentifier string) bool {
+	concatenated := ConcatByUpperCamelCase(strings.Split(typeIdentifier, " "))
+	return TokenMatcher.Match([]byte(concatenated))
+}
+
+func (r *CompilabilityRater) Result() [][]interface{} {
+	return [][]interface{}{{"Average", r.validCount / r.count},
+		{"Valid methods", r.validCount},
+		{"Overall count", r.count}}
+}
+
+func (r *CompilabilityRater) Name() string {
+	return fmt.Sprintf("Compilability rate")
 }
