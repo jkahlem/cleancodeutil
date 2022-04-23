@@ -74,6 +74,20 @@ func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
 				panic(err)
 			}
 			e.Rater = append(e.Rater, &TokenCounter{})
+		case configuration.ExactMatch:
+			_, err := metric.AsExactMatch()
+			if err != nil {
+				// TODO: remove panic
+				panic(err)
+			}
+			e.Rater = append(e.Rater, &ExactRater{})
+		case configuration.CompilabilityMatch:
+			_, err := metric.AsCompilabilityMatch()
+			if err != nil {
+				// TODO: remove panic
+				panic(err)
+			}
+			e.Rater = append(e.Rater, &CompilabilityRater{})
 		default:
 			// TODO: remove panic
 			panic(fmt.Errorf("Unknown metric: %s", metric))

@@ -78,12 +78,14 @@ func (e MethodExample) DecodeValue(value interface{}) (interface{}, error) {
 }
 
 const (
-	RougeL       = "rouge-l"
-	RougeS       = "rouge-s"
-	RougeN       = "rouge-n"
-	Bleu         = "bleu"
-	Ideal        = "ideal"
-	TokenCounter = "tokenCounter"
+	RougeL             = "rouge-l"
+	RougeS             = "rouge-s"
+	RougeN             = "rouge-n"
+	Bleu               = "bleu"
+	Ideal              = "ideal"
+	TokenCounter       = "tokenCounter"
+	CompilabilityMatch = "compilability"
+	ExactMatch         = "exactMatch"
 )
 
 type MetricConfiguration map[string]interface{}
@@ -116,6 +118,14 @@ func (c MetricConfiguration) DecodeValue(value interface{}) (interface{}, error)
 		case TokenCounter:
 			return TokenCounterConfiguration{
 				Type: TokenCounter,
+			}, nil
+		case ExactMatch:
+			return ExactMatchConfiguration{
+				Type: ExactMatch,
+			}, nil
+		case CompilabilityMatch:
+			return CompilabilityMatchConfiguration{
+				Type: CompilabilityMatch,
 			}, nil
 		default:
 			return value, fmt.Errorf("Unsupported metric type preset: %s", metricType)
@@ -157,6 +167,18 @@ func (c MetricConfiguration) AsIdeal() (IdealMetricConfiguration, errors.Error) 
 func (c MetricConfiguration) AsTokenCounter() (TokenCounterConfiguration, errors.Error) {
 	var config TokenCounterConfiguration
 	err := c.as(TokenCounter, &config)
+	return config, err
+}
+
+func (c MetricConfiguration) AsExactMatch() (ExactMatchConfiguration, errors.Error) {
+	var config ExactMatchConfiguration
+	err := c.as(ExactMatch, &config)
+	return config, err
+}
+
+func (c MetricConfiguration) AsCompilabilityMatch() (CompilabilityMatchConfiguration, errors.Error) {
+	var config CompilabilityMatchConfiguration
+	err := c.as(CompilabilityMatch, &config)
 	return config, err
 }
 
@@ -203,6 +225,14 @@ type IdealMetricConfiguration struct {
 }
 
 type TokenCounterConfiguration struct {
+	Type string `json:"type"`
+}
+
+type ExactMatchConfiguration struct {
+	Type string `json:"type"`
+}
+
+type CompilabilityMatchConfiguration struct {
 	Type string `json:"type"`
 }
 
