@@ -34,3 +34,26 @@ func (t *Type) FunctionType() (fnType FunctionType, ok bool) {
 	}
 	return FunctionType{}, false
 }
+
+type Expr struct {
+	base   ast.Expr
+	source *SourceFilePair
+	ctx    *context
+}
+
+func (ctx *context) ofExpr(expr ast.Expr, file *SourceFilePair) Expr {
+	return Expr{
+		base:   expr,
+		source: file,
+		ctx:    ctx,
+	}
+}
+
+// Returns the content of the original source code used to declare this type.
+func (e *Expr) Code() string {
+	start, end := e.ctx.fileset.Position(e.base.Pos()), e.ctx.fileset.Position(e.base.End())
+	if len(e.source.Source) < int(end.Offset) {
+		return ""
+	}
+	return e.source.Source[start.Offset:end.Offset]
+}

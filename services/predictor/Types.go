@@ -25,7 +25,7 @@ func (m MethodContext) String() string {
 		str += "static "
 	}
 	if len(m.ClassName) != 0 {
-		str += strings.Join(m.ClassName, ".")
+		str += strings.Join(m.ClassName, ".") + "."
 	}
 	return str + string(m.MethodName)
 }

@@ -2,17 +2,20 @@ package jsonschema
 
 import (
 	"encoding/json"
+	"io"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/utils"
+	"strings"
 
 	"github.com/santhosh-tekuri/jsonschema/v5"
 )
 
 type SchemaBuilder struct {
-	root      string
+	loader    ResourceLoader
 	topLevel  string
 	resources []string
 	compiler  *jsonschema.Compiler
@@ -31,7 +34,15 @@ type ResourcesSchemaBuilder interface {
 type TopLevel string
 
 func AtRoot(root string) TopLevelSchemaBuilder {
-	return &SchemaBuilder{root: root}
+	return &SchemaBuilder{loader: &FileResourceLoader{
+		RootPath: root,
+	}}
+}
+
+func FromMap(resourceMap map[string]string) TopLevelSchemaBuilder {
+	return &SchemaBuilder{loader: &MapResourceLoader{
+		ResourceMap: resourceMap,
+	}}
 }
 
 func (b *SchemaBuilder) WithTopLevel(resourceUri string) ResourcesSchemaBuilder {
@@ -47,11 +58,15 @@ func (b *SchemaBuilder) WithResources(resourceUris ...string) ResourcesSchemaBui
 func (b *SchemaBuilder) Compile() (Schema, errors.Error) {
 	b.compiler = jsonschema.NewCompiler()
 	b.compiler.Draft = jsonschema.Draft2020
-	b.addResourceToCompiler(b.topLevel)
-	for _, resource := range b.resources {
-		b.addResourceToCompiler(resource)
+	if err := b.addResourceToCompiler(b.topLevel); err != nil {
+		return Schema{}, err
 	}
-	if schema, err := b.compiler.Compile(path.Join(b.root, string(b.topLevel))); err != nil {
+	for _, resource := range b.resources {
+		if err := b.addResourceToCompiler(resource); err != nil {
+			return Schema{}, err
+		}
+	}
+	if schema, err := b.compiler.Compile(joinURI(b.loader.Root(), b.topLevel)); err != nil {
 		return Schema{}, errors.Wrap(err, "Error", "Could not compile schema files")
 	} else {
 		return Schema{
@@ -69,10 +84,9 @@ func (b *SchemaBuilder) MustCompile() Schema {
 }
 
 func (b *SchemaBuilder) addResourceToCompiler(resource string) errors.Error {
-	uri := path.Join(b.root, resource)
-	if file, err := os.Open(filepath.FromSlash(uri)); err != nil {
-		return errors.Wrap(err, "Error", "Could not load schema file")
-	} else if err := b.compiler.AddResource("file:///c:/Users/work/Documents/bachelor/02-project/returntypes-predictor/mainapp/schemas/", file); err != nil {
+	if reader, err := b.loader.Load(resource); err != nil {
+		return err
+	} else if err := b.compiler.AddResource(joinURI(b.loader.Root(), resource), reader); err != nil {
 		return errors.Wrap(err, "Error", "Could not compile schema file")
 	}
 	return nil
@@ -105,4 +119,52 @@ func UnmarshalJSONStrict(source []byte, destination interface{}, schema Schema) 
 		return err
 	}
 	return nil
+}
+
+type ResourceLoader interface {
+	Load(relativePath string) (io.Reader, errors.Error)
+	Root() string
+}
+
+type FileResourceLoader struct {
+	RootPath string
+}
+
+func (l *FileResourceLoader) Root() string {
+	return l.RootPath
+}
+
+func (l *FileResourceLoader) Load(relativePath string) (io.Reader, errors.Error) {
+	uri := path.Join(l.RootPath, relativePath)
+	if file, err := os.Open(filepath.FromSlash(uri)); err != nil {
+		return nil, errors.Wrap(err, "Error", "Could not load schema file")
+	} else {
+		return file, nil
+	}
+}
+
+type MapResourceLoader struct {
+	ResourceMap map[string]string
+}
+
+func (l *MapResourceLoader) Root() string {
+	return "resources://root/"
+}
+
+func (l *MapResourceLoader) Load(relativePath string) (io.Reader, errors.Error) {
+	if content, ok := l.ResourceMap[relativePath]; !ok {
+		return nil, errors.New("Error", "Resource not found: %s", relativePath)
+	} else {
+		return strings.NewReader(content), nil
+	}
+}
+
+func joinURI(parts ...string) string {
+	p, e := url.Parse(parts[0])
+	if e != nil {
+		panic(e)
+	}
+	parts[0] = p.Path
+	p.Path = path.Join(parts...)
+	return p.String()
 }

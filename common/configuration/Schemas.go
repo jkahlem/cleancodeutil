@@ -2,7 +2,7 @@ package configuration
 
 import "returntypes-langserver/common/dataformat/jsonschema"
 
-var SchemaRoot = GoProjectDir() + "/schemas"
+//go:generate go run ../dataformat/jsonschema/schemaToCode ../../schemas
 
 const (
 	// Global configuration schemas
@@ -16,7 +16,7 @@ const (
 	LanguageServerConfigurationSchemaPath = "configuration/language-server-configuration.schema.json"
 
 	// External configuration schemas
-	ExternalConfigurationSchemaPath = "configuration/external-configuraiton.schema.json"
+	ExternalConfigurationSchemaPath = "configuration/external-configuration.schema.json"
 	IdealConfigurationSchemaPath    = "configuration/external/ideal-configuration.schema.json"
 
 	// Excel set schemas
@@ -48,6 +48,15 @@ const (
 	TypeClassConfigurationFileSchemaPath = "typeclasses/typeclass-config-file.schema.json"
 	TypeClassSchemaPath                  = "typeclasses/typeclass.schema.json"
 
+	// Metrics
+	MetricsSchemaPath  = "metrics/metrics.schema.json"
+	BleuSchemaPath     = "metrics/bleu.schema.json"
+	RougeLSchemaPath   = "metrics/rouge-l.schema.json"
+	RougeNSchemaPath   = "metrics/rouge-n.schema.json"
+	RougeSSchemaPath   = "metrics/rouge-s.schema.json"
+	MeasuresSchemaPath = "metrics/measures.schema.json"
+	FscoreSchemaPath   = "metrics/fscore.schema.json"
+
 	// Model list schema
 	ModelListSchemaPath = "datasets/model-list.schema.json"
 )
@@ -60,22 +69,37 @@ var ExcelSetConfigurationFileSchema,
 	ConfigurationFileSchema jsonschema.Schema
 
 func initializeSchemas() {
-	ExcelSetConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
+	ExcelSetConfigurationFileSchema = jsonschema.FromMap(getSchemaMap()).
 		WithTopLevel(ExcelSetConfigurationFileSchemaPath).
-		WithResources(FilterSchemaPath, FilterConfigurationSchemaPath, PatternSchemaPath).
+		WithResources(ExcelSetConfigurationSchemaPath,
+			FilterSchemaPath,
+			FilterConfigurationSchemaPath,
+			PatternSchemaPath).
 		MustCompile()
 
-	ProjectConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
+	ProjectConfigurationFileSchema = jsonschema.FromMap(getSchemaMap()).
 		WithTopLevel(ProjectConfigurationFileSchemaPath).
 		WithResources(ProjectConfigurationSchemaPath).
 		MustCompile()
 
-	EvaluationConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
+	EvaluationConfigurationFileSchema = jsonschema.FromMap(getSchemaMap()).
 		WithTopLevel(EvaluationConfigurationSchemaPath).
-		WithResources(EvaluationSetSchemaPath, MethodContextSchemaPath, ModelListSchemaPath).
+		WithResources(EvaluationSetSchemaPath,
+			MethodContextSchemaPath,
+			ModelListSchemaPath,
+			FilterSchemaPath,
+			FilterConfigurationSchemaPath,
+			PatternSchemaPath,
+			MetricsSchemaPath,
+			BleuSchemaPath,
+			RougeLSchemaPath,
+			RougeNSchemaPath,
+			RougeSSchemaPath,
+			MeasuresSchemaPath,
+			FscoreSchemaPath).
 		MustCompile()
 
-	DatasetConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
+	DatasetConfigurationFileSchema = jsonschema.FromMap(getSchemaMap()).
 		WithTopLevel(DatasetConfigurationFileSchemaPath).
 		WithResources(DatasetConfigurationBaseSchemaPath,
 			DatasetConfigurationSchemaPath,
@@ -84,15 +108,18 @@ func initializeSchemas() {
 			DatasetSizeSchemaPath,
 			AdafactorConfigurationSchemaPath,
 			TypeClassSchemaPath,
-			ModelListSchemaPath).
+			ModelListSchemaPath,
+			FilterSchemaPath,
+			FilterConfigurationSchemaPath,
+			PatternSchemaPath).
 		MustCompile()
 
-	TypeClassConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
+	TypeClassConfigurationFileSchema = jsonschema.FromMap(getSchemaMap()).
 		WithTopLevel(TypeClassConfigurationFileSchemaPath).
 		WithResources(TypeClassSchemaPath).
 		MustCompile()
 
-	ConfigurationFileSchema = jsonschema.AtRoot(SchemaRoot).
+	ConfigurationFileSchema = jsonschema.FromMap(getSchemaMap()).
 		WithTopLevel(ConfigurationSchemaPath).
 		WithResources(ClonerConfigurationSchemaPath,
 			CrawlerConfigurationSchemaPath,
@@ -108,6 +135,13 @@ func initializeSchemas() {
 			ProjectConfigurationSchemaPath,
 			EvaluationConfigurationSchemaPath,
 			EvaluationSetSchemaPath,
+			MetricsSchemaPath,
+			BleuSchemaPath,
+			RougeLSchemaPath,
+			RougeNSchemaPath,
+			RougeSSchemaPath,
+			MeasuresSchemaPath,
+			FscoreSchemaPath,
 			MethodContextSchemaPath,
 			DatasetConfigurationBaseSchemaPath,
 			DatasetConfigurationSchemaPath,

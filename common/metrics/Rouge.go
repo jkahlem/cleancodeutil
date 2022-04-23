@@ -38,7 +38,7 @@ func RougeL(candidate *Sentence, references []*Sentence) (precision, recall floa
 }
 
 func calculatePrecisionRecall(overlappingWordsCount, totalWordsCandidate, totalWordsReference float64) (float64, float64) {
-	return overlappingWordsCount / totalWordsCandidate, overlappingWordsCount / totalWordsReference
+	return (overlappingWordsCount + 1) / (totalWordsCandidate + 1), (overlappingWordsCount + 1) / (totalWordsReference + 1)
 }
 
 func lenf(s []string) float64 {
