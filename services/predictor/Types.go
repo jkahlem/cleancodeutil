@@ -79,9 +79,8 @@ type Options struct {
 }
 
 type ModelOptions struct {
-	BatchSize       int                         `json:"batchSize"`
-	NumOfEpochs     int                         `json:"numOfEpochs"`
-	GenerationTasks MethodGenerationTaskOptions `json:"generationTasks"`
+	BatchSize   int `json:"batchSize"`
+	NumOfEpochs int `json:"numOfEpochs"`
 	// Sets the number of expected return sequences to predict different suggestions
 	NumReturnSequences int `json:"numReturnSequences"`
 	// Sets the maximum length of the predicted sequence
@@ -120,20 +119,4 @@ type Adafactor struct {
 type Adam struct {
 	LearningRate *float64 `json:"learningRate,omitempty"`
 	Eps          *float64 `json:"eps,omitempty"`
-}
-
-type MethodGenerationTaskOptions struct {
-	// Defines, which tasks should also be performed when generating parameter names in the same task
-	ParameterNames CompoundTaskOptions `json:"parameterNames"`
-	// If true, parameter type generation is performed in a separate task
-	ParameterTypes bool `json:"parameterTypes"`
-	// If true, return type generation is performed in a separate task
-	ReturnType bool `json:"returnType"`
-}
-
-type CompoundTaskOptions struct {
-	// If true, the parameter list generation will be extended by return type generation in the same task
-	WithReturnType bool `json:"withReturnType"`
-	// If true, the parameter list generation will be extended by parameter type generation in the same task
-	WithParameterTypes bool `json:"withParameterTypes"`
 }

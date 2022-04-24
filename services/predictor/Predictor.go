@@ -141,7 +141,6 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 	modelOptions := ModelOptions{
 		BatchSize:                   options.BatchSize,
 		NumOfEpochs:                 options.NumOfEpochs,
-		GenerationTasks:             p.mapGenerationTask(options.GenerationTasks),
 		NumReturnSequences:          options.NumReturnSequences,
 		MaxSequenceLength:           options.MaxSequenceLength,
 		EmptyParameterListByKeyword: options.EmptyParameterListByKeyword,
@@ -159,20 +158,6 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 		modelOptions.DefaultContextTypes = configuration.PredictorDefaultContextTypes()
 	}
 	return modelOptions
-}
-
-func (p *predictor) mapGenerationTask(options *configuration.MethodGenerationTaskOptions) MethodGenerationTaskOptions {
-	if options == nil {
-		return MethodGenerationTaskOptions{}
-	}
-	return MethodGenerationTaskOptions{
-		ParameterNames: CompoundTaskOptions{
-			WithParameterTypes: options.ParameterNames.WithParameterTypes,
-			WithReturnType:     options.ParameterNames.WithReturnType,
-		},
-		ParameterTypes: options.ParameterTypes,
-		ReturnType:     options.ReturnType,
-	}
 }
 
 const OrderReturnToken = "returnType"

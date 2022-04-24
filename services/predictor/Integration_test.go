@@ -58,12 +58,6 @@ func TestGenerateMethods(t *testing.T) {
 		DatasetBase: configuration.DatasetBase{
 			NameRaw: "draft-dataset-220411_using-bart-220416",
 			ModelOptions: configuration.ModelOptions{
-				GenerationTasks: &configuration.MethodGenerationTaskOptions{
-					ParameterNames: configuration.CompoundTaskOptions{
-						WithReturnType:     true,
-						WithParameterTypes: true,
-					},
-				},
 				NumOfEpochs:                 2,
 				UseContextTypes:             false,
 				EmptyParameterListByKeyword: true,

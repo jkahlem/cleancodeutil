@@ -29,34 +29,6 @@
             "description": "If true, the types available in a file are also sent to the predictor and used for training.",
             "type": "boolean"
         },
-        "generationTasks": {
-            "description": "Defines further options for method generation tasks.",
-            "type": "object",
-            "properties": {
-                "parameterNames": {
-                    "description": "Defines, which tasks should also be performed when generating parameter names in the same task.",
-                    "type": "object",
-                    "properties": {
-                        "withReturnType": {
-                            "description": "If true, the parameter list generation will be extended by return type generation in the same task.",
-                            "type": "boolean"
-                        },
-                        "withParameterTypes": {
-                            "description": "If true, the parameter list generation will be extended by parameter type generation in the same task.",
-                            "type": "boolean"
-                        }
-                    }
-                },
-                "parameterTypes": {
-                    "description": "If true, parameter type generation is performed in a separate task.",
-                    "type": "boolean"
-                },
-                "returnType": {
-                    "description": "If true, return type generation is performed in a separate task.",
-                    "type": "boolean"
-                }
-            }
-        },
         "emptyParameterListByKeyword": {
             "description": "If true, a keyword (like 'void') is used to indicate no output.",
             "type": "boolean"
