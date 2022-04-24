@@ -20,7 +20,6 @@ type CompletionList struct {
 
 type InsertTextFormat int
 
-// TODO: no prefixes?
 const (
 	ITF_PlainText InsertTextFormat = 1
 	ITF_Snippet   InsertTextFormat = 2
@@ -81,7 +80,6 @@ const (
 
 type CompletionItemTag int
 
-// TODO: no prefixes ...
 const CIT_Deprecated CompletionItemTag = 1
 
 type CompletionItem struct {

@@ -26,7 +26,7 @@ type Processor struct {
 	Options         configuration.SpecialOptions
 	typeClassMapper typeclasses.Mapper
 	skip            bool
-	files           map[string][]string // TODO: find some way to pass the files/store them globally
+	files           map[string][]string
 }
 
 func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) (base.MethodProcessor, errors.Error) {
