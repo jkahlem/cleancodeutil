@@ -36,7 +36,8 @@ func (p *ProxyFacade) ShowMessage(msgType lsp.MessageType, message string) {
 
 func (p *ProxyFacade) ShowMessageRequest(msgType lsp.MessageType, message string, actions []lsp.MessageActionItem) (lsp.MessageActionItem, errors.Error) {
 	if err := p.validate(p.Proxy.ShowMessageRequest); err != nil {
-		return lsp.MessageActionItem{}, err
+		var empty0 lsp.MessageActionItem
+		return empty0, err
 	}
 	return p.Proxy.ShowMessageRequest(msgType, message, actions)
 }
@@ -50,7 +51,8 @@ func (p *ProxyFacade) LogMessage(msgType lsp.MessageType, message string) {
 
 func (p *ProxyFacade) GetConfiguration(items []lsp.ConfigurationItem) ([]interface{}, errors.Error) {
 	if err := p.validate(p.Proxy.GetConfiguration); err != nil {
-		return nil, err
+		var empty0 []interface{}
+		return empty0, err
 	}
 	return p.Proxy.GetConfiguration(items)
 }
@@ -242,11 +244,11 @@ func RegisterCapability(registrations ...lsp.Registration) chan errors.Error {
 }
 
 // Creates a completion item
-func CompleteMethodDefinition(method Method, doc *workspace.Document) (*lsp.CompletionItem, errors.Error) {
+func CompleteMethodDefinition(method Method, doc *workspace.Document) ([]lsp.CompletionItem, errors.Error) {
 	return getSingleton().CompleteMethodDefinition(method, doc)
 }
 
-func createCompletionItem(textEdits ...lsp.TextEdit) *lsp.CompletionItem {
+func createCompletionItem(textEdits ...lsp.TextEdit) lsp.CompletionItem {
 	return getSingleton().createCompletionItem(textEdits...)
 }
 
@@ -266,6 +268,7 @@ func IsMethodGenerationActive() bool {
 	return getSingleton().IsMethodGenerationActive()
 }
 
+// Creates a progress with token
 func CreateProgress(token string) errors.Error {
 	return getSingleton().CreateProgress(token)
 }

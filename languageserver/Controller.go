@@ -227,7 +227,7 @@ func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentif
 			if item, err := c.createMethodDefinitionCompletion(doc, position); err != nil {
 				return nil, err
 			} else if item != nil {
-				list.Items = append(list.Items, *item)
+				list.Items = append(list.Items, item...)
 			}
 		}
 	}
@@ -235,7 +235,7 @@ func (c *Controller) TextDocumentCompletion(textDocument lsp.TextDocumentIdentif
 	return &list, nil
 }
 
-func (c *Controller) createMethodDefinitionCompletion(doc *workspace.Document, position lsp.Position) (*lsp.CompletionItem, errors.Error) {
+func (c *Controller) createMethodDefinitionCompletion(doc *workspace.Document, position lsp.Position) ([]lsp.CompletionItem, errors.Error) {
 	if method, found := c.findMethodAtCursorPosition(doc, position); found && c.canCompleteMethodDefinition(method) {
 		return CompleteMethodDefinition(method, doc)
 	}

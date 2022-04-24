@@ -31,11 +31,12 @@ func TestGenerateMethods(t *testing.T) {
 	}
 
 	// when
-	item, err := ls.CompleteMethodDefinition(method, &doc)
+	items, err := ls.CompleteMethodDefinition(method, &doc)
 
 	// then
 	assert.NoError(t, err)
-	if assert.NotNil(t, item) && assert.NotNil(t, item.TextEdit) {
+	if assert.Len(t, items, 1) && assert.NotNil(t, items[0].TextEdit) {
+		item := items[0]
 		assert.Equal(t, "Object mockParameter", item.TextEdit.NewText)
 		assert.Equal(t, 13, item.TextEdit.Range.Start.Character)
 		assert.Equal(t, 26, item.TextEdit.Range.End.Character)

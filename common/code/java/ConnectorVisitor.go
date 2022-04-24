@@ -55,7 +55,6 @@ func (visitor *ConnectorVisitor) VisitMethod(method *Method) {
 	}
 	for i := range method.Parameters {
 		method.Parameters[i].parentElement = method
-		// TODO... think of refactoring code first... otherwise implement it as VisitParameter method ...
 		method.Parameters[i].Type.parentElement = &method.Parameters[i]
 	}
 }
