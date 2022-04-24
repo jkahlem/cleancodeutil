@@ -66,6 +66,11 @@
             "type": "object",
             "$ref": "adafactor.schema.json"
         },
+        "adam": {
+            "description": "Settings for adam optimizer",
+            "type": "object",
+            "$ref": "adam.schema.json"
+        },
         "modelType": {
             "description": "Defines, which model type should be used for the given task.",
             "type": "string",

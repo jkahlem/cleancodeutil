@@ -146,6 +146,7 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 		MaxSequenceLength:           options.MaxSequenceLength,
 		EmptyParameterListByKeyword: options.EmptyParameterListByKeyword,
 		Adafactor:                   Adafactor(options.Adafactor),
+		Adam:                        Adam(options.Adam),
 		ModelType:                   options.ModelType,
 		ModelName:                   options.ModelName,
 		NumBeams:                    options.NumBeams,

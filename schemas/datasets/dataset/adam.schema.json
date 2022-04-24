@@ -1,0 +1,15 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "adam.schema.json",
+    "title": "Adam optimizer options",
+    "description": "Defines options used for the adam optimizer.",
+    "type": "object",
+    "properties": {
+        "learningRate": {
+            "type": "number"
+        },
+        "eps": {
+            "type": "number"
+        }
+    }
+}

@@ -42,6 +42,7 @@ const (
 	DatasetModelOptionsSchemaPath      = "datasets/dataset/model-options.schema.json"
 	DatasetSpecialOptionsSchemaPath    = "datasets/dataset/special-options.schema.json"
 	DatasetSizeSchemaPath              = "datasets/dataset/dataset-size.schema.json"
+	AdamConfigurationSchemaPath        = "datasets/dataset/adam.schema.json"
 	AdafactorConfigurationSchemaPath   = "datasets/dataset/adafactor.schema.json"
 
 	// Type class schemas
@@ -107,6 +108,7 @@ func initializeSchemas() {
 			DatasetSpecialOptionsSchemaPath,
 			DatasetSizeSchemaPath,
 			AdafactorConfigurationSchemaPath,
+			AdamConfigurationSchemaPath,
 			TypeClassSchemaPath,
 			ModelListSchemaPath,
 			FilterSchemaPath,
@@ -149,6 +151,7 @@ func initializeSchemas() {
 			DatasetSpecialOptionsSchemaPath,
 			DatasetSizeSchemaPath,
 			AdafactorConfigurationSchemaPath,
+			AdamConfigurationSchemaPath,
 			TypeClassSchemaPath,
 			ModelListSchemaPath,
 			ExternalConfigurationSchemaPath,

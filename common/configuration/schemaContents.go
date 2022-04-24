@@ -811,6 +811,11 @@ func initSchemaMap() {
             "type": "object",
             "$ref": "adafactor.schema.json"
         },
+        "adam": {
+            "description": "Settings for adam optimizer",
+            "type": "object",
+            "$ref": "adam.schema.json"
+        },
         "modelType": {
             "description": "Defines, which model type should be used for the given task.",
             "type": "string",
@@ -938,6 +943,21 @@ func initSchemaMap() {
         }
     }]
 }`
+	SchemaMap["datasets/dataset/adam.schema.json"] = `{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "adam.schema.json",
+    "title": "Adam optimizer options",
+    "description": "Defines options used for the adam optimizer.",
+    "type": "object",
+    "properties": {
+        "learningRate": {
+            "type": "number"
+        },
+        "eps": {
+            "type": "number"
+        }
+    }
+}`
 	SchemaMap["datasets/dataset/adafactor.schema.json"] = `{
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "adafactor.schema.json",
@@ -1031,7 +1051,7 @@ func initSchemaMap() {
     "title": "Metrics",
     "description": "Type for all possible metric types.",
     "type": ["string", "object"],
-    "enum": ["rouge-l", "rouge-s", "rouge-2", "bleu", "ideal", "tokenCounter"],
+    "enum": ["rouge-l", "rouge-s", "rouge-2", "bleu", "ideal", "tokenCounter", "exactMatch", "compilability"],
     "anyOf": [
         {"type": "string"},
         {"type": "object", "$ref": "rouge-l.schema.json"},

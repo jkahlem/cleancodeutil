@@ -90,6 +90,7 @@ type ModelOptions struct {
 	DefaultContextTypes         []string  `json:"defaultContext,omitempty"`
 	EmptyParameterListByKeyword bool      `json:"emptyParameterListByKeyword"`
 	Adafactor                   Adafactor `json:"adafactor"`
+	Adam                        Adam      `json:"adam"`
 	// Defines the model to use for the task
 	ModelType     string                `json:"modelType"`
 	ModelName     string                `json:"modelName"`
@@ -114,6 +115,11 @@ type Adafactor struct {
 	RelativeStep   *bool     `json:"relativeStep,omitempty"`
 	WarmupInit     *bool     `json:"warmupInit,omitempty"`
 	ScaleParameter *bool     `json:"scaleParameter,omitempty"`
+}
+
+type Adam struct {
+	LearningRate *float64 `json:"learningRate,omitempty"`
+	Eps          *float64 `json:"eps,omitempty"`
 }
 
 type MethodGenerationTaskOptions struct {
