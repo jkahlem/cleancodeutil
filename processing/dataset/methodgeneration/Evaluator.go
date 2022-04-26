@@ -1,15 +1,16 @@
 package methodgeneration
 
 import (
-	"fmt"
 	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/metrics"
 	"returntypes-langserver/common/utils"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/services/predictor"
+	"sort"
 	"strings"
 )
 
@@ -38,29 +39,55 @@ func NewEvaluator(dataset configuration.Dataset) base.Evaluator {
 }
 
 func (e *Evaluator) Evaluate(path string) errors.Error {
+	log.Info("Evaluate dataset %s\n", e.Dataset.Name())
 	if err := e.evaluateCheckpoint(path, ""); err != nil {
 		return err
 	}
 	if e.isCheckpointEvaluationActive() {
+		log.Info("Evaluate checkpoints for each %s\n", e.Dataset.EvaluateOn)
 		checkpoints, err := predictor.OnDataset(e.Dataset).GetCheckpoints(predictor.MethodGenerator)
 		if err != nil {
 			return err
 		}
+		checkpoints = e.reduceCheckpoints(checkpoints)
 		for _, checkpoint := range checkpoints {
-			if strings.Contains(checkpoint, "epoch") {
+			if e.Dataset.EvaluateOn == configuration.Step || strings.Contains(checkpoint, "epoch") {
+				log.Info("Evaluate checkpoint: %s\n", checkpoint)
 				if err := e.evaluateCheckpoint(path, checkpoint); err != nil {
-					fmt.Println(err)
 					return err
 				}
-				return nil // TODO
 			}
 		}
 	}
 	return nil
 }
 
+// Reduces the checkpoint array to contain only one checkpoint for the same step. It happens, that the used transformer library
+// saves checkpoints for steps and epochs at the same time separately (e.g. checkpoint-1800 and checkpoint-1800-epoch-1) if they
+// overlap. This function will check for these cases and removes the entries without the epoch.
+func (e *Evaluator) reduceCheckpoints(checkpoints []string) []string {
+	checkpointMap := make(map[string]string)
+	for _, checkpoint := range checkpoints {
+		if !strings.HasPrefix(checkpoint, "checkpoint-") {
+			continue
+		}
+		splitted := strings.Split(checkpoint, "-")
+		stepCount := splitted[1]
+		if val, ok := checkpointMap[stepCount]; !ok || len(val) < len(checkpoint) {
+			checkpointMap[stepCount] = checkpoint
+		}
+	}
+
+	output := make([]string, 0, len(checkpointMap))
+	for _, val := range checkpointMap {
+		output = append(output, val)
+	}
+	sort.Strings(output)
+	return output
+}
+
 func (e *Evaluator) isCheckpointEvaluationActive() bool {
-	return true // TODO
+	return e.Dataset.EvaluateOn == configuration.Epoch || e.Dataset.EvaluateOn == configuration.Step
 }
 
 func (e *Evaluator) evaluateCheckpoint(path, checkpoint string) errors.Error {

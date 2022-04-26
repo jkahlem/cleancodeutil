@@ -7,6 +7,14 @@ import (
 	"returntypes-langserver/common/utils"
 )
 
+type EvaluationTarget string
+
+const (
+	BestModel EvaluationTarget = "best-model"
+	Step      EvaluationTarget = "step"
+	Epoch     EvaluationTarget = "epoch"
+)
+
 type DatasetConfiguration []Dataset
 
 type DatasetFileConfiguration struct {
@@ -14,10 +22,11 @@ type DatasetFileConfiguration struct {
 }
 
 type DatasetBase struct {
-	NameRaw      string       `json:"name"`
-	Description  string       `json:"description"`
-	ModelOptions ModelOptions `json:"modelOptions"`
-	TargetModels []string     `json:"targetModels"`
+	NameRaw      string           `json:"name"`
+	Description  string           `json:"description"`
+	ModelOptions ModelOptions     `json:"modelOptions"`
+	TargetModels []string         `json:"targetModels"`
+	EvaluateOn   EvaluationTarget `json:"evaluateOn"`
 }
 
 type Dataset struct {
