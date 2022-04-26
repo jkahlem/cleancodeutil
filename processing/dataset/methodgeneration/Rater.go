@@ -90,6 +90,7 @@ type RougeRater struct {
 	precision float64
 	recall    float64
 	count     float64
+	name      string
 }
 
 func NewRougeLRater(config configuration.MetricConfiguration) *RougeRater {
@@ -99,6 +100,7 @@ func NewRougeLRater(config configuration.MetricConfiguration) *RougeRater {
 		panic(err)
 	}
 	return &RougeRater{
+		name: "Rouge-L",
 		rater: func(m Method) (precision, recall float64) {
 			return metrics.RougeL(m.ExpectedDefinition, []*metrics.Sentence{m.GeneratedDefinition})
 		},
@@ -113,6 +115,7 @@ func NewRougeNRater(config configuration.MetricConfiguration) *RougeRater {
 		panic(err)
 	}
 	return &RougeRater{
+		name: fmt.Sprintf("Rouge-N (N = %d)", c.N),
 		rater: func(m Method) (precision, recall float64) {
 			return metrics.RougeN(m.ExpectedDefinition, []*metrics.Sentence{m.GeneratedDefinition}, c.N)
 		},
@@ -127,6 +130,7 @@ func NewRougeSRater(config configuration.MetricConfiguration) *RougeRater {
 		panic(err)
 	}
 	return &RougeRater{
+		name: fmt.Sprintf("Rouge-S (N = %d)", c.SkipN),
 		rater: func(m Method) (precision, recall float64) {
 			return metrics.RougeS(m.ExpectedDefinition, []*metrics.Sentence{m.GeneratedDefinition}, c.SkipN)
 		},
@@ -146,8 +150,10 @@ func (r *RougeRater) sentence(str string) []string {
 }
 
 func (r *RougeRater) Name() string {
-	// TODO: Include options/weights?
-	return "Rouge"
+	if r.name == "" {
+		return "Rouge"
+	}
+	return r.name
 }
 
 func (r *RougeRater) score() float64 {
@@ -344,23 +350,40 @@ func (r *CompilabilityRater) hasCompileErrors(method predictor.Method) bool {
 	parameterNames := make(utils.StringSet)
 	for _, par := range method.Values.Parameters {
 		concatenatedName := ConcatByLowerCamelCase(strings.Split(par.Name, " "))
-		if parameterNames.Has(concatenatedName) || !TokenMatcher.Match([]byte(concatenatedName)) {
+		if parameterNames.Has(concatenatedName) || !r.isValidParameterName(concatenatedName) {
 			return true
 		} else {
 			parameterNames.Put(concatenatedName)
 		}
 
-		if !r.isValidTypeIdentifier(par.Type) {
+		if !r.isValidParameterType(par.Type) {
 			return true
 		}
 	}
 
-	return !r.isValidTypeIdentifier(method.Values.ReturnType)
+	return !r.isValidReturnType(method.Values.ReturnType)
 }
 
-func (r *CompilabilityRater) isValidTypeIdentifier(typeIdentifier string) bool {
-	concatenated := ConcatByUpperCamelCase(strings.Split(typeIdentifier, " "))
-	return TokenMatcher.Match([]byte(concatenated))
+var typeKeywords = []string{"boolean", "char", "double", "float", "int", "long", "short"}
+var otherKeywords = []string{"abstract", "assert", "break", "byte", "case", "catch", "class", "continue", "const", "default", "do", "else", "enum",
+	"extends", "final", "finally", "for", "goto", "if", "implements", "import", "instanceof", "interface", "native", "new", "package", "private",
+	"protected", "public", "return", "static", "strictfp", "super", "switch", "synchronized", "this", "throw", "throws", "transient", "try",
+	"volatile", "while"}
+
+func (r *CompilabilityRater) isValidReturnType(identifier string) bool {
+	concatenated := ConcatByUpperCamelCase(strings.Split(identifier, " "))
+	return TokenMatcher.Match([]byte(concatenated)) && !utils.ContainsString(otherKeywords, identifier)
+}
+
+func (r *CompilabilityRater) isValidParameterName(concatenated string) bool {
+	return TokenMatcher.Match([]byte(concatenated)) && !utils.ContainsString(otherKeywords, concatenated) &&
+		!utils.ContainsString(typeKeywords, concatenated) && concatenated != "void"
+}
+
+func (r *CompilabilityRater) isValidParameterType(identifier string) bool {
+	concatenated := ConcatByUpperCamelCase(strings.Split(identifier, " "))
+	return TokenMatcher.Match([]byte(concatenated)) && !utils.ContainsString(otherKeywords, identifier) &&
+		concatenated != "void"
 }
 
 func (r *CompilabilityRater) Result() [][]interface{} {

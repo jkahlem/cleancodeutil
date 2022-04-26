@@ -96,14 +96,22 @@ func getInputSequence(method csv.Method) string {
 }
 
 func getOutputSequence(parameters []java.Parameter, returnType string) string {
+	returnType = utils.GetStringExtension(returnType, ".")
 	output := ""
 	for i, par := range parameters {
 		if i > 0 {
-			output += ", "
+			output += " [psp] "
 		}
-		output += fmt.Sprintf("%s - %s", par.Type.TypeName, par.Name)
+		typeName := par.Type.TypeName
+		if par.Type.IsArrayType {
+			typeName += " [arr]"
+		}
+		output += fmt.Sprintf("%s [tsp] %s", typeName, par.Name)
 	}
-	return output + ". $ " + returnType
+	if len(output) == 0 {
+		return returnType
+	}
+	return output + " [rsp] " + returnType
 }
 
 type TokenCount struct {

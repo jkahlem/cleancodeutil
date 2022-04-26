@@ -123,13 +123,13 @@ func (e *Evaluator) joinParameters(values predictor.MethodValues) *metrics.Sente
 	str := ""
 	for i, par := range values.Parameters {
 		if i > 0 {
-			str += ", "
+			str += " [psp] "
 		}
 		par.Name = e.formatString(par.Name)
 		par.Type = e.formatString(par.Type)
 		str += par.String()
 	}
-	str += ". " + e.formatString(values.ReturnType)
+	str += " [rsp] " + e.formatString(values.ReturnType)
 	return metrics.NewSentence(str)
 }
 

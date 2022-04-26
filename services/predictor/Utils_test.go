@@ -19,7 +19,9 @@ func TestSentenceSplitter(t *testing.T) {
 		{"RGBToHSL", "rgb to hsl"},
 		{"recognize_snake_Case", "recognize snake case"},
 		{"_underscore_beginning", "underscore beginning"},
-		{"multiple__underscores____exists", "multiple underscores exists"}}
+		{"multiple__underscores____exists", "multiple underscores exists"},
+		{"sequenceWith whiteSpaces", "sequence with white spaces"},
+		{"sequenceWith [special] tokens", "sequence with special tokens"}}
 
 	for _, pair := range testStrings {
 		actual := strings.ToLower(SplitMethodNameToSentence(pair[0]))

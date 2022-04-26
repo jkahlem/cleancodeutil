@@ -35,24 +35,6 @@ type MethodValues struct {
 	Parameters []Parameter `json:"parameters"`
 }
 
-func (m MethodValues) String() string {
-	returnType, parameterList := "?", "("
-	if m.ReturnType != "" {
-		returnType = m.ReturnType
-	}
-	if m.Parameters != nil {
-
-		for i, p := range m.Parameters {
-			if i > 0 {
-				parameterList += ", "
-			}
-			parameterList += p.String()
-		}
-	}
-	parameterList += ")"
-	return fmt.Sprintf("%s %s", returnType, parameterList)
-}
-
 type Parameter struct {
 	Name    string `json:"name"`
 	Type    string `json:"type"`
@@ -61,9 +43,9 @@ type Parameter struct {
 
 func (p Parameter) String() string {
 	if p.IsArray {
-		return fmt.Sprintf("%s[] - %s", p.Type, p.Name)
+		return fmt.Sprintf("%s [arr] [tsp] %s", p.Type, p.Name)
 	}
-	return fmt.Sprintf("%s - %s", p.Type, p.Name)
+	return fmt.Sprintf("%s [tsp] %s", p.Type, p.Name)
 }
 
 type Method struct {
