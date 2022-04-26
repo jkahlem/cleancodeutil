@@ -190,6 +190,10 @@ func (p *predictor) indexOfToken(order []string, token string) int {
 	panic(errors.New("Error", "Output order pattern must contain a '%s' token, but it was not found.", token))
 }
 
+func (p *predictor) GetCheckpoints(modelType SupportedModels) ([]string, errors.Error) {
+	return remote().GetCheckpoints(p.getOptions(modelType))
+}
+
 func (p *predictor) asCsvString(records [][]string) string {
 	builder := strings.Builder{}
 	csv.NewWriter(&builder).WriteAllRecords(records)

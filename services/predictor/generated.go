@@ -55,6 +55,14 @@ func (p *ProxyFacade) Exists(options Options) (bool, errors.Error) {
 	return p.Proxy.Exists(options)
 }
 
+func (p *ProxyFacade) GetCheckpoints(options Options) ([]string, errors.Error) {
+	if err := p.validate(p.Proxy.GetCheckpoints); err != nil {
+		var empty0 []string
+		return empty0, err
+	}
+	return p.Proxy.GetCheckpoints(options)
+}
+
 func (p *ProxyFacade) validate(fn interface{}) errors.Error {
 	fnVal := reflect.ValueOf(fn)
 	if !fnVal.IsValid() || fnVal.IsZero() {
