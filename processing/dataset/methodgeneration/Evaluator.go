@@ -1,6 +1,7 @@
 package methodgeneration
 
 import (
+	"fmt"
 	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
@@ -37,23 +38,53 @@ func NewEvaluator(dataset configuration.Dataset) base.Evaluator {
 }
 
 func (e *Evaluator) Evaluate(path string) errors.Error {
-	if e.isEvaluationResultPresent(path) {
+	if err := e.evaluateCheckpoint(path, ""); err != nil {
+		return err
+	}
+	if e.isCheckpointEvaluationActive() {
+		checkpoints, err := predictor.OnDataset(e.Dataset).GetCheckpoints(predictor.MethodGenerator)
+		if err != nil {
+			return err
+		}
+		for _, checkpoint := range checkpoints {
+			if strings.Contains(checkpoint, "epoch") {
+				if err := e.evaluateCheckpoint(path, checkpoint); err != nil {
+					fmt.Println(err)
+					return err
+				}
+				return nil // TODO
+			}
+		}
+	}
+	return nil
+}
+
+func (e *Evaluator) isCheckpointEvaluationActive() bool {
+	return true // TODO
+}
+
+func (e *Evaluator) evaluateCheckpoint(path, checkpoint string) errors.Error {
+	checkpointPath := path
+	if checkpoint != "" {
+		checkpointPath = filepath.Join(path, checkpoint)
+	}
+	if e.isEvaluationResultPresent(checkpointPath) {
 		return nil
 	}
-	if writer, err := NewResultWriter(filepath.Join(path, e.Dataset.Name()+ResultOutputFile)); err != nil {
+	if writer, err := NewResultWriter(filepath.Join(checkpointPath, e.Dataset.Name()+ResultOutputFile)); err != nil {
 		return err
 	} else {
 		e.resultWriter = writer
 	}
 	evalset := e.getEvaluationSetConfig()
 
-	if err := e.evaluateMethods(path, evalset); err != nil {
+	if err := e.evaluateMethods(path, checkpoint, evalset); err != nil {
 		return err
 	}
-	if err := e.writeScoreOutput(path, evalset); err != nil {
+	if err := e.writeScoreOutput(checkpointPath, evalset); err != nil {
 		return err
 	}
-	if err := e.writeExampleOutput(path, evalset); err != nil {
+	if err := e.writeExampleOutput(checkpointPath, evalset); err != nil {
 		return err
 	}
 	if err := e.resultWriter.Close(); err != nil {
@@ -78,13 +109,13 @@ func (e *Evaluator) loadEvaluationSet(path string) ([]predictor.Method, errors.E
 	return methods, nil
 }
 
-func (e *Evaluator) generateMethodDefinitions(methods []predictor.Method) ([]Method, errors.Error) {
+func (e *Evaluator) generateMethodDefinitions(methods []predictor.Method, checkpoint string) ([]Method, errors.Error) {
 	contexts := make([]predictor.MethodContext, len(methods))
 	for i, method := range methods {
 		contexts[i] = method.Context
 	}
 
-	predicted, err := predictor.OnDataset(e.Dataset).GenerateMethods(contexts)
+	predicted, err := predictor.OnCheckpoint(e.Dataset, checkpoint).GenerateMethods(contexts)
 	if len(predicted) != len(methods) {
 		return nil, errors.New("Predictor error", "Expected %d methods to be generated but got %d.", len(methods), len(predicted))
 	}
@@ -163,8 +194,8 @@ func (e *Evaluator) isEvaluationResultPresent(path string) bool {
 	return utils.FileExists(filepath.Join(path, e.Dataset.Name()+ResultOutputFile))
 }
 
-func (e *Evaluator) evaluateMethods(path string, evalset *EvaluationSet) errors.Error {
-	methods, err := e.getGeneratedMethodsForEvaluationSet(path)
+func (e *Evaluator) evaluateMethods(path, checkpoint string, evalset *EvaluationSet) errors.Error {
+	methods, err := e.getGeneratedMethodsForEvaluationSet(path, checkpoint)
 	if err != nil {
 		return err
 	}
@@ -179,13 +210,13 @@ func (e *Evaluator) evaluateMethods(path string, evalset *EvaluationSet) errors.
 	return e.resultWriter.WriteMethods(methods)
 }
 
-func (e *Evaluator) getGeneratedMethodsForEvaluationSet(path string) ([]Method, errors.Error) {
+func (e *Evaluator) getGeneratedMethodsForEvaluationSet(path, checkpoint string) ([]Method, errors.Error) {
 	set, err := e.loadEvaluationSet(path)
 	if err != nil {
 		return nil, err
 	}
 
-	methods, err := e.generateMethodDefinitions(set)
+	methods, err := e.generateMethodDefinitions(set, checkpoint)
 	if err != nil {
 		return nil, err
 	}

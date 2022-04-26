@@ -77,3 +77,7 @@ func (p *mock) GenerateMethods(contexts []MethodContext) ([][]MethodValues, erro
 func (p *mock) ModelExists(modelType SupportedModels) (bool, errors.Error) {
 	return configuration.IsLangServMode(), nil
 }
+
+func (p *mock) GetCheckpoints(modelType SupportedModels) ([]string, errors.Error) {
+	return nil, nil
+}

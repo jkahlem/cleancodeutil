@@ -58,6 +58,7 @@ type Options struct {
 	LabelsCsv    string          `json:"labels"`
 	Type         SupportedModels `json:"type"`
 	ModelOptions ModelOptions    `json:"modelOptions"`
+	Checkpoint   string          `json:"checkpoint"`
 }
 
 type ModelOptions struct {

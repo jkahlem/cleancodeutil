@@ -38,10 +38,13 @@ type Predictor interface {
 	GenerateMethods(contexts []MethodContext) ([][]MethodValues, errors.Error)
 	// Returns true if the model exists and is already trained
 	ModelExists(modelType SupportedModels) (bool, errors.Error)
+	// Returns a list of checkpoints which can be used for OnCheckpoint
+	GetCheckpoints(modelType SupportedModels) ([]string, errors.Error)
 }
 
 type predictor struct {
-	config configuration.Dataset
+	config     configuration.Dataset
+	checkpoint string
 }
 
 func OnDataset(dataset configuration.Dataset) Predictor {
@@ -50,6 +53,16 @@ func OnDataset(dataset configuration.Dataset) Predictor {
 	}
 	return &predictor{
 		config: dataset,
+	}
+}
+
+func OnCheckpoint(dataset configuration.Dataset, checkpoint string) Predictor {
+	if configuration.PredictorUseMock() {
+		return &mock{}
+	}
+	return &predictor{
+		config:     dataset,
+		checkpoint: checkpoint,
 	}
 }
 
@@ -134,6 +147,7 @@ func (p *predictor) getOptions(modelType SupportedModels) Options {
 		Identifier:   p.config.QualifiedIdentifier(),
 		Type:         modelType,
 		ModelOptions: p.mapModelOptions(p.config.ModelOptions),
+		Checkpoint:   p.checkpoint,
 	}
 }
 
