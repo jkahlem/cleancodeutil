@@ -174,16 +174,6 @@ func (r *RougeRater) Result() [][]interface{} {
 	return [][]interface{}{{"Score", fmt.Sprintf("%f", r.score())}}
 }
 
-type IdealRater struct{}
-
-func (r *IdealRater) Rate(m Method) {}
-func (r *IdealRater) Name() string {
-	return "Ideal"
-}
-func (r *IdealRater) Result() [][]interface{} {
-	return nil
-}
-
 type TokenCounter struct {
 	expectedTokenCount  TokenCount
 	generatedTokenCount TokenCount

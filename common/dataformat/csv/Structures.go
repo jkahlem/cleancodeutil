@@ -44,20 +44,6 @@ type TypeLabel struct {
 	Label int
 }
 
-type IdealResult struct {
-	FilePath              string
-	FileType              string
-	Identifier            string
-	IdentifierType        string
-	LineNumber            int
-	ColumnNumber          int
-	IssueID               string
-	IssueAdditionalDetail string
-	IssueCategory         string
-	IssueDetail           string
-	AnalysisDateTime      string
-}
-
 type FileContextTypes struct {
 	FilePath     string
 	ContextTypes []string

@@ -55,8 +55,6 @@ type configFile struct {
 	SkipIfOutputExists bool `json:"skipIfOutputExists"`
 	// Configurations which are specific for the language server
 	LanguageServer LanguageServerConfiguration `json:"languageServer"`
-	// Configurations for external services
-	External ExternalConfiguration `json:"external"`
 	// Creates statistics on preprocessed data (token counts).
 	CreateStatistics bool `json:"createStatistics"`
 	// Additional prefix which is added to datasets for experimental uses etc.
@@ -147,14 +145,6 @@ type LanguageServerConfiguration struct {
 type LanguageServerModelConfiguration struct {
 	ReturnTypesValidator string `json:"returntypesValidator"`
 	MethodGenerator      string `json:"methodGenerator"`
-}
-
-type ExternalConfiguration struct {
-	Ideal IdealConfiguration `json:"ideal"`
-}
-
-type IdealConfiguration struct {
-	BinaryDir string `json:"binaryDir"`
 }
 
 var loadedConfig *configFile

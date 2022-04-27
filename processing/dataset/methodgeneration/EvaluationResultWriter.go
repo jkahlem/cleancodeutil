@@ -1,7 +1,6 @@
 package methodgeneration
 
 import (
-	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/dataformat/excel"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/services/predictor"
@@ -90,22 +89,6 @@ func (w *EvaluationResultWriter) WriteMethods(methods []Method) errors.Error {
 
 func (w *EvaluationResultWriter) toMethodRecord(method Method) []string {
 	return []string{method.Name, method.ExpectedDefinition.String(), method.GeneratedDefinition.String()}
-}
-
-func (w *EvaluationResultWriter) WriteIdealResults(records []csv.IdealResult) errors.Error {
-	if err := w.check(); err != nil {
-		return err
-	}
-
-	i := 0
-	return excel.Stream().FromFunc(func() []string {
-		if i >= len(records) {
-			return nil
-		}
-		record := records[i].ToRecord()
-		i++
-		return record
-	}).ToSheet(w.file, "IDEAL Results")
 }
 
 func (w *EvaluationResultWriter) WriteScores(evalset *EvaluationSet) errors.Error {

@@ -114,11 +114,6 @@ func initSchemaMap() {
             "type": "object",
             "$ref": "language-server-configuration.schema.json"
         },
-        "external": {
-            "description": "Configurations for external services",
-            "type": "object",
-            "$ref": "external-configuration.schema.json"
-        },
         "createStatistics": {
             "description": "Creates statistics on preprocessed data (token counts).",
             "type": "boolean"
@@ -303,34 +298,6 @@ func initSchemaMap() {
             }
         }
     }
-}`
-	SchemaMap["configuration/external-configuration.schema.json"] = `{
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "external-configuration.schema.json",
-    "title": "External Service Configuration",
-    "description": "Contains configurations for external services",
-    "type": "object",
-    "properties": {
-        "ideal": {
-            "description": "Defines configurations for IDEAL. If unset, some functionalities which requires IDEAL will not work.",
-            "type": "object",
-            "$ref": "external/ideal-configuration.schema.json"
-        }
-    }
-}`
-	SchemaMap["configuration/external/ideal-configuration.schema.json"] = `{
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "ideal-configuration.schema.json",
-    "title": "IDEAL Configuration",
-    "description": "Contains configurations for IDEAL",
-    "type": "object",
-    "properties": {
-        "binaryDir": {
-            "description": "The directory where the binaries for IDEAL lies. (Usually ending with '/apps/IDEAL')",
-            "type": "string"
-        }
-    },
-    "required": ["binaryDir"]
 }`
 	SchemaMap["datasets/filter.schema.json"] = `{
     "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -703,6 +670,11 @@ func initSchemaMap() {
         "targetModels": {
             "type": "array",
             "$ref": "../model-list.schema.json"
+        },
+        "evaluateOn": {
+            "description": "Defines, what parts of the model should be evaluated. Defaults to best-model, which means that the finally saved/used model is used for evaluation. For epoch, each saved epoch checkpoint will be separately evaluated, while for steps, this will also be true for all saved steps (including epochs).",
+            "type": "string",
+            "enum": ["step", "epoch", "best-model"]
         }
     },
     "required": ["name"]
@@ -1023,7 +995,7 @@ func initSchemaMap() {
     "title": "Metrics",
     "description": "Type for all possible metric types.",
     "type": ["string", "object"],
-    "enum": ["rouge-l", "rouge-s", "rouge-2", "bleu", "ideal", "tokenCounter", "exactMatch", "compilability"],
+    "enum": ["rouge-l", "rouge-s", "rouge-2", "bleu", "tokenCounter", "exactMatch", "compilability"],
     "anyOf": [
         {"type": "string"},
         {"type": "object", "$ref": "rouge-l.schema.json"},

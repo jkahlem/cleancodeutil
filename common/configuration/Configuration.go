@@ -292,13 +292,6 @@ func ExcelSets() []ExcelSet {
 	return loadedConfig.ExcelSets
 }
 
-func IdealBinaryDir() string {
-	if loadedConfig == nil {
-		return ""
-	}
-	return loadedConfig.External.Ideal.BinaryDir
-}
-
 func CreateStatistics() bool {
 	if loadedConfig == nil {
 		return false

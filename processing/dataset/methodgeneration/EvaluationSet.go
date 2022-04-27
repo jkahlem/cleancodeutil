@@ -46,13 +46,6 @@ func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
 			e.Rater = append(e.Rater, &BleuRater{
 				config: config,
 			})
-		case configuration.Ideal:
-			_, err := metric.AsIdeal()
-			if err != nil {
-				// TODO: remove panic
-				panic(err)
-			}
-			e.Rater = append(e.Rater, &IdealRater{})
 		case configuration.TokenCounter:
 			_, err := metric.AsTokenCounter()
 			if err != nil {

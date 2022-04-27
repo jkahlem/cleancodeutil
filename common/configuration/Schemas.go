@@ -15,10 +15,6 @@ const (
 	StatisticsConfigurationSchemaPath     = "configuration/statistics-configuration.schema.json"
 	LanguageServerConfigurationSchemaPath = "configuration/language-server-configuration.schema.json"
 
-	// External configuration schemas
-	ExternalConfigurationSchemaPath = "configuration/external-configuration.schema.json"
-	IdealConfigurationSchemaPath    = "configuration/external/ideal-configuration.schema.json"
-
 	// Excel set schemas
 	FilterSchemaPath                    = "datasets/filter.schema.json"
 	FilterConfigurationSchemaPath       = "datasets/filter-configuration.schema.json"
@@ -153,8 +149,6 @@ func initializeSchemas() {
 			AdafactorConfigurationSchemaPath,
 			AdamConfigurationSchemaPath,
 			TypeClassSchemaPath,
-			ModelListSchemaPath,
-			ExternalConfigurationSchemaPath,
-			IdealConfigurationSchemaPath).
+			ModelListSchemaPath).
 		MustCompile()
 }

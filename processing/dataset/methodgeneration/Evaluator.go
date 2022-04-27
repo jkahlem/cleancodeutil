@@ -28,7 +28,6 @@ type Method struct {
 	Name                string
 	ExpectedDefinition  *metrics.Sentence
 	GeneratedDefinition *metrics.Sentence
-	IdealScore          int
 	Method              predictor.Method
 }
 

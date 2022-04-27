@@ -105,11 +105,6 @@
             "type": "object",
             "$ref": "language-server-configuration.schema.json"
         },
-        "external": {
-            "description": "Configurations for external services",
-            "type": "object",
-            "$ref": "external-configuration.schema.json"
-        },
         "createStatistics": {
             "description": "Creates statistics on preprocessed data (token counts).",
             "type": "boolean"

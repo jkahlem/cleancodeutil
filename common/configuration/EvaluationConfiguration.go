@@ -82,7 +82,6 @@ const (
 	RougeS             = "rouge-s"
 	RougeN             = "rouge-n"
 	Bleu               = "bleu"
-	Ideal              = "ideal"
 	TokenCounter       = "tokenCounter"
 	CompilabilityMatch = "compilability"
 	ExactMatch         = "exactMatch"
@@ -110,10 +109,6 @@ func (c MetricConfiguration) DecodeValue(value interface{}) (interface{}, error)
 		case Bleu:
 			return BleuConfiguration{
 				Type: Bleu,
-			}, nil
-		case Ideal:
-			return IdealMetricConfiguration{
-				Type: Ideal,
 			}, nil
 		case TokenCounter:
 			return TokenCounterConfiguration{
@@ -155,12 +150,6 @@ func (c MetricConfiguration) AsRougeN() (RougeNConfiguration, errors.Error) {
 func (c MetricConfiguration) AsBleu() (BleuConfiguration, errors.Error) {
 	var config BleuConfiguration
 	err := c.as(Bleu, &config)
-	return config, err
-}
-
-func (c MetricConfiguration) AsIdeal() (IdealMetricConfiguration, errors.Error) {
-	var config IdealMetricConfiguration
-	err := c.as(Ideal, &config)
 	return config, err
 }
 
@@ -218,10 +207,6 @@ type RougeNConfiguration struct {
 type BleuConfiguration struct {
 	Type    string    `json:"type"`
 	Weights []float64 `json:"weights"`
-}
-
-type IdealMetricConfiguration struct {
-	Type string `json:"type"`
 }
 
 type TokenCounterConfiguration struct {
