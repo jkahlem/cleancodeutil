@@ -19,10 +19,9 @@ type Layout struct {
 }
 
 type Column struct {
-	Header   string
-	Width    float64
-	Hide     bool
-	Markdown bool
+	Header string
+	Width  float64
+	Hide   bool
 }
 
 type Style struct {

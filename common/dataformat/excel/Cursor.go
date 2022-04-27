@@ -24,6 +24,7 @@ func NewCursor(file *excelize.File, sheet string) *Cursor {
 	}
 }
 
+// Moves the cursor to the given absolute position
 func (c *Cursor) SetPosition(x, y int) {
 	if x < 0 {
 		x = 0
@@ -34,10 +35,12 @@ func (c *Cursor) SetPosition(x, y int) {
 	c.x, c.y = x, y
 }
 
+// Moves the cursor to the given relative position
 func (c *Cursor) Move(x, y int) {
 	c.SetPosition(c.x+x, c.y+y)
 }
 
+// Writes the values for one row. The cursor does not move during this process.
 func (c *Cursor) WriteRowValues(values ...interface{}) errors.Error {
 	if c.file == nil || c.err != nil {
 		return c.err
@@ -53,7 +56,7 @@ func (c *Cursor) WriteRowValues(values ...interface{}) errors.Error {
 	return nil
 }
 
-// Writes the passed values to the excel file from the current position.
+// Writes the passed values to the excel file from the current position. The cursor moves to the next row under the written rows
 func (c *Cursor) WriteValues(values [][]interface{}) errors.Error {
 	if c.file == nil || c.err != nil {
 		return c.err
@@ -100,6 +103,7 @@ func (c *Cursor) applyStyle(sx, sy, wdt, hgt int) errors.Error {
 	return nil
 }
 
+// Applys the current style for the are from the current position to (current.x + toX, current.y + toY)
 func (c *Cursor) ApplyStyle(toX, toY int) errors.Error {
 	if c.styleId == 0 {
 		return errors.New("Excel", "No style set")
@@ -110,37 +114,44 @@ func (c *Cursor) ApplyStyle(toX, toY int) errors.Error {
 	return c.applyStyle(c.x, c.y, toX, toY)
 }
 
+// Sets a style to use during writing
 func (c *Cursor) SetStyle(styleId int) {
 	c.styleId = styleId
 }
 
+// Returns the zero-based x position
 func (c *Cursor) X() int {
 	return c.x
 }
 
+// Returns the zero-based y position
 func (c *Cursor) Y() int {
 	return c.y
 }
 
+// Returns the identifier for the current column
 func (c *Cursor) Col() string {
 	return GetColumnIdentifier(c.x)
 }
 
+// Returns the current row number
 func (c *Cursor) Row() string {
 	return fmt.Sprintf("%d", c.y+1)
 }
 
+// Returns the current cell
 func (c *Cursor) Cell() string {
 	return GetCellIdentifier(c.x, c.y)
 }
 
+// Errors which occurred during the cursor operatios
 func (c *Cursor) Error() errors.Error {
 	return c.err
 }
 
 const DefaultChartHeight = 290
 
-// Writes the given chart
+// Writes a chart at the current position. The cursor moves under the chart (vertically-only) during this process.
 func (c *Cursor) WriteChart(chart Chart) errors.Error {
 	if c.file == nil || c.err != nil {
 		return c.err

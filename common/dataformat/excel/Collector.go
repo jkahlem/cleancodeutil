@@ -65,11 +65,6 @@ func (w *file) applyColumnWidth(col Column, zeroIndexedCol int) error {
 			return err
 		}
 	}
-	/*if col.Hide {
-		if err := w.excelFile.SetColVisible(w.sheet, colId, false); err != nil {
-			return err
-		}
-	}*/
 	return nil
 }
 
@@ -133,16 +128,6 @@ func (w *file) cancelWithError(err errors.Error) errors.Error {
 func (w *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors.Error {
 	cells := make([]interface{}, 0, len(values))
 	for colIndex, value := range values {
-		/*if len(value) > 0 {
-			cell := getCellIdentifier(colIndex, rowIndex)
-			if w.layout.Columns[colIndex].Markdown {
-				if err := w.excelFile.SetCellRichText(w.sheet, cell, MarkdownToRichText(value)); err != nil {
-					return errors.Wrap(err, "Excel Error", "Could not add row to excel file for %s (value: %v)", cell, value)
-				}
-			} else if err := w.excelFile.SetCellValue(w.sheet, cell, value); err != nil {
-				return errors.Wrap(err, "Excel Error", "Could not add row to excel file for %s (value: %v)", cell, value)
-			}
-		}*/
 		cellStyle := styleId
 		if len(w.layout.Columns) > colIndex && w.layout.Columns[colIndex].Hide {
 			// Because the stream writer implementation from the excelize package does not support setting column visibility,
@@ -158,20 +143,6 @@ func (w *file) addRowToExcelFile(rowIndex, styleId int, values ...string) errors
 	}
 	if err := w.streamWriter.SetRow(GetCellIdentifier(0, rowIndex), cells); err != nil {
 		return errors.Wrap(err, "Excel Error", "Could not write row %d", rowIndex)
-	}
-	return nil
-	//return w.applyRowStyle(rowIndex, len(values), styleId)
-}
-
-func (w *file) applyRowStyle(rowIndex, valuesLength, styleId int) errors.Error {
-	if err := w.excelFile.SetRowStyle(w.sheet, rowIndex+1, rowIndex+1, styleId); err != nil {
-		return errors.Wrap(err, "Excel Error", "Cannot apply row style")
-	}
-	// The row style does somehow not apply to cells which were set (even if called before setting cell values)
-	// therefore we need to set the cell's style seperately..
-	startCell, endCell := GetCellIdentifier(0, rowIndex), GetCellIdentifier(valuesLength, rowIndex)
-	if err := w.excelFile.SetCellStyle(w.sheet, startCell, endCell, styleId); err != nil {
-		return errors.Wrap(err, "Excel Error", "Cannot apply row style")
 	}
 	return nil
 }
