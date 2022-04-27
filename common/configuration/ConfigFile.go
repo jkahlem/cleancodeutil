@@ -65,8 +65,8 @@ type configFile struct {
 
 // The proportions for the size of datasets
 type DatasetProportion struct {
-	Training   float64 `json:"training"`
-	Evaluation float64 `json:"evaluation"`
+	Training   float64 `json:"training,omitempty"`
+	Evaluation float64 `json:"evaluation,omitempty"`
 }
 
 type ClonerConfiguration struct {

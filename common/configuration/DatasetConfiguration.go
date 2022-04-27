@@ -23,51 +23,51 @@ type DatasetFileConfiguration struct {
 
 type DatasetBase struct {
 	NameRaw              string               `json:"name"`
-	Description          string               `json:"description"`
+	Description          string               `json:"description,omitempty"`
 	ModelOptions         ModelOptions         `json:"modelOptions"`
-	TargetModels         []string             `json:"targetModels"`
+	TargetModels         []string             `json:"targetModels,omitempty"`
 	EvaluateOn           EvaluationTarget     `json:"evaluateOn"`
 	PreprocessingOptions PreprocessingOptions `json:"preprocessingOptions"`
 }
 
 type Dataset struct {
 	DatasetBase     `json:",squash"`
-	Filter          Filter                 `json:"filter"`
+	Filter          Filter                 `json:"filter,omitempty"`
 	CreationOptions DatasetCreationOptions `json:"creationOptions"`
-	Subsets         []Dataset              `json:"subsets"`
-	Alternatives    []DatasetBase          `json:"alternatives"`
+	Subsets         []Dataset              `json:"subsets,omitempty"`
+	Alternatives    []DatasetBase          `json:"alternatives,omitempty"`
 	parentPath      string
 }
 
 type DatasetCreationOptions struct {
-	MaxTokensPerOutputSequence int                     `json:"maxTokensPerOutputSequence"`
-	FilterDuplicates           bool                    `json:"filterDuplicates"`
-	TypeClasses                TypeClassConfigurations `json:"typeClasses"`
-	DatasetSize                DatasetProportion       `json:"datasetSize"`
+	MaxTokensPerOutputSequence int                     `json:"maxTokensPerOutputSequence,omitempty"`
+	FilterDuplicates           bool                    `json:"filterDuplicates,omitempty"`
+	TypeClasses                TypeClassConfigurations `json:"typeClasses,omitempty"`
+	DatasetSize                DatasetProportion       `json:"datasetSize,omitempty"`
 }
 
 type PreprocessingOptions struct {
-	MaxTrainingRows    int                       `json:"maxTrainingRows"`
-	MaxEvaluationRows  int                       `json:"maxEvaluationRows"`
+	MaxTrainingRows    int                       `json:"maxTrainingRows,omitempty"`
+	MaxEvaluationRows  int                       `json:"maxEvaluationRows,omitempty"`
 	SentenceFormatting SentenceFormattingOptions `json:"sentenceFormatting"`
 }
 
 type ModelOptions struct {
 	ModelType                   string    `json:"modelType"`
 	ModelName                   string    `json:"modelName"`
-	NumOfEpochs                 int       `json:"numOfEpochs"`
-	BatchSize                   int       `json:"batchSize"`
-	NumReturnSequences          int       `json:"numReturnSequences"`
-	MaxSequenceLength           int       `json:"maxSequenceLength"`
-	UseContextTypes             bool      `json:"useContextTypes"`
-	EmptyParameterListByKeyword bool      `json:"emptyParameterListByKeyword"`
+	NumOfEpochs                 int       `json:"numOfEpochs,omitempty"`
+	BatchSize                   int       `json:"batchSize,omitempty"`
+	NumReturnSequences          int       `json:"numReturnSequences,omitempty"`
+	MaxSequenceLength           int       `json:"maxSequenceLength,omitempty"`
+	UseContextTypes             bool      `json:"useContextTypes,omitempty"`
+	EmptyParameterListByKeyword bool      `json:"emptyParameterListByKeyword,omitempty"`
 	Adafactor                   Adafactor `json:"adafactor"`
 	Adam                        Adam      `json:"adam"`
-	NumBeams                    int       `json:"numBeams"`
+	NumBeams                    int       `json:"numBeams,omitempty"`
 	LengthPenalty               *float64  `json:"lengthPenalty,omitempty"`
 	TopK                        *float64  `json:"topK,omitempty"`
 	TopN                        *float64  `json:"topN,omitempty"`
-	OutputOrder                 []string  `json:"outputOrder"`
+	OutputOrder                 []string  `json:"outputOrder,omitempty"`
 }
 
 type Adafactor struct {

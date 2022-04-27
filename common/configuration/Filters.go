@@ -9,8 +9,8 @@ import (
 )
 
 type Filter struct {
-	Includes FilterConfigurations `json:"include"`
-	Excludes FilterConfigurations `json:"exclude"`
+	Includes FilterConfigurations `json:"include,omitempty"`
+	Excludes FilterConfigurations `json:"exclude,omitempty"`
 }
 
 type FilterConfigurations []FilterConfiguration
