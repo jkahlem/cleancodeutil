@@ -361,17 +361,25 @@ func (ls *languageServer) generateParameterLists(method Method) ([][]predictor.M
 }
 
 func (ls *languageServer) createCompletionItem(textEdits ...lsp.TextEdit) lsp.CompletionItem {
+	if len(textEdits) == 0 {
+		panic("No text edits specified")
+	}
+	label := textEdits[0].NewText
+	if label == "" {
+		label = "(no parameters)"
+	}
+
 	item := lsp.CompletionItem{
-		Label:            "TestAsd",
+		Label:            label,
 		Kind:             lsp.Text,
 		Preselect:        true,
 		InsertTextFormat: lsp.ITF_PlainText,
 		InsertTextMode:   lsp.AsIs,
-		SortText:         "TestAsd",
-		FilterText:       "(TestAsd",
+		SortText:         label,
+		FilterText:       label,
 	}
+	item.TextEdit = &textEdits[0]
 	if len(textEdits) >= 1 {
-		item.TextEdit = &textEdits[0]
 		item.AdditionalTextEdits = textEdits[1:]
 	}
 
