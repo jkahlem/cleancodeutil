@@ -48,7 +48,7 @@ func (t *Trainer) loadData(path string) errors.Error {
 	if trainingSet, err := csv.NewFileReader(path, TrainingSetFileName).ReadReturnTypesDatasetRowRecords(); err != nil {
 		return err
 	} else {
-		limit := t.Dataset.SpecialOptions.MaxTrainingRows
+		limit := t.Dataset.PreprocessingOptions.MaxTrainingRows
 		if limit <= 0 || limit > len(trainingSet) {
 			limit = len(trainingSet)
 		}

@@ -27,6 +27,10 @@
             "description": "Defines, what parts of the model should be evaluated. Defaults to best-model, which means that the finally saved/used model is used for evaluation. For epoch, each saved epoch checkpoint will be separately evaluated, while for steps, this will also be true for all saved steps (including epochs).",
             "type": "string",
             "enum": ["step", "epoch", "best-model"]
+        },
+        "preprocessingOptions": {
+            "type": "object",
+            "$ref": "preprocessing-options.schema.json"
         }
     },
     "required": ["name"]

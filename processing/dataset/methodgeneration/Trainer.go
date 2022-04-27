@@ -37,7 +37,7 @@ func (t *Trainer) Train(path string) errors.Error {
 	if err != nil {
 		return err
 	}
-	limit := t.Dataset.SpecialOptions.MaxTrainingRows
+	limit := t.Dataset.PreprocessingOptions.MaxTrainingRows
 	if limit <= 0 || limit > len(trainingSet) {
 		limit = len(trainingSet)
 	}

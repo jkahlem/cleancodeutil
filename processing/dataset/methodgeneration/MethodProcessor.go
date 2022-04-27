@@ -23,13 +23,13 @@ type Processor struct {
 	OutputDir       string
 	rows            []csv.MethodGenerationDatasetRow
 	methods         utils.StringSet
-	Options         configuration.SpecialOptions
+	Options         configuration.DatasetCreationOptions
 	typeClassMapper typeclasses.Mapper
 	skip            bool
 	files           map[string][]string
 }
 
-func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) (base.MethodProcessor, errors.Error) {
+func NewProcessor(outputDir string, options configuration.DatasetCreationOptions, tree *packagetree.Tree) (base.MethodProcessor, errors.Error) {
 	processor := &Processor{
 		OutputDir: outputDir,
 		Options:   options,

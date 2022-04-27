@@ -90,7 +90,7 @@ func (d *Creator) getTypeClassMapper() (typeclasses.Mapper, errors.Error) {
 		if err != nil {
 			return nil, errors.Wrap(err, DiagnosticsErrorTitle, "Returntypes validation dataset not found: %s", configuration.LanguageServerReturntypesDataset())
 		}
-		return typeclasses.New(d.tree, set.SpecialOptions.TypeClasses)
+		return typeclasses.New(d.tree, set.CreationOptions.TypeClasses)
 	} else {
 		d.typeClassMapper.SetPackageTree(d.tree)
 		return d.typeClassMapper, nil

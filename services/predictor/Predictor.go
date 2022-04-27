@@ -85,7 +85,7 @@ func (p *predictor) TrainReturnTypes(methods []Method, labels [][]string) errors
 		return err
 	}
 	options.LabelsCsv = p.asCsvString(labels)
-	FormatMethods(methods, p.config.SpecialOptions.SentenceFormatting)
+	FormatMethods(methods, p.config.PreprocessingOptions.SentenceFormatting)
 	return remote().Train(methods, options)
 }
 
@@ -95,7 +95,7 @@ func (p *predictor) EvaluateReturnTypes(evaluationSet []Method, labels [][]strin
 		return Evaluation{}, err
 	}
 	options.LabelsCsv = p.asCsvString(labels)
-	FormatMethods(evaluationSet, p.config.SpecialOptions.SentenceFormatting)
+	FormatMethods(evaluationSet, p.config.PreprocessingOptions.SentenceFormatting)
 	return remote().Evaluate(evaluationSet, options)
 }
 
@@ -146,7 +146,7 @@ func (p *predictor) TrainMethods(trainingSet []Method) errors.Error {
 		return err
 	}
 
-	FormatMethods(trainingSet, p.config.SpecialOptions.SentenceFormatting)
+	FormatMethods(trainingSet, p.config.PreprocessingOptions.SentenceFormatting)
 	if !p.config.ModelOptions.UseContextTypes {
 		for i := range trainingSet {
 			trainingSet[i].Context.Types = nil
@@ -161,7 +161,7 @@ func (p *predictor) GenerateMethods(contexts []MethodContext) ([][]MethodValues,
 		return nil, err
 	}
 
-	FormatContexts(contexts, p.config.SpecialOptions.SentenceFormatting)
+	FormatContexts(contexts, p.config.PreprocessingOptions.SentenceFormatting)
 	if !p.config.ModelOptions.UseContextTypes {
 		for i := range contexts {
 			contexts[i].Types = nil

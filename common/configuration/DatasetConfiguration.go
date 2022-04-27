@@ -22,56 +22,52 @@ type DatasetFileConfiguration struct {
 }
 
 type DatasetBase struct {
-	NameRaw      string           `json:"name"`
-	Description  string           `json:"description"`
-	ModelOptions ModelOptions     `json:"modelOptions"`
-	TargetModels []string         `json:"targetModels"`
-	EvaluateOn   EvaluationTarget `json:"evaluateOn"`
+	NameRaw              string               `json:"name"`
+	Description          string               `json:"description"`
+	ModelOptions         ModelOptions         `json:"modelOptions"`
+	TargetModels         []string             `json:"targetModels"`
+	EvaluateOn           EvaluationTarget     `json:"evaluateOn"`
+	PreprocessingOptions PreprocessingOptions `json:"preprocessingOptions"`
 }
 
 type Dataset struct {
-	DatasetBase    `json:",squash"`
-	Filter         Filter         `json:"filter"`
-	SpecialOptions SpecialOptions `json:"specialOptions"`
-	Subsets        []Dataset      `json:"subsets"`
-	Alternatives   []DatasetBase  `json:"alternatives"`
-	parentPath     string
+	DatasetBase     `json:",squash"`
+	Filter          Filter                 `json:"filter"`
+	CreationOptions DatasetCreationOptions `json:"creationOptions"`
+	Subsets         []Dataset              `json:"subsets"`
+	Alternatives    []DatasetBase          `json:"alternatives"`
+	parentPath      string
 }
 
-type SpecialOptions struct {
+type DatasetCreationOptions struct {
 	MaxTokensPerOutputSequence int                     `json:"maxTokensPerOutputSequence"`
 	FilterDuplicates           bool                    `json:"filterDuplicates"`
 	TypeClasses                TypeClassConfigurations `json:"typeClasses"`
-	MaxTrainingRows            int                     `json:"maxTrainingRows"`
-	MaxEvaluationRows          int                     `json:"maxEvaluationRows"`
-	// The size of the splitted datasets as a proportion
-	DatasetSize        DatasetProportion         `json:"datasetSize"`
+	DatasetSize                DatasetProportion       `json:"datasetSize"`
+}
+
+type PreprocessingOptions struct {
+	MaxTrainingRows    int                       `json:"maxTrainingRows"`
+	MaxEvaluationRows  int                       `json:"maxEvaluationRows"`
 	SentenceFormatting SentenceFormattingOptions `json:"sentenceFormatting"`
 }
 
 type ModelOptions struct {
-	NumOfEpochs int `json:"numOfEpochs"`
-	BatchSize   int `json:"batchSize"`
-	// Sets the number of expected return sequences to predict different suggestions
-	NumReturnSequences int `json:"numReturnSequences"`
-	// Sets the maximum length of the predicted sequence
-	MaxSequenceLength int `json:"maxSequenceLength"`
-	// If true, the types available in a file are also sent to the predictor.
-	UseContextTypes bool `json:"useContextTypes"`
-	// If true, a keyword (like 'void') is used to indicate no output.
-	EmptyParameterListByKeyword bool `json:"emptyParameterListByKeyword"`
-	// Adafactor optimizer options
-	Adafactor Adafactor `json:"adafactor"`
-	// Adam optimizer options
-	Adam Adam `json:"adam"`
-	// Defines the model to use for the task
-	ModelType     string   `json:"modelType"`
-	ModelName     string   `json:"modelName"`
-	NumBeams      int      `json:"numBeams"`
-	LengthPenalty *float64 `json:"lengthPenalty,omitempty"`
-	TopK          *float64 `json:"topK,omitempty"`
-	TopN          *float64 `json:"topN,omitempty"`
-	OutputOrder   []string `json:"outputOrder"`
+	ModelType                   string    `json:"modelType"`
+	ModelName                   string    `json:"modelName"`
+	NumOfEpochs                 int       `json:"numOfEpochs"`
+	BatchSize                   int       `json:"batchSize"`
+	NumReturnSequences          int       `json:"numReturnSequences"`
+	MaxSequenceLength           int       `json:"maxSequenceLength"`
+	UseContextTypes             bool      `json:"useContextTypes"`
+	EmptyParameterListByKeyword bool      `json:"emptyParameterListByKeyword"`
+	Adafactor                   Adafactor `json:"adafactor"`
+	Adam                        Adam      `json:"adam"`
+	NumBeams                    int       `json:"numBeams"`
+	LengthPenalty               *float64  `json:"lengthPenalty,omitempty"`
+	TopK                        *float64  `json:"topK,omitempty"`
+	TopN                        *float64  `json:"topN,omitempty"`
+	OutputOrder                 []string  `json:"outputOrder"`
 }
 
 type Adafactor struct {
@@ -168,6 +164,12 @@ func connectDatasetPaths(datasets []Dataset, parentPath string) {
 	}
 }
 
+const (
+	ModelOptionsFieldName         = "modelOptions"
+	CreationOptionsFieldName      = "creationOptions"
+	PreprocessingOptionsFieldName = "preprocessingOptions"
+)
+
 func (c Dataset) DecodeValue(value interface{}) (interface{}, error) {
 	// Before mapping the json output (map[string]interface{}) to a dataset struct,
 	// merge the modelOptions/specialOptions of this dataset to the modelOptions/specialOptions
@@ -177,19 +179,25 @@ func (c Dataset) DecodeValue(value interface{}) (interface{}, error) {
 	// without implementing pointers and pointer checks everywhere as otherwise it is unknown
 	// if a value (bool/int values etc.) is explicitly set to a zero value or was just omitted.
 	if jsonObj, ok := value.(map[string]interface{}); ok {
-		sourceModelOptions, hasModelOptions := jsonObj["modelOptions"]
-		sourceSpecialOptions, hasSpecialOptions := jsonObj["specialOptions"]
+		sourceModelOptions, hasModelOptions := jsonObj[ModelOptionsFieldName]
+		sourceSpecialOptions, hasSpecialOptions := jsonObj[CreationOptionsFieldName]
+		sourcePreprocessingOptions, hasPreprocessingOptions := jsonObj[PreprocessingOptionsFieldName]
 
 		if subsets, ok := jsonObj["subsets"]; ok {
 			if subsetSlice, ok := subsets.([]interface{}); ok {
 				if hasModelOptions {
 					if typedModelOptions, ok := sourceModelOptions.(map[string]interface{}); ok {
-						c.mergeModelOptionsToSubsets(typedModelOptions, subsetSlice)
+						c.mergeValueToSubsets(ModelOptionsFieldName, typedModelOptions, subsetSlice)
 					}
 				}
 				if hasSpecialOptions {
 					if typedSpecialOptions, ok := sourceSpecialOptions.(map[string]interface{}); ok {
-						c.mergeSpecialOptionsToSubsets(typedSpecialOptions, subsetSlice)
+						c.mergeValueToSubsets(CreationOptionsFieldName, typedSpecialOptions, subsetSlice)
+					}
+				}
+				if hasPreprocessingOptions {
+					if typedPreprocessingOptions, ok := sourcePreprocessingOptions.(map[string]interface{}); ok {
+						c.mergeValueToSubsets(PreprocessingOptionsFieldName, typedPreprocessingOptions, subsetSlice)
 					}
 				}
 			}
@@ -198,7 +206,12 @@ func (c Dataset) DecodeValue(value interface{}) (interface{}, error) {
 			if alternativesSlice, ok := alternatives.([]interface{}); ok {
 				if hasModelOptions {
 					if typedModelOptions, ok := sourceModelOptions.(map[string]interface{}); ok {
-						c.mergeModelOptionsToSubsets(typedModelOptions, alternativesSlice)
+						c.mergeValueToSubsets(ModelOptionsFieldName, typedModelOptions, alternativesSlice)
+					}
+				}
+				if hasPreprocessingOptions {
+					if typedPreprocessingOptions, ok := sourcePreprocessingOptions.(map[string]interface{}); ok {
+						c.mergeValueToSubsets(PreprocessingOptionsFieldName, typedPreprocessingOptions, alternativesSlice)
 					}
 				}
 			}
@@ -208,48 +221,40 @@ func (c Dataset) DecodeValue(value interface{}) (interface{}, error) {
 }
 
 func (c Dataset) mergeOptionsToSubsets(jsonObj map[string]interface{}, subsets []interface{}) {
-	sourceModelOptions, hasModelOptions := jsonObj["modelOptions"]
-	sourceSpecialOptions, hasSpecialOptions := jsonObj["specialOptions"]
+	sourceModelOptions, hasModelOptions := jsonObj[ModelOptionsFieldName]
+	sourceSpecialOptions, hasSpecialOptions := jsonObj[CreationOptionsFieldName]
+	sourcePreprocessingOptions, hasPreprocessingOptions := jsonObj[PreprocessingOptionsFieldName]
 
 	if subsets, ok := jsonObj["subsets"]; ok {
 		if subsetSlice, ok := subsets.([]interface{}); ok {
 			if hasModelOptions {
 				if typedModelOptions, ok := sourceModelOptions.(map[string]interface{}); ok {
-					c.mergeModelOptionsToSubsets(typedModelOptions, subsetSlice)
+					c.mergeValueToSubsets(ModelOptionsFieldName, typedModelOptions, subsetSlice)
 				}
 			}
 			if hasSpecialOptions {
 				if typedSpecialOptions, ok := sourceSpecialOptions.(map[string]interface{}); ok {
-					c.mergeSpecialOptionsToSubsets(typedSpecialOptions, subsetSlice)
+					c.mergeValueToSubsets(CreationOptionsFieldName, typedSpecialOptions, subsetSlice)
+				}
+			}
+			if hasPreprocessingOptions {
+				if typedPreprocessingOptions, ok := sourcePreprocessingOptions.(map[string]interface{}); ok {
+					c.mergeValueToSubsets(PreprocessingOptionsFieldName, typedPreprocessingOptions, subsetSlice)
 				}
 			}
 		}
 	}
 }
 
-func (c Dataset) mergeModelOptionsToSubsets(sourceModelOptions map[string]interface{}, subsets []interface{}) {
+func (c Dataset) mergeValueToSubsets(fieldName string, sourceValue map[string]interface{}, subsets []interface{}) {
 	for i := range subsets {
 		if subsetObject, ok := subsets[i].(map[string]interface{}); ok {
-			if destinationModelOptions, ok := subsetObject["modelOptions"]; ok {
-				if typed, ok := destinationModelOptions.(map[string]interface{}); ok {
-					utils.AddUnsettedValues(sourceModelOptions, typed)
+			if fieldValue, ok := subsetObject[fieldName]; ok {
+				if typed, ok := fieldValue.(map[string]interface{}); ok {
+					utils.AddUnsettedValues(sourceValue, typed)
 				}
 			} else {
-				subsetObject["modelOptions"] = sourceModelOptions
-			}
-		}
-	}
-}
-
-func (c Dataset) mergeSpecialOptionsToSubsets(sourceSpecialOptions map[string]interface{}, subsets []interface{}) {
-	for i := range subsets {
-		if subsetObject, ok := subsets[i].(map[string]interface{}); ok {
-			if specialOptions, ok := subsetObject["specialOptions"]; ok {
-				if typed, ok := specialOptions.(map[string]interface{}); ok {
-					utils.AddUnsettedValues(sourceSpecialOptions, typed)
-				}
-			} else {
-				subsetObject["specialOptions"] = sourceSpecialOptions
+				subsetObject[fieldName] = sourceValue
 			}
 		}
 	}

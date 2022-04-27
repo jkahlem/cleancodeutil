@@ -83,9 +83,9 @@ func (p *DatasetProcessor) initializeModelProcessor(modelType configuration.Mode
 	var processor base.MethodProcessor
 	switch modelType {
 	case configuration.ReturnTypesValidator:
-		processor, err = returntypesvalidation.NewProcessor(path, p.TargetSet.SpecialOptions, tree)
+		processor, err = returntypesvalidation.NewProcessor(path, p.TargetSet.CreationOptions, tree)
 	case configuration.MethodGenerator:
-		processor, err = methodgeneration.NewProcessor(path, p.TargetSet.SpecialOptions, tree)
+		processor, err = methodgeneration.NewProcessor(path, p.TargetSet.CreationOptions, tree)
 	}
 	p.ModelProcessor = processor
 	return err
@@ -130,12 +130,12 @@ func (p *DatasetProcessor) isIncluded(method csv.Method) (bool, errors.Error) {
 	if !csv.IsMethodIncluded(method, p.TargetSet.Filter) {
 		return false, nil
 	}
-	if p.TargetSet.SpecialOptions.MaxTokensPerOutputSequence != 0 {
+	if p.TargetSet.CreationOptions.MaxTokensPerOutputSequence != 0 {
 		parameters, err := java.ParseParameterList(method.Parameters)
 		if err == nil {
 			outputSequence := p.getOutputSequence(parameters, method.ReturnType)
 			tokens := metrics.TokenizeSentence(predictor.SplitMethodNameToSentence(outputSequence))
-			if len(tokens) > p.TargetSet.SpecialOptions.MaxTokensPerOutputSequence {
+			if len(tokens) > p.TargetSet.CreationOptions.MaxTokensPerOutputSequence {
 				return false, nil
 			}
 		} else {
@@ -158,8 +158,8 @@ func (p *DatasetProcessor) getOutputSequence(parameters []java.Parameter, return
 
 // Copies options from parent to child which should be inherited by the child
 func inheritOptions(parent, child configuration.Dataset) configuration.Dataset {
-	if child.SpecialOptions.DatasetSize.Training == 0 && child.SpecialOptions.DatasetSize.Evaluation == 0 {
-		child.SpecialOptions.DatasetSize = parent.SpecialOptions.DatasetSize
+	if child.CreationOptions.DatasetSize.Training == 0 && child.CreationOptions.DatasetSize.Evaluation == 0 {
+		child.CreationOptions.DatasetSize = parent.CreationOptions.DatasetSize
 	}
 	return child
 }

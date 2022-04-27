@@ -47,7 +47,7 @@ func (e *Evaluator) loadData(path string) errors.Error {
 	if evaluationSet, err := csv.NewFileReader(path, EvaluationSetFileName).ReadReturnTypesDatasetRowRecords(); err != nil {
 		return err
 	} else {
-		limit := e.Dataset.SpecialOptions.MaxEvaluationRows
+		limit := e.Dataset.PreprocessingOptions.MaxEvaluationRows
 		if limit <= 0 || limit > len(evaluationSet) {
 			limit = len(evaluationSet)
 		}

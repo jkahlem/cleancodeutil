@@ -62,25 +62,21 @@ type Options struct {
 }
 
 type ModelOptions struct {
-	BatchSize   int `json:"batchSize"`
-	NumOfEpochs int `json:"numOfEpochs"`
-	// Sets the number of expected return sequences to predict different suggestions
-	NumReturnSequences int `json:"numReturnSequences"`
-	// Sets the maximum length of the predicted sequence
-	MaxSequenceLength int `json:"maxSequenceLength"`
-	// Default context types which are always added to the MethodContext types
-	DefaultContextTypes         []string  `json:"defaultContext,omitempty"`
-	EmptyParameterListByKeyword bool      `json:"emptyParameterListByKeyword"`
-	Adafactor                   Adafactor `json:"adafactor"`
-	Adam                        Adam      `json:"adam"`
-	// Defines the model to use for the task
-	ModelType     string                `json:"modelType"`
-	ModelName     string                `json:"modelName"`
-	NumBeams      int                   `json:"numBeams"`
-	LengthPenalty *float64              `json:"lengthPenalty,omitempty"`
-	TopK          *float64              `json:"topK,omitempty"`
-	TopN          *float64              `json:"topN,omitempty"`
-	OutputOrder   *OutputComponentOrder `json:"outputOrder,omitempty"`
+	BatchSize                   int                   `json:"batchSize"`
+	NumOfEpochs                 int                   `json:"numOfEpochs"`
+	NumReturnSequences          int                   `json:"numReturnSequences"`
+	MaxSequenceLength           int                   `json:"maxSequenceLength"`
+	DefaultContextTypes         []string              `json:"defaultContext,omitempty"`
+	EmptyParameterListByKeyword bool                  `json:"emptyParameterListByKeyword"`
+	Adafactor                   Adafactor             `json:"adafactor"`
+	Adam                        Adam                  `json:"adam"`
+	ModelType                   string                `json:"modelType"`
+	ModelName                   string                `json:"modelName"`
+	NumBeams                    int                   `json:"numBeams"`
+	LengthPenalty               *float64              `json:"lengthPenalty,omitempty"`
+	TopK                        *float64              `json:"topK,omitempty"`
+	TopN                        *float64              `json:"topN,omitempty"`
+	OutputOrder                 *OutputComponentOrder `json:"outputOrder,omitempty"`
 }
 
 type OutputComponentOrder struct {

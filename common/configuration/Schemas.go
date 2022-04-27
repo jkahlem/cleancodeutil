@@ -32,14 +32,15 @@ const (
 	MethodContextSchemaPath           = "datasets/method-context.schema.json"
 
 	// Dataset schemas
-	DatasetConfigurationFileSchemaPath = "datasets/dataset/config-file.schema.json"
-	DatasetConfigurationBaseSchemaPath = "datasets/dataset/base.schema.json"
-	DatasetConfigurationSchemaPath     = "datasets/dataset/configuration.schema.json"
-	DatasetModelOptionsSchemaPath      = "datasets/dataset/model-options.schema.json"
-	DatasetSpecialOptionsSchemaPath    = "datasets/dataset/special-options.schema.json"
-	DatasetSizeSchemaPath              = "datasets/dataset/dataset-size.schema.json"
-	AdamConfigurationSchemaPath        = "datasets/dataset/adam.schema.json"
-	AdafactorConfigurationSchemaPath   = "datasets/dataset/adafactor.schema.json"
+	DatasetConfigurationFileSchemaPath    = "datasets/dataset/config-file.schema.json"
+	DatasetConfigurationBaseSchemaPath    = "datasets/dataset/base.schema.json"
+	DatasetConfigurationSchemaPath        = "datasets/dataset/configuration.schema.json"
+	DatasetModelOptionsSchemaPath         = "datasets/dataset/model-options.schema.json"
+	DatasetCreationOptionsSchemaPath      = "datasets/dataset/creation-options.schema.json"
+	DatasetPreprocessingOptionsSchemaPath = "datasets/dataset/preprocessing-options.schema.json"
+	DatasetSizeSchemaPath                 = "datasets/dataset/dataset-size.schema.json"
+	AdamConfigurationSchemaPath           = "datasets/dataset/adam.schema.json"
+	AdafactorConfigurationSchemaPath      = "datasets/dataset/adafactor.schema.json"
 
 	// Type class schemas
 	TypeClassConfigurationFileSchemaPath = "typeclasses/typeclass-config-file.schema.json"
@@ -101,7 +102,8 @@ func initializeSchemas() {
 		WithResources(DatasetConfigurationBaseSchemaPath,
 			DatasetConfigurationSchemaPath,
 			DatasetModelOptionsSchemaPath,
-			DatasetSpecialOptionsSchemaPath,
+			DatasetPreprocessingOptionsSchemaPath,
+			DatasetCreationOptionsSchemaPath,
 			DatasetSizeSchemaPath,
 			AdafactorConfigurationSchemaPath,
 			AdamConfigurationSchemaPath,
@@ -144,7 +146,8 @@ func initializeSchemas() {
 			DatasetConfigurationBaseSchemaPath,
 			DatasetConfigurationSchemaPath,
 			DatasetModelOptionsSchemaPath,
-			DatasetSpecialOptionsSchemaPath,
+			DatasetCreationOptionsSchemaPath,
+			DatasetPreprocessingOptionsSchemaPath,
 			DatasetSizeSchemaPath,
 			AdafactorConfigurationSchemaPath,
 			AdamConfigurationSchemaPath,

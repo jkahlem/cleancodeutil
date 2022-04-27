@@ -11,10 +11,10 @@
             "type": "object",
             "$ref": "../filter.schema.json"
         },
-        "specialOptions": {
+        "creationOptions": {
             "description": "Defines special filter options which are used for creating the dataset. Options are applied before passing to subsets, so overwriting them might not take effect.",
             "type": "object",
-            "$ref": "special-options.schema.json"
+            "$ref": "creation-options.schema.json"
         },
         "subsets": {
             "description": "A list of subsets which are saved in a sub directory under this dataset's name. As they are subsets, only methods passing the filter of this set will be passed to the subsets.",

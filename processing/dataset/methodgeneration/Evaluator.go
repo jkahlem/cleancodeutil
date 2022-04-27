@@ -127,7 +127,7 @@ func (e *Evaluator) loadEvaluationSet(path string) ([]predictor.Method, errors.E
 	if err != nil {
 		return nil, err
 	}
-	limit := e.Dataset.SpecialOptions.MaxEvaluationRows
+	limit := e.Dataset.PreprocessingOptions.MaxEvaluationRows
 	if limit <= 0 || limit > len(evaluationSet) {
 		limit = len(evaluationSet)
 	}

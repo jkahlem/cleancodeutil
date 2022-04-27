@@ -46,28 +46,28 @@ func TestOptionsMerging(t *testing.T) {
 	// then
 	if assert.NoError(t, err) {
 		assert.Equal(t, 3, destination.ModelOptions.NumOfEpochs)
-		assert.Equal(t, 3000, destination.SpecialOptions.MaxTrainingRows)
+		assert.Equal(t, 3000, destination.PreprocessingOptions.MaxTrainingRows)
 
 		// Subset should have the options from parent set and the directly set ones
 		subset := destination.Subsets[0]
 		assert.Equal(t, 3, subset.ModelOptions.NumOfEpochs)
-		assert.Equal(t, 3000, subset.SpecialOptions.MaxTrainingRows)
+		assert.Equal(t, 3000, subset.PreprocessingOptions.MaxTrainingRows)
 		assert.Equal(t, 32, subset.ModelOptions.BatchSize)
-		assert.Equal(t, true, subset.SpecialOptions.FilterDuplicates)
+		assert.Equal(t, true, subset.CreationOptions.FilterDuplicates)
 
 		// First subset of subset should overwrite the options from first layer
 		subsetOfSubset1 := subset.Subsets[0]
 		assert.Equal(t, 0, subsetOfSubset1.ModelOptions.NumOfEpochs)
-		assert.Equal(t, 0, subsetOfSubset1.SpecialOptions.MaxTrainingRows)
+		assert.Equal(t, 0, subsetOfSubset1.PreprocessingOptions.MaxTrainingRows)
 		assert.Equal(t, 32, subsetOfSubset1.ModelOptions.BatchSize)
-		assert.Equal(t, true, subsetOfSubset1.SpecialOptions.FilterDuplicates)
+		assert.Equal(t, true, subsetOfSubset1.CreationOptions.FilterDuplicates)
 
 		// Second subset of subset should completely copy the parent options
 		subsetOfSubset2 := subset.Subsets[1]
 		assert.Equal(t, 3, subsetOfSubset2.ModelOptions.NumOfEpochs)
-		assert.Equal(t, 3000, subsetOfSubset2.SpecialOptions.MaxTrainingRows)
+		assert.Equal(t, 3000, subsetOfSubset2.PreprocessingOptions.MaxTrainingRows)
 		assert.Equal(t, 32, subsetOfSubset2.ModelOptions.BatchSize)
-		assert.Equal(t, true, subsetOfSubset2.SpecialOptions.FilterDuplicates)
+		assert.Equal(t, true, subsetOfSubset2.CreationOptions.FilterDuplicates)
 	}
 }
 
@@ -79,8 +79,8 @@ func TestStuff(t *testing.T) {
 				NumReturnSequences: 1,
 			},
 		},
-		SpecialOptions: SpecialOptions{
-			MaxTrainingRows: 300,
+		CreationOptions: DatasetCreationOptions{
+			MaxTokensPerOutputSequence: 12,
 		},
 	}
 	alt := DatasetBase{
@@ -92,5 +92,5 @@ func TestStuff(t *testing.T) {
 
 	assert.Equal(t, altSet.NameRaw, "b")
 	assert.Equal(t, altSet.ModelOptions.NumReturnSequences, 1)
-	assert.Equal(t, altSet.SpecialOptions.MaxTrainingRows, 300)
+	assert.Equal(t, altSet.CreationOptions.MaxTokensPerOutputSequence, 300)
 }

@@ -671,6 +671,10 @@ func initSchemaMap() {
             "description": "Defines, what parts of the model should be evaluated. Defaults to best-model, which means that the finally saved/used model is used for evaluation. For epoch, each saved epoch checkpoint will be separately evaluated, while for steps, this will also be true for all saved steps (including epochs).",
             "type": "string",
             "enum": ["step", "epoch", "best-model"]
+        },
+        "preprocessingOptions": {
+            "type": "object",
+            "$ref": "preprocessing-options.schema.json"
         }
     },
     "required": ["name"]
@@ -688,10 +692,10 @@ func initSchemaMap() {
             "type": "object",
             "$ref": "../filter.schema.json"
         },
-        "specialOptions": {
+        "creationOptions": {
             "description": "Defines special filter options which are used for creating the dataset. Options are applied before passing to subsets, so overwriting them might not take effect.",
             "type": "object",
-            "$ref": "special-options.schema.json"
+            "$ref": "creation-options.schema.json"
         },
         "subsets": {
             "description": "A list of subsets which are saved in a sub directory under this dataset's name. As they are subsets, only methods passing the filter of this set will be passed to the subsets.",
@@ -792,11 +796,11 @@ func initSchemaMap() {
         }
     }
 }`
-	SchemaMap["datasets/dataset/special-options.schema.json"] = `{
+	SchemaMap["datasets/dataset/creation-options.schema.json"] = `{
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "special-options.schema.json",
-    "title": "Special options",
-    "description": "Defines special filter options which are used for creating the dataset. Options are applied before passing to subsets, so overwriting them might not take effect.",
+    "$id": "creation-options.schema.json",
+    "title": "Creation options",
+    "description": "Defines options concerning the creation of the dataset files. Changing the values will not take effect if a csv file for the dataset does already exist.",
     "type": "object",
     "properties": {
         "maxTokensPerOutputSequence": {
@@ -819,7 +823,16 @@ func initSchemaMap() {
             "description": "The size of the splitted datasets as a proportion. This property can be redefined by each subset.",
             "type": "object",
             "$ref": "dataset-size.schema.json"
-        },
+        }
+    }
+}`
+	SchemaMap["datasets/dataset/preprocessing-options.schema.json"] = `{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "preprocessing-options.schema.json",
+    "title": "Preprocessing options",
+    "description": "Defines some operations which might be applied to the data sent to the predictor after the actual dataset files were created.",
+    "type": "object",
+    "properties": {
         "maxTrainingRows": {
             "description": "The maximum number of rows used for training the dataset. If this value is 0 or unset or exceeds the number of rows, then all rows are used.",
             "type": "integer",

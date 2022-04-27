@@ -21,7 +21,7 @@ const (
 type Processor struct {
 	OutputDir       string
 	methodsSet      map[string]ReturnTypes
-	Options         configuration.SpecialOptions
+	Options         configuration.DatasetCreationOptions
 	typeClassMapper typeclasses.Mapper
 	typeLabelMapper *base.TypeLabelMapper
 	skip            bool
@@ -48,7 +48,7 @@ func (r ReturnTypes) MostUsedType() string {
 	return maxType
 }
 
-func NewProcessor(outputDir string, options configuration.SpecialOptions, tree *packagetree.Tree) (base.MethodProcessor, errors.Error) {
+func NewProcessor(outputDir string, options configuration.DatasetCreationOptions, tree *packagetree.Tree) (base.MethodProcessor, errors.Error) {
 	if options.DatasetSize.Training == 0 && options.DatasetSize.Evaluation == 0 {
 		return nil, errors.New("Dataset error", "invalid/unset dataset size values for set under '%s'", outputDir)
 	}

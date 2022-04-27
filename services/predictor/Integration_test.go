@@ -63,11 +63,11 @@ func TestGenerateMethods(t *testing.T) {
 				EmptyParameterListByKeyword: true,
 				NumReturnSequences:          1,
 			},
-		},
-		SpecialOptions: configuration.SpecialOptions{
-			SentenceFormatting: configuration.SentenceFormattingOptions{
-				MethodName:    true,
-				ParameterName: true,
+			PreprocessingOptions: configuration.PreprocessingOptions{
+				SentenceFormatting: configuration.SentenceFormattingOptions{
+					MethodName:    true,
+					ParameterName: true,
+				},
 			},
 		},
 	}).GenerateMethods([]MethodContext{context("ListItem", "compareTo"),
