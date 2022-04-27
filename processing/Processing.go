@@ -157,7 +157,7 @@ func (p *Processor) train() errors.Error {
 	/*if err := trainReturnTypes(); err != nil {
 		return err
 	}*/
-	return p.trainMethods()
+	return p.trainMethods() // TODO
 }
 
 func (p *Processor) trainReturnTypes() errors.Error {

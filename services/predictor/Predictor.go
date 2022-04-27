@@ -23,6 +23,7 @@ type MethodTypeMap map[PredictableMethodName]string
 
 // Interface used for the predictor to support multiple predictor implementations like the mock.
 type Predictor interface {
+	PredictorGlobal
 	// Starts the training and evaluation process.
 	TrainReturnTypes(methods []Method, labels [][]string) errors.Error
 	// Evaluates the passed methods and returns the scores for it
@@ -40,6 +41,10 @@ type Predictor interface {
 	ModelExists(modelType SupportedModels) (bool, errors.Error)
 	// Returns a list of checkpoints which can be used for OnCheckpoint
 	GetCheckpoints(modelType SupportedModels) ([]string, errors.Error)
+}
+
+type PredictorGlobal interface {
+	GetModels(modelType SupportedModels) ([]Model, errors.Error)
 }
 
 type predictor struct {
@@ -206,6 +211,10 @@ func (p *predictor) indexOfToken(order []string, token string) int {
 
 func (p *predictor) GetCheckpoints(modelType SupportedModels) ([]string, errors.Error) {
 	return remote().GetCheckpoints(p.getOptions(modelType))
+}
+
+func (p *predictor) GetModels(modelType SupportedModels) ([]Model, errors.Error) {
+	return remote().GetModels(modelType)
 }
 
 func (p *predictor) asCsvString(records [][]string) string {

@@ -81,3 +81,7 @@ func (p *mock) ModelExists(modelType SupportedModels) (bool, errors.Error) {
 func (p *mock) GetCheckpoints(modelType SupportedModels) ([]string, errors.Error) {
 	return nil, nil
 }
+
+func (p *mock) GetModels(modelType SupportedModels) ([]Model, errors.Error) {
+	return nil, nil
+}

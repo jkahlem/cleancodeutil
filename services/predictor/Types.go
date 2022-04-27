@@ -103,3 +103,8 @@ type Adam struct {
 	LearningRate *float64 `json:"learningRate,omitempty"`
 	Eps          *float64 `json:"eps,omitempty"`
 }
+
+type Model struct {
+	ModelName   string
+	Checkpoints []string
+}

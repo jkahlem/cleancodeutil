@@ -56,6 +56,7 @@ type Proxy struct {
 	Evaluate        func(evaluationData []Method, options Options) (Evaluation, errors.Error)              `rpcmethod:"evaluate" rpcparams:"evaluationData,options"`
 	Exists          func(options Options) (bool, errors.Error)                                             `rpcmethod:"exists" rpcparams:"options"`
 	GetCheckpoints  func(options Options) ([]string, errors.Error)                                         `rpcmethod:"getCheckpoints" rpcparams:"options"`
+	GetModels       func(modelType SupportedModels) ([]Model, errors.Error)                                `rpcmethod:"getModels" rpcparams:"modelType"`
 }
 
 // Adds a handler for the RecoverFailed event.

@@ -63,6 +63,14 @@ func (p *ProxyFacade) GetCheckpoints(options Options) ([]string, errors.Error) {
 	return p.Proxy.GetCheckpoints(options)
 }
 
+func (p *ProxyFacade) GetModels(modelType SupportedModels) ([]Model, errors.Error) {
+	if err := p.validate(p.Proxy.GetModels); err != nil {
+		var empty0 []Model
+		return empty0, err
+	}
+	return p.Proxy.GetModels(modelType)
+}
+
 func (p *ProxyFacade) validate(fn interface{}) errors.Error {
 	fnVal := reflect.ValueOf(fn)
 	if !fnVal.IsValid() || fnVal.IsZero() {
