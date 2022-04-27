@@ -249,6 +249,8 @@ func Close() {
 func ReportProblemWithError(err errors.Error, problemMessage string, args ...interface{}) {
 	if configuration.StrictMode() {
 		FatalError(err)
+	} else {
+		Error(err)
 	}
 	ReportProblem(problemMessage, args...)
 }
