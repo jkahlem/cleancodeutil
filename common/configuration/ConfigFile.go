@@ -90,8 +90,6 @@ type CrawlerConfiguration struct {
 }
 
 type PredictorConfiguration struct {
-	// The path to the script starting the python scripts
-	ScriptPath string `json:"scriptPath"`
 	// The host of the predictor
 	Host string `json:"host"`
 	// The port the predictor listens to for predictions
@@ -194,7 +192,6 @@ func createDefaultConfig() {
 		Predictor: PredictorConfiguration{
 			Port:         10000,
 			Host:         "localhost",
-			ScriptPath:   "",
 			SkipTraining: false,
 			UseMock:      false,
 		},

@@ -4,34 +4,26 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"os/exec"
 	"sync"
 
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/debug/errors"
-	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/transfer/rpc"
 )
 
 // A connection to the predictor using the TCP protocol.
 type PredictorConnection struct {
-	cmd            *exec.Cmd
 	conn           net.Conn
 	connReadMutex  sync.Mutex
 	connWriteMutex sync.Mutex
 }
 
-// Tries to connect to the predictor. If a local script for the predictor start is configured,
-// it starts first the script and try to connect to the predictor then (using localhost).
+// Tries to connect to the predictor.
 func (p *PredictorConnection) Connect() errors.Error {
 	if p.IsConnected() {
 		return errors.New(PredictorErrorTitle, "Connection is already established.")
 	}
-	if isPredictorScriptSet() {
-		return p.runScript()
-	} else {
-		return p.connectOverNetwork()
-	}
+	return p.connectOverNetwork()
 }
 
 // Returns true if the predictor is (still) connected.
@@ -82,22 +74,6 @@ func (p *PredictorConnection) Close() errors.Error {
 	return nil
 }
 
-// Runs the predictor script locally.
-func (p *PredictorConnection) runScript() errors.Error {
-	if !isPredictorScriptSet() {
-		return nil
-	}
-
-	log.Info("Run predictor locally")
-	p.cmd = exec.Command(configuration.PredictorScriptPath())
-	if err := p.cmd.Start(); err != nil {
-		return errors.Wrap(err, PredictorErrorTitle, "Could not start predictor script")
-	}
-
-	go p.cmd.Wait()
-	return p.connectOverNetwork()
-}
-
 func (p *PredictorConnection) connectOverNetwork() errors.Error {
 	p.connWriteMutex.Lock()
 	p.connReadMutex.Lock()
@@ -126,9 +102,6 @@ func (p *PredictorConnection) connectOverNetwork() errors.Error {
 }
 
 func (p *PredictorConnection) predictorAddress() string {
-	if isPredictorScriptSet() {
-		return fmt.Sprintf("%s:%d", "localhost", configuration.PredictorPort())
-	}
 	return fmt.Sprintf("%s:%d", configuration.PredictorHost(), configuration.PredictorPort())
 }
 

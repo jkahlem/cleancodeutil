@@ -5,10 +5,6 @@
     "description": "Contains configurations regarding the predictor, which holds the machine learning models.",
     "type": "object",
     "properties": {
-        "scriptPath": {
-            "description": "The path to the script starting the python scripts",
-            "type": "string"
-        },
         "host": {
             "description": "The host of the predictor",
             "type": "string"

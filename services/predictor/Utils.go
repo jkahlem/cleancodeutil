@@ -4,8 +4,6 @@ import (
 	"regexp"
 	"strings"
 	"unicode"
-
-	"returntypes-langserver/common/configuration"
 )
 
 type PredictableMethodName string
@@ -78,9 +76,4 @@ WordLoop:
 
 	sentence = sentence[:len(tokens)+offset]
 	return strings.Join(sentence, " ")
-}
-
-// Returns true if a predictor script is configured
-func isPredictorScriptSet() bool {
-	return len(configuration.PredictorScriptPath()) > 0
 }

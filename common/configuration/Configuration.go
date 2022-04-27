@@ -166,13 +166,6 @@ func ForceExtraction() bool {
 	return loadedConfig.ForceExtraction
 }
 
-func PredictorScriptPath() string {
-	if loadedConfig == nil || loadedConfig.Predictor.ScriptPath == "" {
-		return ""
-	}
-	return AbsolutePathFromGoProjectDir(loadedConfig.Predictor.ScriptPath)
-}
-
 func PredictorHost() string {
 	if loadedConfig == nil {
 		return ""
