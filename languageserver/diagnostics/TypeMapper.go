@@ -31,9 +31,9 @@ func (mapper *TypeMapper) createEmptyEntries(methods []*java.Method) {
 }
 
 func (mapper *TypeMapper) predictTypeMappings() errors.Error {
-	if set, ok := configuration.FindDatasetByReference(configuration.LanguageServerReturntypesDataset()); ok {
-		return predictor.OnDataset(set).PredictReturnTypesToMap(mapper.mappings)
+	if set, err := configuration.FindDatasetByReference(configuration.LanguageServerReturntypesDataset()); err != nil {
+		return err
 	} else {
-		return errors.New("Configuration Error", "Unknown dataset reference for returntypes: "+configuration.LanguageServerReturntypesDataset())
+		return predictor.OnDataset(set).PredictReturnTypesToMap(mapper.mappings)
 	}
 }

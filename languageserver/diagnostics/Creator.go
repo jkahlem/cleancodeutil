@@ -86,9 +86,9 @@ func (d *Creator) getTypeClassForMethodReturnType(method *java.Method) (string, 
 
 func (d *Creator) getTypeClassMapper() (typeclasses.Mapper, errors.Error) {
 	if d.typeClassMapper == nil {
-		set, ok := configuration.FindDatasetByReference(configuration.LanguageServerReturntypesDataset())
-		if !ok {
-			return nil, errors.New(DiagnosticsErrorTitle, "Returntypes validation dataset not found: %s", configuration.LanguageServerReturntypesDataset())
+		set, err := configuration.FindDatasetByReference(configuration.LanguageServerReturntypesDataset())
+		if err != nil {
+			return nil, errors.Wrap(err, DiagnosticsErrorTitle, "Returntypes validation dataset not found: %s", configuration.LanguageServerReturntypesDataset())
 		}
 		return typeclasses.New(d.tree, set.SpecialOptions.TypeClasses)
 	} else {

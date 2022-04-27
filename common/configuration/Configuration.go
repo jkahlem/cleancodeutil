@@ -7,8 +7,8 @@
 package configuration
 
 import (
-	"fmt"
 	"path/filepath"
+	"returntypes-langserver/common/debug/errors"
 	"strings"
 	"time"
 )
@@ -34,11 +34,13 @@ func Datasets() []Dataset {
 	return loadedConfig.Datasets
 }
 
-func FindDatasetByReference(reference string) (Dataset, bool) {
+var ErrDatasetNotFound = errors.ErrorId("Configuration", "Dataset not found")
+
+func FindDatasetByReference(reference string) (Dataset, errors.Error) {
 	return findDatasetByReference(strings.Split(reference, "/"), Datasets())
 }
 
-func findDatasetByReference(referenceParts []string, sets []Dataset) (Dataset, bool) {
+func findDatasetByReference(referenceParts []string, sets []Dataset) (Dataset, errors.Error) {
 	for _, set := range sets {
 		splittedName := strings.Split(referenceParts[0], ":")
 		if len(splittedName) == 1 {
@@ -47,27 +49,29 @@ func findDatasetByReference(referenceParts []string, sets []Dataset) (Dataset, b
 				if len(referenceParts) > 1 {
 					return findDatasetByReference(referenceParts[1:], set.Subsets)
 				} else {
-					return set, true
+					return set, nil
 				}
 			}
 		} else if len(splittedName) == 2 {
 			// one colon was present
 			setName, alternativeName := splittedName[0], splittedName[1]
 			if len(referenceParts) != 1 {
-				// TODO: Remove panic
-				panic(fmt.Errorf("Tried to access subset of alternative set, which is not supported."))
+				return Dataset{}, errors.New("Configuration", "Tried to access subset of alternative set, which is not supported.")
 			} else if set.NameRaw == setName {
 				alternative, ok := findDatasetAlternativeByName(alternativeName, set.Alternatives)
 				set.DatasetBase = alternative
-				return set, ok
+				if !ok {
+					return set, ErrDatasetNotFound.New()
+				}
+				return set, nil
 			} else {
-				return Dataset{}, false
+				return Dataset{}, ErrDatasetNotFound.New()
 			}
 		} else {
-			panic(fmt.Errorf("Unexpected amount of parts in reference name: `%s`. Expected 1 or 2, but got %d.", referenceParts[0], len(splittedName)))
+			return Dataset{}, errors.New("Configuration", "Unexpected amount of parts in reference name: `%s`. Expected 1 or 2, but got %d.", referenceParts[0], len(splittedName))
 		}
 	}
-	return Dataset{}, false
+	return Dataset{}, ErrDatasetNotFound.New()
 }
 
 func findDatasetAlternativeByName(name string, alternatives []DatasetBase) (DatasetBase, bool) {

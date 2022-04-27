@@ -316,38 +316,48 @@ func (ls *languageServer) RegisterCapability(registrations ...lsp.Registration) 
 
 // Creates a completion item
 func (ls *languageServer) CompleteMethodDefinition(method Method, doc *workspace.Document) ([]lsp.CompletionItem, errors.Error) {
-	// Generate parameter list
-	if set, ok := configuration.FindDatasetByReference(configuration.LanguageServerMethodGenerationDataset()); ok && doc != nil {
-		suggestions, err := predictor.OnDataset(set).GenerateMethods([]predictor.MethodContext{{
-			MethodName: method.Name.Content,
-			ClassName:  []string{method.ClassName},
-			IsStatic:   method.IsStatic,
-			Types:      nil, // TODO: Add context types
-		}})
-		if err != nil || len(suggestions) == 0 {
-			return nil, err
-		}
+	if doc == nil {
+		return nil, nil
+	}
 
-		items := make([]lsp.CompletionItem, len(suggestions[0]))
-		for i, suggestion := range suggestions[0] {
-			// convert output to completion item & return it
-			parameterList := ls.createTextEdit(ls.joinParameterList(suggestion.Parameters), lsp.Range{
-				Start: doc.ToPosition(method.RoundBraces.Range.Start + 1),
-				End:   doc.ToPosition(method.RoundBraces.Range.End - 1),
+	suggestions, err := ls.generateParameterLists(method)
+	if err != nil || len(suggestions) == 0 {
+		return nil, err
+	}
+
+	items := make([]lsp.CompletionItem, len(suggestions[0]))
+	for i, suggestion := range suggestions[0] {
+		// convert output to completion item & return it
+		parameterList := ls.createTextEdit(ls.joinParameterList(suggestion.Parameters), lsp.Range{
+			Start: doc.ToPosition(method.RoundBraces.Range.Start + 1),
+			End:   doc.ToPosition(method.RoundBraces.Range.End - 1),
+		})
+		if !method.Type.IsValid() && suggestion.ReturnType != "" {
+			// No return type provided: Insert return type before method name
+			returnType := ls.createTextEdit(suggestion.ReturnType+" ", lsp.Range{
+				Start: doc.ToPosition(method.Name.Range.Start),
+				End:   doc.ToPosition(method.Name.Range.Start),
 			})
-			if !method.Type.IsValid() && suggestion.ReturnType != "" {
-				// No return type provided: Insert return type before method name
-				returnType := ls.createTextEdit(suggestion.ReturnType+" ", lsp.Range{
-					Start: doc.ToPosition(method.Name.Range.Start),
-					End:   doc.ToPosition(method.Name.Range.Start),
-				})
-				items[i] = ls.createCompletionItem(parameterList, returnType)
-			} else {
-				items[i] = ls.createCompletionItem(parameterList)
-			}
+			items[i] = ls.createCompletionItem(parameterList, returnType)
+		} else {
+			items[i] = ls.createCompletionItem(parameterList)
 		}
 	}
 	return nil, nil
+}
+
+func (ls *languageServer) generateParameterLists(method Method) ([][]predictor.MethodValues, errors.Error) {
+	// Generate parameter list
+	set, err := configuration.FindDatasetByReference(configuration.LanguageServerMethodGenerationDataset())
+	if err != nil {
+		return nil, err
+	}
+
+	return predictor.OnDataset(set).GenerateMethods([]predictor.MethodContext{{
+		MethodName: method.Name.Content,
+		ClassName:  []string{method.ClassName},
+		IsStatic:   method.IsStatic,
+	}})
 }
 
 func (ls *languageServer) createCompletionItem(textEdits ...lsp.TextEdit) lsp.CompletionItem {
