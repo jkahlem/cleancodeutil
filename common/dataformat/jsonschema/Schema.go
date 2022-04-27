@@ -66,7 +66,10 @@ func (b *SchemaBuilder) Compile() (Schema, errors.Error) {
 			return Schema{}, err
 		}
 	}
-	if schema, err := b.compiler.Compile(joinURI(b.loader.Root(), b.topLevel)); err != nil {
+
+	if topLevelURI, err := joinURI(b.loader.Root(), b.topLevel); err != nil {
+		return Schema{}, err
+	} else if schema, err := b.compiler.Compile(topLevelURI); err != nil {
 		return Schema{}, errors.Wrap(err, "Error", "Could not compile schema files")
 	} else {
 		return Schema{
@@ -86,7 +89,9 @@ func (b *SchemaBuilder) MustCompile() Schema {
 func (b *SchemaBuilder) addResourceToCompiler(resource string) errors.Error {
 	if reader, err := b.loader.Load(resource); err != nil {
 		return err
-	} else if err := b.compiler.AddResource(joinURI(b.loader.Root(), resource), reader); err != nil {
+	} else if uri, err := joinURI(b.loader.Root(), resource); err != nil {
+		return err
+	} else if err := b.compiler.AddResource(uri, reader); err != nil {
 		return errors.Wrap(err, "Error", "Could not compile schema file")
 	}
 	return nil
@@ -159,12 +164,12 @@ func (l *MapResourceLoader) Load(relativePath string) (io.Reader, errors.Error) 
 	}
 }
 
-func joinURI(parts ...string) string {
-	p, e := url.Parse(parts[0])
-	if e != nil {
-		panic(e)
+func joinURI(parts ...string) (string, errors.Error) {
+	p, err := url.Parse(parts[0])
+	if err != nil {
+		return "", errors.Wrap(err, "Error", "Could not parse schema URI")
 	}
 	parts[0] = p.Path
 	p.Path = path.Join(parts...)
-	return p.String()
+	return p.String(), nil
 }
