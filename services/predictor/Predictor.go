@@ -71,6 +71,10 @@ func OnCheckpoint(dataset configuration.Dataset, checkpoint string) Predictor {
 	}
 }
 
+func Global() PredictorGlobal {
+	return &predictor{}
+}
+
 func (p *predictor) ModelExists(modelType SupportedModels) (bool, errors.Error) {
 	options, err := p.getOptions(modelType)
 	if err != nil {

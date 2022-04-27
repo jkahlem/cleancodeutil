@@ -213,6 +213,16 @@ func TestPredictUnstable(t *testing.T) {
 	assert.Len(t, elements, 2)
 }
 
+func TestGetModels(t *testing.T) {
+	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
+
+	values, err := Global().GetModels(MethodGenerator)
+
+	if assert.NoError(t, err) {
+		fmt.Println(values)
+	}
+}
+
 // Test helper functions
 
 func dataset() configuration.Dataset {

@@ -101,6 +101,6 @@ type Adam struct {
 }
 
 type Model struct {
-	ModelName   string
-	Checkpoints []string
+	ModelName   string   `json:"modelName"`
+	Checkpoints []string `json:"checkpoints"`
 }
