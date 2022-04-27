@@ -1,11 +1,13 @@
 package methodgeneration
 
 import (
-	"fmt"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
+	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/services/predictor"
 )
+
+var ErrCouldNotInitialize = errors.ErrorId("Evaluation", "Could not initialize rating method")
 
 type EvaluationSet struct {
 	Subsets  []EvaluationSet
@@ -27,21 +29,32 @@ func (e *EvaluationSet) AddMethod(m Method) {
 	}
 }
 
-func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
+func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) errors.Error {
 	e.Rater = make([]Metric, 0, len(metrics))
 	for _, metric := range metrics {
 		switch metric.Type() {
 		case configuration.RougeL:
-			e.Rater = append(e.Rater, NewRougeLRater(metric))
+			rater, err := NewRougeLRater(metric)
+			if err != nil {
+				return ErrCouldNotInitialize.Wrap(err)
+			}
+			e.Rater = append(e.Rater, rater)
 		case configuration.RougeS:
-			e.Rater = append(e.Rater, NewRougeSRater(metric))
+			rater, err := NewRougeSRater(metric)
+			if err != nil {
+				return ErrCouldNotInitialize.Wrap(err)
+			}
+			e.Rater = append(e.Rater, rater)
 		case configuration.RougeN:
-			e.Rater = append(e.Rater, NewRougeNRater(metric))
+			rater, err := NewRougeNRater(metric)
+			if err != nil {
+				return ErrCouldNotInitialize.Wrap(err)
+			}
+			e.Rater = append(e.Rater, rater)
 		case configuration.Bleu:
 			config, err := metric.AsBleu()
 			if err != nil {
-				// TODO: remove panic
-				panic(err)
+				return ErrCouldNotInitialize.Wrap(err)
 			}
 			e.Rater = append(e.Rater, &BleuRater{
 				config: config,
@@ -49,29 +62,26 @@ func (e *EvaluationSet) initRater(metrics []configuration.MetricConfiguration) {
 		case configuration.TokenCounter:
 			_, err := metric.AsTokenCounter()
 			if err != nil {
-				// TODO: remove panic
-				panic(err)
+				return ErrCouldNotInitialize.Wrap(err)
 			}
 			e.Rater = append(e.Rater, &TokenCounter{})
 		case configuration.ExactMatch:
 			_, err := metric.AsExactMatch()
 			if err != nil {
-				// TODO: remove panic
-				panic(err)
+				return ErrCouldNotInitialize.Wrap(err)
 			}
 			e.Rater = append(e.Rater, &ExactRater{})
 		case configuration.CompilabilityMatch:
 			_, err := metric.AsCompilabilityMatch()
 			if err != nil {
-				// TODO: remove panic
-				panic(err)
+				return ErrCouldNotInitialize.Wrap(err)
 			}
 			e.Rater = append(e.Rater, &CompilabilityRater{})
 		default:
-			// TODO: remove panic
-			panic(fmt.Errorf("Unknown metric: %s", metric))
+			return ErrCouldNotInitialize.Wrap(errors.New("Evaluation", "Unknown metric: %s", metric))
 		}
 	}
+	return nil
 }
 
 func (e *EvaluationSet) IsMethodAccepted(m Method) bool {

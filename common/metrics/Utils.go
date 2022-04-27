@@ -1,6 +1,7 @@
 package metrics
 
 import (
+	"fmt"
 	"math"
 	"regexp"
 	"strings"
@@ -73,7 +74,7 @@ func countWords(ngram Ngram) WordCount {
 
 func getSkipGrams(target []string, n int) Ngram {
 	if len(target) < 2 {
-		panic("Cannot build skip grams for sentence with lesser than 2 words")
+		panic(fmt.Sprintf("invalid skip gram value: %d", n))
 	}
 	result := make([]string, 0, len(target))
 	for i, word := range target {

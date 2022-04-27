@@ -72,26 +72,39 @@ func OnCheckpoint(dataset configuration.Dataset, checkpoint string) Predictor {
 }
 
 func (p *predictor) ModelExists(modelType SupportedModels) (bool, errors.Error) {
-	options := p.getOptions(modelType)
+	options, err := p.getOptions(modelType)
+	if err != nil {
+		return false, err
+	}
 	return remote().Exists(options)
 }
 
 func (p *predictor) TrainReturnTypes(methods []Method, labels [][]string) errors.Error {
-	options := p.getOptions(ReturnTypesPrediction)
+	options, err := p.getOptions(ReturnTypesPrediction)
+	if err != nil {
+		return err
+	}
 	options.LabelsCsv = p.asCsvString(labels)
 	FormatMethods(methods, p.config.SpecialOptions.SentenceFormatting)
 	return remote().Train(methods, options)
 }
 
 func (p *predictor) EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error) {
-	options := p.getOptions(ReturnTypesPrediction)
+	options, err := p.getOptions(ReturnTypesPrediction)
+	if err != nil {
+		return Evaluation{}, err
+	}
 	options.LabelsCsv = p.asCsvString(labels)
 	FormatMethods(evaluationSet, p.config.SpecialOptions.SentenceFormatting)
 	return remote().Evaluate(evaluationSet, options)
 }
 
 func (p *predictor) PredictReturnTypes(methodNames []PredictableMethodName) ([]MethodValues, errors.Error) {
-	options := p.getOptions(ReturnTypesPrediction)
+	options, err := p.getOptions(ReturnTypesPrediction)
+	if err != nil {
+		return nil, err
+	}
+
 	contexts := make([]MethodContext, len(methodNames))
 	for i, name := range methodNames {
 		contexts[i].MethodName = string(name)
@@ -128,35 +141,53 @@ func (p *predictor) getMethodNamesInsideOfMap(mapping MethodTypeMap) []Predictab
 }
 
 func (p *predictor) TrainMethods(trainingSet []Method) errors.Error {
+	options, err := p.getOptions(MethodGenerator)
+	if err != nil {
+		return err
+	}
+
 	FormatMethods(trainingSet, p.config.SpecialOptions.SentenceFormatting)
 	if !p.config.ModelOptions.UseContextTypes {
 		for i := range trainingSet {
 			trainingSet[i].Context.Types = nil
 		}
 	}
-	return remote().Train(trainingSet, p.getOptions(MethodGenerator))
+	return remote().Train(trainingSet, options)
 }
 
 func (p *predictor) GenerateMethods(contexts []MethodContext) ([][]MethodValues, errors.Error) {
+	options, err := p.getOptions(MethodGenerator)
+	if err != nil {
+		return nil, err
+	}
+
 	FormatContexts(contexts, p.config.SpecialOptions.SentenceFormatting)
 	if !p.config.ModelOptions.UseContextTypes {
 		for i := range contexts {
 			contexts[i].Types = nil
 		}
 	}
-	return remote().PredictMultiple(contexts, p.getOptions(MethodGenerator))
+	return remote().PredictMultiple(contexts, options)
 }
 
-func (p *predictor) getOptions(modelType SupportedModels) Options {
+func (p *predictor) getOptions(modelType SupportedModels) (Options, errors.Error) {
+	modelOptions, err := p.mapModelOptions(p.config.ModelOptions)
+	if err != nil {
+		return Options{}, err
+	}
 	return Options{
 		Identifier:   p.config.QualifiedIdentifier(),
 		Type:         modelType,
-		ModelOptions: p.mapModelOptions(p.config.ModelOptions),
+		ModelOptions: modelOptions,
 		Checkpoint:   p.checkpoint,
-	}
+	}, nil
 }
 
-func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOptions {
+func (p *predictor) mapModelOptions(options configuration.ModelOptions) (ModelOptions, errors.Error) {
+	outputOrder, err := p.mapOutputOrder(options.OutputOrder)
+	if err != nil {
+		return ModelOptions{}, err
+	}
 	modelOptions := ModelOptions{
 		BatchSize:                   options.BatchSize,
 		NumOfEpochs:                 options.NumOfEpochs,
@@ -171,46 +202,63 @@ func (p *predictor) mapModelOptions(options configuration.ModelOptions) ModelOpt
 		TopK:                        options.TopK,
 		TopN:                        options.TopN,
 		LengthPenalty:               options.LengthPenalty,
-		OutputOrder:                 p.mapOutputOrder(options.OutputOrder),
+		OutputOrder:                 outputOrder,
 	}
 	if options.UseContextTypes {
 		modelOptions.DefaultContextTypes = configuration.PredictorDefaultContextTypes()
 	}
-	return modelOptions
+	return modelOptions, nil
 }
 
 const OrderReturnToken = "returnType"
 const OrderParameterNameToken = "parameterName"
 const OrderParameterTypeToken = "parameterType"
 
-func (p *predictor) mapOutputOrder(order []string) *OutputComponentOrder {
+func (p *predictor) mapOutputOrder(order []string) (*OutputComponentOrder, errors.Error) {
 	if len(order) == 0 {
-		return nil
+		return nil, nil
 	}
-	returnTypeIndex := p.indexOfToken(order, OrderReturnToken)
-	parameterNameIndex := p.indexOfToken(order, OrderParameterNameToken)
-	parameterTypeIndex := p.indexOfToken(order, OrderParameterTypeToken)
+	returnTypeIndex, err := p.indexOfToken(order, OrderReturnToken)
+	if err != nil {
+		return nil, err
+	}
+
+	parameterNameIndex, err := p.indexOfToken(order, OrderParameterNameToken)
+	if err != nil {
+		return nil, err
+	}
+
+	parameterTypeIndex, err := p.indexOfToken(order, OrderParameterTypeToken)
+	if err != nil {
+		return nil, err
+	}
+
 	if (returnTypeIndex < parameterNameIndex) != (returnTypeIndex < parameterTypeIndex) {
-		panic(errors.New("Error", "Output order pattern: return type token must not come between parameter tokens."))
+		return nil, errors.New("Error", "Output order pattern: return type token must not come between parameter tokens.")
 	}
 	return &OutputComponentOrder{
 		ReturnType:    returnTypeIndex,
 		ParameterName: parameterNameIndex,
 		ParameterType: parameterTypeIndex,
-	}
+	}, nil
 }
 
-func (p *predictor) indexOfToken(order []string, token string) int {
+func (p *predictor) indexOfToken(order []string, token string) (int, errors.Error) {
 	for i, t := range order {
 		if token == t {
-			return i
+			return i, nil
 		}
 	}
-	panic(errors.New("Error", "Output order pattern must contain a '%s' token, but it was not found.", token))
+	return 0, errors.New("Error", "Output order pattern must contain a '%s' token, but it was not found.", token)
 }
 
 func (p *predictor) GetCheckpoints(modelType SupportedModels) ([]string, errors.Error) {
-	return remote().GetCheckpoints(p.getOptions(modelType))
+	options, err := p.getOptions(MethodGenerator)
+	if err != nil {
+		return nil, err
+	}
+
+	return remote().GetCheckpoints(options)
 }
 
 func (p *predictor) GetModels(modelType SupportedModels) ([]Model, errors.Error) {

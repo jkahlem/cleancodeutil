@@ -102,7 +102,10 @@ func (e *Evaluator) evaluateCheckpoint(path, checkpoint string) errors.Error {
 	} else {
 		e.resultWriter = writer
 	}
-	evalset := e.getEvaluationSetConfig()
+	evalset, err := e.getEvaluationSetConfig()
+	if err != nil {
+		return err
+	}
 
 	if err := e.evaluateMethods(path, checkpoint, evalset); err != nil {
 		return err
@@ -194,26 +197,32 @@ func (e *Evaluator) formatString(str string) string {
 	return strings.ToLower(predictor.SplitMethodNameToSentence(str))
 }
 
-func (e *Evaluator) getEvaluationSetConfig() *EvaluationSet {
-	set := e.buildEvaluationSet(configuration.EvaluationSet{
+func (e *Evaluator) getEvaluationSetConfig() (*EvaluationSet, errors.Error) {
+	set, err := e.buildEvaluationSet(configuration.EvaluationSet{
 		Subsets: configuration.EvaluationSubsets(),
 	})
-	return &set
+	return &set, err
 }
 
-func (e *Evaluator) buildEvaluationSet(setConfiguration configuration.EvaluationSet) EvaluationSet {
+func (e *Evaluator) buildEvaluationSet(setConfiguration configuration.EvaluationSet) (EvaluationSet, errors.Error) {
 	set := EvaluationSet{
 		Subsets:  make([]EvaluationSet, 0),
 		Filter:   setConfiguration.Filter,
 		Name:     setConfiguration.Name,
 		Examples: setConfiguration.Examples,
 	}
-	set.initRater(setConfiguration.Metrics)
-
-	for _, subset := range setConfiguration.Subsets {
-		set.Subsets = append(set.Subsets, e.buildEvaluationSet(subset))
+	if err := set.initRater(setConfiguration.Metrics); err != nil {
+		return set, err
 	}
-	return set
+
+	for _, subsetConfig := range setConfiguration.Subsets {
+		subset, err := e.buildEvaluationSet(subsetConfig)
+		if err != nil {
+			return set, err
+		}
+		set.Subsets = append(set.Subsets, subset)
+	}
+	return set, nil
 }
 
 func (e *Evaluator) isEvaluationResultPresent(path string) bool {

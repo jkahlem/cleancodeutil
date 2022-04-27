@@ -2,9 +2,11 @@ package methodgeneration
 
 import (
 	"fmt"
+	"math"
 	"regexp"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/excel"
+	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/metrics"
 	"returntypes-langserver/common/utils"
 	"returntypes-langserver/services/predictor"
@@ -93,11 +95,10 @@ type RougeRater struct {
 	name      string
 }
 
-func NewRougeLRater(config configuration.MetricConfiguration) *RougeRater {
+func NewRougeLRater(config configuration.MetricConfiguration) (*RougeRater, errors.Error) {
 	c, err := config.AsRougeL()
 	if err != nil {
-		// TODO: remove panic
-		panic(err)
+		return nil, err
 	}
 	return &RougeRater{
 		name: "Rouge-L",
@@ -105,14 +106,13 @@ func NewRougeLRater(config configuration.MetricConfiguration) *RougeRater {
 			return metrics.RougeL(m.ExpectedDefinition, []*metrics.Sentence{m.GeneratedDefinition})
 		},
 		measure: c.Measure,
-	}
+	}, nil
 }
 
-func NewRougeNRater(config configuration.MetricConfiguration) *RougeRater {
+func NewRougeNRater(config configuration.MetricConfiguration) (*RougeRater, errors.Error) {
 	c, err := config.AsRougeN()
 	if err != nil {
-		// TODO: remove panic
-		panic(err)
+		return nil, err
 	}
 	return &RougeRater{
 		name: fmt.Sprintf("Rouge-N (N = %d)", c.N),
@@ -120,14 +120,13 @@ func NewRougeNRater(config configuration.MetricConfiguration) *RougeRater {
 			return metrics.RougeN(m.ExpectedDefinition, []*metrics.Sentence{m.GeneratedDefinition}, c.N)
 		},
 		measure: c.Measure,
-	}
+	}, nil
 }
 
-func NewRougeSRater(config configuration.MetricConfiguration) *RougeRater {
+func NewRougeSRater(config configuration.MetricConfiguration) (*RougeRater, errors.Error) {
 	c, err := config.AsRougeS()
 	if err != nil {
-		// TODO: remove panic
-		panic(err)
+		return nil, err
 	}
 	return &RougeRater{
 		name: fmt.Sprintf("Rouge-S (N = %d)", c.SkipN),
@@ -135,7 +134,7 @@ func NewRougeSRater(config configuration.MetricConfiguration) *RougeRater {
 			return metrics.RougeS(m.ExpectedDefinition, []*metrics.Sentence{m.GeneratedDefinition}, c.SkipN)
 		},
 		measure: c.Measure,
-	}
+	}, nil
 }
 
 func (r *RougeRater) Rate(m Method) {
@@ -160,8 +159,7 @@ func (r *RougeRater) score() float64 {
 	switch r.measure.Type() {
 	case configuration.FScore:
 		if fscore, err := r.measure.AsFScore(); err != nil {
-			// TODO: remove panic
-			panic(err)
+			return math.NaN()
 		} else {
 			return metrics.FScore(r.precision/r.count, r.recall/r.count, fscore.Beta)
 		}

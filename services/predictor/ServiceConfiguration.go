@@ -43,7 +43,6 @@ func serviceConfiguration() rpc.ServiceConfiguration {
 		},
 		OnInterfaceCreationError: func(err errors.Error) {
 			log.FatalError(err)
-			panic(err)
 		},
 		UseMock: configuration.PredictorUseMock(),
 	}

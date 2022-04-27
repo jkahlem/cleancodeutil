@@ -92,8 +92,8 @@ func (p *DatasetProcessor) initializeModelProcessor(modelType configuration.Mode
 }
 
 func (p *DatasetProcessor) Process(method csv.Method) errors.Error {
-	if !p.isIncluded(method) {
-		return nil
+	if included, err := p.isIncluded(method); !included {
+		return err
 	}
 
 	if p.ModelProcessor != nil {
@@ -126,9 +126,9 @@ func (p *DatasetProcessor) Close() errors.Error {
 	return nil
 }
 
-func (p *DatasetProcessor) isIncluded(method csv.Method) bool {
+func (p *DatasetProcessor) isIncluded(method csv.Method) (bool, errors.Error) {
 	if !csv.IsMethodIncluded(method, p.TargetSet.Filter) {
-		return false
+		return false, nil
 	}
 	if p.TargetSet.SpecialOptions.MaxTokensPerOutputSequence != 0 {
 		parameters, err := java.ParseParameterList(method.Parameters)
@@ -136,14 +136,13 @@ func (p *DatasetProcessor) isIncluded(method csv.Method) bool {
 			outputSequence := p.getOutputSequence(parameters, method.ReturnType)
 			tokens := metrics.TokenizeSentence(predictor.SplitMethodNameToSentence(outputSequence))
 			if len(tokens) > p.TargetSet.SpecialOptions.MaxTokensPerOutputSequence {
-				return false
+				return false, nil
 			}
 		} else {
-			fmt.Printf("%v\n", method.Parameters)
-			panic(err)
+			return false, err
 		}
 	}
-	return true
+	return true, nil
 }
 
 func (p *DatasetProcessor) getOutputSequence(parameters []java.Parameter, returnType string) string {
