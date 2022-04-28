@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+const EmptyTokenPlaceholder = "<?>"
+
 func CreateMethodDefinition(context predictor.MethodContext, value predictor.MethodValues) string {
 	returnType := ConcatTypeName(split(value.ReturnType))
 	methodName := ConcatByLowerCamelCase(split(context.MethodName))
@@ -22,7 +24,7 @@ func split(str string) []string {
 
 func ConcatTypeName(typeName []string) string {
 	if len(typeName) == 0 {
-		return ""
+		return EmptyTokenPlaceholder
 	}
 	if len(typeName) == 1 || typeName[1] == "[]" {
 		switch typeName[0] {
@@ -43,7 +45,11 @@ func ConcatParametersToList(parameters []predictor.Parameter) string {
 		if par.IsArray {
 			output += "[]"
 		}
-		output += " " + ConcatByLowerCamelCase(split(par.Name))
+		parName := ConcatByLowerCamelCase(split(par.Name))
+		if parName == "" {
+			parName = EmptyTokenPlaceholder
+		}
+		output += " " + parName
 	}
 	return output
 }

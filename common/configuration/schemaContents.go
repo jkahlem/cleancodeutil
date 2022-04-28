@@ -589,7 +589,30 @@ func initSchemaMap() {
             "type": "array",
             "items": {
                 "type": ["object", "string"],
-                "$ref": "method-context.schema.json"
+                "anyOf": [{
+                    "type": ["object", "string"],
+                    "properties": {
+                        "label": {
+                            "type": "string"
+                        }
+                    },
+                    "$ref": "method-context.schema.json"
+                }, {
+                    "type": "object",
+                    "properties": {
+                        "label": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "type": "array",
+                            "items": {
+                                "type": ["object", "string"],
+                                "$ref": "method-context.schema.json"
+                            }
+                        }
+                    },
+                    "required": ["examples"]
+                }]
             }
         },
         "subsets": {
@@ -606,7 +629,7 @@ func initSchemaMap() {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "method-context.schema.json",
     "title": "Method context",
-    "description": "Input data which is used to predict the expected values. May also be a string with the format \"(static )({{ClassName}}.){{MethodName}}\".",
+    "description": "Input data which is used to predict the expected values. May also be a string with the format \"({{Label}}:)(static )({{ClassName}}.){{MethodName}}\".",
     "type": ["object", "string"],
     "properties": {
         "methodName": {
@@ -621,7 +644,7 @@ func initSchemaMap() {
             "pattern": "^[a-zA-Z][a-zA-Z0-9_]*$"
         }
     },
-    "pattern": "^(static )?([a-zA-Z][a-zA-Z0-9_]*\\.)?[a-zA-Z][a-zA-Z0-9_]*$",
+    "pattern": "^(.+:)?(static )?([a-zA-Z][a-zA-Z0-9_]*\\.)*[a-zA-Z][a-zA-Z0-9_]*$",
     "required": ["methodName"]
 }`
 	SchemaMap["datasets/dataset/config-file.schema.json"] = `{
