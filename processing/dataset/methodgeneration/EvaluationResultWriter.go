@@ -53,7 +53,7 @@ func (w *EvaluationResultWriter) WriteExamples(exampleDefinitions []configuratio
 	sheet := "Examples"
 	w.file.NewSheet(sheet)
 	w.file.SetColWidth(sheet, excel.GetColumnIdentifier(0), excel.GetColumnIdentifier(0), 50)
-	w.file.SetColWidth(sheet, excel.GetColumnIdentifier(1), excel.GetColumnIdentifier(1), 80)
+	w.file.SetColWidth(sheet, excel.GetColumnIdentifier(2), excel.GetColumnIdentifier(2), 80)
 
 	cursor := excel.NewCursor(w.file, "Examples")
 	cursor.SetStyle(w.headerStyle.Id())

@@ -63,13 +63,13 @@ type ExampleGroup struct {
 	Examples []MethodExample `json:"examples"`
 }
 
-var MethodExampleMatcher = regexp.MustCompile("^(.+:)?(static )?([a-zA-Z][a-zA-Z0-9_]*\\.)*([a-zA-Z][a-zA-Z0-9_]*)$")
+var MethodExampleMatcher = regexp.MustCompile("^(.+:)?(static )?(([a-zA-Z][a-zA-Z0-9_]*\\.)*)([a-zA-Z][a-zA-Z0-9_]*)$")
 
 func (g ExampleGroup) DecodeValue(value interface{}) (interface{}, error) {
 	if pattern, ok := value.(string); ok {
 		// The value is just a pattern
 		match := MethodExampleMatcher.FindStringSubmatch(pattern)
-		if len(match) != 5 {
+		if len(match) != 6 {
 			return nil, fmt.Errorf("could not parse method example pattern: '%s'", pattern)
 		}
 		if match[1] != "" {
@@ -115,7 +115,7 @@ func (g ExampleGroup) decodeExample(value interface{}) (MethodExample, error) {
 func (e MethodExample) DecodeValue(value interface{}) (interface{}, error) {
 	if pattern, ok := value.(string); ok {
 		match := MethodExampleMatcher.FindStringSubmatch(pattern)
-		if len(match) != 5 {
+		if len(match) != 6 {
 			return nil, fmt.Errorf("could not parse method example pattern: '%s'", pattern)
 		}
 		if match[2] != "" {
@@ -124,7 +124,7 @@ func (e MethodExample) DecodeValue(value interface{}) (interface{}, error) {
 		if match[3] != "" {
 			e.ClassName = strings.TrimRight(match[3], ".")
 		}
-		e.MethodName = match[4]
+		e.MethodName = match[5]
 		return e, nil
 	}
 	return value, nil
