@@ -14,7 +14,7 @@ type EvaluationSet struct {
 	Rater    []Metric
 	Filter   configuration.Filter
 	Name     string
-	Examples []configuration.MethodExample
+	Examples []configuration.ExampleGroup
 }
 
 func (e *EvaluationSet) AddMethod(m Method) {
@@ -88,13 +88,16 @@ func (e *EvaluationSet) IsMethodAccepted(m Method) bool {
 	return csv.IsMethodIncluded(csv.Method{MethodName: m.Name}, e.Filter)
 }
 
-func (e *EvaluationSet) GetExampleMethods() []predictor.MethodContext {
-	methods := mapExamplesToMethod(e.Examples)
+func (e *EvaluationSet) GetExampleMethods() ([]predictor.MethodContext, []configuration.MethodExample) {
+	methods, examples := mapExampleGroupsToMethod(e.Examples)
 	for i := range e.Subsets {
-		subsetMethods := e.Subsets[i].GetExampleMethods()
+		subsetMethods, subsetExamples := e.Subsets[i].GetExampleMethods()
 		if len(subsetMethods) > 0 {
 			methods = append(methods, subsetMethods...)
 		}
+		if len(subsetExamples) > 0 {
+			examples = append(examples, subsetExamples...)
+		}
 	}
-	return methods
+	return methods, examples
 }

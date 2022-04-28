@@ -48,30 +48,83 @@ type EvaluationSet struct {
 	Metrics      []MetricConfiguration `json:"metrics"`
 	Filter       Filter                `json:"filter"`
 	TargetModels []string              `json:"targetModels"`
-	Examples     []MethodExample       `json:"examples"`
+	Examples     []ExampleGroup        `json:"examples"`
 }
 
 type MethodExample struct {
 	MethodName string `json:"methodName"`
 	Static     bool   `json:"static"`
 	ClassName  string `json:"className"`
+	Label      string `json:"label"`
 }
 
-var MethodExampleMatcher = regexp.MustCompile("^(static )?([a-zA-Z][a-zA-Z0-9_]*\\.)?([a-zA-Z][a-zA-Z0-9_]*)$")
+type ExampleGroup struct {
+	Label    string          `json:"label"`
+	Examples []MethodExample `json:"examples"`
+}
+
+var MethodExampleMatcher = regexp.MustCompile("^(.+:)?(static )?([a-zA-Z][a-zA-Z0-9_]*\\.)*([a-zA-Z][a-zA-Z0-9_]*)$")
+
+func (g ExampleGroup) DecodeValue(value interface{}) (interface{}, error) {
+	if pattern, ok := value.(string); ok {
+		// The value is just a pattern
+		match := MethodExampleMatcher.FindStringSubmatch(pattern)
+		if len(match) != 5 {
+			return nil, fmt.Errorf("could not parse method example pattern: '%s'", pattern)
+		}
+		if match[1] != "" {
+			g.Label = match[1][:len(match[1])-1]
+		}
+		if example, err := g.decodeExample(value); err != nil {
+			return value, err
+		} else {
+			g.Examples = []MethodExample{example}
+		}
+		return g, nil
+	} else if jsonObj, ok := value.(map[string]interface{}); ok {
+		if _, hasExample := jsonObj["examples"]; hasExample {
+			// The value is already an example group
+			return value, nil
+		}
+		// Otherwise, the value is a simple example definition
+		if jsonObj["label"] != nil {
+			if label, ok := jsonObj["label"].(string); ok {
+				g.Label = label
+			}
+		}
+		if example, err := g.decodeExample(value); err != nil {
+			return value, err
+		} else {
+			g.Examples = []MethodExample{example}
+		}
+	}
+	return value, nil
+}
+
+func (g ExampleGroup) decodeExample(value interface{}) (MethodExample, error) {
+	decoded, err := (MethodExample{}).DecodeValue(value)
+	if err != nil {
+		return MethodExample{}, err
+	} else if example, ok := decoded.(MethodExample); !ok {
+		return MethodExample{}, fmt.Errorf("invalid example definition")
+	} else {
+		return example, nil
+	}
+}
 
 func (e MethodExample) DecodeValue(value interface{}) (interface{}, error) {
 	if pattern, ok := value.(string); ok {
 		match := MethodExampleMatcher.FindStringSubmatch(pattern)
-		if len(match) != 4 {
+		if len(match) != 5 {
 			return nil, fmt.Errorf("could not parse method example pattern: '%s'", pattern)
 		}
-		if match[1] != "" {
+		if match[2] != "" {
 			e.Static = true
 		}
-		if match[2] != "" {
-			e.ClassName = strings.TrimRight(match[2], ".")
+		if match[3] != "" {
+			e.ClassName = strings.TrimRight(match[3], ".")
 		}
-		e.MethodName = match[3]
+		e.MethodName = match[4]
 		return e, nil
 	}
 	return value, nil

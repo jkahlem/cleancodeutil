@@ -263,14 +263,14 @@ func (e *Evaluator) writeScoreOutput(path string, evalset *EvaluationSet) errors
 }
 
 func (e *Evaluator) writeExampleOutput(path string, evalset *EvaluationSet) errors.Error {
-	examples := evalset.GetExampleMethods()
-	if len(examples) == 0 {
+	examplesContexts, examples := evalset.GetExampleMethods()
+	if len(examplesContexts) == 0 {
 		return nil
 	}
-	generated, err := predictor.OnDataset(e.Dataset).GenerateMethods(examples)
+	generated, err := predictor.OnDataset(e.Dataset).GenerateMethods(examplesContexts)
 	if err != nil {
 		return err
 	}
 
-	return e.resultWriter.WriteExamples(examples, generated)
+	return e.resultWriter.WriteExamples(examples, examplesContexts, generated)
 }

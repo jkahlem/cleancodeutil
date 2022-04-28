@@ -49,6 +49,21 @@ func mapToParameters(rawParameters []string) ([]predictor.Parameter, errors.Erro
 	return output, nil
 }
 
+func mapExampleGroupsToMethod(examples []configuration.ExampleGroup) ([]predictor.MethodContext, []configuration.MethodExample) {
+	outputContexts := make([]predictor.MethodContext, 0, len(examples))
+	outputExamples := make([]configuration.MethodExample, 0, len(examples))
+	for _, exampleGroup := range examples {
+		for i := range exampleGroup.Examples {
+			if exampleGroup.Examples[i].Label == "" {
+				exampleGroup.Examples[i].Label = exampleGroup.Label
+			}
+		}
+		outputContexts = append(outputContexts, mapExamplesToMethod(exampleGroup.Examples)...)
+		outputExamples = append(outputExamples, exampleGroup.Examples...)
+	}
+	return outputContexts, outputExamples
+}
+
 func mapExamplesToMethod(examples []configuration.MethodExample) []predictor.MethodContext {
 	output := make([]predictor.MethodContext, len(examples))
 	for i := range examples {

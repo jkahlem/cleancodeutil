@@ -31,7 +31,30 @@
             "type": "array",
             "items": {
                 "type": ["object", "string"],
-                "$ref": "method-context.schema.json"
+                "anyOf": [{
+                    "type": ["object", "string"],
+                    "properties": {
+                        "label": {
+                            "type": "string"
+                        }
+                    },
+                    "$ref": "method-context.schema.json"
+                }, {
+                    "type": "object",
+                    "properties": {
+                        "label": {
+                            "type": "string"
+                        },
+                        "examples": {
+                            "type": "array",
+                            "items": {
+                                "type": ["object", "string"],
+                                "$ref": "method-context.schema.json"
+                            }
+                        }
+                    },
+                    "required": ["examples"]
+                }]
             }
         },
         "subsets": {
