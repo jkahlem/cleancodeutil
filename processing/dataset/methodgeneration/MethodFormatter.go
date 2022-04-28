@@ -15,7 +15,7 @@ func CreateMethodDefinition(context predictor.MethodContext, value predictor.Met
 	if context.IsStatic {
 		static = "static "
 	}
-	return "public " + static + returnType + " " + methodName + "(" + parameterList + ") {}"
+	return static + returnType + " " + methodName + "(" + parameterList + ")"
 }
 
 func split(str string) []string {
