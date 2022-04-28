@@ -17,7 +17,7 @@ import (
 )
 
 func CreateOutput(projects []projects.Project) errors.Error {
-	log.Info("Write output to excel file ...\n")
+	log.Info("Write methods to excel files ...\n")
 
 	methods, err := csv.NewFileReader(configuration.MethodsWithReturnTypesOutputPath()).ReadMethodRecords()
 	if err != nil {

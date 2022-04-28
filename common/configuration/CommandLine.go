@@ -11,6 +11,7 @@ func initCommandLineArguments() {
 	flag.StringVar(&loadedConfig.MainOutputDir, "output", "", "the main output dir containing some processing results and the final dataset")
 	flag.BoolVar(&loadedConfig.ForceExtraction, "force", false, "if set, always tries to recollect data from crawler output")
 	flag.StringVar(&loadedConfig.DatasetPrefix, "prefix", "", "additional prefix used for dataset identifiers")
+	flag.StringVar(&loadedConfig.ContinueTraining, "continue", "", "names a dataset for which training should be continued if it does already exist")
 	flag.Func("model", fmt.Sprintf("defines which model type should be used ('%s' or '%s')", MethodGenerator, ReturnTypesValidator), setModelType)
 }
 

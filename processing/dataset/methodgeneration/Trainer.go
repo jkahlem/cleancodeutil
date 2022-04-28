@@ -23,9 +23,10 @@ func NewTrainer(dataset configuration.Dataset) base.Trainer {
 }
 
 func (t *Trainer) Train(path string) errors.Error {
+	continueTraining := utils.ContainsString(configuration.ContinueTraining(), t.Dataset.Name())
 	if exists, err := predictor.OnDataset(t.Dataset).ModelExists(predictor.MethodGenerator); err != nil {
 		return err
-	} else if exists {
+	} else if exists && !continueTraining {
 		// Skip because the model is already trained
 		log.Info("[Method generation] Skip training of dataset '%s' because it is already trained.\n", t.Dataset.Name())
 		return nil
@@ -47,7 +48,7 @@ func (t *Trainer) Train(path string) errors.Error {
 	}
 
 	// Train the predictor
-	return predictor.OnDataset(t.Dataset).TrainMethods(methods)
+	return predictor.OnDataset(t.Dataset).TrainMethods(methods, continueTraining)
 }
 
 var ErrCouldNotSaveConfig = errors.ErrorId("Training", "Could not save dataset configuration")

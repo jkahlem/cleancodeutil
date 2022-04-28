@@ -34,7 +34,7 @@ type Predictor interface {
 	// the method names were passed.
 	PredictReturnTypes(methodNames []PredictableMethodName) ([]MethodValues, errors.Error)
 	// Starts the training and evaluation process. This method might apply side effects on the passed methods.
-	TrainMethods(trainingSet []Method) errors.Error
+	TrainMethods(trainingSet []Method, continueTraining bool) errors.Error
 	// Generates the remained part of a method by it's method name. This method might apply side effects on the passed contexts.
 	GenerateMethods(contexts []MethodContext) ([][]MethodValues, errors.Error)
 	// Returns true if the model exists and is already trained
@@ -90,7 +90,7 @@ func (p *predictor) TrainReturnTypes(methods []Method, labels [][]string) errors
 	}
 	options.LabelsCsv = p.asCsvString(labels)
 	FormatMethods(methods, p.config.PreprocessingOptions.SentenceFormatting)
-	return remote().Train(methods, options)
+	return remote().Train(methods, options, false) // TODO
 }
 
 func (p *predictor) EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error) {
@@ -144,7 +144,7 @@ func (p *predictor) getMethodNamesInsideOfMap(mapping MethodTypeMap) []Predictab
 	return names[:i]
 }
 
-func (p *predictor) TrainMethods(trainingSet []Method) errors.Error {
+func (p *predictor) TrainMethods(trainingSet []Method, continueTraining bool) errors.Error {
 	options, err := p.getOptions(MethodGenerator)
 	if err != nil {
 		return err
@@ -156,7 +156,7 @@ func (p *predictor) TrainMethods(trainingSet []Method) errors.Error {
 			trainingSet[i].Context.Types = nil
 		}
 	}
-	return remote().Train(trainingSet, options)
+	return remote().Train(trainingSet, options, continueTraining)
 }
 
 func (p *predictor) GenerateMethods(contexts []MethodContext) ([][]MethodValues, errors.Error) {

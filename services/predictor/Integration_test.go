@@ -45,7 +45,7 @@ func TestTrainMethods(t *testing.T) {
 	}}}}
 
 	// when
-	err := OnDataset(dataset()).TrainMethods(trainingSet)
+	err := OnDataset(dataset()).TrainMethods(trainingSet, false)
 
 	// then
 	assert.NoError(t, err)

@@ -32,11 +32,11 @@ func (p *ProxyFacade) PredictMultiple(predictionData []MethodContext, options Op
 	return p.Proxy.PredictMultiple(predictionData, options)
 }
 
-func (p *ProxyFacade) Train(trainData []Method, options Options) errors.Error {
+func (p *ProxyFacade) Train(trainData []Method, options Options, continueTraining bool) errors.Error {
 	if err := p.validate(p.Proxy.Train); err != nil {
 		return err
 	}
-	return p.Proxy.Train(trainData, options)
+	return p.Proxy.Train(trainData, options, continueTraining)
 }
 
 func (p *ProxyFacade) Evaluate(evaluationData []Method, options Options) (Evaluation, errors.Error) {

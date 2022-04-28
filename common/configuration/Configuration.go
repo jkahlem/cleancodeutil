@@ -34,6 +34,13 @@ func Datasets() []Dataset {
 	return loadedConfig.Datasets
 }
 
+func ContinueTraining() []string {
+	if loadedConfig == nil {
+		return nil
+	}
+	return strings.Split(loadedConfig.ContinueTraining, ";")
+}
+
 var ErrDatasetNotFound = errors.ErrorId("Configuration", "Dataset not found")
 
 func FindDatasetByReference(reference string) (Dataset, errors.Error) {

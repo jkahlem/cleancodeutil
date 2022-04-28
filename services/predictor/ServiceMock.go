@@ -58,7 +58,7 @@ func (p *mock) getMethodNamesInsideOfMap(mapping MethodTypeMap) []PredictableMet
 	return names[:i]
 }
 
-func (p *mock) TrainMethods(trainingSet []Method) errors.Error {
+func (p *mock) TrainMethods(trainingSet []Method, continueTraining bool) errors.Error {
 	return nil
 }
 

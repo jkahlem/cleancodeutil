@@ -59,6 +59,9 @@ type configFile struct {
 	CreateStatistics bool `json:"createStatistics"`
 	// Additional prefix which is added to datasets for experimental uses etc.
 	DatasetPrefix string
+	// If not empty, names a set for which the training process should be continued if it already exists
+	// Multiple datasets are separated by a semicolon ';'.
+	ContinueTraining string
 	// If true, then the program is in language server mode (command line only)
 	IsLangServMode bool
 }

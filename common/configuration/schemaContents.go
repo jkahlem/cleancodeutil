@@ -652,7 +652,7 @@ func initSchemaMap() {
         "name": {
             "description": "The name of the set. This name will be used for the output file. Subsets will be written into a sub directory with this name.",
             "type": "string",
-            "pattern": "^[^/\\?&#:]+$"
+            "pattern": "^[^/\\?&#:;]+$"
         },
         "description": {
             "description": "A description of the dataset, e.g. which data/options are used and why for documentation purposes.",
