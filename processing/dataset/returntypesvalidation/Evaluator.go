@@ -2,7 +2,7 @@ package returntypesvalidation
 
 import (
 	"encoding/json"
-	"os"
+	"path/filepath"
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
@@ -11,6 +11,8 @@ import (
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/services/predictor"
 )
+
+const EvaluationResultFileName = "returntypes_evaluationResult.json"
 
 type Evaluator struct {
 	labels        [][]string
@@ -23,7 +25,7 @@ func NewEvaluator(dataset configuration.Dataset) base.Evaluator {
 }
 
 func (e *Evaluator) Evaluate(path string) errors.Error {
-	if e.isEvaluationResultPresent() {
+	if e.isEvaluationResultPresent(path) {
 		return nil
 	}
 	if err := e.loadData(path); err != nil {
@@ -33,7 +35,7 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 		return err
 	} else {
 		log.Info("Evaluation result:\n- Accuracy Score: %g\n- Eval loss: %g\n- F1 Score: %g\n- MCC: %g\n", result.AccScore, result.EvalLoss, result.F1Score, result.MCC)
-		return e.saveEvaluationResult(result)
+		return e.saveEvaluationResult(path, result)
 	}
 }
 
@@ -56,9 +58,9 @@ func (e *Evaluator) loadData(path string) errors.Error {
 	return nil
 }
 
-func (e *Evaluator) saveEvaluationResult(msg predictor.Evaluation) errors.Error {
+func (e *Evaluator) saveEvaluationResult(path string, msg predictor.Evaluation) errors.Error {
 	// Write the evaluation result in a json file
-	if file, err := os.Create(configuration.EvaluationResultOutputPath()); err != nil {
+	if file, err := utils.CreateFile(filepath.Join(path, EvaluationResultFileName)); err != nil {
 		return errors.Wrap(err, "Error", "Could not save evaluation result")
 	} else {
 		defer file.Close()
@@ -69,6 +71,6 @@ func (e *Evaluator) saveEvaluationResult(msg predictor.Evaluation) errors.Error 
 	return nil
 }
 
-func (e *Evaluator) isEvaluationResultPresent() bool {
-	return utils.FileExists(configuration.EvaluationResultOutputPath())
+func (e *Evaluator) isEvaluationResultPresent(path string) bool {
+	return utils.FileExists(filepath.Join(path, EvaluationResultFileName))
 }

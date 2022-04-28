@@ -13,7 +13,6 @@ import (
 	"returntypes-langserver/processing/extractor"
 	"returntypes-langserver/processing/git"
 	"returntypes-langserver/processing/projects"
-	"returntypes-langserver/processing/statistics"
 )
 
 type Processor struct {
@@ -41,8 +40,6 @@ func (p *Processor) ProcessDatasetCreation() {
 	p.createDataset()
 	// Train the predictor
 	p.trainPredictor()
-	// Create statistics
-	//p.createStatistics()
 	// Log any problems occured during creation process
 	p.logProblems()
 }
@@ -166,15 +163,6 @@ func (p *Processor) trainReturnTypes() errors.Error {
 
 func (p *Processor) trainMethods() errors.Error {
 	return dataset.Train(configuration.MethodGenerator)
-}
-
-// Creates statistics for the dataset creation
-func (p *Processor) createStatistics() {
-	if !configuration.StatisticsSkipCreation() {
-		if err := statistics.CreateStatistics(p.projects); err != nil {
-			log.ReportProblemWithError(err, "The statistics creation was not successful")
-		}
-	}
 }
 
 // Logs any problems occured during dataset creation

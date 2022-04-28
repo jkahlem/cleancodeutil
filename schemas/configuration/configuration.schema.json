@@ -61,11 +61,6 @@
             "type": "object",
             "$ref": "connections-configuration.schema.json"
         },
-        "statistics": {
-            "description": "Configurations for statistics",
-            "type": "object",
-            "$ref": "statistics-configuration.schema.json"
-        },
         "createMethodOutputPerProject": {
             "description": "If true, writes all methods into an excel file per project.",
             "type": "boolean"

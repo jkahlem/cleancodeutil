@@ -70,11 +70,6 @@ func initSchemaMap() {
             "type": "object",
             "$ref": "connections-configuration.schema.json"
         },
-        "statistics": {
-            "description": "Configurations for statistics",
-            "type": "object",
-            "$ref": "statistics-configuration.schema.json"
-        },
         "createMethodOutputPerProject": {
             "description": "If true, writes all methods into an excel file per project.",
             "type": "boolean"
@@ -246,29 +241,6 @@ func initSchemaMap() {
             "items": {
                 "type": "string"
             }
-        }
-    }
-}`
-	SchemaMap["configuration/statistics-configuration.schema.json"] = `{
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "statistics-configuration.schema.json",
-    "title": "Statistics Configuration",
-    "description": "Contains configurations regarding statistics configurations",
-    "type": "object",
-    "properties": {
-        "skip": {
-            "description": "If true, the statistics creation will be skipped",
-            "type": "boolean"
-        },
-        "minOccurencesForMethodsBeforeSumarizationTable": {
-            "description": "The minimum amount of occurences for methods to be visible in the Methods before summarization table. If its one, all methods are shown (not recommended)",
-            "type": "number",
-            "minimum": 0
-        },
-        "projectGroupingThreshold": {
-            "description": "All projects which's value is below this value will be grouped as a 'other projects' value. This does only affect the 'Origins of methods used in the final dataset' pie chart.",
-            "type": "number",
-            "minimum": 0
         }
     }
 }`
@@ -1012,7 +984,8 @@ func initSchemaMap() {
 		"color": {
             "description": "A hex string defining the color used for color representations of this type class in statistics etc.",
             "type": "string",
-            "pattern": "^#[0-9a-fA-F]{6}"
+            "pattern": "^#[0-9a-fA-F]{6}",
+            "deprecated": true
         },
         "isChainMethodType": {
             "description": "If true, then this type class should also contain chain methods. Can only be defined on a maximum of one type class.",

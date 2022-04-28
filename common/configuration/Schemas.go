@@ -12,7 +12,6 @@ const (
 	ConnectionsConfigurationSchemaPath    = "configuration/connections-configuration.schema.json"
 	LoggerConfigurationSchemaPath         = "configuration/logger-configuration.schema.json"
 	PredictorConfigurationSchemaPath      = "configuration/predictor-configuration.schema.json"
-	StatisticsConfigurationSchemaPath     = "configuration/statistics-configuration.schema.json"
 	LanguageServerConfigurationSchemaPath = "configuration/language-server-configuration.schema.json"
 
 	// Excel set schemas
@@ -126,7 +125,6 @@ func initializeSchemas() {
 			ConnectionsConfigurationSchemaPath,
 			LoggerConfigurationSchemaPath,
 			PredictorConfigurationSchemaPath,
-			StatisticsConfigurationSchemaPath,
 			LanguageServerConfigurationSchemaPath,
 			ExcelSetConfigurationSchemaPath,
 			FilterSchemaPath,

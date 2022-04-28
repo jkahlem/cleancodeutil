@@ -41,8 +41,6 @@ type configFile struct {
 	Logger LoggerConfiguration `json:"logger"`
 	// Configurations for connections
 	Connection ConnectionConfiguration `json:"connection"`
-	// Configurations for statistics
-	Statistics StatisticsConfiguration `json:"statistics"`
 	// If true, creates method output per project
 	CreateMethodOutputPerProject bool `json:"createMethodOutputPerProject"`
 	// The excel set configurations.
@@ -126,17 +124,6 @@ type ConnectionConfiguration struct {
 	ReconnectionAttempts int `json:"reconnectionAttempts"`
 }
 
-type StatisticsConfiguration struct {
-	// If true, the statistics creation will be skipped
-	SkipCreation bool `json:"skip"`
-	// The minimum amount of occurences for methods to be visible in the Methods before summarization table
-	// If its one, all methods are shown (not recommended)
-	MinOccurencesForMethodsBeforeSummarizationTable int `json:"minOccurencesForMethodsBeforeSumarizationTable"`
-	// All projects which's value is below this value will be grouped as a "other projects" value.
-	// This does only affect the "Origins of methods used in the final dataset" pie chart.
-	ProjectGroupingThreshold float64 `json:"projectGroupingThreshold"`
-}
-
 type LanguageServerConfiguration struct {
 	// Identifier for the dataset configuration which should be used for the language server. Can be a list splitted with slashes '/' to
 	// reference subsets.
@@ -208,11 +195,6 @@ func createDefaultConfig() {
 		Connection: ConnectionConfiguration{
 			Timeout:              10000,
 			ReconnectionAttempts: 5,
-		},
-		Statistics: StatisticsConfiguration{
-			SkipCreation: false,
-			MinOccurencesForMethodsBeforeSummarizationTable: 50,
-			ProjectGroupingThreshold:                        0.01,
 		},
 		IsLangServMode: false,
 	}

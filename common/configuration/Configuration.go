@@ -261,27 +261,6 @@ func ConnectionReconnectionAttempts() int {
 	return loadedConfig.Connection.ReconnectionAttempts
 }
 
-func StatisticsSkipCreation() bool {
-	if loadedConfig == nil {
-		return false
-	}
-	return loadedConfig.Statistics.SkipCreation
-}
-
-func StatisticsMinOccurencesForMethodsBeforeSummarizationTable() int {
-	if loadedConfig == nil {
-		return 0
-	}
-	return loadedConfig.Statistics.MinOccurencesForMethodsBeforeSummarizationTable
-}
-
-func StatisticsProjectGroupingThreshold() float64 {
-	if loadedConfig == nil {
-		return 0
-	}
-	return loadedConfig.Statistics.ProjectGroupingThreshold
-}
-
 func CreateMethodOutputPerProject() bool {
 	if loadedConfig == nil {
 		return false
@@ -357,41 +336,9 @@ func FileContextTypesOutputPath() string {
 	return filepath.Join(ExtractorOutputDir(), "fileContextTypes.csv")
 }
 
-// The path where files for statistics will be saved
-func StatisticsOutputDir() string {
-	return filepath.Join(MainOutputDir(), "statistics")
-}
-
-// The path to the file containing raw statistics output in JSON-format
-func RawStatisticsOutputPath() string {
-	return filepath.Join(StatisticsOutputDir(), "statistics.json")
-}
-
-// The path to the file containing charts for the statistics
-func ChartsOutputPath() string {
-	return filepath.Join(StatisticsOutputDir(), "charts.html")
-}
-
-// The path to the methods file containing all methods with the return types as type classes
-func MethodsWithTypeClassesOutputPath() string {
-	return filepath.Join(StatisticsOutputDir(), "methodsWithTypeClasses.csv")
-}
-
-// The path where the evaluation result is saved for the statistics
-func EvaluationResultOutputPath() string {
-	return filepath.Join(StatisticsOutputDir(), "evaluationResult.json")
-}
-
-// The path where the method summarization data (a filtered method list with return type counts) are saved.
-// This data contains the methods which are filtered using labels etc. before methods with the same name(/sentence) are summarized to one dataset row.
-// This data is the basis for the summarization process and will be used for the statistics.
-func MethodSummarizationDataOutputPath() string {
-	return filepath.Join(StatisticsOutputDir(), "methodSummarizationData.csv")
-}
-
 // The directory where the excel output is saved
 func MethodsWithReturnTypesExcelOutputDir() string {
-	return filepath.Join(StatisticsOutputDir(), "excel")
+	return filepath.Join(MainOutputDir(), "excel")
 }
 
 // The path the dataset files will be saved to
