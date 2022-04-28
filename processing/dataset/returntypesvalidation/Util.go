@@ -14,7 +14,6 @@ func mapToMethod(rows []csv.ReturnTypesDatasetRow) []predictor.Method {
 				MethodName: rows[i].MethodName,
 			},
 			Values: predictor.MethodValues{
-				// TODO: Type label? Or actual name?
 				ReturnType: fmt.Sprintf("%d", rows[i].TypeLabel),
 			},
 		}

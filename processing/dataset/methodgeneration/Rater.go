@@ -63,8 +63,7 @@ func (r *BleuRater) Result() [][]interface{} {
 }
 
 func (r *BleuRater) Name() string {
-	// TODO: Include options/weights?
-	return fmt.Sprintf("Smoothed Bleu (Weights: %s)", r.weights())
+	return fmt.Sprintf("BLEU (Weights: %s)", r.weights())
 }
 
 func (r *BleuRater) weights() string {
@@ -311,7 +310,6 @@ func (r *ExactRater) Result() [][]interface{} {
 }
 
 func (r *ExactRater) Name() string {
-	// TODO: Include options/weights?
 	return fmt.Sprintf("Exact matches")
 }
 

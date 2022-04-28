@@ -90,7 +90,7 @@ func (p *predictor) TrainReturnTypes(methods []Method, labels [][]string) errors
 	}
 	options.LabelsCsv = p.asCsvString(labels)
 	FormatMethods(methods, p.config.PreprocessingOptions.SentenceFormatting)
-	return remote().Train(methods, options, false) // TODO
+	return remote().Train(methods, options, false)
 }
 
 func (p *predictor) EvaluateReturnTypes(evaluationSet []Method, labels [][]string) (Evaluation, errors.Error) {

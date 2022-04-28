@@ -154,7 +154,7 @@ func (e *Evaluator) generateMethodDefinitions(methods []predictor.Method, checkp
 	for i := range predicted {
 		outputMethods[i] = e.parseOutputToMethod(predictor.Method{
 			Context: contexts[i],
-			Values:  predicted[i][0], //TODO Multiple Suggestions
+			Values:  predicted[i][0],
 		}, methods[i].Values)
 	}
 	return outputMethods, err
