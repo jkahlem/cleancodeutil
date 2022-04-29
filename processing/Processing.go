@@ -172,7 +172,7 @@ func (p *Processor) createBasicData() {
 }
 
 func (p *Processor) isExtractionProcessRequired() bool {
-	return configuration.ForceExtraction() || p.isDataForDatasetAvailable() || p.isDataForExtractorUpdated()
+	return configuration.ForceExtraction() || !p.isDataForDatasetAvailable() || p.isDataForExtractorUpdated()
 }
 
 // Returns true if the basic data for dataset creation is available

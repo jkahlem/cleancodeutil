@@ -48,6 +48,7 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 		if err != nil {
 			return err
 		}
+		log.Info("%v\n", checkpoints)
 		checkpoints = e.reduceCheckpoints(checkpoints)
 		for _, checkpoint := range checkpoints {
 			if e.Dataset.EvaluateOn == configuration.Step || strings.Contains(checkpoint, "epoch") {

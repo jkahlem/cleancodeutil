@@ -7,6 +7,7 @@ import (
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
 	"strings"
 )
 
@@ -52,8 +53,19 @@ type predictor struct {
 	checkpoint string
 }
 
+var usePredictorMockMessageLogged bool
+
+func logPredictorMockMessage() {
+	if usePredictorMockMessageLogged {
+		return
+	}
+	log.Info("Use mocked predictor...\n")
+	usePredictorMockMessageLogged = true
+}
+
 func OnDataset(dataset configuration.Dataset) Predictor {
 	if configuration.PredictorUseMock() {
+		logPredictorMockMessage()
 		return &mock{}
 	}
 	return &predictor{
@@ -63,6 +75,7 @@ func OnDataset(dataset configuration.Dataset) Predictor {
 
 func OnCheckpoint(dataset configuration.Dataset, checkpoint string) Predictor {
 	if configuration.PredictorUseMock() {
+		logPredictorMockMessage()
 		return &mock{}
 	}
 	return &predictor{
@@ -72,6 +85,10 @@ func OnCheckpoint(dataset configuration.Dataset, checkpoint string) Predictor {
 }
 
 func Global() PredictorGlobal {
+	if configuration.PredictorUseMock() {
+		logPredictorMockMessage()
+		return &mock{}
+	}
 	return &predictor{}
 }
 

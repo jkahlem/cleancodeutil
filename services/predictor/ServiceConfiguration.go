@@ -15,9 +15,6 @@ var connectionErrorEventHandler []func(rpc.Recoverer)
 //go:generate go run ../serviceGenerator
 
 func serviceConfiguration() rpc.ServiceConfiguration {
-	if configuration.PredictorUseMock() {
-		log.Info("Use mocked predictor...\n")
-	}
 	conn := &PredictorConnection{}
 	messager := messages.NewReadWriter(conn)
 	messager.AcceptMediaType(jsonrpc.MediaType)
