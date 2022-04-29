@@ -31,7 +31,7 @@ func TestUnmarshalProjectConfigurationByMap(t *testing.T) {
 
 	// when
 	var v interface{}
-	var projects projectConfigurationFileStructure
+	var projects ProjectConfigurationFile
 	err := json.Unmarshal([]byte(rawStr), &v)
 	err = utils.DecodeMapToStruct(v, &projects)
 

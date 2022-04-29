@@ -343,7 +343,7 @@ func (ls *languageServer) CompleteMethodDefinition(method Method, doc *workspace
 			items[i] = ls.createCompletionItem(parameterList)
 		}
 	}
-	return nil, nil
+	return items, nil
 }
 
 func (ls *languageServer) generateParameterLists(method Method) ([][]predictor.MethodValues, errors.Error) {
