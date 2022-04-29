@@ -188,6 +188,9 @@ func FatalError(err errors.Error) {
 
 // Logs an error.
 func Error(err errors.Error) errors.Error {
+	if err == nil {
+		return nil
+	}
 	return Print(Critical, "%s", err.ErrorWithStacktrace())
 }
 
