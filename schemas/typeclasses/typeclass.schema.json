@@ -22,12 +22,6 @@
             "description": "If true, then this type class should also contain array types. Can only be defined on a maximum of one type class.",
             "type": "boolean"
         },
-		"color": {
-            "description": "A hex string defining the color used for color representations of this type class in statistics etc.",
-            "type": "string",
-            "pattern": "^#[0-9a-fA-F]{6}",
-            "deprecated": true
-        },
         "isChainMethodType": {
             "description": "If true, then this type class should also contain chain methods. Can only be defined on a maximum of one type class.",
             "type": "boolean"

@@ -1,29 +1,23 @@
 {
 	"classes": [{
 		"label": "number",
-		"elements": ["int", "long", "short", "float", "double", "byte", "java.lang.Number"],
-		"color": "#004C6D"
+		"elements": ["int", "long", "short", "float", "double", "byte", "java.lang.Number"]
 	}, {
 		"label": "string",
-		"elements": ["char", "java.lang.Character", "java.lang.String"],
-		"color": "#186A3B"
+		"elements": ["char", "java.lang.Character", "java.lang.String"]
 	}, {
 		"label": "boolean",
-		"elements": ["boolean", "java.lang.Boolean"],
-		"color": "#E74C3C"
+		"elements": ["boolean", "java.lang.Boolean"]
 	}, {
 		"label": "void",
 		"elements": ["void", "java.lang.Void"],
-		"isChainMethodType": true,
-		"color": "#4A235A"
+		"isChainMethodType": true
 	}, {
 		"label": "collection",
 		"elements": ["java.util.Collection"],
-		"isArrayType": true,
-		"color": "#FFB100"
+		"isArrayType": true
 	}, {
 		"label": "object",
-		"elements": ["java.lang.Object"],
-		"color": "#555555"
+		"elements": ["java.lang.Object"]
 	}]
 }

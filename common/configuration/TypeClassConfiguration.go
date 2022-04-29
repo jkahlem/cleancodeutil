@@ -23,8 +23,6 @@ type TypeClass struct {
 	IsChainMethodType bool `json:"isChainMethodType"`
 	// A list of canonical names of classes/types which belong to this type class including the ones extending or implementing them
 	Elements []string `json:"elements"`
-	// The color used for this type class for visualization
-	Color string `json:"color"`
 }
 
 func (c TypeClassConfigurations) DecodeValue(value interface{}) (interface{}, error) {

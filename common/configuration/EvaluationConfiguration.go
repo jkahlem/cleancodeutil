@@ -42,9 +42,8 @@ func (c *EvaluationConfiguration) fromFilePath(filePath string) error {
 }
 
 type EvaluationSet struct {
-	Name    string          `json:"name"`
-	Subsets []EvaluationSet `json:"subsets"`
-	// Defines, how the rating per row should be done, like equality checks or different tools etc.
+	Name         string                `json:"name"`
+	Subsets      []EvaluationSet       `json:"subsets"`
 	Metrics      []MetricConfiguration `json:"metrics"`
 	Filter       Filter                `json:"filter"`
 	TargetModels []string              `json:"targetModels"`
