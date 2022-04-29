@@ -1,6 +1,7 @@
 package methodgeneration
 
 import (
+	"fmt"
 	"returntypes-langserver/services/predictor"
 	"strings"
 )
@@ -11,15 +12,27 @@ func CreateMethodDefinition(context predictor.MethodContext, value predictor.Met
 	returnType := ConcatTypeName(split(value.ReturnType))
 	methodName := ConcatByLowerCamelCase(split(context.MethodName))
 	parameterList := ConcatParametersToList(value.Parameters)
+	className := ConcatClassName(context.ClassName)
+	if len(className) > 0 {
+		className += "."
+	}
 	static := ""
 	if context.IsStatic {
 		static = "static "
 	}
-	return static + returnType + " " + methodName + "(" + parameterList + ")"
+	return fmt.Sprintf("%s%s %s%s(%s)", static, returnType, className, methodName, parameterList)
 }
 
 func split(str string) []string {
 	return strings.Split(str, " ")
+}
+
+func ConcatClassName(classNames []string) string {
+	classes := make([]string, len(classNames))
+	for i := range classNames {
+		classes[i] = ConcatByUpperCamelCase(split(classNames[i]))
+	}
+	return strings.Join(classes, ".")
 }
 
 func ConcatTypeName(typeName []string) string {
