@@ -1,12 +1,17 @@
 package processing
 
 import (
+	"encoding/json"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"returntypes-langserver/common/code/java"
 	"returntypes-langserver/common/configuration"
+	"returntypes-langserver/common/dataformat/jsonschema"
 	"returntypes-langserver/common/debug/errors"
 	"returntypes-langserver/common/debug/log"
+	"returntypes-langserver/common/utils"
 	"returntypes-langserver/common/utils/counter"
 	"returntypes-langserver/processing/dataset"
 	"returntypes-langserver/processing/excelOutputter"
@@ -16,14 +21,57 @@ import (
 )
 
 type Processor struct {
-	projects []projects.Project
+	projects              []projects.Project
+	previousProjects      []projects.Project
+	isCrawlerFilesUpdated bool
 }
 
-func ProcessDatasetCreation() {
+func ProcessDatasetCreation() errors.Error {
 	processor := Processor{
 		projects: projects.GetProjects(),
 	}
+	if previousProjects, err := LoadPreviousProjectState(); err != nil {
+		return err
+	} else {
+		processor.previousProjects = previousProjects
+	}
 	processor.ProcessDatasetCreation()
+	return SaveProjectState(processor.projects)
+}
+
+func LoadPreviousProjectState() ([]projects.Project, errors.Error) {
+	path := filepath.Join(configuration.MainOutputDir(), "project-config.json")
+	if !utils.FileExists(path) {
+		return nil, nil
+	}
+	contents, err := ioutil.ReadFile(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error", "Could not load previous project state")
+	}
+
+	var projectsFile configuration.ProjectConfigurationFile
+	if err := jsonschema.UnmarshalJSONStrict(contents, &projectsFile, configuration.ProjectConfigurationFileSchema); err != nil {
+		log.Info("The previous projects state file under %s is malformed. Removing the file might fix this issue, but might cause some steps (like crawler steps) to be executed again.\n", path)
+		return nil, errors.Wrap(err, "Error", "Could not load previous project state")
+	}
+
+	return projects.MapProjects(projectsFile.Projects), nil
+}
+
+func SaveProjectState(currentProjects []projects.Project) errors.Error {
+	path := filepath.Join(configuration.MainOutputDir(), "project-config.json")
+	file, err := utils.CreateFile(path)
+	if err != nil {
+		return errors.Wrap(err, "Error", "Could not save project state.")
+	}
+
+	projectFileStruct := configuration.ProjectConfigurationFile{
+		Projects: projects.MapConfigurationProjects(currentProjects),
+	}
+	if err := json.NewEncoder(file).Encode(projectFileStruct); err != nil {
+		return errors.Wrap(err, "Error", "Could not save project state.")
+	}
+	return nil
 }
 
 // Executes the dataset creation process
@@ -71,14 +119,48 @@ func (p *Processor) preprocessJavaCode() {
 		log.FatalError(errors.Wrap(err, "Error", "Could not create output directory"))
 	} else {
 		for _, project := range p.projects {
-			extractor.PreprocessSourceCodeForProject(project)
+			hasUpdatedFiles := extractor.PreprocessSourceCodeForProject(project, p.getPreviousProjectStateFor(project))
+			if hasUpdatedFiles {
+				p.isCrawlerFilesUpdated = true
+			}
 		}
 	}
 }
 
+func (p *Processor) getPreviousProjectStateFor(project projects.Project) *projects.Project {
+	for _, previousProject := range p.previousProjects {
+		if previousProject.Name() == project.Name() {
+			return &previousProject
+		}
+	}
+	return nil
+}
+
+func (p *Processor) getSymmetricDifference(projectsA, projectsB []projects.Project) []projects.Project {
+	projectSet := make(map[string]*projects.Project)
+	for _, project := range projectsA {
+		projectSet[project.Name()] = &project
+	}
+	for _, project := range projectsB {
+		if _, exists := projectSet[project.Name()]; exists {
+			projectSet[project.Name()] = nil
+		} else {
+			projectSet[project.Name()] = &project
+		}
+	}
+
+	difference := make([]projects.Project, 0, len(projectSet))
+	for _, value := range projectSet {
+		if value != nil {
+			difference = append(difference, *value)
+		}
+	}
+	return difference
+}
+
 // Creates the basic data for dataset creation (which is a list of all methods and the class hierarchy)
 func (p *Processor) createBasicData() {
-	if !p.isDataForDatasetAvailable() {
+	if p.isExtractionProcessRequired() {
 		extractor := extractor.Extractor{}
 		extractor.RunOnProjects(p.projects)
 		if extractor.Err() != nil {
@@ -89,16 +171,17 @@ func (p *Processor) createBasicData() {
 	}
 }
 
+func (p *Processor) isExtractionProcessRequired() bool {
+	return configuration.ForceExtraction() || p.isDataForDatasetAvailable() || p.isDataForExtractorUpdated()
+}
+
 // Returns true if the basic data for dataset creation is available
 func (p *Processor) isDataForDatasetAvailable() bool {
-	if configuration.ForceExtraction() {
-		return false
-	} else if ready := p.isMethodsWithReturnTypesAvailable(); !ready {
-		return false
-	} else if ready := p.isClassHierarchyAvailable(); !ready {
-		return false
-	}
-	return true
+	return p.isMethodsWithReturnTypesAvailable() && p.isClassHierarchyAvailable()
+}
+
+func (p *Processor) isDataForExtractorUpdated() bool {
+	return len(p.getSymmetricDifference(p.projects, p.previousProjects)) > 0 || p.isCrawlerFilesUpdated
 }
 
 func (p *Processor) isMethodsWithReturnTypesAvailable() bool {

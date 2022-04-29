@@ -106,7 +106,6 @@ func findServiceMock(structs []generator.Struct) (generator.Struct, bool) {
 
 func findServiceInterface(interfaces []generator.Interface) (generator.Interface, bool) {
 	for _, i := range interfaces {
-		fmt.Println("->", i.LineComment, i.Documentation)
 		if strings.Contains(i.LineComment, ServiceInterfaceDefinitionAnnotation) {
 			return i, true
 		}

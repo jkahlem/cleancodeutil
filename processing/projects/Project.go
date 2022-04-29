@@ -11,7 +11,10 @@ type Project struct {
 }
 
 func GetProjects() []Project {
-	configuredProjects := configuration.Projects()
+	return MapProjects(configuration.Projects())
+}
+
+func MapProjects(configuredProjects []configuration.Project) []Project {
 	projects := make([]Project, 0, len(configuredProjects))
 	for _, project := range configuredProjects {
 		projects = append(projects, Project{
@@ -19,6 +22,14 @@ func GetProjects() []Project {
 		})
 	}
 	return projects
+}
+
+func MapConfigurationProjects(projects []Project) []configuration.Project {
+	configuredProjects := make([]configuration.Project, 0, len(projects))
+	for _, project := range projects {
+		configuredProjects = append(configuredProjects, project.Project)
+	}
+	return configuredProjects
 }
 
 func (p Project) ToRepositoryDefinition() git.RepositoryDefinition {

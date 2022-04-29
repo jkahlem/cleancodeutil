@@ -13,29 +13,34 @@ import (
 )
 
 // Preprocesses the java code for one project
-func PreprocessSourceCodeForProject(project projects.Project) {
+func PreprocessSourceCodeForProject(project projects.Project, previousState *projects.Project) bool {
 	// If an output file does already exist, skip preprocessing the data for this project.
 	if exists, err := preprocessedSourceCodeFileExists(project); err != nil {
 		log.ReportProblemWithError(err, "Could not check if xml output file for %s exists", project.Name())
-		return
-	} else if exists {
-		return
+		return false
+	} else if exists && !isRecrawlingRequired(project, previousState) {
+		return false
 	}
 
 	// Use the crawler to preprocess the java code structures for a given project into one xml file
 	log.Info("Preprocess java code for project %s\n", project.Name())
 	if !utils.DirExists(project.ExpectedDirectoryPath()) {
 		log.ReportProblem("Skip project %s as it does not exist at %s\n", project.Name(), project.ExpectedDirectoryPath())
-		return
+		return false
 	}
 
 	if xml, err := crawlProject(project); err != nil {
 		log.ReportProblemWithError(err, "Could not create output file for java code files")
-		return
+		return false
 	} else if err := savePreprocessedXmlContent(project, xml); err != nil {
 		log.ReportProblemWithError(err, "Could not write to output file for java code files")
-		return
+		return false
 	}
+	return true
+}
+
+func isRecrawlingRequired(project projects.Project, previousState *projects.Project) bool {
+	return previousState != nil && previousState.JavaVersion != project.JavaVersion
 }
 
 func crawlProject(project projects.Project) (string, errors.Error) {
@@ -52,7 +57,7 @@ func crawlProject(project projects.Project) (string, errors.Error) {
 
 func savePreprocessedXmlContent(project projects.Project, xml string) errors.Error {
 	// Write the preprocessed code structures to an xml file
-	file, err := os.Create(GetPreprocessedFilePathForProject(project))
+	file, err := utils.CreateFile(GetPreprocessedFilePathForProject(project))
 	defer file.Close()
 	if err != nil {
 		return errors.Wrap(err, "Error", "Could not create output file")

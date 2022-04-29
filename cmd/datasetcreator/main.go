@@ -13,15 +13,13 @@ func main() {
 		log.FatalError(err)
 	}
 
-	StartDatasetCreation()
+	if err := processing.ProcessDatasetCreation(); err != nil {
+		log.FatalError(err)
+	}
 }
 
 func SetupLogger() {
 	log.SetupFileLogging()
 	log.SetLoggingToStdout(true)
 	log.SetSilentErrorLogging(!configuration.StrictMode())
-}
-
-func StartDatasetCreation() {
-	processing.ProcessDatasetCreation()
 }

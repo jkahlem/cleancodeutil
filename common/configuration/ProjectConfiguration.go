@@ -11,7 +11,7 @@ import (
 
 type ProjectConfiguration []Project
 
-type projectConfigurationFileStructure struct {
+type ProjectConfigurationFile struct {
 	Projects ProjectConfiguration `json:"projects"`
 }
 
@@ -22,9 +22,9 @@ func (c *ProjectConfiguration) UnmarshalJSON(data []byte) error {
 	}
 	if filePath, ok := v.(string); ok {
 		// Load configuration from different JSON file
-		return c.fromFilePath(filePath)
+		return c.FromFilePath(filePath)
 	} else if slice, ok := v.([]interface{}); ok {
-		return c.fromSlice(slice)
+		return c.FromSlice(slice)
 	} else {
 		return fmt.Errorf("Unsupported project configuration value: %v", v)
 	}
@@ -34,16 +34,16 @@ func (c ProjectConfiguration) DecodeValue(value interface{}) (interface{}, error
 	var err error
 	if filePath, ok := value.(string); ok {
 		// Load configuration from different JSON file
-		err = c.fromFilePath(filePath)
+		err = c.FromFilePath(filePath)
 		value = c
 	} else if slice, ok := value.([]interface{}); ok {
-		err = c.fromSlice(slice)
+		err = c.FromSlice(slice)
 		value = c
 	}
 	return value, err
 }
 
-func (c *ProjectConfiguration) fromFilePath(filePath string) error {
+func (c *ProjectConfiguration) FromFilePath(filePath string) error {
 	if filePath == "" {
 		return nil
 	}
@@ -51,7 +51,7 @@ func (c *ProjectConfiguration) fromFilePath(filePath string) error {
 	if err != nil {
 		return err
 	}
-	var fileConfig projectConfigurationFileStructure
+	var fileConfig ProjectConfigurationFile
 	if err := jsonschema.UnmarshalJSONStrict(contents, &fileConfig, ProjectConfigurationFileSchema); err != nil {
 		return err
 	}
@@ -59,7 +59,7 @@ func (c *ProjectConfiguration) fromFilePath(filePath string) error {
 	return nil
 }
 
-func (c *ProjectConfiguration) fromSlice(slice []interface{}) error {
+func (c *ProjectConfiguration) FromSlice(slice []interface{}) error {
 	*c = make(ProjectConfiguration, len(slice))
 	for i, element := range slice {
 		if err := (*c)[i].fromInterface(element); err != nil {
