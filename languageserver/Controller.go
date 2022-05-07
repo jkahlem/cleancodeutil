@@ -12,6 +12,7 @@ import (
 	"returntypes-langserver/common/utils"
 	"returntypes-langserver/languageserver/lsp"
 	"returntypes-langserver/languageserver/workspace"
+	"strconv"
 )
 
 const LanguageServerName string = "returntypes"
@@ -201,13 +202,29 @@ func (c *Controller) WorkspaceDidChangeConfiguration(settings interface{}) error
 	if settingsMap, ok := settings.(map[string]interface{}); ok {
 		methodGeneratorModel, err := utils.GetNestedValueOfMap(settingsMap, MethodGeneratorConfigSection+".languageServer.models.methodGenerator")
 		if methodGeneratorModel == "" || err != nil {
-			err = utils.DeleteNestedFieldOfMap(settingsMap, MethodGeneratorConfigSection+".languageServer")
+			utils.DeleteNestedFieldOfMap(settingsMap, MethodGeneratorConfigSection+".languageServer")
+		}
+
+		port, err := utils.GetNestedValueOfMap(settingsMap, MethodGeneratorConfigSection+".predictor.port")
+		if err == nil {
+			if portStr, ok := port.(string); ok {
+				intVal, err := strconv.Atoi(portStr)
+				if err != nil {
+					return errors.Wrap(err, "Error", "Invalid port number: %s", portStr)
+				}
+				utils.SetNestedValueOfMap(settingsMap, MethodGeneratorConfigSection+".predictor.port", intVal)
+			}
+		} else {
+			log.Error(err)
 		}
 
 		if asJson, err := json.Marshal(settingsMap[MethodGeneratorConfigSection]); err != nil {
 			log.Error(errors.Wrap(err, "Server error", "Could not parse client configuration"))
 		} else {
-			configuration.LoadConfigFromJsonString(string(asJson))
+			if err := configuration.UpdateConfigByJson(asJson); err != nil {
+				log.Error(err)
+				return err
+			}
 		}
 
 	}

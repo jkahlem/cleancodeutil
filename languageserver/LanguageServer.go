@@ -289,9 +289,12 @@ func (ls *languageServer) loadConfiguration(items ...string) errors.Error {
 		return nil
 	}
 	results, err := remote().GetConfiguration(lsp.MapConfigurationItems(items...))
+	log.Info("%v\n", results)
 	for i, config := range results {
+		log.Info("%s\n", items[i])
 		if items[i] == MethodGeneratorConfigSection {
 			if asJson, err := json.Marshal(config); err != nil {
+				log.Info("%s\n", string(asJson))
 				configuration.LoadConfigFromJsonString(string(asJson))
 			}
 		}

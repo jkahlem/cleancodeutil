@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -220,6 +221,18 @@ func loadJsonConfig(content []byte) errors.Error {
 		return errors.Wrap(err, ConfigurationErrorTitle, "Could not load json configuration")
 	}
 	connectDatasetPaths(loadedConfig.Datasets, "")
+	return nil
+}
+
+// Updates the current config by the passed json. Fields, not contained in the json, will not be changed.
+// There is no actual validation performed on the typed in data.
+func UpdateConfigByJson(jsonContent []byte) errors.Error {
+	if loadedConfig == nil {
+		createDefaultConfig()
+	}
+	if err := json.Unmarshal(jsonContent, &loadedConfig); err != nil {
+		return errors.Wrap(err, ConfigurationErrorTitle, "Could not load json configuraiton")
+	}
 	return nil
 }
 
