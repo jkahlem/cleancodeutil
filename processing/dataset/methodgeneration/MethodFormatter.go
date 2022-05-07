@@ -20,6 +20,9 @@ func CreateMethodDefinition(context predictor.MethodContext, value predictor.Met
 	if context.IsStatic {
 		static = "static "
 	}
+	if returnType == "" {
+		returnType = EmptyTokenPlaceholder
+	}
 	return fmt.Sprintf("%s%s %s%s(%s)", static, returnType, className, methodName, parameterList)
 }
 

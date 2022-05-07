@@ -11,7 +11,7 @@ import (
 )
 
 // An absolute path to the crawler .jar file. (Can not be relative as go test might build/run the program in a completely different directory)
-const CrawlerPath = `C:\\Users\\work\\Documents\\bachelor\\02-project\\returntypes-predictor\\mainapp\\resources\\crawler\\returntypes-crawler.jar`
+const CrawlerPath = `path\\to\\mainapp\\resources\\crawler\\returntypes-crawler.jar`
 
 func TestGetCodeElements(t *testing.T) {
 	// given
@@ -76,7 +76,7 @@ public class Example {
 
 func getTestResourcesPath() string {
 	// Need to specify an absolute path as the test build will be stored somewhere in the temp folders
-	return `C:\Users\work\vscextension\returntypes-extension\test-resources`
+	return `path\to\vscextension\returntypes-extension\test-resources`
 }
 
 func getTestFilePath() string {

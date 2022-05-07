@@ -51,38 +51,6 @@ func TestTrainMethods(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-func TestGenerateMethods(t *testing.T) {
-	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
-
-	values, err := OnDataset(configuration.Dataset{
-		DatasetBase: configuration.DatasetBase{
-			NameRaw: "draft-dataset-220411_using-bart-220416",
-			ModelOptions: configuration.ModelOptions{
-				NumOfEpochs:                 2,
-				UseContextTypes:             false,
-				EmptyParameterListByKeyword: true,
-				NumReturnSequences:          1,
-			},
-			PreprocessingOptions: configuration.PreprocessingOptions{
-				SentenceFormatting: configuration.SentenceFormattingOptions{
-					MethodName:    true,
-					ParameterName: true,
-				},
-			},
-		},
-	}).GenerateMethods([]MethodContext{context("ListItem", "compareTo"),
-		context("VehicleList", "forEach"),
-		context("Dialog", "createWarning"),
-		context("Dialog", "forException"),
-		context("Exception", "build"),
-		context("Exception", "withMessage"),
-	})
-
-	if assert.NoError(t, err) {
-		fmt.Println(values)
-	}
-}
-
 func context(class, name string) MethodContext {
 	return MethodContext{
 		MethodName: strings.ToLower(SplitMethodNameToSentence(name)),
@@ -98,68 +66,7 @@ func static(class, name string) MethodContext {
 	}
 }
 
-/*
-func TestGenerateMethods(t *testing.T) {
-	// given
-	configuration.MustLoadConfigFromJsonString(buildPredictorConfig())
-	methods := make([]PredictableMethodName, 8)
-	//methods[0] = PredictableMethodName(string(GetPredictableMethodName("findByNameOrAge")))
-	//methods[1] = PredictableMethodName(string(GetPredictableMethodName("compare")))
-	methods[0] = createTypeAssignmentTest("find user by name", "user name", "string, int, object, person, user")
-	// Expect: "string"
-	// Prediction:
-	// - Simple version: not tested (with the user stuff ... otherwise this was also string.)
-	// - Method name version: "string"
-	methods[1] = createTypeAssignmentTest("set age", "age", "string, int, object, person")
-	// Expect: "int"
-	// Prediction:
-	// - Simple version: "int"
-	// - Method name version: "int"
-	methods[2] = createTypeAssignmentTest("set active state", "state", "string, int, object, boolean")
-	// Expect: "int"
-	// Prediction:
-	// - Simple version: "int"
-	// - Method name version: "int"
-	methods[3] = createTypeAssignmentTest("compare strings", "a", "string, int, object, boolean")
-	// Expect: "string"
-	// Prediction:
-	// - Simple version: "int"
-	// - Method name version: "string"
-	methods[4] = createTypeAssignmentTest("compare numbers", "b", "string, int, object, boolean")
-	// Expect: "int"
-	// Prediction:
-	// - Simple version: "int"
-	// - Method name version: "int"
-	methods[5] = createTypeAssignmentTest("create contract by offer", "offer", "string, int, object, boolean, sales contract, sales offer")
-	// Expect: "sales offer"
-	// Prediction:
-	// - Simple version: "salescontract"
-	// - Method name version: "salescontract"
-	methods[6] = createTypeAssignmentTest("find contract", "contract id", "string, int, object, boolean, sales contract, sales offer, person")
-	// Expect: "sales offer"
-	// Prediction:
-	// - Simple version: "salescontract"
-	// - Method name version: "salescontract"
-	methods[7] = createTypeAssignmentTest("set person", "person", "string, int, object, boolean, sales contract, sales offer, person")
-	// Expect: "person"
-	// Prediction:
-	// - Simple version: not tested
-	// - Method name version: "salescontract"
-
-	// the problem with the "salescontract" as predict might be related to the fact, that there is not that much of training data and the training data has no real context.
-	// Another thing which might be interesting to test, is how writing type names together (without splitting between words) affects the output.
-
-	// when
-	elements, err := GenerateMethods(methods)
-
-	// then
-	assert.NoError(t, err)
-	assert.NotNil(t, elements)
-	assert.Len(t, elements, 2)
-}*/
-
 func createTypeAssignmentTest(methodName, parameterName, context string) PredictableMethodName {
-	//return PredictableMethodName(fmt.Sprintf("name: %s context: %s", parameterName, context))
 	return PredictableMethodName(fmt.Sprintf("method: %s. name: %s. context: %s.", methodName, parameterName, context))
 }
 

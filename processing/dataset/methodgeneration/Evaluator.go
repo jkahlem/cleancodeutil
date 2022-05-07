@@ -48,7 +48,6 @@ func (e *Evaluator) Evaluate(path string) errors.Error {
 		if err != nil {
 			return err
 		}
-		log.Info("%v\n", checkpoints)
 		checkpoints = e.reduceCheckpoints(checkpoints)
 		for _, checkpoint := range checkpoints {
 			if e.Dataset.EvaluateOn == configuration.Step || strings.Contains(checkpoint, "epoch") {
@@ -114,7 +113,7 @@ func (e *Evaluator) evaluateCheckpoint(path, checkpoint string) errors.Error {
 	if err := e.writeScoreOutput(checkpointPath, evalset); err != nil {
 		return err
 	}
-	if err := e.writeExampleOutput(checkpointPath, evalset); err != nil {
+	if err := e.writeExampleOutput(checkpointPath, checkpoint, evalset); err != nil {
 		return err
 	}
 	if err := e.resultWriter.Close(); err != nil {
@@ -263,12 +262,12 @@ func (e *Evaluator) writeScoreOutput(path string, evalset *EvaluationSet) errors
 	return e.resultWriter.WriteScores(evalset)
 }
 
-func (e *Evaluator) writeExampleOutput(path string, evalset *EvaluationSet) errors.Error {
+func (e *Evaluator) writeExampleOutput(path string, checkpoint string, evalset *EvaluationSet) errors.Error {
 	examplesContexts, examples := evalset.GetExampleMethods()
 	if len(examplesContexts) == 0 {
 		return nil
 	}
-	generated, err := predictor.OnDataset(e.Dataset).GenerateMethods(examplesContexts)
+	generated, err := predictor.OnCheckpoint(e.Dataset, checkpoint).GenerateMethods(examplesContexts)
 	if err != nil {
 		return err
 	}
