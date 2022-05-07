@@ -11,11 +11,13 @@ import (
 	"returntypes-langserver/languageserver/diagnostics"
 	"returntypes-langserver/languageserver/lsp"
 	"returntypes-langserver/languageserver/workspace"
+	"returntypes-langserver/processing/dataset/methodgeneration"
 	"returntypes-langserver/services/predictor"
+	"strings"
 )
 
 const (
-	ReturnTypesConfigSection = "returntypesPredictor"
+	MethodGeneratorConfigSection = "methodGenerator"
 )
 
 type languageServer struct {
@@ -276,7 +278,7 @@ func (ls *languageServer) RecoverPredictor() {
 func (ls *languageServer) LoadConfiguration() chan errors.Error {
 	promise := make(chan errors.Error)
 	go func() {
-		promise <- ls.loadConfiguration(ReturnTypesConfigSection)
+		promise <- ls.loadConfiguration(MethodGeneratorConfigSection)
 	}()
 	return promise
 }
@@ -288,7 +290,7 @@ func (ls *languageServer) loadConfiguration(items ...string) errors.Error {
 	}
 	results, err := remote().GetConfiguration(lsp.MapConfigurationItems(items...))
 	for i, config := range results {
-		if items[i] == ReturnTypesConfigSection {
+		if items[i] == MethodGeneratorConfigSection {
 			if asJson, err := json.Marshal(config); err != nil {
 				configuration.LoadConfigFromJsonString(string(asJson))
 			}
@@ -301,7 +303,7 @@ func (ls *languageServer) loadConfiguration(items ...string) errors.Error {
 // This capability needs to be registered explicitly, otherwise there will be no notifications.
 func (ls *languageServer) RegisterDidChangeWorkspaceCapability() chan errors.Error {
 	return ls.RegisterCapability(lsp.NewRegistration(utils.NewUuid(), lsp.MethodWorkspace_DidChangeConfiguration, lsp.DidChangeConfigurationRegistrationOptions{
-		Section: []string{ReturnTypesConfigSection},
+		Section: []string{MethodGeneratorConfigSection},
 	}))
 }
 
@@ -328,19 +330,21 @@ func (ls *languageServer) CompleteMethodDefinition(method Method, doc *workspace
 	items := make([]lsp.CompletionItem, len(suggestions[0]))
 	for i, suggestion := range suggestions[0] {
 		// convert output to completion item & return it
-		parameterList := ls.createTextEdit(ls.joinParameterList(suggestion.Parameters), lsp.Range{
+		parameterList := methodgeneration.ConcatParametersToList(suggestion.Parameters)
+		parameterListTextEdit := ls.createTextEdit(parameterList, lsp.Range{
 			Start: doc.ToPosition(method.RoundBraces.Range.Start + 1),
 			End:   doc.ToPosition(method.RoundBraces.Range.End - 1),
 		})
 		if !method.Type.IsValid() && suggestion.ReturnType != "" {
 			// No return type provided: Insert return type before method name
-			returnType := ls.createTextEdit(suggestion.ReturnType+" ", lsp.Range{
+			returnType := methodgeneration.ConcatTypeName(strings.Split(suggestion.ReturnType, " "))
+			returnTypeTextEdit := ls.createTextEdit(returnType+" ", lsp.Range{
 				Start: doc.ToPosition(method.Name.Range.Start),
 				End:   doc.ToPosition(method.Name.Range.Start),
 			})
-			items[i] = ls.createCompletionItem(parameterList, returnType)
+			items[i] = ls.createCompletionItem(parameterListTextEdit, returnTypeTextEdit)
 		} else {
-			items[i] = ls.createCompletionItem(parameterList)
+			items[i] = ls.createCompletionItem(parameterListTextEdit)
 		}
 	}
 	return items, nil
@@ -348,7 +352,7 @@ func (ls *languageServer) CompleteMethodDefinition(method Method, doc *workspace
 
 func (ls *languageServer) generateParameterLists(method Method) ([][]predictor.MethodValues, errors.Error) {
 	// Generate parameter list
-	set, err := configuration.FindDatasetByReference(configuration.LanguageServerMethodGenerationDataset())
+	set, err := ls.findDataset(configuration.LanguageServerMethodGenerationDataset(), predictor.MethodGenerator)
 	if err != nil {
 		return nil, err
 	}
@@ -408,6 +412,33 @@ func (ls *languageServer) joinParameterList(value []predictor.Parameter) string 
 	return output
 }
 
+func (ls *languageServer) findDataset(datasetReference string, modelType predictor.SupportedModels) (configuration.Dataset, errors.Error) {
+	set, err := configuration.FindDatasetByReference(datasetReference)
+	if err != nil {
+		models, err := predictor.Global().GetModels(modelType)
+		if err != nil {
+			return set, err
+		}
+		for _, model := range models {
+			if model.ModelName == datasetReference {
+				return configuration.Dataset{
+					DatasetBase: configuration.DatasetBase{
+						NameRaw: datasetReference,
+						PreprocessingOptions: configuration.PreprocessingOptions{
+							SentenceFormatting: configuration.SentenceFormattingOptions(model.SentenceFormattingOptions),
+						},
+						ModelOptions: configuration.ModelOptions{
+							ModelType: model.ModelType,
+						},
+					},
+				}, nil
+			}
+		}
+		return set, err
+	}
+	return set, nil
+}
+
 // Logs a message to the default log output.
 // @ServiceGenerator:IgnoreMethod
 func (ls *languageServer) log(format string, args ...interface{}) {
@@ -415,7 +446,9 @@ func (ls *languageServer) log(format string, args ...interface{}) {
 }
 
 func (ls *languageServer) IsReturntypeValidationActive() bool {
-	return configuration.LanguageServerReturntypesDataset() != ""
+	//return configuration.LanguageServerReturntypesDataset() != ""
+	// No time to test returntype validation, therefore deactivated
+	return false
 }
 
 func (ls *languageServer) IsMethodGenerationActive() bool {

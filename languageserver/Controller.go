@@ -199,12 +199,12 @@ func (c *Controller) WorkspaceExecuteCommand(command string, arguments []interfa
 // Will be called by the language client if the user changed configuration settings.
 func (c *Controller) WorkspaceDidChangeConfiguration(settings interface{}) error {
 	if settingsMap, ok := settings.(map[string]interface{}); ok {
-		methodGeneratorModel, err := utils.GetNestedValueOfMap(settingsMap, ReturnTypesConfigSection+".languageServer.models.methodGenerator")
+		methodGeneratorModel, err := utils.GetNestedValueOfMap(settingsMap, MethodGeneratorConfigSection+".languageServer.models.methodGenerator")
 		if methodGeneratorModel == "" || err != nil {
-			err = utils.DeleteNestedFieldOfMap(settingsMap, ReturnTypesConfigSection+".languageServer")
+			err = utils.DeleteNestedFieldOfMap(settingsMap, MethodGeneratorConfigSection+".languageServer")
 		}
 
-		if asJson, err := json.Marshal(settingsMap[ReturnTypesConfigSection]); err != nil {
+		if asJson, err := json.Marshal(settingsMap[MethodGeneratorConfigSection]); err != nil {
 			log.Error(errors.Wrap(err, "Server error", "Could not parse client configuration"))
 		} else {
 			configuration.LoadConfigFromJsonString(string(asJson))

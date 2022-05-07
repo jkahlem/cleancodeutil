@@ -138,8 +138,9 @@ type LanguageServerModelConfiguration struct {
 var loadedConfig *configFile
 
 // Needs to be called in order to read the configuration's values
-func Load() errors.Error {
+func Load(isLangServ bool) errors.Error {
 	createDefaultConfig()
+	SetLangServMode(isLangServ)
 	initCommandLineArguments()
 	err := loadConfigFromFile()
 	loadCommandLineArguments()

@@ -43,6 +43,10 @@ func (c *ExcelSetConfiguration) fromFilePath(filePath string) error {
 	}
 	contents, err := os.ReadFile(AbsolutePathFromGoProjectDir(filePath))
 	if err != nil {
+		if IsLangServMode() {
+			// not relevant for language server
+			return nil
+		}
 		return err
 	}
 	return c.fromJson(contents)

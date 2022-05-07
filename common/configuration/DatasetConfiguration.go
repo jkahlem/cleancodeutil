@@ -128,6 +128,10 @@ func (c *DatasetConfiguration) fromFilePath(filePath string) error {
 	}
 	contents, err := os.ReadFile(AbsolutePathFromGoProjectDir(filePath))
 	if err != nil {
+		if IsLangServMode() {
+			// for language server, datasets can be loaded from predictor
+			return nil
+		}
 		return err
 	}
 	return c.fromJson(contents)

@@ -53,12 +53,19 @@ type Method struct {
 	Values  MethodValues  `json:"values"`
 }
 
+type SentenceFormattingOptions struct {
+	MethodName    bool `json:"methodName"`
+	TypeName      bool `json:"typeName"`
+	ParameterName bool `json:"parameterName"`
+}
+
 type Options struct {
-	Identifier   string          `json:"identifier"`
-	LabelsCsv    string          `json:"labels"`
-	Type         SupportedModels `json:"type"`
-	ModelOptions ModelOptions    `json:"modelOptions"`
-	Checkpoint   string          `json:"checkpoint"`
+	Identifier                string                    `json:"identifier"`
+	LabelsCsv                 string                    `json:"labels"`
+	Type                      SupportedModels           `json:"type"`
+	ModelOptions              ModelOptions              `json:"modelOptions"`
+	Checkpoint                string                    `json:"checkpoint"`
+	SentenceFormattingOptions SentenceFormattingOptions `json:"sentenceFormattingOptions"`
 }
 
 type ModelOptions struct {
@@ -101,6 +108,8 @@ type Adam struct {
 }
 
 type Model struct {
-	ModelName   string   `json:"modelName"`
-	Checkpoints []string `json:"checkpoints"`
+	ModelName                 string                    `json:"modelName"`
+	ModelType                 string                    `json:"modelType"`
+	Checkpoints               []string                  `json:"checkpoints"`
+	SentenceFormattingOptions SentenceFormattingOptions `json:"sentenceFormattingOptions"`
 }

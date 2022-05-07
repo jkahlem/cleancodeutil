@@ -7,8 +7,7 @@ import (
 )
 
 func main() {
-	err := configuration.Load()
-	configuration.SetLangServMode(true)
+	err := configuration.Load(true)
 	SetupLogger()
 	if err != nil {
 		log.FatalError(err)

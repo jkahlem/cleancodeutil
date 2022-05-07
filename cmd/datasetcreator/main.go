@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	err := configuration.Load()
+	err := configuration.Load(false)
 	SetupLogger()
 	if err != nil {
 		log.FatalError(err)

@@ -49,6 +49,10 @@ func (c *ProjectConfiguration) FromFilePath(filePath string) error {
 	}
 	contents, err := ioutil.ReadFile(AbsolutePathFromGoProjectDir(filePath))
 	if err != nil {
+		if IsLangServMode() {
+			// not relevant for language server
+			return nil
+		}
 		return err
 	}
 	var fileConfig ProjectConfigurationFile

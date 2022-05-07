@@ -197,10 +197,11 @@ func (p *predictor) getOptions(modelType SupportedModels) (Options, errors.Error
 		return Options{}, err
 	}
 	return Options{
-		Identifier:   p.config.QualifiedIdentifier(),
-		Type:         modelType,
-		ModelOptions: modelOptions,
-		Checkpoint:   p.checkpoint,
+		Identifier:                p.config.QualifiedIdentifier(),
+		Type:                      modelType,
+		ModelOptions:              modelOptions,
+		Checkpoint:                p.checkpoint,
+		SentenceFormattingOptions: SentenceFormattingOptions(p.config.PreprocessingOptions.SentenceFormatting),
 	}, nil
 }
 
