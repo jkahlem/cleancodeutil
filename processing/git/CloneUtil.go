@@ -21,7 +21,7 @@ func CloneRepositories(repositories []RepositoryDefinition) errors.Error {
 
 	for _, repository := range repositories {
 		if cloned, err := isAlreadyClonedRepository(repository.DirName); err != nil {
-			log.ReportProblemWithError(err, "Skipped cloning %s because an error occured", repository.DirName)
+			log.ReportProblemWithError(err, "Skipped cloning %s because an error occured\n", repository.DirName)
 			continue
 		} else if cloned {
 			continue
@@ -29,7 +29,7 @@ func CloneRepositories(repositories []RepositoryDefinition) errors.Error {
 
 		log.Info("Clone repository at %s as %s\n", repository.Url, repository.DirName)
 		if err := CloneRepository(repository); err != nil {
-			log.ReportProblemWithError(err, "Skipped cloning %s because an error occured", repository.DirName)
+			log.ReportProblemWithError(err, "Skipped cloning %s because an error occured\n", repository.DirName)
 			continue
 		}
 	}

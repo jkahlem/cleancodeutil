@@ -7,6 +7,7 @@ import (
 	"returntypes-langserver/common/configuration"
 	"returntypes-langserver/common/dataformat/csv"
 	"returntypes-langserver/common/debug/errors"
+	"returntypes-langserver/common/debug/log"
 	"returntypes-langserver/common/utils"
 	"returntypes-langserver/processing/dataset/base"
 	"returntypes-langserver/processing/dataset/methodgeneration"
@@ -15,6 +16,11 @@ import (
 
 // Creates a training and an evaluation set.
 func CreateTrainingAndEvaluationSet(modelType configuration.ModelType, methodsWithReturnTypesPath, classHierarchyPath string) errors.Error {
+	if len(configuration.Datasets()) == 0 {
+		log.Info("There are no datasets defined in the configuration, therefore no datasets will be created and no model will be trained.\n")
+		return nil
+	}
+
 	if methods, classes, err := loadMethodsAndClasses(methodsWithReturnTypesPath, classHierarchyPath); err != nil {
 		return err
 	} else {

@@ -80,7 +80,7 @@ func (c *CommandLineCloner) displayGitProgressReports(reader io.Reader) {
 		}
 		if err != nil && err != os.ErrClosed {
 			fmt.Print("\n")
-			log.Error(errors.Wrap(err, "Error", "error"))
+			log.Error(errors.Wrap(err, "Error", "An unexpected error occured during clone process"))
 			break
 		}
 		time.Sleep(500 * time.Millisecond)

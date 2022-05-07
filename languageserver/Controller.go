@@ -200,10 +200,9 @@ func (c *Controller) WorkspaceExecuteCommand(command string, arguments []interfa
 // Will be called by the language client if the user changed configuration settings.
 func (c *Controller) WorkspaceDidChangeConfiguration(settings interface{}) error {
 	if settingsMap, ok := settings.(map[string]interface{}); ok {
-		methodGeneratorModel, err := utils.GetNestedValueOfMap(settingsMap, MethodGeneratorConfigSection+".languageServer.models.methodGenerator")
-		if methodGeneratorModel == "" || err != nil {
-			utils.DeleteNestedFieldOfMap(settingsMap, MethodGeneratorConfigSection+".languageServer")
-		}
+		c.removeFieldIfEmpty(settingsMap, "languageServer.models.methodGenerator", "languageServer")
+		c.removeFieldIfEmpty(settingsMap, "predictor.port", "predictor.port")
+		c.removeFieldIfEmpty(settingsMap, "predictor.host", "predictor.host")
 
 		port, err := utils.GetNestedValueOfMap(settingsMap, MethodGeneratorConfigSection+".predictor.port")
 		if err == nil {
@@ -229,6 +228,13 @@ func (c *Controller) WorkspaceDidChangeConfiguration(settings interface{}) error
 
 	}
 	return nil
+}
+
+func (c *Controller) removeFieldIfEmpty(settingsMap map[string]interface{}, valueKey, keyToRemove string) {
+	value, err := utils.GetNestedValueOfMap(settingsMap, MethodGeneratorConfigSection+"."+valueKey)
+	if value == "" || err != nil {
+		utils.DeleteNestedFieldOfMap(settingsMap, MethodGeneratorConfigSection+"."+keyToRemove)
+	}
 }
 
 // Callable RPC method.

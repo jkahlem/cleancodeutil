@@ -68,17 +68,17 @@ func (extractor *Extractor) loadJavaFilesFromXMLFiles(inputFiles []string) {
 		progress.Increment()
 
 		if !utils.FileExists(path) {
-			log.Info("XML file under %s not found.", path)
+			log.Info("XML file under %s not found.\n", path)
 			continue
 		}
 		extractor.err = nil
 
 		xmlroot := extractor.loadJavaFilesFromXMLFile(path)
 		if extractor.err != nil {
-			log.ReportProblemWithError(extractor.err, "Could not load code information for %s", path)
+			log.ReportProblemWithError(extractor.err, "Could not load code information for %s\n", path)
 		} else if xmlroot == nil {
 			err := errors.New("Error", "No code information available")
-			log.ReportProblemWithError(err, "No code information available for %s", path)
+			log.ReportProblemWithError(err, "No code information available for %s\n", path)
 		}
 
 		extractor.loadFilesToPackageTree(xmlroot)
